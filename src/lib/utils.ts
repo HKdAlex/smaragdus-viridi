@@ -20,8 +20,8 @@ export function formatPrice(
     style: "currency",
     currency: currency,
     minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  }).format(amount / 100) // Convert from cents to dollars
+    maximumFractionDigits: 0,
+  }).format(amount / 100) // Convert from smallest unit
 }
 
 /**
@@ -63,5 +63,43 @@ export function validateEnv() {
     throw new Error(
       `Missing required environment variables: ${missing.join(', ')}`
     )
+  }
+}
+
+export function formatCarat(weight: number): string {
+  return `${weight.toFixed(2)}ct`
+}
+
+export function formatDimensions(
+  length: number,
+  width: number,
+  depth: number
+): string {
+  return `${length} × ${width} × ${depth} mm`
+}
+
+export function generateSerialNumber(): string {
+  const prefix = 'SV'
+  const timestamp = Date.now().toString(36).toUpperCase()
+  const random = Math.random().toString(36).substr(2, 4).toUpperCase()
+  return `${prefix}${timestamp}${random}`
+}
+
+export function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
+export function debounce<T extends (...args: unknown[]) => unknown>(
+  func: T,
+  delay: number
+): (...args: Parameters<T>) => void {
+  let timeoutId: NodeJS.Timeout
+  return (...args: Parameters<T>) => {
+    clearTimeout(timeoutId)
+    timeoutId = setTimeout(() => func(...args), delay)
   }
 }

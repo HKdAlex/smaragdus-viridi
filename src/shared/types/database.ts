@@ -6,160 +6,33 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-export type Database = {
+export interface Database {
   public: {
     Tables: {
+      user_profiles: {
+        Row: UserProfile
+        Insert: Omit<UserProfile, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<UserProfile, 'id' | 'created_at'>>
+      }
       gemstones: {
-        Row: {
-          clarity: Database["public"]["Enums"]["gem_clarity"]
-          color: Database["public"]["Enums"]["gem_color"]
-          created_at: string | null
-          cut: Database["public"]["Enums"]["gem_cut"]
-          delivery_days: number | null
-          depth_mm: number
-          id: string
-          in_stock: boolean | null
-          internal_code: string | null
-          length_mm: number
-          name: Database["public"]["Enums"]["gemstone_type"]
-          origin_id: string | null
-          premium_price_amount: number | null
-          premium_price_currency:
-            | Database["public"]["Enums"]["currency_code"]
-            | null
-          price_amount: number
-          price_currency: Database["public"]["Enums"]["currency_code"]
-          serial_number: string
-          updated_at: string | null
-          weight_carats: number
-          width_mm: number
-        }
-        Insert: {
-          clarity: Database["public"]["Enums"]["gem_clarity"]
-          color: Database["public"]["Enums"]["gem_color"]
-          created_at?: string | null
-          cut: Database["public"]["Enums"]["gem_cut"]
-          delivery_days?: number | null
-          depth_mm: number
-          id?: string
-          in_stock?: boolean | null
-          internal_code?: string | null
-          length_mm: number
-          name: Database["public"]["Enums"]["gemstone_type"]
-          origin_id?: string | null
-          premium_price_amount?: number | null
-          premium_price_currency?:
-            | Database["public"]["Enums"]["currency_code"]
-            | null
-          price_amount: number
-          price_currency: Database["public"]["Enums"]["currency_code"]
-          serial_number: string
-          updated_at?: string | null
-          weight_carats: number
-          width_mm: number
-        }
-        Update: {
-          clarity?: Database["public"]["Enums"]["gem_clarity"]
-          color?: Database["public"]["Enums"]["gem_color"]
-          created_at?: string | null
-          cut?: Database["public"]["Enums"]["gem_cut"]
-          delivery_days?: number | null
-          depth_mm?: number
-          id?: string
-          in_stock?: boolean | null
-          internal_code?: string | null
-          length_mm?: number
-          name?: Database["public"]["Enums"]["gemstone_type"]
-          origin_id?: string | null
-          premium_price_amount?: number | null
-          premium_price_currency?:
-            | Database["public"]["Enums"]["currency_code"]
-            | null
-          price_amount?: number
-          price_currency?: Database["public"]["Enums"]["currency_code"]
-          serial_number?: string
-          updated_at?: string | null
-          weight_carats?: number
-          width_mm?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "gemstones_origin_id_fkey"
-            columns: ["origin_id"]
-            isOneToOne: false
-            referencedRelation: "origins"
-            referencedColumns: ["id"]
-          },
-        ]
+        Row: Gemstone
+        Insert: Omit<Gemstone, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<Gemstone, 'id' | 'created_at'>>
       }
       origins: {
-        Row: {
-          country: string
-          created_at: string | null
-          id: string
-          mine_name: string | null
-          name: string
-          region: string | null
-        }
-        Insert: {
-          country: string
-          created_at?: string | null
-          id?: string
-          mine_name?: string | null
-          name: string
-          region?: string | null
-        }
-        Update: {
-          country?: string
-          created_at?: string | null
-          id?: string
-          mine_name?: string | null
-          name?: string
-          region?: string | null
-        }
-        Relationships: []
+        Row: Origin
+        Insert: Omit<Origin, 'id' | 'created_at'>
+        Update: Partial<Omit<Origin, 'id'>>
       }
-      user_profiles: {
-        Row: {
-          created_at: string | null
-          discount_percentage: number | null
-          id: string
-          name: string
-          phone: string | null
-          preferred_currency:
-            | Database["public"]["Enums"]["currency_code"]
-            | null
-          role: Database["public"]["Enums"]["user_role"] | null
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          discount_percentage?: number | null
-          id?: string
-          name: string
-          phone?: string | null
-          preferred_currency?:
-            | Database["public"]["Enums"]["currency_code"]
-            | null
-          role?: Database["public"]["Enums"]["user_role"] | null
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          created_at?: string | null
-          discount_percentage?: number | null
-          id?: string
-          name?: string
-          phone?: string | null
-          preferred_currency?:
-            | Database["public"]["Enums"]["currency_code"]
-            | null
-          role?: Database["public"]["Enums"]["user_role"] | null
-          updated_at?: string | null
-          user_id?: string
-        }
-        Relationships: []
+      gemstone_images: {
+        Row: GemstoneImage
+        Insert: Omit<GemstoneImage, 'id' | 'created_at'>
+        Update: Partial<Omit<GemstoneImage, 'id'>>
+      }
+      gemstone_videos: {
+        Row: GemstoneVideo
+        Insert: Omit<GemstoneVideo, 'id' | 'created_at'>
+        Update: Partial<Omit<GemstoneVideo, 'id'>>
       }
     }
     Views: {
@@ -169,67 +42,126 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      currency_code: "USD" | "EUR" | "GBP" | "RUB" | "CHF" | "JPY"
-      gem_clarity:
-        | "FL"
-        | "IF"
-        | "VVS1"
-        | "VVS2"
-        | "VS1"
-        | "VS2"
-        | "SI1"
-        | "SI2"
-        | "I1"
-      gem_color:
-        | "red"
-        | "blue"
-        | "green"
-        | "yellow"
-        | "pink"
-        | "white"
-        | "black"
-        | "colorless"
-        | "D"
-        | "E"
-        | "F"
-        | "G"
-        | "H"
-        | "I"
-        | "J"
-        | "K"
-        | "L"
-        | "M"
-        | "fancy-yellow"
-        | "fancy-blue"
-        | "fancy-pink"
-        | "fancy-green"
-      gem_cut:
-        | "round"
-        | "oval"
-        | "marquise"
-        | "pear"
-        | "emerald"
-        | "princess"
-        | "cushion"
-        | "radiant"
-        | "fantasy"
-      gemstone_type:
-        | "diamond"
-        | "emerald"
-        | "ruby"
-        | "sapphire"
-        | "amethyst"
-        | "topaz"
-        | "garnet"
-        | "peridot"
-        | "citrine"
-        | "tanzanite"
-      user_role: "admin" | "regular_customer" | "premium_customer" | "guest"
+      gem_color: GemColor
+      gem_cut: GemCut
+      gem_clarity: GemClarity
+      gemstone_type: GemstoneType
+      currency_code: CurrencyCode
+      user_role: UserRole
     }
     CompositeTypes: {
       [_ in never]: never
     }
   }
+}
+
+export type GemstoneType = 
+  | 'diamond' 
+  | 'emerald' 
+  | 'ruby' 
+  | 'sapphire' 
+  | 'amethyst' 
+  | 'topaz' 
+  | 'garnet'
+  | 'peridot'
+  | 'citrine'
+  | 'tanzanite'
+
+export type GemColor =
+  | 'red'
+  | 'blue' 
+  | 'green'
+  | 'yellow'
+  | 'pink'
+  | 'white'
+  | 'black'
+  | 'colorless'
+  | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J' | 'K' | 'L' | 'M'
+  | 'fancy-yellow' 
+  | 'fancy-blue' 
+  | 'fancy-pink'
+  | 'fancy-green'
+
+export type GemCut =
+  | 'round'
+  | 'oval'
+  | 'marquise'
+  | 'pear'
+  | 'emerald'
+  | 'princess'
+  | 'cushion'
+  | 'radiant'
+  | 'fantasy'
+
+export type GemClarity = 
+  | 'FL' | 'IF' | 'VVS1' | 'VVS2' | 'VS1' | 'VS2' | 'SI1' | 'SI2' | 'I1'
+
+export type CurrencyCode = 'USD' | 'EUR' | 'GBP' | 'RUB' | 'CHF' | 'JPY'
+
+export type UserRole = 'admin' | 'regular_customer' | 'premium_customer' | 'guest'
+
+export interface UserProfile {
+  id: string
+  user_id: string
+  name: string
+  phone: string
+  role: UserRole
+  discount_percentage: number
+  preferred_currency: CurrencyCode
+  created_at: string
+  updated_at: string
+}
+
+export interface Origin {
+  id: string
+  name: string
+  country: string
+  region?: string
+  mine_name?: string
+  created_at: string
+}
+
+export interface Gemstone {
+  id: string
+  name: GemstoneType
+  weight_carats: number
+  length_mm: number
+  width_mm: number
+  depth_mm: number
+  color: GemColor
+  cut: GemCut
+  clarity: GemClarity
+  origin_id?: string
+  price_amount: number
+  price_currency: CurrencyCode
+  premium_price_amount?: number
+  premium_price_currency?: CurrencyCode
+  in_stock: boolean
+  delivery_days: number
+  internal_code?: string
+  serial_number: string
+  created_at: string
+  updated_at: string
+}
+
+export interface GemstoneImage {
+  id: string
+  gemstone_id: string
+  image_url: string
+  image_order: number
+  is_primary: boolean
+  has_watermark: boolean
+  created_at: string
+}
+
+export interface GemstoneVideo {
+  id: string
+  gemstone_id: string
+  video_url: string
+  video_order: number
+  duration_seconds?: number
+  thumbnail_url?: string
+  created_at: string
 }
 
 type DefaultSchema = Database[Extract<keyof Database, "public">]
