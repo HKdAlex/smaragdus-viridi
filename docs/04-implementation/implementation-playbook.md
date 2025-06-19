@@ -42,7 +42,7 @@ npx create-next-app@latest smaragdus-viridi --typescript --tailwind --eslint --a
 cd smaragdus-viridi
 
 # 3. Install additional dependencies
-npm install @supabase/supabase-js @supabase/auth-helpers-nextjs
+npm install @supabase/supabase-js @supabase/ssr
 npm install zod react-hook-form @hookform/resolvers
 npm install lucide-react class-variance-authority clsx tailwind-merge
 npm install @radix-ui/react-slot @radix-ui/react-dialog @radix-ui/react-dropdown-menu

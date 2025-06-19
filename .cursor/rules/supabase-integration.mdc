@@ -37,18 +37,57 @@ The gemstone e-commerce platform uses Supabase PostgreSQL with the following cor
 - `chat_messages` - Real-time customer support
 - `gemstone_images` / `gemstone_videos` - Media files
 
-## Authentication Patterns
-- Use Supabase Auth with email/password and OAuth (Google, VK, Telegram)
-- Role-based access: `guest`, `user`, `VIP`, `admin`
+## Authentication Patterns with @supabase/ssr (REQUIRED)
+
+**CRITICAL: Use @supabase/ssr package, NOT deprecated auth-helpers**
+
+### Current Supabase Client Setup (2025):
+```typescript
+// lib/supabase.ts
+import { createClient } from '@supabase/supabase-js'
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
+
+// Client-side Supabase client
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+
+// Server-side Supabase client for use in Server Components and Route Handlers
+export const createServerSupabaseClient = async () => {
+  const cookieStore = await cookies()
+
+  return createServerClient(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      getAll() {
+        return cookieStore.getAll()
+      },
+      setAll(cookiesToSet) {
+        try {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            cookieStore.set(name, value, options)
+          )
+        } catch {
+          // The `setAll` method was called from a Server Component.
+          // This can be ignored if you have middleware refreshing
+          // user sessions.
+        }
+      },
+    },
+  })
+}
+```
+
+### Role-based Access:
+- `guest`, `regular_customer`, `premium_customer`, `admin`
 - Implement proper session management for gemstone transactions
 
+### Auth Hook Pattern:
 ```typescript
-// Auth hook example
+// features/auth/hooks/use-auth.ts
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null)
   const [role, setRole] = useState<UserRole>('guest')
   
-  // Auth state management
+  // Auth state management with @supabase/ssr
 }
 ```
 

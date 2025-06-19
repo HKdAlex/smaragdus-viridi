@@ -1,0 +1,156 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# 🚨 Development Lessons Learned - Smaragdus Viridi
+
+## CRITICAL ISSUES DOCUMENTED (January 2025)
+
+### 🔥 **Issue 1: Supabase Auth Package Deprecation**
+
+**Problem:** The implementation playbook referenced `@supabase/auth-helpers-nextjs` which is deprecated as of 2025.
+
+**Solution:** Always use `@supabase/ssr` for Next.js 15 integration.
+
+**Updated Dependencies:**
+```bash
+# ❌ WRONG (Deprecated)
+npm install @supabase/auth-helpers-nextjs
+
+# ✅ CORRECT (Current)
+npm install @supabase/ssr
+```
+
+**Updated Client Setup:**
+```typescript
+// lib/supabase.ts - CURRENT PATTERN (2025)
+import { createClient } from '@supabase/supabase-js'
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
+
+// Client-side Supabase client
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+
+// Server-side Supabase client for Server Components
+export const createServerSupabaseClient = async () => {
+  const cookieStore = await cookies()
+  
+  return createServerClient(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      getAll() {
+        return cookieStore.getAll()
+      },
+      setAll(cookiesToSet) {
+        try {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            cookieStore.set(name, value, options)
+          )
+        } catch {
+          // Server Component context - can be ignored
+        }
+      },
+    },
+  })
+}
+```
+
+### 🔥 **Issue 2: Incorrect Project Structure**
+
+**Problem:** Created Next.js project inside existing directory, causing nested structure:
+- ❌ `/smaragdus_viridi/smaragdus-viridi/` (double nesting)
+- ✅ `/smaragdus_viridi/` (correct)
+
+**Prevention:** When using `create-next-app` in existing directory:
+1. Either create project elsewhere and move files up
+2. Or use `npx create-next-app@latest .` to create in current directory
+
+### 🔥 **Issue 3: Context7 MCP Tool Usage**
+
+**CRITICAL:** Always emphasize and prioritize Context7 MCP tool usage for documentation and API reference.
+
+**Required Pattern:**
+```typescript
+// When you need documentation for libraries
+// 1. First resolve library ID
+mcp_context7_resolve-library-id({ libraryName: "nextjs" })
+
+// 2. Then get documentation
+mcp_context7_get-library-docs({ 
+  context7CompatibleLibraryID: "vercel/nextjs",
+  topic: "async params"
+})
+```
+
+**Integration Priority:**
+1. **Context7 MCP** - For API documentation and patterns
+2. **Supabase MCP** - For database operations  
+3. **Web search** - Only as last resort
+
+### 🔥 **Issue 4: Next.js 15 Async Params Requirement**
+
+**CRITICAL:** Never forget that params must be awaited in Next.js 15
+
+**Required Pattern:**
+```typescript
+// ❌ WRONG (Next.js 14 and earlier)
+export default function Page({ params }: { params: { id: string } }) {
+  const { id } = params // Direct destructuring
+}
+
+// ✅ CORRECT (Next.js 15)
+export default async function Page({ 
+  params 
+}: { 
+  params: Promise<{ id: string }> 
+}) {
+  const { id } = await params // Must await!
+}
+
+// Also applies to generateMetadata
+export async function generateMetadata({ params }: PageProps) {
+  const { id } = await params // Must await here too!
+}
+```
+
+## 🛡️ **Prevention Rules**
+
+### 1. **Always Check Package Deprecation**
+- When following any implementation guide, verify current package versions
+- Check npm deprecation warnings during installation
+- Update rules immediately when deprecated packages are found
+
+### 2. **Verify Directory Structure**
+- Always `pwd` and `ls -la` before major operations
+- Double-check project structure matches expected layout
+- Test builds immediately after structural changes
+
+### 3. **Context7 MCP First**
+- Before writing any code for external libraries, check Context7 MCP
+- Get latest API patterns and documentation
+- Only use outdated documentation as fallback
+
+### 4. **Next.js Version-Specific Patterns**
+- Always check Next.js version and apply version-specific patterns
+- Test async/await requirements in development
+- Use TypeScript to catch param type mismatches early
+
+## 📋 **Updated Development Checklist**
+
+Before starting any feature:
+- [ ] Verify all package versions are current (not deprecated)
+- [ ] Check directory structure is correct (`pwd`, `ls -la`)
+- [ ] Use Context7 MCP for library documentation
+- [ ] Apply Next.js 15 async patterns for params
+- [ ] Test build after each major change (`npm run build`)
+
+## 🔄 **Rules Update Protocol**
+
+When similar issues are discovered:
+1. **Document immediately** in this file
+2. **Update relevant rule files** with current patterns  
+3. **Test the fix** thoroughly
+4. **Add to prevention checklist**
+
+**Last Updated:** January 19, 2025
+**Version:** 1.0 - Initial documentation of setup issues
