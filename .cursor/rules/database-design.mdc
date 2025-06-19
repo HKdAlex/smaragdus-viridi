@@ -1,0 +1,324 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Database Design - Smaragdus Viridi
+
+## Schema Overview
+The gemstone e-commerce platform uses PostgreSQL via Supabase with a focus on gemstone properties, user management, and order processing.
+
+## MANDATORY: Normalized Gemstone Schema
+
+### ❌ FORBIDDEN: JSONB for structured gemstone data
+```sql
+-- Don't do this:
+-- gemstone_attributes JSONB, -- Bad!
+-- media_files JSONB, -- Bad!
+-- pricing_data JSONB -- Bad!
+```
+
+### ✅ CORRECT: Separate tables for complex relationships
+```sql
+CREATE TYPE gem_color AS ENUM (
+  'red', 'blue', 'green', 'yellow', 'pink', 'white', 'black', 'colorless',
+  'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+  'fancy-yellow', 'fancy-blue', 'fancy-pink', 'fancy-green'
+);
+
+CREATE TYPE gem_cut AS ENUM (
+  'round', 'oval', 'marquise', 'pear', 'emerald', 'princess', 
+  'cushion', 'radiant', 'fantasy'
+);
+
+CREATE TYPE gem_clarity AS ENUM (
+  'FL', 'IF', 'VVS1', 'VVS2', 'VS1', 'VS2', 'SI1', 'SI2', 'I1'
+);
+
+CREATE TYPE gemstone_type AS ENUM (
+  'diamond', 'emerald', 'ruby', 'sapphire', 'amethyst', 'topaz', 
+  'garnet', 'peridot', 'citrine', 'tanzanite'
+);
+
+CREATE TYPE currency_code AS ENUM ('USD', 'EUR', 'GBP', 'RUB', 'CHF', 'JPY');
+
+CREATE TABLE gemstones (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name gemstone_type NOT NULL,
+  weight_carats DECIMAL(8,3) NOT NULL,
+  length_mm DECIMAL(6,2) NOT NULL,
+  width_mm DECIMAL(6,2) NOT NULL,
+  depth_mm DECIMAL(6,2) NOT NULL,
+  color gem_color NOT NULL,
+  cut gem_cut NOT NULL,
+  clarity gem_clarity NOT NULL,
+  origin_id UUID REFERENCES origins(id),
+  price_amount INTEGER NOT NULL, -- store in smallest currency unit
+  price_currency currency_code NOT NULL,
+  premium_price_amount INTEGER, -- for premium customers
+  premium_price_currency currency_code,
+  in_stock BOOLEAN DEFAULT TRUE,
+  delivery_days INTEGER,
+  internal_code TEXT UNIQUE, -- for admin identification
+  serial_number TEXT UNIQUE NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE origins (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL UNIQUE,
+  country TEXT NOT NULL,
+  region TEXT,
+  mine_name TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+### User Roles & Permissions
+```sql
+CREATE TYPE user_role AS ENUM ('admin', 'regular_customer', 'premium_customer', 'guest');
+
+CREATE TABLE user_profiles (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id),
+  name TEXT NOT NULL,
+  phone TEXT NOT NULL,
+  role user_role DEFAULT 'regular_customer',
+  discount_percentage DECIMAL(5,2) DEFAULT 0, -- for premium customers
+  preferred_currency currency_code DEFAULT 'USD',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+### orders
+```sql
+CREATE TABLE orders (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  status order_status_enum DEFAULT 'pending',
+  delivery_address JSONB,
+  payment_type payment_type_enum,
+  total_amount DECIMAL(10,2) NOT NULL,
+  currency_code TEXT DEFAULT 'USD',
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+### order_items
+```sql
+CREATE TABLE order_items (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  order_id UUID REFERENCES orders(id) ON DELETE CASCADE,
+  stone_id UUID REFERENCES stones(id) ON DELETE RESTRICT,
+  quantity INTEGER DEFAULT 1,
+  unit_price DECIMAL(10,2) NOT NULL,
+  line_total DECIMAL(10,2) NOT NULL
+);
+```
+
+## Enums
+```sql
+-- Stone properties
+CREATE TYPE stone_cut_enum AS ENUM (
+  'round', 'princess', 'emerald', 'oval', 'marquise', 
+  'pear', 'cushion', 'radiant', 'asscher', 'heart'
+);
+
+CREATE TYPE stone_color_enum AS ENUM (
+  'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+  'fancy-yellow', 'fancy-blue', 'fancy-pink', 'fancy-green'
+);
+
+CREATE TYPE stone_clarity_enum AS ENUM (
+  'FL', 'IF', 'VVS1', 'VVS2', 'VS1', 'VS2', 'SI1', 'SI2', 'I1'
+);
+
+-- User and order management
+CREATE TYPE user_role_enum AS ENUM ('guest', 'user', 'VIP', 'admin');
+CREATE TYPE order_status_enum AS ENUM ('pending', 'confirmed', 'shipped', 'delivered', 'cancelled');
+CREATE TYPE payment_type_enum AS ENUM ('bank_transfer', 'crypto', 'cash', 'stripe');
+```
+
+## Indexes for Performance
+```sql
+-- Stone catalog filtering
+CREATE INDEX idx_stones_available ON stones(available);
+CREATE INDEX idx_stones_cut ON stones(cut);
+CREATE INDEX idx_stones_color ON stones(color);
+CREATE INDEX idx_stones_price ON stones(price_regular);
+CREATE INDEX idx_stones_weight ON stones(weight);
+CREATE INDEX idx_stones_created_at ON stones(created_at DESC);
+
+-- Composite indexes for common filter combinations
+CREATE INDEX idx_stones_available_cut_color ON stones(available, cut, color);
+CREATE INDEX idx_stones_price_weight ON stones(price_regular, weight);
+
+-- User and order indexes
+CREATE INDEX idx_orders_user_id ON orders(user_id);
+CREATE INDEX idx_orders_status ON orders(status);
+CREATE INDEX idx_order_items_order_id ON order_items(order_id);
+CREATE INDEX idx_order_items_stone_id ON order_items(stone_id);
+```
+
+## Row Level Security (RLS)
+```sql
+-- Enable RLS
+ALTER TABLE stones ENABLE ROW LEVEL SECURITY;
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
+ALTER TABLE order_items ENABLE ROW LEVEL SECURITY;
+
+-- Stone policies (public read, admin write)
+CREATE POLICY "Stones viewable by all" ON stones
+  FOR SELECT USING (true);
+
+CREATE POLICY "Stones manageable by admin" ON stones
+  FOR ALL USING (
+    EXISTS (
+      SELECT 1 FROM users 
+      WHERE users.id = auth.uid() 
+      AND users.role = 'admin'
+    )
+  );
+
+-- User policies (users see own data)
+CREATE POLICY "Users see own profile" ON users
+  FOR SELECT USING (auth.uid() = id);
+
+CREATE POLICY "Users update own profile" ON users
+  FOR UPDATE USING (auth.uid() = id);
+
+-- Order policies
+CREATE POLICY "Users see own orders" ON orders
+  FOR SELECT USING (
+    auth.uid() = user_id OR 
+    EXISTS (
+      SELECT 1 FROM users 
+      WHERE users.id = auth.uid() 
+      AND users.role = 'admin'
+    )
+  );
+```
+
+## Triggers and Functions
+```sql
+-- Auto-update timestamps
+CREATE OR REPLACE FUNCTION update_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_stones_updated_at
+  BEFORE UPDATE ON stones
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+-- Calculate order totals
+CREATE OR REPLACE FUNCTION calculate_order_total()
+RETURNS TRIGGER AS $$
+BEGIN
+  UPDATE orders 
+  SET total_amount = (
+    SELECT COALESCE(SUM(line_total), 0)
+    FROM order_items 
+    WHERE order_id = NEW.order_id
+  )
+  WHERE id = NEW.order_id;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_order_total
+  AFTER INSERT OR UPDATE OR DELETE ON order_items
+  FOR EACH ROW EXECUTE FUNCTION calculate_order_total();
+```
+
+## Supporting Tables
+```sql
+-- Favorites functionality
+CREATE TABLE favorites (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  stone_id UUID REFERENCES stones(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(user_id, stone_id)
+);
+
+-- Shopping cart
+CREATE TABLE cart_items (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  stone_id UUID REFERENCES stones(id) ON DELETE CASCADE,
+  quantity INTEGER DEFAULT 1,
+  added_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(user_id, stone_id)
+);
+
+-- Separate tables for different media types (better performance)
+CREATE TABLE gemstone_images (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  gemstone_id UUID NOT NULL REFERENCES gemstones(id) ON DELETE CASCADE,
+  image_url TEXT NOT NULL,
+  image_order INTEGER NOT NULL,
+  is_primary BOOLEAN DEFAULT FALSE,
+  has_watermark BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE gemstone_videos (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  gemstone_id UUID NOT NULL REFERENCES gemstones(id) ON DELETE CASCADE,
+  video_url TEXT NOT NULL,
+  video_order INTEGER NOT NULL,
+  duration_seconds INTEGER,
+  thumbnail_url TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE certifications (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  gemstone_id UUID NOT NULL REFERENCES gemstones(id) ON DELETE CASCADE,
+  certificate_type TEXT NOT NULL, -- 'GIA', 'Gübelin', 'SSEF', 'AGS'
+  certificate_number TEXT,
+  certificate_url TEXT, -- Link to certificate image/PDF
+  issued_date DATE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Currency conversion rates
+CREATE TABLE currency_rates (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  base_currency TEXT NOT NULL,
+  target_currency TEXT NOT NULL,
+  rate DECIMAL(15,8) NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(base_currency, target_currency)
+);
+
+-- Chat messages
+CREATE TABLE chat_messages (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  sender_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  receiver_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  message TEXT NOT NULL,
+  file_url TEXT,
+  is_read BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+## Best Practices
+- Use UUIDs for all primary keys for better distribution
+- Implement proper foreign key constraints with CASCADE/RESTRICT as appropriate
+- Use JSONB for flexible data that doesn't need individual column indexes
+- Leverage PostgreSQL enums for controlled vocabulary
+- Always include created_at and updated_at timestamps
+- Use appropriate decimal precision for monetary values
+- Implement database-level constraints for business rules
+- Use partial indexes for conditional queries (e.g., WHERE available = true)

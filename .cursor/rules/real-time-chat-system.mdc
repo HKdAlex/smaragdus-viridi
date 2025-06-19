@@ -1,0 +1,621 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Real-Time Chat System - Smaragdus Viridi
+
+## Chat with Supabase Realtime
+
+### Core Chat Hook
+```typescript
+// features/chat/hooks/use-chat.ts
+"use client"
+
+import { useState, useEffect, useCallback } from 'react'
+import { createClient } from '@/lib/supabase/client'
+import { Logger } from '@/shared/utils/logger'
+
+interface ChatMessage {
+  id: string
+  user_id: string
+  content: string
+  attachments?: string[]
+  sender_type: 'user' | 'admin'
+  is_auto_response?: boolean
+  created_at: string
+}
+
+export function useChat(userId?: string) {
+  const [messages, setMessages] = useState<ChatMessage[]>([])
+  const [isTyping, setIsTyping] = useState(false)
+  const [isConnected, setIsConnected] = useState(false)
+  const [isAdminOnline, setIsAdminOnline] = useState(false)
+
+  const supabase = createClient()
+  const logger = new Logger('chat')
+
+  useEffect(() => {
+    if (!userId) return
+
+    // Fetch existing messages
+    supabase
+      .from('chat_messages')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: true })
+      .then(({ data }) => {
+        if (data) {
+          setMessages(data)
+          logger.info('Chat history loaded', {
+            userId,
+            messageCount: data.length
+          })
+        }
+      })
+
+    // Subscribe to new messages
+    const subscription = supabase
+      .channel(`chat-${userId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'chat_messages',
+          filter: `user_id=eq.${userId}`,
+        },
+        (payload) => {
+          const newMessage = payload.new as ChatMessage
+          setMessages((prev) => [...prev, newMessage])
+          
+          logger.info('New chat message received', {
+            messageId: newMessage.id,
+            senderType: newMessage.sender_type,
+            userId: newMessage.user_id
+          })
+        }
+      )
+      .on('presence', { event: 'sync' }, () => {
+        setIsConnected(true)
+        logger.info('Chat connection established', { userId })
+      })
+      .on('presence', { event: 'join' }, ({ key, newPresences }) => {
+        // Check if admin joined
+        const adminPresence = newPresences.find(p => p.role === 'admin')
+        if (adminPresence) {
+          setIsAdminOnline(true)
+        }
+      })
+      .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
+        // Check if admin left
+        const adminPresence = leftPresences.find(p => p.role === 'admin')
+        if (adminPresence) {
+          setIsAdminOnline(false)
+        }
+      })
+      .subscribe()
+
+    return () => {
+      subscription.unsubscribe()
+      logger.info('Chat connection closed', { userId })
+    }
+  }, [userId, supabase, logger])
+
+  const sendMessage = useCallback(
+    async (content: string, attachments?: File[]) => {
+      if (!userId) return
+
+      try {
+        // Upload attachments if any
+        const attachmentUrls = attachments
+          ? await uploadChatAttachments(attachments)
+          : []
+
+        const { error } = await supabase.from('chat_messages').insert({
+          user_id: userId,
+          content,
+          attachments: attachmentUrls,
+          sender_type: 'user',
+        })
+
+        if (error) throw error
+
+        logger.info('Chat message sent', {
+          userId,
+          contentLength: content.length,
+          attachmentCount: attachmentUrls.length
+        })
+
+        // Auto-response if admin not available
+        if (!isAdminOnline) {
+          setTimeout(async () => {
+            const { error } = await supabase.from('chat_messages').insert({
+              user_id: userId,
+              content: 'Спасибо за ваше сообщение! Мы ответим вам в ближайшее время.',
+              sender_type: 'admin',
+              is_auto_response: true,
+            })
+            
+            if (!error) {
+              logger.info('Auto-response sent', { userId })
+            }
+          }, 2000)
+        }
+      } catch (error) {
+        logger.error('Failed to send message', error as Error, { userId })
+      }
+    },
+    [userId, supabase, isAdminOnline, logger]
+  )
+
+  const markAsRead = useCallback(async (messageId: string) => {
+    try {
+      const { error } = await supabase
+        .from('chat_messages')
+        .update({ is_read: true })
+        .eq('id', messageId)
+        .eq('user_id', userId)
+
+      if (error) throw error
+    } catch (error) {
+      logger.error('Failed to mark message as read', error as Error, { messageId, userId })
+    }
+  }, [userId, supabase, logger])
+
+  return {
+    messages,
+    isTyping,
+    isConnected,
+    isAdminOnline,
+    sendMessage,
+    markAsRead,
+  }
+}
+
+async function uploadChatAttachments(files: File[]): Promise<string[]> {
+  // Implementation for uploading chat attachments
+  // Return array of file URLs
+  return []
+}
+```
+
+## Chat Interface Component
+```typescript
+// features/chat/components/chat-interface.tsx
+"use client"
+
+import { useState, useRef, useEffect } from 'react'
+import { useChat } from '../hooks/use-chat'
+import { useAuth } from '@/features/auth/hooks/use-auth'
+import { Button } from '@/shared/components/ui/button'
+import { Input } from '@/shared/components/ui/input'
+import { ChatMessage } from './chat-message'
+import { FileUpload } from './file-upload'
+
+export function ChatInterface() {
+  const { user } = useAuth()
+  const { messages, isConnected, isAdminOnline, sendMessage } = useChat(user?.id)
+  const [newMessage, setNewMessage] = useState('')
+  const [attachments, setAttachments] = useState<File[]>([])
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
+
+  const handleSendMessage = async () => {
+    if (!newMessage.trim() && attachments.length === 0) return
+
+    await sendMessage(newMessage, attachments)
+    setNewMessage('')
+    setAttachments([])
+  }
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleSendMessage()
+    }
+  }
+
+  if (!user) return null
+
+  return (
+    <div className="flex flex-col h-96 border rounded-lg bg-white shadow-sm">
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b bg-gray-50">
+        <div className="flex items-center space-x-2">
+          <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
+          <span className="font-medium">Support Chat</span>
+        </div>
+        <div className="flex items-center space-x-2 text-sm text-gray-600">
+          {isAdminOnline ? (
+            <>
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+              <span>Admin online</span>
+            </>
+          ) : (
+            <>
+              <div className="w-2 h-2 bg-gray-400 rounded-full" />
+              <span>We'll respond soon</span>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {messages.length === 0 ? (
+          <div className="text-center text-gray-500 py-8">
+            <p>Start a conversation with our support team</p>
+            <p className="text-sm">We're here to help with any questions about our gemstones</p>
+          </div>
+        ) : (
+          messages.map((message) => (
+            <ChatMessage
+              key={message.id}
+              message={message}
+              isOwn={message.sender_type === 'user'}
+            />
+          ))
+        )}
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Input Area */}
+      <div className="border-t p-4">
+        {attachments.length > 0 && (
+          <div className="mb-2 flex flex-wrap gap-2">
+            {attachments.map((file, index) => (
+              <div
+                key={index}
+                className="flex items-center space-x-2 bg-gray-100 rounded px-2 py-1 text-sm"
+              >
+                <span>{file.name}</span>
+                <button
+                  onClick={() => setAttachments(prev => prev.filter((_, i) => i !== index))}
+                  className="text-red-500 hover:text-red-700"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="flex items-end space-x-2">
+          <FileUpload
+            onFilesSelected={setAttachments}
+            acceptedTypes={['image/*', '.pdf', '.doc', '.docx']}
+            maxSize={10 * 1024 * 1024} // 10MB
+          />
+          
+          <div className="flex-1">
+            <Input
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Type your message..."
+              className="resize-none"
+              disabled={!isConnected}
+            />
+          </div>
+          
+          <Button
+            onClick={handleSendMessage}
+            disabled={!isConnected || (!newMessage.trim() && attachments.length === 0)}
+            className="px-4"
+          >
+            Send
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}
+```
+
+## Chat Message Component
+```typescript
+// features/chat/components/chat-message.tsx
+import { format } from 'date-fns'
+import { ChatMessage as ChatMessageType } from '../hooks/use-chat'
+
+interface ChatMessageProps {
+  message: ChatMessageType
+  isOwn: boolean
+}
+
+export function ChatMessage({ message, isOwn }: ChatMessageProps) {
+  return (
+    <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
+      <div
+        className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+          isOwn
+            ? 'bg-blue-500 text-white'
+            : message.is_auto_response
+            ? 'bg-yellow-100 text-yellow-800 border border-yellow-200'
+            : 'bg-gray-100 text-gray-900'
+        }`}
+      >
+        <p className="text-sm">{message.content}</p>
+        
+        {message.attachments && message.attachments.length > 0 && (
+          <div className="mt-2 space-y-1">
+            {message.attachments.map((url, index) => (
+              <a
+                key={index}
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block text-xs underline hover:no-underline"
+              >
+                Attachment {index + 1}
+              </a>
+            ))}
+          </div>
+        )}
+        
+        <p className={`text-xs mt-1 ${isOwn ? 'text-blue-100' : 'text-gray-500'}`}>
+          {format(new Date(message.created_at), 'HH:mm')}
+          {message.is_auto_response && ' (Auto-response)'}
+        </p>
+      </div>
+    </div>
+  )
+}
+```
+
+## Admin Chat Dashboard
+```typescript
+// features/admin/components/chat-dashboard.tsx
+"use client"
+
+import { useState, useEffect } from 'react'
+import { createClient } from '@/lib/supabase/client'
+import { useAuth } from '@/features/auth/hooks/use-auth'
+
+interface ChatSession {
+  user_id: string
+  user_name: string
+  last_message: string
+  last_message_at: string
+  unread_count: number
+  has_attachments: boolean
+}
+
+export function AdminChatDashboard() {
+  const { user } = useAuth()
+  const [chatSessions, setChatSessions] = useState<ChatSession[]>([])
+  const [selectedSession, setSelectedSession] = useState<string | null>(null)
+  const supabase = createClient()
+
+  useEffect(() => {
+    if (user?.role !== 'admin') return
+
+    // Fetch active chat sessions
+    fetchChatSessions()
+
+    // Subscribe to new messages for real-time updates
+    const subscription = supabase
+      .channel('admin-chat')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'chat_messages',
+        },
+        () => {
+          fetchChatSessions() // Refresh sessions when new messages arrive
+        }
+      )
+      .subscribe()
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [user, supabase])
+
+  const fetchChatSessions = async () => {
+    try {
+      const { data, error } = await supabase.rpc('get_active_chat_sessions')
+      if (error) throw error
+      setChatSessions(data || [])
+    } catch (error) {
+      console.error('Failed to fetch chat sessions:', error)
+    }
+  }
+
+  const sendAdminMessage = async (userId: string, content: string) => {
+    try {
+      const { error } = await supabase.from('chat_messages').insert({
+        user_id: userId,
+        content,
+        sender_type: 'admin',
+        admin_id: user?.id,
+      })
+
+      if (error) throw error
+      
+      // Refresh sessions to update UI
+      fetchChatSessions()
+    } catch (error) {
+      console.error('Failed to send admin message:', error)
+    }
+  }
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[600px]">
+      {/* Chat Sessions List */}
+      <div className="border rounded-lg overflow-hidden">
+        <div className="bg-gray-50 px-4 py-3 border-b">
+          <h3 className="font-medium">Active Chats</h3>
+        </div>
+        <div className="overflow-y-auto h-full">
+          {chatSessions.map((session) => (
+            <div
+              key={session.user_id}
+              onClick={() => setSelectedSession(session.user_id)}
+              className={`p-4 border-b cursor-pointer hover:bg-gray-50 ${
+                selectedSession === session.user_id ? 'bg-blue-50 border-blue-200' : ''
+              }`}
+            >
+              <div className="flex items-center justify-between mb-1">
+                <h4 className="font-medium text-sm">{session.user_name}</h4>
+                {session.unread_count > 0 && (
+                  <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                    {session.unread_count}
+                  </span>
+                )}
+              </div>
+              <p className="text-sm text-gray-600 truncate">{session.last_message}</p>
+              <p className="text-xs text-gray-500 mt-1">
+                {format(new Date(session.last_message_at), 'MMM d, HH:mm')}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Chat Interface */}
+      <div className="lg:col-span-2">
+        {selectedSession ? (
+          <AdminChatInterface
+            userId={selectedSession}
+            onSendMessage={sendAdminMessage}
+          />
+        ) : (
+          <div className="border rounded-lg h-full flex items-center justify-center text-gray-500">
+            Select a chat session to start messaging
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+```
+
+## Database Schema for Chat
+```sql
+-- Chat messages table
+CREATE TABLE chat_messages (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  admin_id UUID REFERENCES auth.users(id), -- Admin who sent the message
+  content TEXT NOT NULL,
+  attachments TEXT[], -- Array of file URLs
+  sender_type TEXT NOT NULL CHECK (sender_type IN ('user', 'admin')),
+  is_auto_response BOOLEAN DEFAULT FALSE,
+  is_read BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Indexes for performance
+CREATE INDEX idx_chat_messages_user_id ON chat_messages(user_id);
+CREATE INDEX idx_chat_messages_created_at ON chat_messages(created_at DESC);
+CREATE INDEX idx_chat_messages_unread ON chat_messages(user_id, is_read) WHERE is_read = FALSE;
+
+-- Function to get active chat sessions for admin
+CREATE OR REPLACE FUNCTION get_active_chat_sessions()
+RETURNS TABLE (
+  user_id UUID,
+  user_name TEXT,
+  last_message TEXT,
+  last_message_at TIMESTAMPTZ,
+  unread_count BIGINT,
+  has_attachments BOOLEAN
+) AS $$
+BEGIN
+  RETURN QUERY
+  WITH latest_messages AS (
+    SELECT DISTINCT ON (cm.user_id)
+      cm.user_id,
+      cm.content,
+      cm.created_at,
+      cm.attachments IS NOT NULL AND array_length(cm.attachments, 1) > 0 AS has_attachments
+    FROM chat_messages cm
+    ORDER BY cm.user_id, cm.created_at DESC
+  ),
+  unread_counts AS (
+    SELECT 
+      cm.user_id,
+      COUNT(*) AS unread_count
+    FROM chat_messages cm
+    WHERE cm.is_read = FALSE AND cm.sender_type = 'user'
+    GROUP BY cm.user_id
+  )
+  SELECT 
+    lm.user_id,
+    up.name AS user_name,
+    lm.content AS last_message,
+    lm.created_at AS last_message_at,
+    COALESCE(uc.unread_count, 0) AS unread_count,
+    lm.has_attachments
+  FROM latest_messages lm
+  LEFT JOIN user_profiles up ON lm.user_id = up.user_id
+  LEFT JOIN unread_counts uc ON lm.user_id = uc.user_id
+  ORDER BY lm.created_at DESC;
+END;
+$$ LANGUAGE plpgsql;
+```
+
+## Chat Logging and Analytics
+```typescript
+// features/chat/services/chat-logger.ts
+import { createContextLogger } from '@/lib/logger'
+
+const chatLogger = createContextLogger('chat')
+
+export const logChatMessageSent = (
+  userId: string,
+  messageType: 'user' | 'admin',
+  hasAttachments: boolean,
+  adminId?: string
+) => {
+  chatLogger.info('chat_message_sent', {
+    event: 'chat_message_sent',
+    user_id: userId,
+    message_type: messageType,
+    has_attachments: hasAttachments,
+    admin_id: adminId,
+    timestamp: new Date().toISOString()
+  })
+}
+
+export const logChatSessionStarted = (userId: string) => {
+  chatLogger.info('chat_session_started', {
+    event: 'chat_session_started',
+    user_id: userId,
+    timestamp: new Date().toISOString()
+  })
+}
+
+export const logAdminResponseTime = (
+  userId: string,
+  responseTimeMs: number,
+  adminId: string
+) => {
+  chatLogger.info('admin_response_time', {
+    event: 'admin_response_time',
+    user_id: userId,
+    response_time_ms: responseTimeMs,
+    admin_id: adminId,
+    timestamp: new Date().toISOString()
+  })
+}
+```
+
+## Chat Performance and UX Features
+- Real-time typing indicators
+- Message delivery confirmation
+- File attachment support with size limits
+- Auto-responses when admin offline
+- Unread message counters
+- Chat session persistence
+- Mobile-responsive design
+- Emoji support
+- Message search functionality
+- Chat history export for admins

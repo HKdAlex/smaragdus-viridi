@@ -1,0 +1,286 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Feature-Based Architecture - Smaragdus Viridi
+
+## Architecture Overview
+The gemstone e-commerce platform follows a feature-based architecture where code is organized by business domains rather than technical layers.
+
+## Directory Structure
+```
+src/
+├── app/                    # Next.js 14 App Router
+│   ├── (auth)/            # Auth route group
+│   ├── (shop)/            # Shop route group
+│   ├── admin/             # Admin routes
+│   └── api/               # API routes
+├── features/              # Feature modules
+│   ├── catalog/           # Gemstone catalog
+│   ├── product/           # Individual stone details
+│   ├── cart/              # Shopping cart
+│   ├── favorites/         # User favorites
+│   ├── orders/            # Order management
+│   ├── chat/              # Customer support chat
+│   ├── visualizer/        # 3D stone visualizer
+│   ├── auth/              # Authentication
+│   ├── admin/             # Admin dashboard
+│   └── payments/          # Payment processing
+├── shared/                # Shared utilities
+│   ├── components/        # Reusable UI components
+│   ├── hooks/             # Custom React hooks
+│   ├── utils/             # Utility functions
+│   ├── types/             # TypeScript types
+│   └── constants/         # App constants
+└── lib/                   # External service configs
+    ├── supabase.ts
+    ├── stripe.ts
+    └── webgl.ts
+```
+
+## Feature Module Structure
+Each feature follows a consistent internal structure:
+
+```
+features/catalog/
+├── components/            # Feature-specific components
+│   ├── CatalogGrid.tsx
+│   ├── FilterPanel.tsx
+│   ├── SortControls.tsx
+│   └── StoneCard.tsx
+├── hooks/                 # Feature-specific hooks
+│   ├── useCatalogFilters.ts
+│   ├── useStonePagination.ts
+│   └── useStoneSearch.ts
+├── services/              # API calls and business logic
+│   ├── catalogApi.ts
+│   └── filterService.ts
+├── types/                 # Feature-specific types
+│   └── catalog.types.ts
+├── utils/                 # Feature utilities
+│   └── filterUtils.ts
+└── index.ts              # Public API exports
+```
+
+## Feature Examples
+
+### Catalog Feature
+```typescript
+// features/catalog/index.ts - Public API
+export { CatalogGrid } from './components/CatalogGrid'
+export { FilterPanel } from './components/FilterPanel'
+export { useCatalogFilters } from './hooks/useCatalogFilters'
+export type { CatalogFilters, SortConfig } from './types/catalog.types'
+
+// features/catalog/hooks/useCatalogFilters.ts
+export const useCatalogFilters = () => {
+  const [filters, setFilters] = useState<CatalogFilters>({})
+  const [sortConfig, setSortConfig] = useState<SortConfig>({
+    field: 'created_at',
+    direction: 'desc'
+  })
+  
+  // Filter logic...
+  return { filters, setFilters, sortConfig, setSortConfig }
+}
+```
+
+### Product Feature
+```typescript
+// features/product/components/ProductDetail.tsx
+interface ProductDetailProps {
+  stone: Stone
+  onAddToCart: (stoneId: string) => void
+  onToggleFavorite: (stoneId: string) => void
+}
+
+export const ProductDetail: React.FC<ProductDetailProps> = ({
+  stone,
+  onAddToCart,
+  onToggleFavorite
+}) => {
+  // Component implementation...
+}
+
+// features/product/services/productApi.ts
+export const getStoneById = async (id: string): Promise<Stone | null> => {
+  const { data, error } = await supabase
+    .from('stones')
+    .select(`
+      *,
+      media_files(*)
+    `)
+    .eq('id', id)
+    .single()
+    
+  if (error) throw error
+  return data
+}
+```
+
+### Cart Feature
+```typescript
+// features/cart/hooks/useCart.ts
+export const useCart = () => {
+  const [items, setItems] = useState<CartItem[]>([])
+  
+  const addItem = async (stoneId: string) => {
+    // Add to cart logic...
+  }
+  
+  const removeItem = async (itemId: string) => {
+    // Remove from cart logic...
+  }
+  
+  const getTotalPrice = () => {
+    return items.reduce((total, item) => total + item.price, 0)
+  }
+  
+  return { items, addItem, removeItem, getTotalPrice }
+}
+```
+
+## Cross-Feature Communication
+Features communicate through well-defined interfaces and shared state:
+
+```typescript
+// shared/hooks/useGlobalState.ts
+export const useGlobalState = () => {
+  const { user } = useAuth()
+  const { items, addItem } = useCart()
+  const { favorites, toggleFavorite } = useFavorites()
+  
+  return {
+    user,
+    cart: { items, addItem },
+    favorites: { favorites, toggleFavorite }
+  }
+}
+
+// Usage in components
+const ProductPage = ({ stone }: { stone: Stone }) => {
+  const { cart, favorites } = useGlobalState()
+  
+  return (
+    <ProductDetail
+      stone={stone}
+      onAddToCart={cart.addItem}
+      onToggleFavorite={favorites.toggleFavorite}
+    />
+  )
+}
+```
+
+## Feature Integration Patterns
+
+### Event-Driven Communication
+```typescript
+// shared/events/cartEvents.ts
+export const cartEvents = {
+  itemAdded: 'cart:item:added',
+  itemRemoved: 'cart:item:removed',
+  cleared: 'cart:cleared'
+}
+
+// In cart feature
+const addToCart = async (stoneId: string) => {
+  // Add logic...
+  eventBus.emit(cartEvents.itemAdded, { stoneId, timestamp: Date.now() })
+}
+
+// In other features
+useEffect(() => {
+  const handleCartUpdate = (data: { stoneId: string }) => {
+    // React to cart changes...
+  }
+  
+  eventBus.on(cartEvents.itemAdded, handleCartUpdate)
+  return () => eventBus.off(cartEvents.itemAdded, handleCartUpdate)
+}, [])
+```
+
+### Shared Services
+```typescript
+// shared/services/stoneService.ts
+export class StoneService {
+  static async getStone(id: string): Promise<Stone> {
+    // Centralized stone fetching logic
+  }
+  
+  static async updateAvailability(id: string, available: boolean): Promise<void> {
+    // Centralized availability updates
+  }
+}
+
+// Usage across features
+// features/catalog/services/catalogApi.ts
+import { StoneService } from '@/shared/services/stoneService'
+
+export const getCatalogStones = async (filters: CatalogFilters) => {
+  // Use shared service...
+}
+```
+
+## Admin Feature Architecture
+```typescript
+// features/admin/components/AdminLayout.tsx
+export const AdminLayout = ({ children }: { children: React.ReactNode }) => {
+  const { user } = useAuth()
+  
+  if (user?.role !== 'admin') {
+    return <Redirect to="/login" />
+  }
+  
+  return (
+    <div className="admin-layout">
+      <AdminSidebar />
+      <main>{children}</main>
+    </div>
+  )
+}
+
+// features/admin/pages/StoneManagement.tsx
+export const StoneManagement = () => {
+  const { stones, updateStone, deleteStone } = useAdminStones()
+  
+  return (
+    <AdminLayout>
+      <StoneTable
+        stones={stones}
+        onUpdate={updateStone}
+        onDelete={deleteStone}
+      />
+    </AdminLayout>
+  )
+}
+```
+
+## Testing Strategy
+Each feature includes its own tests:
+
+```
+features/catalog/
+├── __tests__/
+│   ├── components/
+│   │   ├── CatalogGrid.test.tsx
+│   │   └── FilterPanel.test.tsx
+│   ├── hooks/
+│   │   └── useCatalogFilters.test.ts
+│   └── services/
+│       └── catalogApi.test.ts
+```
+
+## Benefits of This Architecture
+- **Scalability**: Easy to add new features without affecting existing ones
+- **Maintainability**: Clear boundaries and responsibilities
+- **Team Collaboration**: Different teams can work on different features
+- **Code Reusability**: Shared components and utilities
+- **Testing**: Feature-specific testing strategies
+- **Performance**: Bundle splitting by feature for better loading
+
+## Feature Dependencies
+- Features can depend on shared utilities
+- Features should NOT directly import from other features
+- Cross-feature communication through shared state or events
+- Admin features can access all other feature services

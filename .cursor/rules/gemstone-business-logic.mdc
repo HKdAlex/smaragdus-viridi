@@ -1,0 +1,353 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Gemstone Business Logic - Smaragdus Viridi
+
+## Core Business Rules
+Define and implement the specific business logic for gemstone e-commerce operations.
+
+## Stone Pricing Logic
+```typescript
+// features/catalog/services/pricingService.ts
+export class StonePricingService {
+  static calculatePrice(
+    stone: Stone, 
+    userRole: UserRole, 
+    currency: CurrencyCode = 'USD'
+  ): PriceCalculation {
+    let finalPrice = stone.price_regular
+    
+    // Apply discounts based on user role
+    if (stone.price_discounted) {
+      finalPrice = stone.price_discounted
+    }
+    
+    // VIP customer discount
+    if (userRole === 'VIP') {
+      finalPrice = finalPrice * 0.9 // 10% VIP discount
+    }
+    
+    // Bulk purchase discount (if buying multiple stones)
+    // Currency conversion
+    const convertedPrice = this.convertCurrency(finalPrice, 'USD', currency)
+    
+    return {
+      original: stone.price_regular,
+      discounted: stone.price_discounted,
+      final: convertedPrice,
+      currency,
+      savings: stone.price_regular - convertedPrice,
+      vip_discount_applied: userRole === 'VIP'
+    }
+  }
+}
+```
+
+## Stone Availability Rules
+```typescript
+// features/product/services/availabilityService.ts
+export class StoneAvailabilityService {
+  static checkAvailability(stone: Stone): AvailabilityStatus {
+    // Basic availability check
+    if (!stone.available) {
+      return { 
+        available: false, 
+        reason: 'Stone is currently unavailable',
+        estimated_restock: null 
+      }
+    }
+    
+    // Check if stone is reserved (in someone's cart for >30 minutes)
+    const isReserved = this.checkReservationStatus(stone.id)
+    if (isReserved) {
+      return {
+        available: false,
+        reason: 'Stone is temporarily reserved',
+        estimated_available: this.getReservationExpiry(stone.id)
+      }
+    }
+    
+    // Check certification validity
+    if (stone.cert_url && !this.validateCertification(stone.cert_url)) {
+      return {
+        available: false,
+        reason: 'Certification pending verification',
+        estimated_available: '2-3 business days'
+      }
+    }
+    
+    return { available: true, reason: null }
+  }
+}
+```
+
+## Stone Quality Assessment
+```typescript
+// features/product/services/qualityService.ts
+export class StoneQualityService {
+  static assessQuality(stone: Stone): QualityAssessment {
+    const scores = {
+      cut: this.assessCut(stone.cut),
+      color: this.assessColor(stone.color),
+      clarity: this.assessClarity(stone.clarity),
+      carat: this.assessCarat(stone.weight)
+    }
+    
+    const overallScore = (
+      scores.cut + scores.color + scores.clarity + scores.carat
+    ) / 4
+    
+    return {
+      overall_grade: this.gradeFromScore(overallScore),
+      individual_scores: scores,
+      recommendations: this.generateRecommendations(stone),
+      investment_potential: this.assessInvestmentValue(stone)
+    }
+  }
+  
+  private static assessCut(cut: StoneCut): number {
+    const cutRankings = {
+      'round': 10,
+      'princess': 9,
+      'emerald': 8,
+      'oval': 8,
+      'marquise': 7,
+      'pear': 7,
+      'cushion': 8,
+      'radiant': 8
+    }
+    return cutRankings[cut] || 5
+  }
+  
+  private static assessColor(color: StoneColor): number {
+    const colorRankings = {
+      'D': 10, 'E': 9, 'F': 8, 'G': 7, 'H': 6,
+      'I': 5, 'J': 4, 'K': 3, 'L': 2, 'M': 1,
+      'fancy-yellow': 8, 'fancy-blue': 9, 'fancy-pink': 9
+    }
+    return colorRankings[color] || 5
+  }
+}
+```
+
+## Inventory Management
+```typescript
+// features/admin/services/inventoryService.ts
+export class InventoryService {
+  static async updateStoneStatus(
+    stoneId: string, 
+    status: StoneStatus,
+    reason?: string
+  ): Promise<void> {
+    // Log status change for audit trail
+    await this.logStatusChange(stoneId, status, reason)
+    
+    // Update stone availability
+    const { error } = await supabase
+      .from('stones')
+      .update({ 
+        available: status === 'available',
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', stoneId)
+    
+    if (error) throw error
+    
+    // Notify interested users if stone becomes available
+    if (status === 'available') {
+      await this.notifyWaitlist(stoneId)
+    }
+    
+    // Update search indexes for immediate catalog updates
+    await this.updateSearchIndex(stoneId)
+  }
+  
+  static async reserveStone(
+    stoneId: string, 
+    userId: string, 
+    duration: number = 30
+  ): Promise<ReservationResult> {
+    const expiryTime = new Date()
+    expiryTime.setMinutes(expiryTime.getMinutes() + duration)
+    
+    const { data, error } = await supabase
+      .from('stone_reservations')
+      .insert({
+        stone_id: stoneId,
+        user_id: userId,
+        expires_at: expiryTime.toISOString(),
+        created_at: new Date().toISOString()
+      })
+    
+    if (error) {
+      if (error.code === '23505') { // Unique constraint violation
+        return { success: false, reason: 'Stone already reserved' }
+      }
+      throw error
+    }
+    
+    // Schedule cleanup job
+    this.scheduleReservationCleanup(stoneId, expiryTime)
+    
+    return { success: true, expires_at: expiryTime }
+  }
+}
+```
+
+## Order Processing Rules
+```typescript
+// features/orders/services/orderProcessingService.ts
+export class OrderProcessingService {
+  static async processOrder(orderData: CreateOrderRequest): Promise<Order> {
+    // Validate order requirements
+    await this.validateOrder(orderData)
+    
+    // Reserve all stones in the order
+    const reservations = await this.reserveOrderStones(orderData.items)
+    
+    try {
+      // Calculate final pricing
+      const pricing = await this.calculateOrderTotal(orderData)
+      
+      // Create order record
+      const order = await this.createOrder({
+        ...orderData,
+        total_amount: pricing.total,
+        status: 'pending'
+      })
+      
+      // Process payment if payment info provided
+      if (orderData.payment_info) {
+        await this.processPayment(order, orderData.payment_info)
+      }
+      
+      // Send confirmation email
+      await this.sendOrderConfirmation(order)
+      
+      // Log business event
+      logOrderCreated(order)
+      
+      return order
+      
+    } catch (error) {
+      // Release reservations on failure
+      await this.releaseReservations(reservations)
+      throw error
+    }
+  }
+  
+  private static async validateOrder(orderData: CreateOrderRequest): Promise<void> {
+    // Check stone availability
+    for (const item of orderData.items) {
+      const stone = await this.getStone(item.stone_id)
+      const availability = StoneAvailabilityService.checkAvailability(stone)
+      
+      if (!availability.available) {
+        throw new OrderValidationError(
+          `Stone ${stone.title} is not available: ${availability.reason}`
+        )
+      }
+    }
+    
+    // Validate delivery address
+    if (!this.isValidAddress(orderData.delivery_address)) {
+      throw new OrderValidationError('Invalid delivery address')
+    }
+    
+    // Check user order limits (prevent fraud)
+    const userOrderCount = await this.getUserDailyOrderCount(orderData.user_id)
+    if (userOrderCount > 5) {
+      throw new OrderValidationError('Daily order limit exceeded')
+    }
+  }
+}
+```
+
+## Certification Validation
+```typescript
+// features/product/services/certificationService.ts
+export class CertificationService {
+  static async validateCertification(certUrl: string): Promise<CertificationStatus> {
+    try {
+      // Parse certificate URL to determine issuing authority
+      const authority = this.parseAuthority(certUrl)
+      
+      // Validate with appropriate service
+      switch (authority) {
+        case 'GIA':
+          return await this.validateGIA(certUrl)
+        case 'AGS':
+          return await this.validateAGS(certUrl)
+        case 'SSEF':
+          return await this.validateSSEF(certUrl)
+        default:
+          return { valid: false, reason: 'Unknown certification authority' }
+      }
+    } catch (error) {
+      return { valid: false, reason: 'Certificate validation failed' }
+    }
+  }
+  
+  static generateCertificationSummary(stone: Stone): CertificationSummary {
+    return {
+      has_certification: !!stone.cert_url,
+      authority: stone.cert_url ? this.parseAuthority(stone.cert_url) : null,
+      confidence_level: this.calculateConfidenceLevel(stone),
+      verification_status: stone.cert_url ? 'verified' : 'pending',
+      last_verified: stone.updated_at
+    }
+  }
+}
+```
+
+## Customer Segmentation
+```typescript
+// features/auth/services/customerService.ts
+export class CustomerService {
+  static determineUserRole(user: User): UserRole {
+    // Check purchase history
+    const purchaseHistory = this.getPurchaseHistory(user.id)
+    const totalSpent = purchaseHistory.reduce((sum, order) => sum + order.total, 0)
+    
+    // VIP threshold: $10,000+ in purchases
+    if (totalSpent >= 10000) {
+      return 'VIP'
+    }
+    
+    // Check for industry credentials (jeweler verification)
+    if (this.hasJewelerCredentials(user)) {
+      return 'VIP'
+    }
+    
+    return 'user'
+  }
+  
+  static async upgradeUserRole(userId: string, newRole: UserRole): Promise<void> {
+    const { error } = await supabase
+      .from('users')
+      .update({ role: newRole })
+      .eq('id', userId)
+    
+    if (error) throw error
+    
+    // Log privileged action
+    logPrivilegedAction(userId, 'role_upgrade', userId, 'user')
+    
+    // Send welcome email for VIP upgrade
+    if (newRole === 'VIP') {
+      await this.sendVIPWelcomeEmail(userId)
+    }
+  }
+}
+```
+
+## Business Validation Rules
+- Stones must have valid certifications before being marked available
+- Order total must match sum of individual stone prices
+- User role determines pricing and access levels
+- Inventory updates must be logged for audit trail
+- Payment processing must handle all supported currencies
+- International shipping requires additional validation
+- High-value orders (>$50k) require manual approval

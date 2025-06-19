@@ -1,0 +1,257 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# TypeScript Standards - Smaragdus Viridi
+
+## Type Organization
+- Domain-specific types in `src/types/` directory
+- Each entity gets its own type file (e.g., `Stone.types.ts`, `User.types.ts`)
+- Shared utility types in `src/types/common.ts`
+- Generated Supabase types in `src/types/supabase.ts`
+
+## Gemstone Domain Types
+```typescript
+// ❌ FORBIDDEN: Gemstone attributes as any
+const gemstone: any = { color: "red", cut: "oval" }; // NEVER DO THIS!
+
+// ✅ REQUIRED: Strict gemstone typing
+export type GemstoneType = 
+  | 'diamond' 
+  | 'emerald' 
+  | 'ruby' 
+  | 'sapphire' 
+  | 'amethyst' 
+  | 'topaz' 
+  | 'garnet'
+  | 'peridot'
+  | 'citrine'
+  | 'tanzanite'
+
+export type GemColor =
+  | 'red'
+  | 'blue' 
+  | 'green'
+  | 'yellow'
+  | 'pink'
+  | 'white'
+  | 'black'
+  | 'colorless'
+  | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J' | 'K' | 'L' | 'M'
+  | 'fancy-yellow' 
+  | 'fancy-blue' 
+  | 'fancy-pink'
+  | 'fancy-green'
+
+export type GemCut =
+  | 'round'
+  | 'oval'
+  | 'marquise'
+  | 'pear'
+  | 'emerald'
+  | 'princess'
+  | 'cushion'
+  | 'radiant'
+  | 'fantasy'
+
+export type GemClarity = 
+  | 'FL' | 'IF' | 'VVS1' | 'VVS2' | 'VS1' | 'VS2' | 'SI1' | 'SI2' | 'I1'
+
+export type GemOrigin = string // Will be populated from database
+
+export type CurrencyCode = 'USD' | 'EUR' | 'GBP' | 'RUB' | 'CHF' | 'JPY'
+
+export type UserRole = 'admin' | 'regular_customer' | 'premium_customer' | 'guest'
+
+export interface Money {
+  readonly amount: number // Store in smallest currency unit (cents)
+  readonly currency: CurrencyCode
+}
+
+export interface GemDimensions {
+  readonly length_mm: number
+  readonly width_mm: number  
+  readonly depth_mm: number
+}
+
+export interface Certification {
+  readonly id: string
+  readonly type: 'GIA' | 'Gübelin' | 'SSEF' | 'AGS' | 'other'
+  readonly certificate_number?: string
+  readonly certificate_url?: string
+  readonly issued_date?: string
+}
+
+export interface Gemstone {
+  readonly id: string
+  readonly name: GemstoneType
+  readonly color: GemColor
+  readonly cut: GemCut
+  readonly weight_carats: number
+  readonly dimensions: GemDimensions
+  readonly origin: GemOrigin
+  readonly clarity: GemClarity
+  readonly price: Money
+  readonly premium_price?: Money // For premium customers
+  readonly price_per_carat: Money
+  readonly in_stock: boolean
+  readonly delivery_days: number
+  readonly internal_code: string // For admin identification
+  readonly serial_number: string
+  readonly certifications: Certification[]
+  readonly created_at: string
+  readonly updated_at: string
+}
+```
+
+## API Response Types
+```typescript
+// api.types.ts
+export interface ApiResponse<T> {
+  data: T | null
+  error: string | null
+  success: boolean
+}
+
+export interface PaginatedResponse<T> {
+  data: T[]
+  count: number
+  page: number
+  per_page: number
+  total_pages: number
+}
+
+export type StoneFilters = {
+  cut?: StoneCut[]
+  color?: StoneColor[]
+  clarity?: StoneClarity[]
+  price_min?: number
+  price_max?: number
+  weight_min?: number
+  weight_max?: number
+  available?: boolean
+  origin?: string[]
+}
+```
+
+## Component Props Types
+```typescript
+// Component prop interfaces
+export interface CatalogCardProps {
+  stone: Stone
+  onFavoriteToggle: (stoneId: string) => void
+  onAddToCart: (stoneId: string) => void
+  showQuickActions?: boolean
+}
+
+export interface ProductDetailProps {
+  stone: Stone
+  relatedStones: Stone[]
+  onMediaDownload: (mediaId: string) => void
+}
+```
+
+## Strict TypeScript Configuration
+```json
+// tsconfig.json key settings
+{
+  "compilerOptions": {
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true
+  }
+}
+```
+
+## Error Handling Types
+```typescript
+export type Result<T, E = Error> = 
+  | { success: true; data: T }
+  | { success: false; error: E }
+
+export type AsyncResult<T, E = Error> = Promise<Result<T, E>>
+
+// Usage example
+export const fetchStone = async (id: string): AsyncResult<Stone> => {
+  try {
+    const { data, error } = await supabase
+      .from('stones')
+      .select('*')
+      .eq('id', id)
+      .single()
+    
+    if (error) return { success: false, error }
+    return { success: true, data }
+  } catch (error) {
+    return { success: false, error: error as Error }
+  }
+}
+```
+
+## Form Validation Types
+```typescript
+// Form schemas with Zod
+import { z } from 'zod'
+
+export const StoneFormSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  weight: z.number().positive('Weight must be positive'),
+  cut: z.enum(['round', 'princess', 'emerald', 'oval']),
+  color: z.enum(['D', 'E', 'F', 'G', 'H', 'I', 'J']),
+  price_regular: z.number().positive('Price must be positive'),
+  available: z.boolean().default(true)
+})
+
+export type StoneFormData = z.infer<typeof StoneFormSchema>
+```
+
+## Utility Types
+```typescript
+// Common utility types for the gemstone domain
+export type StoneProperty = keyof Stone
+export type StoneSortField = 'price_regular' | 'weight' | 'created_at'
+export type SortDirection = 'asc' | 'desc'
+
+export interface SortConfig {
+  field: StoneSortField
+  direction: SortDirection
+}
+
+// Conditional types for admin features
+export type AdminOnlyProps<T> = T & {
+  isAdmin: true
+}
+
+export type UserRole = 'guest' | 'user' | 'VIP' | 'admin'
+```
+
+## Type Guards
+```typescript
+// Type guards for runtime type checking
+export const isValidStone = (obj: unknown): obj is Stone => {
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    'id' in obj &&
+    'title' in obj &&
+    'weight' in obj &&
+    typeof (obj as any).weight === 'number'
+  )
+}
+
+export const isAdmin = (role: UserRole): role is 'admin' => {
+  return role === 'admin'
+}
+```
+
+## Best Practices
+- Use strict null checks everywhere
+- Prefer `interface` over `type` for object shapes
+- Use `type` for unions and computed types
+- Always type component props and state
+- Use branded types for IDs to prevent mixing different entity IDs
+- Implement proper error boundaries with typed error handling

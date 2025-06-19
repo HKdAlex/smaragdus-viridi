@@ -1,0 +1,146 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Build Quality Standards - Smaragdus Viridi
+
+## 🚫 CRITICAL: Lessons from Profitronic - What NOT to Do
+
+### Build Quality Rules (MANDATORY)
+- **NEVER write more than 3 files without running `npm run build`**
+- **NEVER commit code that doesn't compile with zero errors**
+- **NEVER use `any` types - jewelry data is complex and needs strict typing**
+- **NEVER hardcode gemstone attributes - use database enums and types**
+- **NEVER use JSONB for structured jewelry data (cut, clarity, origin, etc.)**
+
+## Code Quality Requirements
+Maintain high code quality standards for the gemstone e-commerce platform to ensure maintainability, reliability, and performance.
+
+## TypeScript Configuration
+```json
+// tsconfig.json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["dom", "dom.iterable", "es6"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [{ "name": "next" }],
+    "baseUrl": ".",
+    "paths": { "@/*": ["./src/*"] },
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true
+  }
+}
+```
+
+## ESLint Configuration
+```json
+// .eslintrc.json
+{
+  "extends": [
+    "next/core-web-vitals",
+    "@typescript-eslint/recommended",
+    "@typescript-eslint/recommended-requiring-type-checking"
+  ],
+  "rules": {
+    "@typescript-eslint/no-unused-vars": "error",
+    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/prefer-nullish-coalescing": "error",
+    "@typescript-eslint/prefer-optional-chain": "error",
+    "react-hooks/exhaustive-deps": "error",
+    "import/order": ["error", {
+      "groups": ["builtin", "external", "internal", "parent", "sibling", "index"],
+      "newlines-between": "always"
+    }]
+  }
+}
+```
+
+## Testing Standards
+- Minimum 80% code coverage for critical business logic
+- Unit tests for all utility functions and business logic
+- Integration tests for API endpoints and database operations
+- E2E tests for critical user journeys (stone purchase flow)
+
+```typescript
+// Testing example with Vitest
+import { describe, it, expect } from 'vitest'
+import { calculateStonePrice } from '@/features/catalog/utils/priceCalculator'
+
+describe('Stone Price Calculator', () => {
+  it('applies VIP discount correctly', () => {
+    const result = calculateStonePrice(1000, 'VIP')
+    expect(result).toBe(900) // 10% VIP discount
+  })
+  
+  it('handles currency conversion', () => {
+    const result = calculateStonePrice(1000, 'user', 'EUR', 0.85)
+    expect(result).toBe(850)
+  })
+})
+```
+
+## Performance Standards
+- Lighthouse scores: Performance >90, Accessibility >95, Best Practices >90, SEO >90
+- Core Web Vitals: LCP <2.5s, FID <100ms, CLS <0.1
+- Bundle size: Critical path <250KB gzipped
+- Image optimization: All images served via Next.js Image component
+
+## Security Requirements
+- All database queries use parameterized statements
+- Row Level Security (RLS) enabled on all Supabase tables
+- Input validation using Zod schemas
+- XSS protection via proper escaping
+- CSRF protection for state-changing operations
+
+## Dependency Management
+```json
+// package.json - Lock major versions
+{
+  "dependencies": {
+    "next": "14.x.x",
+    "react": "18.x.x",
+    "supabase": "2.x.x",
+    "@supabase/supabase-js": "2.x.x"
+  }
+}
+```
+
+## Pre-commit Hooks
+```json
+// .husky/pre-commit
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+npm run lint
+npm run type-check
+npm run test:coverage
+```
+
+## CI/CD Pipeline Requirements
+- Automated testing on all pull requests
+- TypeScript compilation check
+- Security vulnerability scanning
+- Performance budget enforcement
+- Automated deployment to staging environment
+
+## Code Review Checklist
+- [ ] TypeScript types are properly defined
+- [ ] Error handling is implemented
+- [ ] Performance considerations addressed
+- [ ] Security best practices followed
+- [ ] Tests cover new functionality
+- [ ] Documentation updated if needed

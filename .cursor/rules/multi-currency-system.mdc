@@ -1,0 +1,396 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Multi-Currency System - Smaragdus Viridi
+
+## Currency Service Pattern
+
+### Core Currency Service
+```typescript
+// features/currency/services/currency-service.ts
+import { Logger } from '@/shared/utils/logger'
+
+export class CurrencyService {
+  private exchangeRates: Map<string, number> = new Map()
+
+  constructor(private logger: Logger) {}
+
+  async convertPrice(
+    amount: number,
+    fromCurrency: CurrencyCode,
+    toCurrency: CurrencyCode
+  ): Promise<Result<ConvertedPrice, CurrencyError>> {
+    try {
+      if (fromCurrency === toCurrency) {
+        return { data: { amount, currency: toCurrency, rate: 1 } }
+      }
+
+      const rate = await this.getExchangeRate(fromCurrency, toCurrency)
+      const convertedAmount = Math.round(amount * rate)
+
+      this.logger.info('Currency conversion performed', {
+        fromCurrency,
+        toCurrency,
+        originalAmount: amount,
+        convertedAmount,
+        rate,
+      })
+
+      return {
+        data: {
+          amount: convertedAmount,
+          currency: toCurrency,
+          rate,
+          originalAmount: amount,
+          originalCurrency: fromCurrency,
+        },
+      }
+    } catch (error) {
+      this.logger.error('Currency conversion failed', error as Error, {
+        fromCurrency,
+        toCurrency,
+        amount,
+      })
+      return {
+        error: new CurrencyError('CONVERSION_FAILED', (error as Error).message),
+      }
+    }
+  }
+
+  private async getExchangeRate(
+    from: CurrencyCode,
+    to: CurrencyCode
+  ): Promise<number> {
+    const cacheKey = `${from}-${to}`
+
+    // Check cache first
+    if (this.exchangeRates.has(cacheKey)) {
+      return this.exchangeRates.get(cacheKey)!
+    }
+
+    // Fetch from external API
+    const response = await fetch(
+      `https://api.exchangerate-api.com/v4/latest/${from}`
+    )
+    const data = await response.json()
+
+    if (!data.rates[to]) {
+      throw new Error(`Exchange rate not available for ${from} to ${to}`)
+    }
+
+    const rate = data.rates[to]
+    this.exchangeRates.set(cacheKey, rate)
+
+    // Cache for 1 hour
+    setTimeout(() => this.exchangeRates.delete(cacheKey), 3600000)
+
+    return rate
+  }
+
+  async updateExchangeRates(): Promise<void> {
+    try {
+      const baseCurrency = 'USD'
+      const supportedCurrencies: CurrencyCode[] = ['EUR', 'GBP', 'RUB', 'CHF', 'JPY']
+
+      for (const currency of supportedCurrencies) {
+        await this.getExchangeRate(baseCurrency, currency)
+      }
+
+      this.logger.info('Exchange rates updated successfully')
+    } catch (error) {
+      this.logger.error('Failed to update exchange rates', error as Error)
+    }
+  }
+}
+```
+
+## Currency Types
+```typescript
+// features/currency/types/currency.types.ts
+export type CurrencyCode = 'USD' | 'EUR' | 'GBP' | 'RUB' | 'CHF' | 'JPY'
+
+export interface Money {
+  readonly amount: number // Store in smallest currency unit (cents)
+  readonly currency: CurrencyCode
+}
+
+export interface ConvertedPrice {
+  amount: number
+  currency: CurrencyCode
+  rate: number
+  originalAmount?: number
+  originalCurrency?: CurrencyCode
+}
+
+export interface CurrencyRate {
+  id: string
+  base_currency: CurrencyCode
+  target_currency: CurrencyCode
+  rate: number
+  updated_at: string
+}
+
+export class CurrencyError extends Error {
+  constructor(
+    public code: 'CONVERSION_FAILED' | 'RATE_NOT_FOUND' | 'INVALID_CURRENCY',
+    message: string
+  ) {
+    super(message)
+    this.name = 'CurrencyError'
+  }
+}
+```
+
+## Currency Hook
+```typescript
+// features/currency/hooks/use-currency.ts
+"use client"
+
+import { useState, useEffect, useCallback } from 'react'
+import { CurrencyService } from '../services/currency-service'
+
+export function useCurrency() {
+  const [selectedCurrency, setSelectedCurrency] = useState<CurrencyCode>('USD')
+  const [exchangeRates, setExchangeRates] = useState<Map<string, number>>(new Map())
+  const [isLoading, setIsLoading] = useState(false)
+
+  const currencyService = new CurrencyService()
+
+  useEffect(() => {
+    // Load user's preferred currency from localStorage or user profile
+    const savedCurrency = localStorage.getItem('preferredCurrency') as CurrencyCode
+    if (savedCurrency) {
+      setSelectedCurrency(savedCurrency)
+    }
+  }, [])
+
+  const convertPrice = useCallback(async (
+    amount: number,
+    fromCurrency: CurrencyCode = 'USD'
+  ) => {
+    if (fromCurrency === selectedCurrency) return amount
+
+    setIsLoading(true)
+    try {
+      const result = await currencyService.convertPrice(amount, fromCurrency, selectedCurrency)
+      if (result.data) {
+        return result.data.amount
+      }
+      throw new Error(result.error?.message)
+    } catch (error) {
+      console.error('Currency conversion failed:', error)
+      return amount // Return original amount on error
+    } finally {
+      setIsLoading(false)
+    }
+  }, [selectedCurrency, currencyService])
+
+  const changeCurrency = useCallback((newCurrency: CurrencyCode) => {
+    setSelectedCurrency(newCurrency)
+    localStorage.setItem('preferredCurrency', newCurrency)
+  }, [])
+
+  const formatPrice = useCallback((amount: number, currency: CurrencyCode = selectedCurrency) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currency,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount / 100) // Convert from smallest unit
+  }, [selectedCurrency])
+
+  return {
+    selectedCurrency,
+    changeCurrency,
+    convertPrice,
+    formatPrice,
+    isLoading,
+  }
+}
+```
+
+## Currency Selector Component
+```typescript
+// features/currency/components/currency-selector.tsx
+"use client"
+
+import { useCurrency } from '../hooks/use-currency'
+
+const SUPPORTED_CURRENCIES: Array<{
+  code: CurrencyCode
+  name: string
+  symbol: string
+}> = [
+  { code: 'USD', name: 'US Dollar', symbol: '$' },
+  { code: 'EUR', name: 'Euro', symbol: '€' },
+  { code: 'GBP', name: 'British Pound', symbol: '£' },
+  { code: 'RUB', name: 'Russian Ruble', symbol: '₽' },
+  { code: 'CHF', name: 'Swiss Franc', symbol: 'CHF' },
+  { code: 'JPY', name: 'Japanese Yen', symbol: '¥' },
+]
+
+export function CurrencySelector() {
+  const { selectedCurrency, changeCurrency } = useCurrency()
+
+  return (
+    <select
+      value={selectedCurrency}
+      onChange={(e) => changeCurrency(e.target.value as CurrencyCode)}
+      className="bg-transparent border-0 text-sm font-medium focus:outline-none"
+    >
+      {SUPPORTED_CURRENCIES.map((currency) => (
+        <option key={currency.code} value={currency.code}>
+          {currency.symbol} {currency.code}
+        </option>
+      ))}
+    </select>
+  )
+}
+```
+
+## Price Display Component
+```typescript
+// features/currency/components/price-display.tsx
+"use client"
+
+import { useEffect, useState } from 'react'
+import { useCurrency } from '../hooks/use-currency'
+import { Money } from '../types/currency.types'
+
+interface PriceDisplayProps {
+  price: Money
+  showOriginal?: boolean
+  className?: string
+}
+
+export function PriceDisplay({ 
+  price, 
+  showOriginal = false, 
+  className = '' 
+}: PriceDisplayProps) {
+  const { convertPrice, formatPrice, selectedCurrency } = useCurrency()
+  const [convertedAmount, setConvertedAmount] = useState<number>(price.amount)
+  const [isConverting, setIsConverting] = useState(false)
+
+  useEffect(() => {
+    if (price.currency === selectedCurrency) {
+      setConvertedAmount(price.amount)
+      return
+    }
+
+    setIsConverting(true)
+    convertPrice(price.amount, price.currency)
+      .then(setConvertedAmount)
+      .finally(() => setIsConverting(false))
+  }, [price, selectedCurrency, convertPrice])
+
+  if (isConverting) {
+    return (
+      <div className={`animate-pulse ${className}`}>
+        <div className="h-6 bg-gray-200 rounded w-20"></div>
+      </div>
+    )
+  }
+
+  return (
+    <div className={className}>
+      <span className="font-bold text-lg">
+        {formatPrice(convertedAmount, selectedCurrency)}
+      </span>
+      {showOriginal && price.currency !== selectedCurrency && (
+        <span className="text-sm text-gray-500 ml-2">
+          (orig. {formatPrice(price.amount, price.currency)})
+        </span>
+      )}
+    </div>
+  )
+}
+```
+
+## Database Schema for Currency Rates
+```sql
+-- Currency conversion rates
+CREATE TABLE currency_rates (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  base_currency currency_code NOT NULL,
+  target_currency currency_code NOT NULL,
+  rate DECIMAL(15,8) NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(base_currency, target_currency)
+);
+
+-- Index for fast currency lookups
+CREATE INDEX idx_currency_rates_lookup ON currency_rates(base_currency, target_currency);
+
+-- Update user preferences
+ALTER TABLE user_profiles 
+ADD COLUMN preferred_currency currency_code DEFAULT 'USD';
+```
+
+## Currency Conversion Utility
+```typescript
+// features/currency/utils/currency-utils.ts
+export function formatCurrencyAmount(
+  amount: number, 
+  currency: CurrencyCode,
+  locale: string = 'en-US'
+): string {
+  return new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency: currency,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: currency === 'JPY' ? 0 : 2,
+  }).format(amount / 100) // Convert from cents to main unit
+}
+
+export function getCurrencySymbol(currency: CurrencyCode): string {
+  const symbols: Record<CurrencyCode, string> = {
+    USD: '$',
+    EUR: '€',
+    GBP: '£',
+    RUB: '₽',
+    CHF: 'CHF',
+    JPY: '¥',
+  }
+  return symbols[currency]
+}
+
+export function convertToSmallestUnit(amount: number, currency: CurrencyCode): number {
+  // JPY doesn't have subunits, others typically use 100 subunits per main unit
+  const multiplier = currency === 'JPY' ? 1 : 100
+  return Math.round(amount * multiplier)
+}
+
+export function convertFromSmallestUnit(amount: number, currency: CurrencyCode): number {
+  const divisor = currency === 'JPY' ? 1 : 100
+  return amount / divisor
+}
+```
+
+## Best Practices
+
+### Performance Optimization
+- Cache exchange rates for 1 hour to reduce API calls
+- Store all prices in smallest currency unit (cents) to avoid floating-point errors
+- Use memoization for currency conversion calculations
+- Implement fallbacks when currency service is unavailable
+
+### Error Handling
+- Always provide fallback to original currency on conversion failure
+- Graceful degradation when exchange rate service is down
+- Log currency conversion errors for monitoring
+- Show loading states during currency conversion
+
+### User Experience
+- Remember user's preferred currency in localStorage
+- Show original price alongside converted price when helpful
+- Provide clear currency indicators throughout the interface
+- Fast currency switching without page reload
+
+### Data Integrity
+- Validate currency codes against supported list
+- Use database constraints for currency fields
+- Regular updates of exchange rates
+- Audit trail for price changes and currency conversions

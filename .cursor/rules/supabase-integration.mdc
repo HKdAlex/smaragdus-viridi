@@ -1,0 +1,122 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Supabase Integration - Smaragdus Viridi
+
+## Database Schema Overview
+The gemstone e-commerce platform uses Supabase PostgreSQL with the following core tables:
+- `stones` - Gemstone inventory with properties like weight, cut, color, origin
+- `users` - Customer and admin user management
+- `favorites` - User favorite stones
+- `cart_items` - Shopping cart functionality
+- `orders` - Order processing and tracking
+- `chat_messages` - Real-time customer support
+- `media_files` - Gemstone images and videos
+
+## Authentication Patterns
+- Use Supabase Auth with email/password and OAuth (Google, VK, Telegram)
+- Role-based access: `guest`, `user`, `VIP`, `admin`
+- Implement proper session management for gemstone transactions
+
+```typescript
+// Auth hook example
+export const useAuth = () => {
+  const [user, setUser] = useState<User | null>(null)
+  const [role, setRole] = useState<UserRole>('guest')
+  
+  // Auth state management
+}
+```
+
+## Row Level Security (RLS)
+- Enable RLS on all tables
+- Stones: Public read, admin-only write
+- User data: User can only access their own records
+- Orders: Users see only their orders, admins see all
+- Chat: Users only see their conversations
+
+```sql
+-- Example RLS policy for stones
+CREATE POLICY "Stones are viewable by everyone" 
+ON stones FOR SELECT 
+USING (true);
+
+CREATE POLICY "Only admins can modify stones" 
+ON stones FOR ALL 
+USING (auth.role() = 'admin');
+```
+
+## Real-time Features
+- Live chat between customers and admins
+- Real-time inventory updates for stone availability
+- Order status updates
+
+```typescript
+// Real-time chat subscription
+const chatChannel = supabase
+  .channel('chat')
+  .on('postgres_changes', {
+    event: 'INSERT',
+    schema: 'public',
+    table: 'chat_messages'
+  }, handleNewMessage)
+  .subscribe()
+```
+
+## File Storage Patterns
+- Store gemstone images/videos in Supabase Storage
+- Use signed URLs for protected downloads
+- Implement watermarking for high-resolution images
+- CDN integration for performance
+
+```typescript
+// Storage helper functions
+export const uploadStoneMedia = async (file: File, stoneId: string) => {
+  const filePath = `stones/${stoneId}/${file.name}`
+  const { data, error } = await supabase.storage
+    .from('gemstone-media')
+    .upload(filePath, file)
+  return { data, error }
+}
+```
+
+## Edge Functions
+- `POST /checkout` - Process gemstone orders
+- `POST /chat/send` - Store chat messages
+- `GET /visualizer/data` - Return stone visualization data
+- `POST /media/log-download` - Log high-res downloads
+
+## Type Safety
+- Generate TypeScript types from Supabase schema
+- Use proper typing for gemstone properties
+- Define enums for stone cuts, colors, origins
+
+```typescript
+// Generated types
+export interface Stone {
+  id: string
+  title: string
+  weight: number
+  dimensions: string
+  cut: StoneCut
+  color: StoneColor
+  origin: string
+  available: boolean
+  price_regular: number
+  price_discounted?: number
+  cert_url?: string
+}
+```
+
+## Error Handling
+- Proper error handling for database operations
+- User-friendly messages for gemstone transactions
+- Logging for admin debugging
+
+## Performance Optimization
+- Use appropriate indexes for stone filtering queries
+- Implement pagination for large gemstone catalogs
+- Cache frequently accessed data
+- Optimize images with Supabase image transformations

@@ -1,0 +1,341 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Next.js & React Patterns - Smaragdus Viridi
+
+## Project Architecture
+This is a gemstone e-commerce platform built with Next.js 15, featuring SSR for product pages and static generation for marketing content.
+
+## Next.js 15 Specific Patterns
+
+### Awaited Params Pattern (REQUIRED)
+```typescript
+// app/[locale]/gemstones/[id]/page.tsx
+interface PageProps {
+  params: Promise<{ id: string; locale: string }>
+}
+
+export default async function GemstonePage({ params }: PageProps) {
+  const { id, locale } = await params // Must await params in Next.js 15
+
+  const supabase = await createClient()
+  const { data: gemstone, error } = await supabase
+    .from('gemstones')
+    .select(`
+      *,
+      origin:origins(*),
+      images:gemstone_images(*),
+      videos:gemstone_videos(*),
+      certifications:certifications(*)
+    `)
+    .eq('id', id)
+    .single()
+
+  if (error || !gemstone) {
+    notFound()
+  }
+
+  return <GemstoneDetails gemstone={gemstone} locale={locale} />
+}
+
+// Generate metadata for SEO
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
+  const { id } = await params
+  const supabase = await createClient()
+  const { data: gemstone } = await supabase
+    .from('gemstones')
+    .select('name, color, cut, weight_carats, serial_number')
+    .eq('id', id)
+    .single()
+
+  if (!gemstone) return { title: 'Gemstone Not Found' }
+
+  return {
+    title: `${gemstone.color} ${gemstone.name} ${gemstone.cut} ${gemstone.weight_carats}ct - ${gemstone.serial_number}`,
+    description: `Premium ${gemstone.color} ${gemstone.name} with ${gemstone.cut} cut, ${gemstone.weight_carats} carats. Professional gemstone for jewelers.`,
+  }
+}
+```
+
+## Component Organization
+- Use feature-based folder structure under `src/features/`
+- Each feature should have its own directory (e.g., `gemstones/`, `chat/`, `visualizer/`)
+- Shared components go in `src/shared/components/`
+
+## Directory Structure
+```
+src/
+├── features/
+│   ├── auth/                    # Authentication system
+│   ├── gemstones/              # Gemstone catalog & filtering
+│   │   ├── components/
+│   │   │   ├── gemstone-card.tsx
+│   │   │   ├── gemstone-grid.tsx
+│   │   │   ├── advanced-filters.tsx
+│   │   │   ├── color-filter.tsx
+│   │   │   ├── cut-filter.tsx
+│   │   │   └── price-range-slider.tsx
+│   │   ├── hooks/
+│   │   │   ├── use-gemstone-search.ts
+│   │   │   ├── use-filters.ts
+│   │   │   └── use-advanced-search.ts
+│   │   ├── services/
+│   │   │   ├── gemstone-service.ts
+│   │   │   ├── filter-service.ts
+│   │   │   └── search-service.ts
+│   │   ├── types/
+│   │   │   ├── gemstone.types.ts
+│   │   │   ├── filter.types.ts
+│   │   │   └── search.types.ts
+│   │   └── utils/
+│   │       ├── gemstone-validators.ts
+│   │       └── price-formatters.ts
+│   ├── chat/                   # Real-time chat system
+│   ├── cart/                   # Shopping cart functionality
+│   ├── orders/                 # Order management
+│   ├── media/                  # File upload/download
+│   ├── currency/               # Multi-currency system
+│   ├── visualization/          # 3D ring visualization
+│   └── admin/                  # Admin panel functionality
+└── shared/                     # Shared utilities
+    ├── components/             # Reusable UI components
+    ├── hooks/                  # Custom React hooks
+    ├── utils/                  # Utility functions
+    ├── types/                  # TypeScript types
+    └── constants/              # App constants
+```
+
+## Performance Patterns
+
+### Memoization for Filter Components
+```typescript
+// features/gemstones/components/gemstone-grid.tsx
+"use client"
+
+import { useMemo, useCallback } from 'react'
+
+interface GemstoneGridProps {
+  gemstones: Gemstone[]
+  filters: GemstoneFilters
+  userRole: UserRole
+}
+
+export function GemstoneGrid({
+  gemstones,
+  filters,
+  userRole,
+}: GemstoneGridProps) {
+  // Memoize expensive filtering operations
+  const filteredGemstones = useMemo(() => {
+    return gemstones.filter((gemstone) => {
+      if (
+        filters.colors.length > 0 &&
+        !filters.colors.includes(gemstone.color)
+      ) {
+        return false
+      }
+      if (filters.cuts.length > 0 && !filters.cuts.includes(gemstone.cut)) {
+        return false
+      }
+      if (filters.priceRange) {
+        const price = getPriceForRole(gemstone, userRole)
+        if (price < filters.priceRange[0] || price > filters.priceRange[1]) {
+          return false
+        }
+      }
+      if (filters.inStockOnly && !gemstone.in_stock) {
+        return false
+      }
+      return true
+    })
+  }, [gemstones, filters, userRole])
+
+  // Memoize price calculation for role
+  const getPriceForRole = useCallback((gemstone: Gemstone, role: UserRole) => {
+    if (role === 'premium_customer' && gemstone.premium_price) {
+      return gemstone.premium_price.amount
+    }
+    return gemstone.price.amount
+  }, [])
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {filteredGemstones.map((gemstone) => (
+        <GemstoneCard
+          key={gemstone.id}
+          gemstone={gemstone}
+          userRole={userRole}
+        />
+      ))}
+    </div>
+  )
+}
+```
+
+### Advanced Filtering with Real-time Updates
+```typescript
+// features/gemstones/hooks/use-advanced-filters.ts
+"use client"
+
+import { useState, useCallback, useMemo } from 'react'
+import { useDebounce } from '@/shared/hooks/use-debounce'
+
+interface GemstoneFilters {
+  search: string
+  colors: GemColor[]
+  cuts: GemCut[]
+  priceRange: [number, number]
+  origins: string[]
+  inStockOnly: boolean
+  weightRange: [number, number] // carats
+}
+
+export function useAdvancedFilters() {
+  const [filters, setFilters] = useState<GemstoneFilters>({
+    search: '',
+    colors: [],
+    cuts: [],
+    priceRange: [0, 100000000],
+    origins: [],
+    inStockOnly: false,
+    weightRange: [0, 50],
+  })
+
+  const debouncedFilters = useDebounce(filters, 300)
+
+  const updateFilter = useCallback(
+    <K extends keyof GemstoneFilters>(key: K, value: GemstoneFilters[K]) => {
+      setFilters((prev) => ({ ...prev, [key]: value }))
+    },
+    []
+  )
+
+  const resetFilters = useCallback(() => {
+    setFilters({
+      search: '',
+      colors: [],
+      cuts: [],
+      priceRange: [0, 100000000],
+      origins: [],
+      inStockOnly: false,
+      weightRange: [0, 50],
+    })
+  }, [])
+
+  // Memoize filter query for performance
+  const filterQuery = useMemo(() => {
+    return {
+      search: debouncedFilters.search,
+      colors: debouncedFilters.colors,
+      cuts: debouncedFilters.cuts,
+      minPrice: debouncedFilters.priceRange[0],
+      maxPrice: debouncedFilters.priceRange[1],
+      origins: debouncedFilters.origins,
+      inStockOnly: debouncedFilters.inStockOnly,
+      minWeight: debouncedFilters.weightRange[0],
+      maxWeight: debouncedFilters.weightRange[1],
+    }
+  }, [debouncedFilters])
+
+  return {
+    filters,
+    filterQuery,
+    updateFilter,
+    resetFilters,
+  }
+}
+```
+
+## Image Optimization for Gemstones
+```typescript
+// components/gemstone-image.tsx
+import Image from 'next/image'
+import { useState } from 'react'
+
+interface GemstoneImageProps {
+  src: string
+  alt: string
+  width: number
+  height: number
+  priority?: boolean
+  serialNumber: string
+}
+
+export function GemstoneImage({
+  src,
+  alt,
+  width,
+  height,
+  priority = false,
+  serialNumber,
+}: GemstoneImageProps) {
+  const [isLoading, setIsLoading] = useState(true)
+
+  return (
+    <div className="relative overflow-hidden rounded-lg">
+      <Image
+        src={src}
+        alt={alt}
+        width={width}
+        height={height}
+        priority={priority}
+        className={`transition-opacity duration-300 ${
+          isLoading ? 'opacity-0' : 'opacity-100'
+        }`}
+        onLoadingComplete={() => setIsLoading(false)}
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+      />
+
+      {/* Serial number watermark */}
+      <div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
+        {serialNumber}
+      </div>
+
+      {isLoading && (
+        <div className="absolute inset-0 bg-gray-200 animate-pulse" />
+      )}
+    </div>
+  )
+}
+```
+
+## React Patterns
+- Use Server Components by default for better performance
+- Client Components only when needed (user interactions, state)
+- Proper `"use client"` directive placement
+- Custom hooks for business logic (`useCart`, `useFavorites`, `useChat`)
+
+## State Management
+- React Query/TanStack Query for server state
+- Zustand for client state (cart, favorites, UI state)
+- Context only for theme/auth that rarely changes
+
+## Performance Best Practices
+- Image optimization with Next.js `<Image />` component
+- Lazy loading for gemstone galleries
+- Static generation for marketing pages
+- ISR (Incremental Static Regeneration) for product catalogs
+- Dynamic imports for heavy components (3D visualizer)
+- Memoization for expensive filter operations
+
+## SEO Optimization
+- Proper meta tags for each gemstone product page
+- Structured data for gemstone products
+- Clean URLs for catalog filtering
+- Sitemap generation for gemstone inventory
+
+## Error Handling
+- Error boundaries for component failures
+- Graceful fallbacks for missing images/data
+- User-friendly error messages for gemstone operations
+- Loading states for all async operations
+
+## Accessibility
+- Proper ARIA labels for gemstone properties
+- Keyboard navigation for catalog filtering
+- Screen reader support for product details
+- Color contrast compliance for gemstone visualization

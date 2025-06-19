@@ -1,0 +1,208 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Git Commit & Terminal Best Practices - Smaragdus Viridi
+
+## Commit Message Format
+Use conventional commits format for clear, semantic commit messages:
+
+```
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+## Commit Types
+- `feat`: New feature (stone catalog, payment processing)
+- `fix`: Bug fix (cart calculation, image loading)
+- `docs`: Documentation changes
+- `style`: Code style changes (formatting, no logic change)
+- `refactor`: Code refactoring (no functionality change)
+- `perf`: Performance improvements
+- `test`: Adding or updating tests
+- `build`: Build system changes
+- `ci`: CI/CD configuration changes
+- `chore`: Maintenance tasks
+
+## Commit Examples
+```bash
+# Feature commits
+git commit -m "feat(catalog): add stone filtering by cut and color"
+git commit -m "feat(payment): integrate Stripe payment processing"
+git commit -m "feat(admin): add bulk stone upload functionality"
+
+# Bug fixes
+git commit -m "fix(cart): resolve total calculation for discounted stones"
+git commit -m "fix(auth): handle expired tokens properly"
+
+# Performance improvements
+git commit -m "perf(catalog): optimize stone image loading with lazy loading"
+git commit -m "perf(db): add indexes for stone filtering queries"
+```
+
+## Branch Naming Convention
+```bash
+# Feature branches
+feature/stone-catalog-filters
+feature/payment-integration
+feature/admin-dashboard
+
+# Bug fix branches
+fix/cart-calculation-error
+fix/image-loading-issue
+
+# Hotfix branches
+hotfix/security-patch
+hotfix/critical-payment-bug
+```
+
+## Terminal Workflow
+```bash
+# Starting new feature
+git checkout main
+git pull origin main
+git checkout -b feature/gemstone-visualizer
+
+# Regular development workflow
+git add .
+git commit -m "feat(visualizer): add 3D stone rotation controls"
+git push origin feature/gemstone-visualizer
+
+# Before creating PR
+git checkout main
+git pull origin main
+git checkout feature/gemstone-visualizer
+git rebase main  # Rebase instead of merge for cleaner history
+
+# Interactive rebase for cleanup
+git rebase -i HEAD~3  # Clean up last 3 commits
+```
+
+## Useful Git Aliases
+```bash
+# Add to ~/.gitconfig
+[alias]
+    st = status
+    co = checkout
+    br = branch
+    ci = commit
+    ca = commit -a
+    cm = commit -m
+    cam = commit -am
+    cp = cherry-pick
+    rb = rebase
+    rbi = rebase -i
+    lg = log --oneline --graph --all --decorate
+    unstage = reset HEAD --
+    last = log -1 HEAD
+    visual = !gitk
+```
+
+## Development Environment Setup
+```bash
+# Node.js version management with fnm
+fnm use 20.x.x
+
+# Install dependencies
+npm install
+
+# Environment setup
+cp .env.example .env.local
+# Edit .env.local with your Supabase credentials
+
+# Development server
+npm run dev
+
+# Type checking
+npm run type-check
+
+# Linting
+npm run lint
+npm run lint:fix
+
+# Testing
+npm run test
+npm run test:watch
+npm run test:coverage
+```
+
+## Supabase CLI Commands
+```bash
+# Login to Supabase
+supabase login
+
+# Initialize project
+supabase init
+
+# Start local development
+supabase start
+
+# Generate TypeScript types
+supabase gen types typescript --project-id YOUR_PROJECT_ID > src/types/supabase.ts
+
+# Database migrations
+supabase migration new add_stone_indexes
+supabase db push
+
+# Deploy functions
+supabase functions deploy chat-handler
+```
+
+## Database Management
+```bash
+# Connect to local database
+psql postgresql://postgres:postgres@localhost:54322/postgres
+
+# Run SQL files
+psql -f migrations/001_initial_schema.sql
+
+# Backup production data
+pg_dump -h db.PROJECT_ID.supabase.co -U postgres -d postgres > backup.sql
+
+# Common SQL queries for development
+\dt  # List tables
+\d stones  # Describe stones table
+SELECT * FROM stones WHERE available = true LIMIT 10;
+```
+
+## Performance Monitoring
+```bash
+# Bundle analysis
+npm run analyze
+
+# Performance testing
+npm run lighthouse
+
+# Memory usage monitoring
+node --inspect-brk npm run dev
+
+# Database query analysis
+EXPLAIN ANALYZE SELECT * FROM stones WHERE cut = 'round';
+```
+
+## Security Checks
+```bash
+# Audit dependencies
+npm audit
+npm audit fix
+
+# Security scanning
+npm run security:scan
+
+# Environment variable validation
+grep -r "process.env" src/ --include="*.ts" --include="*.tsx"
+```
+
+## Best Practices
+- Always pull before pushing
+- Use descriptive commit messages
+- Keep commits atomic (one logical change per commit)
+- Test locally before pushing
+- Use feature branches for all changes
+- Squash commits before merging to main
+- Never commit sensitive data (API keys, passwords)
+- Use .gitignore for environment files and build artifacts
