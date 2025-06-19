@@ -5,15 +5,37 @@ alwaysApply: true
 ---
 # Supabase Integration - Smaragdus Viridi
 
+## 🚀 CRITICAL: Use Supabase MCP Tool During Development
+
+**ALWAYS interact with Supabase during development using the Supabase MCP tool available in this environment.**
+
+### Available MCP Commands for Development:
+- `mcp_supabase_list_projects` - List all Supabase projects
+- `mcp_supabase_get_project` - Get project details
+- `mcp_supabase_list_tables` - List database tables
+- `mcp_supabase_execute_sql` - Execute SQL queries
+- `mcp_supabase_apply_migration` - Apply database migrations
+- `mcp_supabase_list_edge_functions` - List Edge Functions
+- `mcp_supabase_deploy_edge_function` - Deploy Edge Functions
+- `mcp_supabase_get_logs` - Get service logs for debugging
+- `mcp_supabase_generate_typescript_types` - Generate TypeScript types
+
+### Development Workflow with MCP:
+1. **Use MCP tools to inspect database structure** instead of CLI
+2. **Execute SQL queries through MCP** for testing and debugging  
+3. **Apply migrations via MCP** for schema changes
+4. **Generate TypeScript types automatically** using MCP
+5. **Deploy and test Edge Functions** through MCP
+
 ## Database Schema Overview
 The gemstone e-commerce platform uses Supabase PostgreSQL with the following core tables:
-- `stones` - Gemstone inventory with properties like weight, cut, color, origin
-- `users` - Customer and admin user management
+- `gemstones` - Gemstone inventory with properties like weight, cut, color, origin
+- `user_profiles` - Customer and admin user management
 - `favorites` - User favorite stones
 - `cart_items` - Shopping cart functionality
 - `orders` - Order processing and tracking
 - `chat_messages` - Real-time customer support
-- `media_files` - Gemstone images and videos
+- `gemstone_images` / `gemstone_videos` - Media files
 
 ## Authentication Patterns
 - Use Supabase Auth with email/password and OAuth (Google, VK, Telegram)

@@ -130,26 +130,46 @@ npm run test:watch
 npm run test:coverage
 ```
 
-## Supabase CLI Commands
+## 🚀 CRITICAL: Use Supabase MCP Tools Instead of CLI
+
+**ALWAYS use the available Supabase MCP tools during development instead of Supabase CLI commands.**
+
+### MCP Tools for Supabase Development:
+```typescript
+// Use these MCP tools instead of CLI commands:
+
+// List projects (instead of supabase projects list)
+mcp_supabase_list_projects()
+
+// Get project details (instead of supabase status)
+mcp_supabase_get_project(project_id)
+
+// Execute SQL (instead of supabase db sql)
+mcp_supabase_execute_sql(project_id, query)
+
+// Apply migrations (instead of supabase db push)
+mcp_supabase_apply_migration(project_id, name, query)
+
+// Generate types (instead of supabase gen types)
+mcp_supabase_generate_typescript_types(project_id)
+
+// Deploy functions (instead of supabase functions deploy)
+mcp_supabase_deploy_edge_function(project_id, name, files)
+
+// Get logs for debugging (instead of supabase functions logs)
+mcp_supabase_get_logs(project_id, service)
+```
+
+### Legacy Supabase CLI Commands (Use MCP Instead)
 ```bash
-# Login to Supabase
-supabase login
-
-# Initialize project
-supabase init
-
-# Start local development
-supabase start
-
-# Generate TypeScript types
-supabase gen types typescript --project-id YOUR_PROJECT_ID > src/types/supabase.ts
-
-# Database migrations
-supabase migration new add_stone_indexes
-supabase db push
-
-# Deploy functions
-supabase functions deploy chat-handler
+# ❌ DON'T USE CLI - Use MCP tools above instead
+# supabase login
+# supabase init
+# supabase start
+# supabase gen types typescript --project-id YOUR_PROJECT_ID > src/types/supabase.ts
+# supabase migration new add_stone_indexes
+# supabase db push
+# supabase functions deploy chat-handler
 ```
 
 ## Database Management
