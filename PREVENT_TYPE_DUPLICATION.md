@@ -18,7 +18,7 @@
 import type { GemstoneType, GemColor } from "@/shared/types";
 
 // ❌ NEVER DO THIS
-export type GemstoneType = "diamond" | "emerald"; // FORBIDDEN!
+type GemstoneType = "diamond" | "emerald"; // FORBIDDEN!
 ```
 
 ### 🔄 Type Hierarchy (MANDATORY)

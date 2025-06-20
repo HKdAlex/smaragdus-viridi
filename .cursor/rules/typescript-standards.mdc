@@ -276,7 +276,7 @@ export const isValidStone = (obj: unknown): obj is Stone => {
     'id' in obj &&
     'title' in obj &&
     'weight' in obj &&
-    typeof (obj as any).weight === 'number'
+    typeof (obj as Record<string, unknown>).weight === 'number'
   )
 }
 

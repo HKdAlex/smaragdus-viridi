@@ -4,6 +4,9 @@ import type {
   DatabaseGemstone,
   DatabaseGemstoneImage,
   DatabaseOrigin,
+  GemColor,
+  GemCut,
+  GemstoneType,
 } from "@/shared/types";
 import { useCallback, useEffect, useState } from "react";
 
@@ -56,15 +59,15 @@ export function GemstoneCatalog() {
       }
 
       if (filters.gemstoneTypes?.length) {
-        query = query.in("name", filters.gemstoneTypes as any);
+        query = query.in("name", filters.gemstoneTypes as GemstoneType[]);
       }
 
       if (filters.colors?.length) {
-        query = query.in("color", filters.colors as any);
+        query = query.in("color", filters.colors as GemColor[]);
       }
 
       if (filters.cuts?.length) {
-        query = query.in("cut", filters.cuts as any);
+        query = query.in("cut", filters.cuts as GemCut[]);
       }
 
       if (filters.inStockOnly) {

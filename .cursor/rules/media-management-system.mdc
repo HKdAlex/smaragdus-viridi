@@ -269,7 +269,7 @@ export class ValidationError extends Error {
 
 export function validateImageFile(file: File): Result<File, ValidationError> {
   // Check file type
-  if (!ALLOWED_IMAGE_TYPES.includes(file.type as any)) {
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type as (typeof ALLOWED_IMAGE_TYPES)[number])) {
     return {
       error: new ValidationError(
         'Invalid file type. Only JPEG, PNG, and WebP are allowed.'
@@ -316,7 +316,7 @@ export function validateImageFile(file: File): Result<File, ValidationError> {
 
 export function validateVideoFile(file: File): Result<File, ValidationError> {
   // Check file type
-  if (!ALLOWED_VIDEO_TYPES.includes(file.type as any)) {
+  if (!ALLOWED_VIDEO_TYPES.includes(file.type as (typeof ALLOWED_VIDEO_TYPES)[number])) {
     return {
       error: new ValidationError(
         'Invalid file type. Only MP4 and WebM are allowed.'

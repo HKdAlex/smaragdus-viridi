@@ -165,6 +165,17 @@ function checkFile(filePath) {
         content: line,
       });
     }
+
+    // Check for 'as any' usage (forbidden)
+    if (line.includes("as any")) {
+      violations.push({
+        file: filePath,
+        line: lineNumber,
+        type: "FORBIDDEN_ANY_CAST",
+        message: 'Usage of "as any" is forbidden - use proper typing instead',
+        content: line,
+      });
+    }
   }
 
   return violations;

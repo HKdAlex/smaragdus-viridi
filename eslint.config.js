@@ -80,6 +80,16 @@ export default tseslint.config(
             "❌ FORBIDDEN: Type definitions in documentation files! Move to src/shared/types/ instead.",
         },
       ],
+
+      // Prevent 'as any' usage - use proper typing instead
+      "@typescript-eslint/no-explicit-any": "error",
+      "@typescript-eslint/consistent-type-assertions": [
+        "error",
+        {
+          assertionStyle: "as",
+          objectLiteralTypeAssertions: "never",
+        },
+      ],
     },
   }
 );

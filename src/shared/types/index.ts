@@ -130,7 +130,7 @@ export const isValidGemstone = (obj: unknown): obj is Gemstone => {
     'id' in obj &&
     'name' in obj &&
     'weight_carats' in obj &&
-    typeof (obj as any).weight_carats === 'number'
+    typeof (obj as Record<string, unknown>).weight_carats === 'number'
   )
 }
 
