@@ -39,6 +39,25 @@ export default tseslint.config(
           varsIgnorePattern: "^_",
         },
       ],
+
+      // 🖼️ IMAGE HANDLING RULES - Prevent broken external image URLs
+
+      // Warn about hardcoded external image URLs (prefer database references)
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector:
+            'TSTypeAliasDeclaration[id.name=/^(GemstoneType|GemColor|GemCut|UserRole|CurrencyCode)$/]:not([typeAnnotation.typeName.object.name="Database"])',
+          message:
+            "Manual enum definitions forbidden - import from @/shared/types instead",
+        },
+        {
+          selector:
+            "Literal[value=/^https?:\\/\\/(?!images\\.unsplash\\.com).*\\.(jpg|jpeg|png|gif|webp)$/i]",
+          message:
+            "External image URLs should be validated. Consider using SafeImage component.",
+        },
+      ],
     },
   }
 );

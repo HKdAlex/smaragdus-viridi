@@ -10,7 +10,7 @@ import type {
 } from "@/shared/types";
 import { useCallback, useEffect, useState } from "react";
 
-import Image from "next/image";
+import { SafeImage } from "@/shared/components/ui/safe-image";
 import { supabase } from "@/lib/supabase";
 
 // Enhanced gemstone interface for the catalog
@@ -197,12 +197,21 @@ export function GemstoneCatalog() {
                   {/* Image */}
                   <div className="aspect-square relative bg-gray-100">
                     {primaryImage ? (
-                      <Image
+                      <SafeImage
                         src={primaryImage.image_url}
                         alt={`${gemstone.color} ${gemstone.name}`}
-                        fill
-                        className="object-cover"
+                        width={400}
+                        height={400}
+                        className="object-cover w-full h-full"
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                        onError={(error: string) => {
+                          if (process.env.NODE_ENV === "development") {
+                            console.warn(
+                              `Image failed to load for ${gemstone.serial_number}:`,
+                              error
+                            );
+                          }
+                        }}
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-gray-400">

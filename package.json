@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npm run validate-images && next build",
+    "build:force": "next build",
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
@@ -21,7 +22,11 @@
     "check-type-duplicates": "grep -r \"export type GemstoneType\\|export type GemColor\\|export type GemCut\" src/ docs/ .cursor/ --exclude-dir=node_modules || echo '✅ No type duplications found'",
     "lint-types": "npm run lint && npm run type-governance",
     "pre-commit": "npm run lint-types && npm run type-check",
-    "validate-types": "npm run check-type-duplicates && npm run type-check && echo '✅ Type system is clean!'"
+    "validate-types": "npm run check-type-duplicates && npm run type-check && echo '✅ Type system is clean!'",
+    "validate-images": "node scripts/validate-images.js",
+    "validate-images:fix": "node scripts/validate-images.js --fix",
+    "prebuild": "npm run validate-images",
+    "quality-check": "npm run type-check && npm run lint && npm run validate-images && npm run check-type-governance"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
