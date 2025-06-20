@@ -157,7 +157,7 @@ export default function HomePage() {
               asChild
               size="lg"
               className="bg-white text-emerald-600 hover:bg-gray-100 px-8 py-3 text-lg"
-            >
+        >
               <Link href="/login">Get Started Today</Link>
             </Button>
           </div>

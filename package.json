@@ -16,7 +16,12 @@
     "docs:check": "npm run validate-docs && npm run check-doc-dependencies",
     "docs:impact": "node scripts/check-doc-dependencies.js --impact=",
     "docs:full-check": "npm run docs:check && echo '✅ All documentation checks passed!'",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "type-governance": "node scripts/check-type-governance.js",
+    "check-type-duplicates": "grep -r \"export type GemstoneType\\|export type GemColor\\|export type GemCut\" src/ docs/ .cursor/ --exclude-dir=node_modules || echo '✅ No type duplications found'",
+    "lint-types": "npm run lint && npm run type-governance",
+    "pre-commit": "npm run lint-types && npm run type-check",
+    "validate-types": "npm run check-type-duplicates && npm run type-check && echo '✅ Type system is clean!'"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",

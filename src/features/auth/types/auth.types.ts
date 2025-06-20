@@ -1,3 +1,9 @@
+// Authentication Types - Import from shared types
+import type { CurrencyCode, UserRole } from '@/shared/types';
+
+// Re-export for convenience
+export type { CurrencyCode, UserRole };
+
 export interface User {
   id: string;
   email: string;
@@ -9,10 +15,6 @@ export interface User {
   created_at: string;
   updated_at: string;
 }
-
-export type UserRole = 'admin' | 'regular_customer' | 'premium_customer' | 'guest';
-
-export type CurrencyCode = 'USD' | 'EUR' | 'GBP' | 'RUB' | 'CHF' | 'JPY';
 
 export interface AuthContextType {
   user: User | null;
@@ -38,4 +40,31 @@ export interface SignupFormData {
 export interface AuthError {
   message: string;
   code?: string;
+}
+
+export interface LoginCredentials {
+  email: string
+  password: string
+}
+
+export interface RegisterData {
+  email: string
+  password: string
+  name: string
+  phone?: string
+  preferred_currency?: CurrencyCode
+}
+
+export interface AuthUser {
+  id: string
+  email: string
+  name: string
+  role: UserRole
+  preferred_currency: CurrencyCode
+}
+
+export interface AuthState {
+  user: AuthUser | null
+  loading: boolean
+  error: string | null
 } 

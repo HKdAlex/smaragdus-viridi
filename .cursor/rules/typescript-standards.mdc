@@ -5,6 +5,43 @@ alwaysApply: true
 ---
 # TypeScript Standards - Smaragdus Viridi
 
+## 🚨 TYPE MANAGEMENT - CRITICAL RULES
+
+### ⚠️ NEVER DUPLICATE TYPES - SINGLE SOURCE OF TRUTH ONLY
+
+**VIOLATION OF THESE RULES WILL BREAK THE ENTIRE TYPE SYSTEM**
+
+### 📋 Type Hierarchy (MUST FOLLOW):
+
+```
+1. Supabase Database Schema (SOURCE OF TRUTH)
+   ↓ 
+2. Generated Types (src/shared/types/database.ts) - NEVER EDIT MANUALLY
+   ↓
+3. Application Extensions (src/shared/types/index.ts) - Import + Extend Only
+   ↓
+4. Feature Types - Import from @/shared/types ONLY
+```
+
+### ✅ CORRECT Type Usage:
+
+```typescript
+// ✅ DO: Import from shared types
+import type { GemstoneType, GemColor, DatabaseGemstone } from '@/shared/types'
+
+// ✅ DO: Extend database types for business logic
+interface EnhancedGemstone extends DatabaseGemstone {
+  readonly computed_value: number
+}
+
+// ✅ DO: Use database enum types
+export type GemstoneType = Database['public']['Enums']['gemstone_type']
+```
+
+### ❌ FORBIDDEN Type Practices:
+
+```typescript
+// ❌ NEVER: Manual enum definitions
 ## Type Organization
 - Domain-specific types in `src/types/` directory
 - Each entity gets its own type file (e.g., `Stone.types.ts`, `User.types.ts`)
