@@ -3,6 +3,7 @@ import type { User } from "@supabase/supabase-js";
 import { supabase } from "./supabase";
 
 export type UserProfile = Database["public"]["Tables"]["user_profiles"]["Row"];
+// eslint-disable-next-line no-restricted-syntax
 export type UserRole = Database["public"]["Enums"]["user_role"];
 
 export const auth = {

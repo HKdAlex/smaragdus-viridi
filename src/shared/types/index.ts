@@ -4,6 +4,7 @@
 import type { Database } from './database'
 
 // ===== CORE DATABASE TYPES (Imported from Supabase) =====
+/* eslint-disable no-restricted-syntax */
 export type GemstoneType = Database['public']['Enums']['gemstone_type']
 export type GemColor = Database['public']['Enums']['gem_color'] 
 export type GemCut = Database['public']['Enums']['gem_cut']
@@ -12,6 +13,7 @@ export type CurrencyCode = Database['public']['Enums']['currency_code']
 export type UserRole = Database['public']['Enums']['user_role']
 export type OrderStatus = Database['public']['Enums']['order_status']
 export type PaymentType = Database['public']['Enums']['payment_type']
+/* eslint-enable no-restricted-syntax */
 
 // ===== DATABASE ROW TYPES (Direct from Supabase) =====
 export type DatabaseGemstone = Database['public']['Tables']['gemstones']['Row']

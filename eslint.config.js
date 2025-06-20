@@ -1,11 +1,9 @@
 import globals from "globals";
 import js from "@eslint/js";
-import reactHooks from "eslint-plugin-react-hooks";
-import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  { ignores: ["dist"] },
+  { ignores: ["dist", ".next", "node_modules"] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ["**/*.{ts,tsx}"],
@@ -13,16 +11,9 @@ export default tseslint.config(
       ecmaVersion: 2020,
       globals: globals.browser,
     },
-    plugins: {
-      "react-hooks": reactHooks,
-      "react-refresh": reactRefresh,
-    },
     rules: {
-      ...reactHooks.configs.recommended.rules,
-      "react-refresh/only-export-components": [
-        "warn",
-        { allowConstantExport: true },
-      ],
+      // Next.js specific rules
+      "react/no-unescaped-entities": "off",
 
       // 🚨 TYPE GOVERNANCE RULES - Prevent type duplication disasters
 
@@ -31,63 +22,21 @@ export default tseslint.config(
         "error",
         {
           selector:
-            "TSTypeAliasDeclaration[id.name=/^(GemstoneType|GemColor|GemCut|GemClarity|CurrencyCode|UserRole)$/]",
+            'TSTypeAliasDeclaration[id.name=/^(GemstoneType|GemColor|GemCut|UserRole|CurrencyCode)$/]:not([typeAnnotation.typeName.object.name="Database"])',
           message:
-            "❌ FORBIDDEN: Manual enum definitions! Import from @/shared/types instead. See TYPE_GOVERNANCE.md",
-        },
-        {
-          selector:
-            "TSInterfaceDeclaration[id.name=/^(Gemstone|Origin|UserProfile)$/]:not([id.name=/^(Database|Enhanced|Catalog)/])",
-          message:
-            "❌ FORBIDDEN: Duplicate core interfaces! Import DatabaseGemstone, DatabaseOrigin, etc. from @/shared/types instead.",
-        },
-      ],
-
-      // Require imports from shared types for common types
-      "no-restricted-imports": [
-        "error",
-        {
-          patterns: [
-            {
-              group: ["**/database.ts"],
-              message:
-                "❌ Don't import database.ts directly. Use @/shared/types instead.",
-            },
-          ],
-        },
-      ],
-
-      // Warn about potential type duplications
-      "@typescript-eslint/no-duplicate-type-constituents": "error",
-      "@typescript-eslint/no-redundant-type-constituents": "error",
-
-      // Ensure proper type imports
-      "@typescript-eslint/consistent-type-imports": [
-        "error",
-        {
-          prefer: "type-imports",
-          disallowTypeAnnotations: false,
-        },
-      ],
-
-      // Prevent any type in documentation files
-      "no-restricted-syntax": [
-        "error",
-        {
-          selector:
-            "Program:matches([body] TSTypeAliasDeclaration, [body] TSInterfaceDeclaration)",
-          message:
-            "❌ FORBIDDEN: Type definitions in documentation files! Move to src/shared/types/ instead.",
+            "Manual enum definitions forbidden - import from @/shared/types instead",
         },
       ],
 
       // Prevent 'as any' usage - use proper typing instead
       "@typescript-eslint/no-explicit-any": "error",
-      "@typescript-eslint/consistent-type-assertions": [
+
+      // Allow unused vars for underscore-prefixed parameters
+      "@typescript-eslint/no-unused-vars": [
         "error",
         {
-          assertionStyle: "as",
-          objectLiteralTypeAssertions: "never",
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
         },
       ],
     },

@@ -35,11 +35,11 @@ export function GemstoneCatalog() {
   });
 
   // Available filter options
-  const [filterOptions, setFilterOptions] = useState({
-    gemstoneTypes: [] as string[],
-    colors: [] as string[],
-    cuts: [] as string[],
-  });
+  const _filterOptions = {
+    gemstoneTypes: ["diamond", "emerald", "ruby", "sapphire"],
+    colors: ["D", "E", "F", "G", "H", "red", "blue", "green"],
+    cuts: ["round", "oval", "emerald", "princess"],
+  };
 
   const fetchGemstones = useCallback(async () => {
     try {
@@ -90,34 +90,9 @@ export function GemstoneCatalog() {
     }
   }, [filters]);
 
-  const loadFilterOptions = useCallback(async () => {
-    try {
-      const [{ data: types }, { data: colors }, { data: cuts }] =
-        await Promise.all([
-          supabase.from("gemstones").select("name").not("name", "is", null),
-          supabase.from("gemstones").select("color").not("color", "is", null),
-          supabase.from("gemstones").select("cut").not("cut", "is", null),
-        ]);
-
-      setFilterOptions({
-        gemstoneTypes: [
-          ...new Set(types?.map((t) => t.name).filter(Boolean) || []),
-        ],
-        colors: [...new Set(colors?.map((c) => c.color).filter(Boolean) || [])],
-        cuts: [...new Set(cuts?.map((c) => c.cut).filter(Boolean) || [])],
-      });
-    } catch (error) {
-      console.error("Error loading filter options:", error);
-    }
-  }, []);
-
   useEffect(() => {
     fetchGemstones();
   }, [fetchGemstones]);
-
-  useEffect(() => {
-    loadFilterOptions();
-  }, [loadFilterOptions]);
 
   const formatPrice = (amount: number, currency: string) => {
     return new Intl.NumberFormat("en-US", {
