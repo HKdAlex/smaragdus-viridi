@@ -25,6 +25,7 @@
     "validate-types": "npm run check-type-duplicates && npm run type-check && echo '✅ Type system is clean!'",
     "validate-images": "node scripts/validate-images.js",
     "validate-images:fix": "node scripts/validate-images.js --fix",
+    "assign-smart-images": "node scripts/smart-image-assignment.js",
     "prebuild": "npm run validate-images",
     "quality-check": "npm run type-check && npm run lint && npm run validate-images && npm run check-type-governance"
   },
