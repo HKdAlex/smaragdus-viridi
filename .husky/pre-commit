@@ -1,0 +1,60 @@
+#!/usr/bin/env sh
+
+echo "🔍 Running pre-commit checks..."
+
+# Check if any documentation was modified
+DOC_FILES=$(git diff --cached --name-only | grep -E "(docs/|README\.md)")
+
+if [ ! -z "$DOC_FILES" ]; then
+  echo "📋 Documentation modified - running comprehensive validation..."
+  
+  # Show which documentation files changed
+  echo "Changed files:"
+  echo "$DOC_FILES" | sed 's/^/   • /'
+  echo ""
+  
+  # Run single-document validation if LIVING_PLAN.md changed
+  if echo "$DOC_FILES" | grep -q "docs/06-tracking/LIVING_PLAN.md"; then
+    echo "🔍 Validating LIVING_PLAN.md structure..."
+    node scripts/validate-docs.js
+    
+    if [ $? -ne 0 ]; then
+      echo "❌ LIVING_PLAN.md validation failed!"
+      echo "📋 Use checklist: docs/06-tracking/DOCUMENTATION_CHECKLIST.md"
+      exit 1
+    fi
+  fi
+  
+  # Run cross-document dependency validation
+  echo "🔍 Checking cross-document consistency..."
+  node scripts/check-doc-dependencies.js
+  
+  if [ $? -ne 0 ]; then
+    echo "❌ Cross-document validation failed!"
+    echo "📊 Check dependency matrix: docs/06-tracking/DOCUMENT_DEPENDENCIES.md"
+    exit 1
+  fi
+  
+  # Generate impact analysis for major document changes
+  for file in $DOC_FILES; do
+    if echo "$file" | grep -qE "(LIVING_PLAN\.md|technical-specifications\.md|feature-overview\.md)"; then
+      echo "📈 Impact analysis for: $file"
+      node scripts/check-doc-dependencies.js --impact="$file"
+      echo ""
+    fi
+  done
+  
+  echo "✅ All documentation validation passed!"
+fi
+
+# Run other pre-commit checks
+echo "🔍 Running TypeScript type check..."
+npm run type-check
+
+echo "🔍 Running ESLint..."
+npm run lint
+
+echo "🔍 Running tests..."
+npm run test
+
+echo "✅ All pre-commit checks passed!" 
