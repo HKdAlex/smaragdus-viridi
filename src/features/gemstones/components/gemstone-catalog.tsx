@@ -1,6 +1,7 @@
 "use client";
 
 import type {
+  DatabaseCertification,
   DatabaseGemstone,
   DatabaseGemstoneImage,
   DatabaseOrigin,
@@ -20,6 +21,7 @@ import { supabase } from "@/lib/supabase";
 interface CatalogGemstone extends DatabaseGemstone {
   images?: DatabaseGemstoneImage[];
   origin?: DatabaseOrigin | null;
+  certifications?: DatabaseCertification[];
 }
 
 interface GemstoneFilters {
@@ -27,7 +29,13 @@ interface GemstoneFilters {
   gemstoneTypes?: string[];
   colors?: string[];
   cuts?: string[];
+  clarities?: string[];
+  origins?: string[];
+  priceRange?: { min: number; max: number; currency: string };
+  weightRange?: { min: number; max: number };
   inStockOnly?: boolean;
+  hasImages?: boolean;
+  hasCertification?: boolean;
 }
 
 export function GemstoneCatalog() {
@@ -45,12 +53,29 @@ export function GemstoneCatalog() {
         timestamp: new Date().toISOString(),
       });
 
-      const newFilters = {
+      const newFilters: GemstoneFilters = {
         search: advancedFilters.search || "",
         inStockOnly: advancedFilters.inStockOnly || false,
         gemstoneTypes: advancedFilters.gemstoneTypes || [],
         colors: advancedFilters.colors || [],
         cuts: advancedFilters.cuts || [],
+        clarities: advancedFilters.clarities || [],
+        origins: advancedFilters.origins || [],
+        priceRange: advancedFilters.priceRange
+          ? {
+              min: advancedFilters.priceRange.min,
+              max: advancedFilters.priceRange.max,
+              currency: advancedFilters.priceRange.currency,
+            }
+          : undefined,
+        weightRange: advancedFilters.weightRange
+          ? {
+              min: advancedFilters.weightRange.min,
+              max: advancedFilters.weightRange.max,
+            }
+          : undefined,
+        hasImages: advancedFilters.hasImages,
+        hasCertification: advancedFilters.hasCertification,
       };
 
       console.log("🔄 [GemstoneCatalog] Setting new filters:", {
@@ -71,6 +96,7 @@ export function GemstoneCatalog() {
 
     return Object.entries(typeCounts).map(([value, count]) => ({
       value: value as GemstoneType,
+      label: value.charAt(0).toUpperCase() + value.slice(1), // Capitalize first letter
       count,
     }));
   }, [gemstones]);
@@ -83,6 +109,7 @@ export function GemstoneCatalog() {
 
     return Object.entries(colorCounts).map(([value, count]) => ({
       value: value as GemColor,
+      label: value.charAt(0).toUpperCase() + value.slice(1), // Capitalize first letter
       count,
     }));
   }, [gemstones]);
@@ -95,6 +122,7 @@ export function GemstoneCatalog() {
 
     return Object.entries(cutCounts).map(([value, count]) => ({
       value: value as GemCut,
+      label: value.charAt(0).toUpperCase() + value.slice(1), // Capitalize first letter
       count,
     }));
   }, [gemstones]);
@@ -107,6 +135,7 @@ export function GemstoneCatalog() {
 
     return Object.entries(clarityCounts).map(([value, count]) => ({
       value: value as GemClarity,
+      label: value, // Clarity codes are already properly formatted (e.g., "VVS1", "SI2")
       count,
     }));
   }, [gemstones]);
@@ -143,7 +172,8 @@ export function GemstoneCatalog() {
       let query = supabase.from("gemstones").select(`
           *,
           images:gemstone_images(*),
-          origin:origins(*)
+          origin:origins(*),
+          certifications:certifications(*)
         `);
 
       // Apply filters
@@ -165,9 +195,37 @@ export function GemstoneCatalog() {
         query = query.in("cut", filters.cuts as GemCut[]);
       }
 
+      if (filters.clarities?.length) {
+        query = query.in("clarity", filters.clarities as GemClarity[]);
+      }
+
+      if (filters.origins?.length) {
+        // Filter by origin_id first, we'll need to get origin IDs
+        // For now, let's filter in memory after the query
+        // TODO: Optimize this with a separate origins query
+      }
+
+      if (filters.priceRange) {
+        // Convert from dollars to cents for database query
+        const minCents = filters.priceRange.min * 100;
+        const maxCents = filters.priceRange.max * 100;
+        query = query
+          .gte("price_amount", minCents)
+          .lte("price_amount", maxCents);
+      }
+
+      if (filters.weightRange) {
+        query = query
+          .gte("weight_carats", filters.weightRange.min)
+          .lte("weight_carats", filters.weightRange.max);
+      }
+
       if (filters.inStockOnly) {
         query = query.eq("in_stock", true);
       }
+
+      // Note: hasImages and hasCertification will be filtered after query
+      // since they depend on related table data
 
       const { data, error } = await query.order("created_at", {
         ascending: false,
@@ -177,9 +235,49 @@ export function GemstoneCatalog() {
         throw error;
       }
 
-      setGemstones(data || []);
+      // Apply post-query filters for related data
+      let filteredData = data || [];
+
+      // Filter by origins (origin names)
+      if (filters.origins?.length && filteredData.length > 0) {
+        filteredData = filteredData.filter(
+          (gemstone) =>
+            gemstone.origin?.name &&
+            filters.origins!.includes(gemstone.origin.name)
+        );
+      }
+
+      // Filter by hasImages
+      if (filters.hasImages && filteredData.length > 0) {
+        filteredData = filteredData.filter(
+          (gemstone) => gemstone.images && gemstone.images.length > 0
+        );
+      }
+
+      // Filter by hasCertification
+      if (filters.hasCertification && filteredData.length > 0) {
+        filteredData = filteredData.filter(
+          (gemstone) =>
+            gemstone.certifications && gemstone.certifications.length > 0
+        );
+      }
+
+      console.log("✅ [GemstoneCatalog] Query completed:", {
+        rawResultCount: data?.length || 0,
+        filteredResultCount: filteredData.length,
+        appliedFilters: Object.keys(filters).filter((key) => {
+          const value = filters[key as keyof GemstoneFilters];
+          return (
+            value !== undefined &&
+            value !== "" &&
+            (Array.isArray(value) ? value.length > 0 : value !== false)
+          );
+        }),
+      });
+
+      setGemstones(filteredData);
     } catch (error) {
-      console.error("Error loading gemstones:", error);
+      console.error("❌ [GemstoneCatalog] Error loading gemstones:", error);
     } finally {
       setLoading(false);
     }
@@ -227,7 +325,7 @@ export function GemstoneCatalog() {
       {/* Advanced Filters */}
       <AdvancedFilters
         onFiltersChange={handleAdvancedFiltersChange}
-        availableOptions={{
+        options={{
           gemstoneTypes: availableGemstoneTypes,
           colors: availableColors,
           cuts: availableCuts,
