@@ -12,10 +12,10 @@ import type {
 } from "@/shared/types";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { AdvancedFilters } from "./filters/advanced-filters";
-import type { AdvancedGemstoneFilters } from "../types/filter.types";
-import { SafeImage } from "@/shared/components/ui/safe-image";
 import { supabase } from "@/lib/supabase";
+import { SafeImage } from "@/shared/components/ui/safe-image";
+import type { AdvancedGemstoneFilters } from "../types/filter.types";
+import { AdvancedFilters } from "./filters/advanced-filters";
 
 // Enhanced gemstone interface for the catalog
 interface CatalogGemstone extends DatabaseGemstone {
@@ -39,13 +39,13 @@ interface GemstoneFilters {
 }
 
 export function GemstoneCatalog() {
-  const [gemstones, setGemstones] = useState<CatalogGemstone[]>([]);
+  const [allGemstones, setAllGemstones] = useState<CatalogGemstone[]>([]);
+  const [filteredGemstones, setFilteredGemstones] = useState<CatalogGemstone[]>(
+    []
+  );
   const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState<GemstoneFilters>({
-    inStockOnly: true,
-  });
+  const [filters, setFilters] = useState<GemstoneFilters>({});
 
-  // Handle advanced filters change
   const handleAdvancedFiltersChange = useCallback(
     (advancedFilters: AdvancedGemstoneFilters) => {
       console.log("🎯 [GemstoneCatalog] Received filter changes:", {
@@ -87,9 +87,126 @@ export function GemstoneCatalog() {
     [] // Remove filters dependency to prevent callback recreation
   );
 
-  // Calculate available filter options from current gemstones
+  // Client-side filtering function
+  const applyFilters = useCallback(
+    (gemstones: CatalogGemstone[], filters: GemstoneFilters) => {
+      console.log("🔍 [GemstoneCatalog] Applying client-side filters:", {
+        filters,
+      });
+
+      let filtered = [...gemstones];
+
+      // Search filter
+      if (filters.search) {
+        const searchTerm = filters.search.toLowerCase();
+        filtered = filtered.filter(
+          (gem) =>
+            gem.serial_number.toLowerCase().includes(searchTerm) ||
+            gem.internal_code?.toLowerCase().includes(searchTerm) ||
+            gem.name.toLowerCase().includes(searchTerm) ||
+            gem.color.toLowerCase().includes(searchTerm) ||
+            gem.cut.toLowerCase().includes(searchTerm)
+        );
+      }
+
+      // Gemstone types filter
+      if (filters.gemstoneTypes?.length) {
+        filtered = filtered.filter((gem) =>
+          filters.gemstoneTypes!.includes(gem.name)
+        );
+      }
+
+      // Colors filter
+      if (filters.colors?.length) {
+        filtered = filtered.filter((gem) =>
+          filters.colors!.includes(gem.color)
+        );
+      }
+
+      // Cuts filter
+      if (filters.cuts?.length) {
+        filtered = filtered.filter((gem) => filters.cuts!.includes(gem.cut));
+      }
+
+      // Clarities filter
+      if (filters.clarities?.length) {
+        filtered = filtered.filter((gem) =>
+          filters.clarities!.includes(gem.clarity)
+        );
+      }
+
+      // Origins filter
+      if (filters.origins?.length) {
+        filtered = filtered.filter(
+          (gem) =>
+            gem.origin?.name && filters.origins!.includes(gem.origin.name)
+        );
+      }
+
+      // Price range filter
+      if (filters.priceRange) {
+        const minCents = filters.priceRange.min * 100;
+        const maxCents = filters.priceRange.max * 100;
+        filtered = filtered.filter(
+          (gem) => gem.price_amount >= minCents && gem.price_amount <= maxCents
+        );
+      }
+
+      // Weight range filter
+      if (filters.weightRange) {
+        filtered = filtered.filter(
+          (gem) =>
+            gem.weight_carats >= filters.weightRange!.min &&
+            gem.weight_carats <= filters.weightRange!.max
+        );
+      }
+
+      // In stock filter
+      if (filters.inStockOnly) {
+        filtered = filtered.filter((gem) => gem.in_stock);
+      }
+
+      // Has images filter
+      if (filters.hasImages) {
+        filtered = filtered.filter(
+          (gem) => gem.images && gem.images.length > 0
+        );
+      }
+
+      // Has certification filter
+      if (filters.hasCertification) {
+        filtered = filtered.filter(
+          (gem) => gem.certifications && gem.certifications.length > 0
+        );
+      }
+
+      console.log("✅ [GemstoneCatalog] Client-side filtering completed:", {
+        originalCount: gemstones.length,
+        filteredCount: filtered.length,
+        appliedFilters: Object.keys(filters).filter((key) => {
+          const value = filters[key as keyof GemstoneFilters];
+          return (
+            value !== undefined &&
+            value !== "" &&
+            (Array.isArray(value) ? value.length > 0 : value !== false)
+          );
+        }),
+      });
+
+      return filtered;
+    },
+    []
+  );
+
+  // Apply filters whenever filters change
+  useEffect(() => {
+    const filtered = applyFilters(allGemstones, filters);
+    setFilteredGemstones(filtered);
+  }, [allGemstones, filters, applyFilters]);
+
+  // Calculate available filter options from ALL gemstones (not filtered)
   const availableGemstoneTypes = useMemo(() => {
-    const typeCounts = gemstones.reduce((acc, gem) => {
+    const typeCounts = allGemstones.reduce((acc, gem) => {
       acc[gem.name] = (acc[gem.name] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
@@ -99,10 +216,10 @@ export function GemstoneCatalog() {
       label: value.charAt(0).toUpperCase() + value.slice(1), // Capitalize first letter
       count,
     }));
-  }, [gemstones]);
+  }, [allGemstones]);
 
   const availableColors = useMemo(() => {
-    const colorCounts = gemstones.reduce((acc, gem) => {
+    const colorCounts = allGemstones.reduce((acc, gem) => {
       acc[gem.color] = (acc[gem.color] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
@@ -112,10 +229,10 @@ export function GemstoneCatalog() {
       label: value.charAt(0).toUpperCase() + value.slice(1), // Capitalize first letter
       count,
     }));
-  }, [gemstones]);
+  }, [allGemstones]);
 
   const availableCuts = useMemo(() => {
-    const cutCounts = gemstones.reduce((acc, gem) => {
+    const cutCounts = allGemstones.reduce((acc, gem) => {
       acc[gem.cut] = (acc[gem.cut] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
@@ -125,10 +242,10 @@ export function GemstoneCatalog() {
       label: value.charAt(0).toUpperCase() + value.slice(1), // Capitalize first letter
       count,
     }));
-  }, [gemstones]);
+  }, [allGemstones]);
 
   const availableClarities = useMemo(() => {
-    const clarityCounts = gemstones.reduce((acc, gem) => {
+    const clarityCounts = allGemstones.reduce((acc, gem) => {
       acc[gem.clarity] = (acc[gem.clarity] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
@@ -138,10 +255,10 @@ export function GemstoneCatalog() {
       label: value, // Clarity codes are already properly formatted (e.g., "VVS1", "SI2")
       count,
     }));
-  }, [gemstones]);
+  }, [allGemstones]);
 
   const availableOrigins = useMemo(() => {
-    const originCounts = gemstones.reduce((acc, gem) => {
+    const originCounts = allGemstones.reduce((acc, gem) => {
       if (gem.origin?.name) {
         const key = gem.origin.name;
         if (!acc[key]) {
@@ -158,134 +275,45 @@ export function GemstoneCatalog() {
     }, {} as Record<string, { value: string; label: string; country: string; count: number }>);
 
     return Object.values(originCounts);
-  }, [gemstones]);
+  }, [allGemstones]);
 
-  const fetchGemstones = useCallback(async () => {
+  // Load all gemstones once on mount
+  const fetchAllGemstones = useCallback(async () => {
     try {
-      console.log("🔍 [GemstoneCatalog] Fetching gemstones with filters:", {
-        filters,
-        timestamp: new Date().toISOString(),
-      });
-
+      console.log("🔍 [GemstoneCatalog] Loading all gemstones...");
       setLoading(true);
 
-      let query = supabase.from("gemstones").select(`
+      const { data, error } = await supabase
+        .from("gemstones")
+        .select(
+          `
           *,
           images:gemstone_images(*),
           origin:origins(*),
           certifications:certifications(*)
-        `);
-
-      // Apply filters
-      if (filters.search) {
-        query = query.or(
-          `serial_number.ilike.%${filters.search}%,internal_code.ilike.%${filters.search}%`
-        );
-      }
-
-      if (filters.gemstoneTypes?.length) {
-        query = query.in("name", filters.gemstoneTypes as GemstoneType[]);
-      }
-
-      if (filters.colors?.length) {
-        query = query.in("color", filters.colors as GemColor[]);
-      }
-
-      if (filters.cuts?.length) {
-        query = query.in("cut", filters.cuts as GemCut[]);
-      }
-
-      if (filters.clarities?.length) {
-        query = query.in("clarity", filters.clarities as GemClarity[]);
-      }
-
-      if (filters.origins?.length) {
-        // Filter by origin_id first, we'll need to get origin IDs
-        // For now, let's filter in memory after the query
-        // TODO: Optimize this with a separate origins query
-      }
-
-      if (filters.priceRange) {
-        // Convert from dollars to cents for database query
-        const minCents = filters.priceRange.min * 100;
-        const maxCents = filters.priceRange.max * 100;
-        query = query
-          .gte("price_amount", minCents)
-          .lte("price_amount", maxCents);
-      }
-
-      if (filters.weightRange) {
-        query = query
-          .gte("weight_carats", filters.weightRange.min)
-          .lte("weight_carats", filters.weightRange.max);
-      }
-
-      if (filters.inStockOnly) {
-        query = query.eq("in_stock", true);
-      }
-
-      // Note: hasImages and hasCertification will be filtered after query
-      // since they depend on related table data
-
-      const { data, error } = await query.order("created_at", {
-        ascending: false,
-      });
+        `
+        )
+        .order("created_at", { ascending: false });
 
       if (error) {
         throw error;
       }
 
-      // Apply post-query filters for related data
-      let filteredData = data || [];
-
-      // Filter by origins (origin names)
-      if (filters.origins?.length && filteredData.length > 0) {
-        filteredData = filteredData.filter(
-          (gemstone) =>
-            gemstone.origin?.name &&
-            filters.origins!.includes(gemstone.origin.name)
-        );
-      }
-
-      // Filter by hasImages
-      if (filters.hasImages && filteredData.length > 0) {
-        filteredData = filteredData.filter(
-          (gemstone) => gemstone.images && gemstone.images.length > 0
-        );
-      }
-
-      // Filter by hasCertification
-      if (filters.hasCertification && filteredData.length > 0) {
-        filteredData = filteredData.filter(
-          (gemstone) =>
-            gemstone.certifications && gemstone.certifications.length > 0
-        );
-      }
-
-      console.log("✅ [GemstoneCatalog] Query completed:", {
-        rawResultCount: data?.length || 0,
-        filteredResultCount: filteredData.length,
-        appliedFilters: Object.keys(filters).filter((key) => {
-          const value = filters[key as keyof GemstoneFilters];
-          return (
-            value !== undefined &&
-            value !== "" &&
-            (Array.isArray(value) ? value.length > 0 : value !== false)
-          );
-        }),
+      console.log("✅ [GemstoneCatalog] All gemstones loaded:", {
+        count: data?.length || 0,
       });
 
-      setGemstones(filteredData);
+      setAllGemstones(data || []);
     } catch (error) {
       console.error("❌ [GemstoneCatalog] Error loading gemstones:", error);
     } finally {
       setLoading(false);
     }
-  }, [filters]);
+  }, [supabase]);
 
   useEffect(() => {
-    fetchGemstones();
-  }, [fetchGemstones]);
+    fetchAllGemstones();
+  }, [fetchAllGemstones]);
 
   const formatPrice = (amount: number, currency: string) => {
     return new Intl.NumberFormat("en-US", {
@@ -338,11 +366,12 @@ export function GemstoneCatalog() {
       <div>
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-foreground">
-            {gemstones.length} Gemstone{gemstones.length !== 1 ? "s" : ""} Found
+            {filteredGemstones.length} Gemstone
+            {filteredGemstones.length !== 1 ? "s" : ""} Found
           </h2>
         </div>
 
-        {gemstones.length === 0 ? (
+        {filteredGemstones.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-6xl text-muted-foreground mb-4">💎</div>
             <h3 className="text-xl font-medium text-foreground mb-2">
@@ -354,7 +383,7 @@ export function GemstoneCatalog() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {gemstones.map((gemstone) => {
+            {filteredGemstones.map((gemstone) => {
               const primaryImage = getPrimaryImage(gemstone.images);
 
               return (

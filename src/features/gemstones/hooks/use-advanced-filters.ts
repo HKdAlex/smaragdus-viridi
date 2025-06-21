@@ -259,34 +259,41 @@ export const useAdvancedFilters = (
   // Initialize state only once
   const [state, dispatch] = useReducer(filterReducer, undefined, getInitialState)
 
-  // Sync filters to URL only when filters actually change
+  // Sync filters to URL with debouncing to prevent excessive updates
   useEffect(() => {
     if (!syncWithUrl || isUpdatingUrl.current || !hasInitialized.current) {
       return
     }
 
-    const queryString = filtersToQueryString(state.filters)
-    const currentQuery = searchParams?.toString() || ''
-    
-    console.log('🔍 [AdvancedFilters] URL sync check:', {
-      queryString,
-      currentQuery,
-      areEqual: queryString === currentQuery,
-      filters: state.filters
-    })
+    // Debounce URL updates to avoid excessive navigation
+    const timeoutId = setTimeout(() => {
+      const queryString = filtersToQueryString(state.filters)
+      const currentQuery = searchParams?.toString() || ''
+      
+      console.log('🔍 [AdvancedFilters] URL sync check:', {
+        queryString,
+        currentQuery,
+        areEqual: queryString === currentQuery,
+        filters: state.filters
+      })
 
-    if (queryString !== currentQuery) {
-      console.log('🌐 [AdvancedFilters] Updating URL:', { queryString })
-      isUpdatingUrl.current = true
-      
-      const newUrl = queryString ? `/catalog?${queryString}` : '/catalog'
-      router.replace(newUrl, { scroll: false })
-      
-      // Reset flag after URL update
-      setTimeout(() => {
-        isUpdatingUrl.current = false
-      }, 100)
-    }
+      if (queryString !== currentQuery) {
+        console.log('🌐 [AdvancedFilters] Updating URL (shallow):', { queryString })
+        isUpdatingUrl.current = true
+        
+        const newUrl = queryString ? `/catalog?${queryString}` : '/catalog'
+        
+        // Use shallow routing to prevent page reload
+        router.push(newUrl, { scroll: false })
+        
+        // Reset flag after URL update
+        setTimeout(() => {
+          isUpdatingUrl.current = false
+        }, 100)
+      }
+    }, 500) // 500ms debounce
+
+    return () => clearTimeout(timeoutId)
   }, [state.filters, syncWithUrl, router, searchParams])
 
   // Action creators

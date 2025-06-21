@@ -5,6 +5,9 @@
  * Validates external image URLs to catch 404s during build process
  */
 
+// Load environment variables from .env.local
+require("dotenv").config({ path: ".env.local" });
+
 const https = require("https");
 const http = require("http");
 const { createClient } = require("@supabase/supabase-js");

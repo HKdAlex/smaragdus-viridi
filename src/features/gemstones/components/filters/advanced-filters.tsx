@@ -6,6 +6,7 @@
 import {
   AdjustmentsHorizontalIcon,
   MagnifyingGlassIcon,
+  XMarkIcon,
 } from "@heroicons/react/24/outline";
 import {
   CLARITY_LABELS,
@@ -16,6 +17,8 @@ import {
   DEFAULT_WEIGHT_RANGE,
   GEMSTONE_TYPE_LABELS,
   categorizeColor,
+  getActiveFilterCount,
+  hasActiveFilters,
 } from "../../types/filter.types";
 import type {
   GemClarity,
@@ -49,11 +52,11 @@ export function AdvancedFilters({
   options,
   onFiltersChange,
 }: AdvancedFiltersProps) {
-  const { filters, ...filterActions } = useAdvancedFilters();
+  const { filters, ...filterActions } = useAdvancedFilters(undefined, true);
 
   // Track previous filters to prevent unnecessary callbacks
   const prevFiltersRef = useRef<AdvancedGemstoneFilters>(filters);
-  const timeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   // Notify parent of filter changes with debouncing
   useEffect(() => {
@@ -210,6 +213,13 @@ export function AdvancedFilters({
     return `${value.toFixed(1)}ct`;
   };
 
+  // Calculate active filter state
+  const activeFilterCount = useMemo(
+    () => getActiveFilterCount(filters),
+    [filters]
+  );
+  const hasFilters = useMemo(() => hasActiveFilters(filters), [filters]);
+
   return (
     <div className={`bg-card border border-border rounded-lg p-6 space-y-6`}>
       {/* Header */}
@@ -219,7 +229,26 @@ export function AdvancedFilters({
           <h2 className="text-lg font-semibold text-card-foreground">
             Advanced Filters
           </h2>
+          {activeFilterCount > 0 && (
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
+              {activeFilterCount} active
+            </span>
+          )}
         </div>
+
+        {/* Reset All Filters Button */}
+        {hasFilters && (
+          <button
+            onClick={filterActions.resetFilters}
+            className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground
+                       bg-muted/50 hover:bg-muted rounded-lg transition-colors duration-200
+                       border border-border/50 hover:border-border"
+            title="Clear all filters"
+          >
+            <XMarkIcon className="w-4 h-4 mr-1.5" />
+            Reset All
+          </button>
+        )}
       </div>
 
       {/* Search */}
