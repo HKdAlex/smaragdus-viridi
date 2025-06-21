@@ -4,12 +4,15 @@ import type {
   DatabaseGemstone,
   DatabaseGemstoneImage,
   DatabaseOrigin,
+  GemClarity,
   GemColor,
   GemCut,
   GemstoneType,
 } from "@/shared/types";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { AdvancedFilters } from "./filters/advanced-filters";
+import type { AdvancedGemstoneFilters } from "../types/filter.types";
 import { SafeImage } from "@/shared/components/ui/safe-image";
 import { supabase } from "@/lib/supabase";
 
@@ -34,15 +37,107 @@ export function GemstoneCatalog() {
     inStockOnly: true,
   });
 
-  // Available filter options
-  const _filterOptions = {
-    gemstoneTypes: ["diamond", "emerald", "ruby", "sapphire"],
-    colors: ["D", "E", "F", "G", "H", "red", "blue", "green"],
-    cuts: ["round", "oval", "emerald", "princess"],
-  };
+  // Handle advanced filters change
+  const handleAdvancedFiltersChange = useCallback(
+    (advancedFilters: AdvancedGemstoneFilters) => {
+      console.log("🎯 [GemstoneCatalog] Received filter changes:", {
+        advancedFilters,
+        timestamp: new Date().toISOString(),
+      });
+
+      const newFilters = {
+        search: advancedFilters.search || "",
+        inStockOnly: advancedFilters.inStockOnly || false,
+        gemstoneTypes: advancedFilters.gemstoneTypes || [],
+        colors: advancedFilters.colors || [],
+        cuts: advancedFilters.cuts || [],
+      };
+
+      console.log("🔄 [GemstoneCatalog] Setting new filters:", {
+        newFilters,
+      });
+
+      setFilters(newFilters);
+    },
+    [] // Remove filters dependency to prevent callback recreation
+  );
+
+  // Calculate available filter options from current gemstones
+  const availableGemstoneTypes = useMemo(() => {
+    const typeCounts = gemstones.reduce((acc, gem) => {
+      acc[gem.name] = (acc[gem.name] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    return Object.entries(typeCounts).map(([value, count]) => ({
+      value: value as GemstoneType,
+      count,
+    }));
+  }, [gemstones]);
+
+  const availableColors = useMemo(() => {
+    const colorCounts = gemstones.reduce((acc, gem) => {
+      acc[gem.color] = (acc[gem.color] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    return Object.entries(colorCounts).map(([value, count]) => ({
+      value: value as GemColor,
+      count,
+    }));
+  }, [gemstones]);
+
+  const availableCuts = useMemo(() => {
+    const cutCounts = gemstones.reduce((acc, gem) => {
+      acc[gem.cut] = (acc[gem.cut] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    return Object.entries(cutCounts).map(([value, count]) => ({
+      value: value as GemCut,
+      count,
+    }));
+  }, [gemstones]);
+
+  const availableClarities = useMemo(() => {
+    const clarityCounts = gemstones.reduce((acc, gem) => {
+      acc[gem.clarity] = (acc[gem.clarity] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    return Object.entries(clarityCounts).map(([value, count]) => ({
+      value: value as GemClarity,
+      count,
+    }));
+  }, [gemstones]);
+
+  const availableOrigins = useMemo(() => {
+    const originCounts = gemstones.reduce((acc, gem) => {
+      if (gem.origin?.name) {
+        const key = gem.origin.name;
+        if (!acc[key]) {
+          acc[key] = {
+            value: gem.origin.name,
+            label: gem.origin.name,
+            country: gem.origin.country || "Unknown",
+            count: 0,
+          };
+        }
+        acc[key].count += 1;
+      }
+      return acc;
+    }, {} as Record<string, { value: string; label: string; country: string; count: number }>);
+
+    return Object.values(originCounts);
+  }, [gemstones]);
 
   const fetchGemstones = useCallback(async () => {
     try {
+      console.log("🔍 [GemstoneCatalog] Fetching gemstones with filters:", {
+        filters,
+        timestamp: new Date().toISOString(),
+      });
+
       setLoading(true);
 
       let query = supabase.from("gemstones").select(`
@@ -110,8 +205,8 @@ export function GemstoneCatalog() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -120,67 +215,42 @@ export function GemstoneCatalog() {
     <div className="space-y-8">
       {/* Header */}
       <div className="text-center">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">
+        <h1 className="text-4xl font-bold text-foreground mb-4">
           Gemstone Catalog
         </h1>
-        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
           Discover our carefully curated collection of premium gemstones from
           around the world
         </p>
       </div>
 
-      {/* Filters */}
-      <div className="bg-white rounded-lg border p-6 space-y-4">
-        <h2 className="text-lg font-semibold">Filters</h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-2">Search</label>
-            <input
-              type="text"
-              placeholder="Serial number or code..."
-              value={filters.search || ""}
-              onChange={(e) =>
-                setFilters((prev) => ({ ...prev, search: e.target.value }))
-              }
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-
-          <div className="flex items-center">
-            <label className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                checked={filters.inStockOnly}
-                onChange={(e) =>
-                  setFilters((prev) => ({
-                    ...prev,
-                    inStockOnly: e.target.checked,
-                  }))
-                }
-                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-              />
-              <span className="text-sm font-medium">In Stock Only</span>
-            </label>
-          </div>
-        </div>
-      </div>
+      {/* Advanced Filters */}
+      <AdvancedFilters
+        onFiltersChange={handleAdvancedFiltersChange}
+        availableOptions={{
+          gemstoneTypes: availableGemstoneTypes,
+          colors: availableColors,
+          cuts: availableCuts,
+          clarities: availableClarities,
+          origins: availableOrigins,
+        }}
+      />
 
       {/* Results */}
       <div>
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold">
+          <h2 className="text-xl font-semibold text-foreground">
             {gemstones.length} Gemstone{gemstones.length !== 1 ? "s" : ""} Found
           </h2>
         </div>
 
         {gemstones.length === 0 ? (
           <div className="text-center py-12">
-            <div className="text-6xl text-gray-300 mb-4">💎</div>
-            <h3 className="text-xl font-medium text-gray-900 mb-2">
+            <div className="text-6xl text-muted-foreground mb-4">💎</div>
+            <h3 className="text-xl font-medium text-foreground mb-2">
               No gemstones found
             </h3>
-            <p className="text-gray-500">
+            <p className="text-muted-foreground">
               Try adjusting your filters to see more results.
             </p>
           </div>
@@ -192,17 +262,21 @@ export function GemstoneCatalog() {
               return (
                 <div
                   key={gemstone.id}
-                  className="bg-white rounded-lg border overflow-hidden hover:shadow-lg transition-shadow"
+                  className="bg-card border border-border rounded-lg overflow-hidden 
+                             hover:shadow-lg hover:shadow-primary/10 
+                             transition-all duration-300 group 
+                             hover:border-primary/30"
                 >
                   {/* Image */}
-                  <div className="aspect-square relative bg-gray-100">
+                  <div className="aspect-square relative bg-muted">
                     {primaryImage ? (
                       <SafeImage
                         src={primaryImage.image_url}
                         alt={`${gemstone.color} ${gemstone.name}`}
                         width={400}
                         height={400}
-                        className="object-cover w-full h-full"
+                        className="object-cover w-full h-full transition-transform duration-300 
+                                   group-hover:scale-105"
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                         onError={(error: string) => {
                           if (process.env.NODE_ENV === "development") {
@@ -214,20 +288,27 @@ export function GemstoneCatalog() {
                         }}
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-400">
+                      <div className="w-full h-full flex items-center justify-center text-muted-foreground">
                         <div className="text-4xl">💎</div>
                       </div>
                     )}
 
                     {/* Serial number overlay */}
-                    <div className="absolute bottom-2 right-2 bg-black/75 text-white text-xs px-2 py-1 rounded">
+                    <div className="absolute bottom-2 right-2 bg-black/75 text-white text-xs px-2 py-1 rounded backdrop-blur-sm">
                       {gemstone.serial_number}
                     </div>
 
                     {/* Stock status */}
                     {!gemstone.in_stock && (
-                      <div className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
+                      <div className="absolute top-2 left-2 bg-destructive text-destructive-foreground text-xs px-2 py-1 rounded">
                         Out of Stock
+                      </div>
+                    )}
+
+                    {/* Availability indicator */}
+                    {gemstone.in_stock && (
+                      <div className="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded">
+                        Available
                       </div>
                     )}
                   </div>
@@ -235,16 +316,18 @@ export function GemstoneCatalog() {
                   {/* Details */}
                   <div className="p-4">
                     <div className="flex items-start justify-between mb-2">
-                      <h3 className="font-semibold text-gray-900 capitalize">
+                      <h3 className="font-semibold text-card-foreground capitalize leading-tight">
                         {gemstone.color} {gemstone.name}
                       </h3>
-                      <span className="text-sm text-gray-500 capitalize">
+                      <span className="text-sm text-muted-foreground capitalize ml-2 flex-shrink-0">
                         {gemstone.cut}
                       </span>
                     </div>
 
-                    <div className="space-y-1 text-sm text-gray-600 mb-3">
-                      <div>{gemstone.weight_carats}ct</div>
+                    <div className="space-y-1 text-sm text-muted-foreground mb-3">
+                      <div className="font-medium text-foreground">
+                        {gemstone.weight_carats}ct
+                      </div>
                       <div>{gemstone.clarity} clarity</div>
                       {gemstone.origin && (
                         <div className="text-xs">
@@ -253,8 +336,8 @@ export function GemstoneCatalog() {
                       )}
                     </div>
 
-                    <div className="flex items-center justify-between">
-                      <div className="text-lg font-bold text-gray-900">
+                    <div className="flex items-center justify-between pt-2 border-t border-border">
+                      <div className="text-lg font-bold text-primary">
                         {formatPrice(
                           gemstone.price_amount,
                           gemstone.price_currency
@@ -262,8 +345,8 @@ export function GemstoneCatalog() {
                       </div>
 
                       {gemstone.delivery_days && (
-                        <div className="text-xs text-gray-500">
-                          {gemstone.delivery_days} days delivery
+                        <div className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+                          {gemstone.delivery_days} days
                         </div>
                       )}
                     </div>

@@ -1,22 +1,9 @@
-// Gemstone Filter Types - Smaragdus Viridi
-// Following workspace rules: strict typing for filtering and search
+// Advanced Filtering Types for Gemstone Catalog
+// Following Type Governance: Import from shared types ONLY
 
-import { CurrencyCode, GemClarity, GemColor, GemCut, GemstoneType } from '@/shared/types'
+import type { CurrencyCode, GemClarity, GemColor, GemCut, GemstoneType } from '@/shared/types'
 
-export type SortField = 
-  | 'price_amount'
-  | 'weight_carats'
-  | 'created_at'
-  | 'name'
-  | 'color'
-  | 'cut'
-
-export type SortDirection = 'asc' | 'desc'
-
-export interface SortConfig {
-  readonly field: SortField
-  readonly direction: SortDirection
-}
+// ===== CORE FILTER INTERFACES =====
 
 export interface PriceRange {
   readonly min: number // In smallest currency unit (cents)
@@ -29,173 +16,313 @@ export interface WeightRange {
   readonly max: number
 }
 
-export interface GemstoneFilters {
+export interface AdvancedGemstoneFilters {
+  // Text search
   readonly search?: string
-  readonly types?: GemstoneType[]
+  
+  // Categorical filters (multi-select)
+  readonly gemstoneTypes?: GemstoneType[]
   readonly colors?: GemColor[]
   readonly cuts?: GemCut[]
-  readonly clarity?: GemClarity[]
-  readonly price_range?: PriceRange
-  readonly weight_range?: WeightRange
-  readonly origins?: string[] // Origin IDs
-  readonly in_stock_only?: boolean
-  readonly has_certification?: boolean
-  readonly has_images?: boolean
-  readonly has_videos?: boolean
+  readonly clarities?: GemClarity[]
+  readonly origins?: string[] // Origin names
+  
+  // Range filters
+  readonly priceRange?: PriceRange
+  readonly weightRange?: WeightRange
+  
+  // Boolean filters
+  readonly inStockOnly?: boolean
+  readonly hasCertification?: boolean
+  readonly hasImages?: boolean
+  
+  // Sorting
+  readonly sortBy?: GemstoneSort
+  readonly sortDirection?: 'asc' | 'desc'
 }
 
-export interface FilterOption<T = string> {
-  readonly value: T
-  readonly label: string
-  readonly count?: number // Number of gemstones matching this filter
-  readonly disabled?: boolean
+// Mutable version for internal use (URL utilities, etc.)
+export interface MutableAdvancedGemstoneFilters {
+  // Text search
+  search?: string
+  
+  // Categorical filters (multi-select)
+  gemstoneTypes?: GemstoneType[]
+  colors?: GemColor[]
+  cuts?: GemCut[]
+  clarities?: GemClarity[]
+  origins?: string[] // Origin names
+  
+  // Range filters
+  priceRange?: PriceRange
+  weightRange?: WeightRange
+  
+  // Boolean filters
+  inStockOnly?: boolean
+  hasCertification?: boolean
+  hasImages?: boolean
+  
+  // Sorting
+  sortBy?: GemstoneSort
+  sortDirection?: 'asc' | 'desc'
 }
 
-export interface FilterSection {
-  readonly key: keyof GemstoneFilters
-  readonly label: string
-  readonly type: 'checkbox' | 'radio' | 'range' | 'search' | 'toggle'
-  readonly options?: FilterOption[]
-  readonly min?: number
-  readonly max?: number
-  readonly step?: number
+export type GemstoneSort = 
+  | 'created_at'
+  | 'price_amount' 
+  | 'weight_carats'
+  | 'name'
+  | 'color'
+  | 'cut'
+
+// ===== FILTER OPTIONS FOR UI =====
+
+export interface FilterOptions {
+  readonly gemstoneTypes: Array<{
+    value: GemstoneType
+    label: string
+    count: number
+  }>
+  readonly colors: Array<{
+    value: GemColor
+    label: string
+    count: number
+    category: 'diamond' | 'colored' | 'fancy'
+  }>
+  readonly cuts: Array<{
+    value: GemCut
+    label: string
+    count: number
+  }>
+  readonly clarities: Array<{
+    value: GemClarity
+    label: string
+    count: number
+    order: number
+  }>
+  readonly origins: Array<{
+    value: string
+    label: string
+    country: string
+    count: number
+  }>
+  readonly priceRange: {
+    min: number
+    max: number
+    currency: CurrencyCode
+  }
+  readonly weightRange: {
+    min: number
+    max: number
+  }
 }
 
-export interface CatalogQuery {
-  readonly filters: GemstoneFilters
-  readonly sort: SortConfig
-  readonly page: number
-  readonly per_page: number
-}
+// ===== FILTER STATE MANAGEMENT =====
 
 export interface FilterState {
-  readonly activeFilters: GemstoneFilters
-  readonly availableFilters: FilterSection[]
+  readonly filters: AdvancedGemstoneFilters
   readonly isLoading: boolean
-  readonly hasActiveFilters: boolean
+  readonly resultCount: number
+  readonly appliedFilterCount: number
 }
 
-// Quick filter presets for common searches
-export interface QuickFilter {
-  readonly id: string
-  readonly label: string
-  readonly description: string
-  readonly filters: GemstoneFilters
-  readonly sort?: SortConfig
+export type FilterAction = 
+  | { type: 'SET_SEARCH'; payload: string }
+  | { type: 'TOGGLE_GEMSTONE_TYPE'; payload: GemstoneType }
+  | { type: 'TOGGLE_COLOR'; payload: GemColor }
+  | { type: 'TOGGLE_CUT'; payload: GemCut }
+  | { type: 'TOGGLE_CLARITY'; payload: GemClarity }
+  | { type: 'TOGGLE_ORIGIN'; payload: string }
+  | { type: 'SET_PRICE_RANGE'; payload: PriceRange }
+  | { type: 'SET_WEIGHT_RANGE'; payload: WeightRange }
+  | { type: 'TOGGLE_IN_STOCK_ONLY'; payload: boolean }
+  | { type: 'TOGGLE_HAS_CERTIFICATION'; payload: boolean }
+  | { type: 'TOGGLE_HAS_IMAGES'; payload: boolean }
+  | { type: 'SET_SORT'; payload: { sortBy: GemstoneSort; sortDirection: 'asc' | 'desc' } }
+  | { type: 'RESET_FILTERS' }
+  | { type: 'SET_LOADING'; payload: boolean }
+  | { type: 'SET_RESULT_COUNT'; payload: number }
+
+// ===== URL PARAMS MAPPING =====
+
+export interface FilterUrlParams {
+  readonly search?: string
+  readonly types?: string // comma-separated
+  readonly colors?: string // comma-separated  
+  readonly cuts?: string // comma-separated
+  readonly clarities?: string // comma-separated
+  readonly origins?: string // comma-separated
+  readonly priceMin?: string
+  readonly priceMax?: string
+  readonly weightMin?: string
+  readonly weightMax?: string
+  readonly inStock?: string // 'true' | 'false'
+  readonly certified?: string // 'true' | 'false'
+  readonly hasImages?: string // 'true' | 'false'
+  readonly sort?: string
+  readonly dir?: string // 'asc' | 'desc'
 }
 
-export const QUICK_FILTERS: QuickFilter[] = [
-  {
-    id: 'premium-diamonds',
-    label: 'Premium Diamonds',
-    description: 'High-quality diamonds with excellent cuts',
-    filters: {
-      types: ['diamond'],
-      colors: ['D', 'E', 'F', 'G'],
-      cuts: ['round', 'princess', 'emerald'],
-      clarity: ['FL', 'IF', 'VVS1', 'VVS2'],
-      in_stock_only: true
-    },
-    sort: { field: 'price_amount', direction: 'desc' }
-  },
-  {
-    id: 'colored-gemstones',
-    label: 'Colored Gemstones',
-    description: 'Beautiful colored stones',
-    filters: {
-      types: ['ruby', 'emerald', 'sapphire', 'tanzanite'],
-      in_stock_only: true
-    },
-    sort: { field: 'weight_carats', direction: 'desc' }
-  },
-  {
-    id: 'investment-grade',
-    label: 'Investment Grade',
-    description: 'High-value gems for investment',
-    filters: {
-      price_range: { min: 100000000, max: 999999999, currency: 'USD' }, // $1M+
-      has_certification: true,
-      in_stock_only: true
-    },
-    sort: { field: 'price_amount', direction: 'desc' }
-  },
-  {
-    id: 'under-100k',
-    label: 'Under $100k',
-    description: 'Affordable luxury stones',
-    filters: {
-      price_range: { min: 0, max: 10000000, currency: 'USD' }, // Under $100k
-      in_stock_only: true
-    },
-    sort: { field: 'price_amount', direction: 'asc' }
-  }
-]
+// ===== HELPER TYPES =====
 
-// Default filter values
-export const DEFAULT_FILTERS: GemstoneFilters = {
-  in_stock_only: false,
-  has_certification: false,
-  has_images: false,
-  has_videos: false
+export interface FilterSummary {
+  readonly totalFiltersApplied: number
+  readonly activeCategories: string[]
+  readonly priceRangeActive: boolean
+  readonly weightRangeActive: boolean
+  readonly searchActive: boolean
 }
 
-export const DEFAULT_SORT: SortConfig = {
-  field: 'created_at',
-  direction: 'desc'
+// ===== CONSTANTS =====
+
+export const DEFAULT_PRICE_RANGE: PriceRange = {
+  min: 650, // $6.50 (stored in cents)
+  max: 4200000, // $42,000.00 (stored in cents)
+  currency: 'USD'
 }
 
-export const DEFAULT_CATALOG_QUERY: CatalogQuery = {
-  filters: DEFAULT_FILTERS,
-  sort: DEFAULT_SORT,
-  page: 1,
-  per_page: 20
+export const DEFAULT_WEIGHT_RANGE: WeightRange = {
+  min: 0.5,
+  max: 16.0
 }
 
-// Helper functions for filter validation
-export const isValidSortField = (field: string): field is SortField => {
-  const validFields: SortField[] = [
-    'price_amount', 'weight_carats', 'created_at', 'name', 'color', 'cut'
-  ]
-  return validFields.includes(field as SortField)
+export const DEFAULT_ADVANCED_FILTERS: AdvancedGemstoneFilters = {
+  inStockOnly: true,
+  sortBy: 'created_at',
+  sortDirection: 'desc'
 }
 
-export const isValidSortDirection = (direction: string): direction is SortDirection => {
-  return direction === 'asc' || direction === 'desc'
+// ===== FILTER LABELS =====
+
+export const GEMSTONE_TYPE_LABELS: Record<GemstoneType, string> = {
+  diamond: 'Diamond',
+  emerald: 'Emerald', 
+  ruby: 'Ruby',
+  sapphire: 'Sapphire',
+  amethyst: 'Amethyst',
+  topaz: 'Topaz',
+  garnet: 'Garnet',
+  peridot: 'Peridot',
+  citrine: 'Citrine',
+  tanzanite: 'Tanzanite'
 }
 
-// Filter utility functions
-export const hasActiveFilters = (filters: GemstoneFilters): boolean => {
+export const COLOR_LABELS: Record<GemColor, string> = {
+  // Diamond colors
+  'D': 'D (Colorless)',
+  'E': 'E (Colorless)',
+  'F': 'F (Colorless)', 
+  'G': 'G (Near Colorless)',
+  'H': 'H (Near Colorless)',
+  'I': 'I (Near Colorless)',
+  'J': 'J (Near Colorless)',
+  'K': 'K (Faint)',
+  'L': 'L (Faint)',
+  'M': 'M (Faint)',
+  // Basic colors
+  'red': 'Red',
+  'blue': 'Blue',
+  'green': 'Green',
+  'yellow': 'Yellow',
+  'pink': 'Pink',
+  'white': 'White',
+  'black': 'Black',
+  'colorless': 'Colorless',
+  // Fancy colors
+  'fancy-yellow': 'Fancy Yellow',
+  'fancy-blue': 'Fancy Blue',
+  'fancy-pink': 'Fancy Pink',
+  'fancy-green': 'Fancy Green'
+}
+
+export const CUT_LABELS: Record<GemCut, string> = {
+  round: 'Round',
+  oval: 'Oval',
+  marquise: 'Marquise',
+  pear: 'Pear',
+  emerald: 'Emerald',
+  princess: 'Princess',
+  cushion: 'Cushion',
+  radiant: 'Radiant',
+  fantasy: 'Fantasy'
+}
+
+export const CLARITY_LABELS: Record<GemClarity, string> = {
+  'FL': 'FL (Flawless)',
+  'IF': 'IF (Internally Flawless)',
+  'VVS1': 'VVS1 (Very Very Slightly Included)',
+  'VVS2': 'VVS2 (Very Very Slightly Included)',
+  'VS1': 'VS1 (Very Slightly Included)',
+  'VS2': 'VS2 (Very Slightly Included)',
+  'SI1': 'SI1 (Slightly Included)',
+  'SI2': 'SI2 (Slightly Included)',
+  'I1': 'I1 (Included)'
+}
+
+export const SORT_LABELS: Record<GemstoneSort, string> = {
+  'created_at': 'Newest First',
+  'price_amount': 'Price',
+  'weight_carats': 'Carat Weight',
+  'name': 'Gemstone Type',
+  'color': 'Color',
+  'cut': 'Cut'
+}
+
+// ===== FILTER UTILITY FUNCTIONS =====
+
+export const hasActiveFilters = (filters: AdvancedGemstoneFilters): boolean => {
   return !!(
     filters.search ||
-    filters.types?.length ||
+    filters.gemstoneTypes?.length ||
     filters.colors?.length ||
     filters.cuts?.length ||
-    filters.clarity?.length ||
-    filters.price_range ||
-    filters.weight_range ||
+    filters.clarities?.length ||
     filters.origins?.length ||
-    filters.in_stock_only ||
-    filters.has_certification ||
-    filters.has_images ||
-    filters.has_videos
+    filters.priceRange ||
+    filters.weightRange ||
+    filters.hasCertification ||
+    filters.hasImages
   )
 }
 
-export const getActiveFilterCount = (filters: GemstoneFilters): number => {
+export const getActiveFilterCount = (filters: AdvancedGemstoneFilters): number => {
   let count = 0
   if (filters.search) count++
-  if (filters.types?.length) count++
+  if (filters.gemstoneTypes?.length) count++
   if (filters.colors?.length) count++
   if (filters.cuts?.length) count++
-  if (filters.clarity?.length) count++
-  if (filters.price_range) count++
-  if (filters.weight_range) count++
+  if (filters.clarities?.length) count++
   if (filters.origins?.length) count++
-  if (filters.in_stock_only) count++
-  if (filters.has_certification) count++
-  if (filters.has_images) count++
-  if (filters.has_videos) count++
+  if (filters.priceRange) count++
+  if (filters.weightRange) count++
+  if (filters.hasCertification) count++
+  if (filters.hasImages) count++
   return count
 }
 
-export const clearAllFilters = (): GemstoneFilters => DEFAULT_FILTERS 
+export const clearAllFilters = (): AdvancedGemstoneFilters => DEFAULT_ADVANCED_FILTERS
+
+// ===== COLOR CATEGORIZATION =====
+
+export const categorizeColor = (color: GemColor): 'diamond' | 'colored' | 'fancy' => {
+  const diamondColors: GemColor[] = ['D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M']
+  const fancyColors: GemColor[] = ['fancy-yellow', 'fancy-blue', 'fancy-pink', 'fancy-green']
+  
+  if (diamondColors.includes(color)) return 'diamond'
+  if (fancyColors.includes(color)) return 'fancy'
+  return 'colored'
+}
+
+// ===== CLARITY ORDERING =====
+
+export const CLARITY_ORDER: Record<GemClarity, number> = {
+  'FL': 1,
+  'IF': 2,
+  'VVS1': 3,
+  'VVS2': 4,
+  'VS1': 5,
+  'VS2': 6,
+  'SI1': 7,
+  'SI2': 8,
+  'I1': 9
+} 

@@ -11,7 +11,8 @@ export function ThemeToggle() {
       variant="outline"
       size="sm"
       onClick={toggleTheme}
-      className="relative w-9 h-9 p-0 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-all duration-300"
+      className="relative w-9 h-9 p-0 bg-background border border-border 
+                 hover:bg-accent text-foreground transition-all duration-300"
       aria-label={`Switch to ${
         resolvedTheme === "light" ? "dark" : "light"
       } mode`}
@@ -61,15 +62,15 @@ export function ThemeSelector() {
   const { theme, setTheme } = useThemeContext();
 
   return (
-    <div className="flex items-center space-x-1 p-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+    <div className="flex items-center space-x-1 p-1 bg-muted border border-border rounded-lg">
       {(["light", "dark", "system"] as const).map((themeOption) => (
         <button
           key={themeOption}
           onClick={() => setTheme(themeOption)}
           className={`px-3 py-1 text-xs font-medium rounded-md transition-all duration-200 capitalize ${
             theme === themeOption
-              ? "bg-emerald-600 text-white shadow-sm"
-              : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+              ? "bg-primary text-primary-foreground shadow-sm"
+              : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
           }`}
         >
           {themeOption}
