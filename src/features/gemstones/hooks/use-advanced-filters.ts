@@ -3,27 +3,27 @@
 
 'use client'
 
-import type { GemClarity, GemColor, GemCut, GemstoneType } from '@/shared/types'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { useCallback, useEffect, useMemo, useReducer, useRef } from 'react'
 import type {
-    AdvancedGemstoneFilters,
-    FilterAction,
-    FilterState,
-    GemstoneSort,
-    PriceRange,
-    WeightRange
+  AdvancedGemstoneFilters,
+  FilterAction,
+  FilterState,
+  GemstoneSort,
+  PriceRange,
+  WeightRange
 } from '../types/filter.types'
 import {
-    DEFAULT_ADVANCED_FILTERS,
-    clearAllFilters,
-    getActiveFilterCount,
-    hasActiveFilters
+  DEFAULT_ADVANCED_FILTERS,
+  clearAllFilters,
+  getActiveFilterCount,
+  hasActiveFilters
 } from '../types/filter.types'
+import type { GemClarity, GemColor, GemCut, GemstoneType } from '@/shared/types'
 import {
-    filtersToQueryString,
-    queryStringToFilters
+  filtersToQueryString,
+  queryStringToFilters
 } from '../utils/filter-url.utils'
+import { useCallback, useEffect, useMemo, useReducer, useRef } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 // ===== FILTER REDUCER =====
 
@@ -214,13 +214,15 @@ export interface UseAdvancedFiltersReturn {
   // Utilities
   isFilterActive: (filterType: keyof AdvancedGemstoneFilters, value?: unknown) => boolean
   getQueryString: () => string
+  getActiveFilterCount: () => number
 }
 
 // ===== MAIN HOOK =====
 
 export const useAdvancedFilters = (
   initialFilters?: Partial<AdvancedGemstoneFilters>,
-  syncWithUrl: boolean = true
+  syncWithUrl: boolean = true,
+  basePath: string = '/catalog'
 ): UseAdvancedFiltersReturn => {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -281,7 +283,7 @@ export const useAdvancedFilters = (
         console.log('🌐 [AdvancedFilters] Updating URL (shallow):', { queryString })
         isUpdatingUrl.current = true
         
-        const newUrl = queryString ? `/catalog?${queryString}` : '/catalog'
+        const newUrl = queryString ? `${basePath}?${queryString}` : basePath
         
         // Use shallow routing to prevent page reload
         router.push(newUrl, { scroll: false })
@@ -384,6 +386,10 @@ export const useAdvancedFilters = (
     return filtersToQueryString(state.filters)
   }, [state.filters])
 
+  const getActiveFilterCountFunc = useCallback((): number => {
+    return getActiveFilterCount(state.filters)
+  }, [state.filters])
+
   // Computed values
   const hasFilters = useMemo(() => hasActiveFilters(state.filters), [state.filters])
 
@@ -414,6 +420,7 @@ export const useAdvancedFilters = (
 
     // Utilities
     isFilterActive,
-    getQueryString
+    getQueryString,
+    getActiveFilterCount: getActiveFilterCountFunc
   }
 } 

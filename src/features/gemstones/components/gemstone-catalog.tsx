@@ -12,10 +12,12 @@ import type {
 } from "@/shared/types";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { supabase } from "@/lib/supabase";
-import { SafeImage } from "@/shared/components/ui/safe-image";
-import type { AdvancedGemstoneFilters } from "../types/filter.types";
 import { AdvancedFilters } from "./filters/advanced-filters";
+import { AdvancedFiltersV2 } from "./filters/advanced-filters-v2";
+import type { AdvancedGemstoneFilters } from "../types/filter.types";
+import Link from "next/link";
+import { SafeImage } from "@/shared/components/ui/safe-image";
+import { supabase } from "@/lib/supabase";
 
 // Enhanced gemstone interface for the catalog
 interface CatalogGemstone extends DatabaseGemstone {
@@ -45,6 +47,7 @@ export function GemstoneCatalog() {
   );
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<GemstoneFilters>({});
+  const [useVisualFilters, setUseVisualFilters] = useState(false);
 
   const handleAdvancedFiltersChange = useCallback(
     (advancedFilters: AdvancedGemstoneFilters) => {
@@ -224,10 +227,24 @@ export function GemstoneCatalog() {
       return acc;
     }, {} as Record<string, number>);
 
+    // Helper function to categorize colors
+    const getColorCategory = (
+      color: GemColor
+    ): "diamond" | "colored" | "fancy" => {
+      if (["D", "E", "F", "G", "H", "I", "J", "K", "L", "M"].includes(color)) {
+        return "diamond";
+      }
+      if (color.startsWith("fancy-")) {
+        return "fancy";
+      }
+      return "colored";
+    };
+
     return Object.entries(colorCounts).map(([value, count]) => ({
       value: value as GemColor,
       label: value.charAt(0).toUpperCase() + value.slice(1), // Capitalize first letter
       count,
+      category: getColorCategory(value as GemColor),
     }));
   }, [allGemstones]);
 
@@ -250,10 +267,24 @@ export function GemstoneCatalog() {
       return acc;
     }, {} as Record<string, number>);
 
+    // Clarity order for proper sorting
+    const clarityOrder: Record<GemClarity, number> = {
+      FL: 1,
+      IF: 2,
+      VVS1: 3,
+      VVS2: 4,
+      VS1: 5,
+      VS2: 6,
+      SI1: 7,
+      SI2: 8,
+      I1: 9,
+    };
+
     return Object.entries(clarityCounts).map(([value, count]) => ({
       value: value as GemClarity,
       label: value, // Clarity codes are already properly formatted (e.g., "VVS1", "SI2")
       count,
+      order: clarityOrder[value as GemClarity] || 10,
     }));
   }, [allGemstones]);
 
@@ -350,17 +381,65 @@ export function GemstoneCatalog() {
         </p>
       </div>
 
+      {/* Toggle between filters */}
+      <div className="flex items-center justify-center mb-6">
+        <div className="inline-flex rounded-lg border border-border bg-muted p-1">
+          <button
+            onClick={() => setUseVisualFilters(false)}
+            className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+              !useVisualFilters
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            📝 Standard Filters
+          </button>
+          <button
+            onClick={() => setUseVisualFilters(true)}
+            className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+              useVisualFilters
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            ✨ Visual Filters
+          </button>
+        </div>
+      </div>
+
       {/* Advanced Filters */}
-      <AdvancedFilters
-        onFiltersChange={handleAdvancedFiltersChange}
-        options={{
-          gemstoneTypes: availableGemstoneTypes,
-          colors: availableColors,
-          cuts: availableCuts,
-          clarities: availableClarities,
-          origins: availableOrigins,
-        }}
-      />
+      {useVisualFilters ? (
+        <AdvancedFiltersV2
+          onFiltersChange={handleAdvancedFiltersChange}
+          options={{
+            gemstoneTypes: availableGemstoneTypes,
+            colors: availableColors,
+            cuts: availableCuts,
+            clarities: availableClarities,
+            origins: availableOrigins,
+            priceRange: {
+              min: 0,
+              max: 5000000, // $50,000 in cents
+              currency: "USD",
+            },
+            weightRange: {
+              min: 0,
+              max: 20, // 20 carats
+            },
+          }}
+        />
+      ) : (
+        <AdvancedFilters
+          onFiltersChange={handleAdvancedFiltersChange}
+          options={{
+            gemstoneTypes: availableGemstoneTypes,
+            colors: availableColors,
+            cuts: availableCuts,
+            clarities: availableClarities,
+            origins: availableOrigins,
+          }}
+        />
+      )}
 
       {/* Results */}
       <div>
@@ -387,12 +466,13 @@ export function GemstoneCatalog() {
               const primaryImage = getPrimaryImage(gemstone.images);
 
               return (
-                <div
+                <Link
                   key={gemstone.id}
+                  href={`/catalog/${gemstone.id}`}
                   className="bg-card border border-border rounded-lg overflow-hidden 
                              hover:shadow-lg hover:shadow-primary/10 
                              transition-all duration-300 group 
-                             hover:border-primary/30"
+                             hover:border-primary/30 block"
                 >
                   {/* Image */}
                   <div className="aspect-square relative bg-muted">
@@ -478,7 +558,7 @@ export function GemstoneCatalog() {
                       )}
                     </div>
                   </div>
-                </div>
+                </Link>
               );
             })}
           </div>

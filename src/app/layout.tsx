@@ -5,8 +5,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { AuthProvider } from "@/features/auth/context/auth-context";
 import { Footer } from "@/shared/components/layout/footer";
 import { MainNav } from "@/shared/components/navigation/main-nav";
-import { ThemeProvider } from "@/shared/context/theme-context";
 import type { Metadata } from "next";
+import { ThemeProvider } from "@/shared/context/theme-context";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,10 +39,14 @@ const themeScript = `
       const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
       const resolvedTheme = savedTheme === 'system' ? systemTheme : savedTheme;
       
+      // Remove any existing theme classes
+      document.documentElement.classList.remove('dark', 'light');
+      
+      // Add the appropriate theme class
       if (resolvedTheme === 'dark') {
         document.documentElement.classList.add('dark');
       } else {
-        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
       }
       
       // Set meta theme-color for mobile browsers
@@ -53,6 +57,7 @@ const themeScript = `
     } catch (e) {
       // Fallback to light mode if there's an error
       document.documentElement.classList.remove('dark');
+      document.documentElement.classList.add('light');
     }
   })();
 `;

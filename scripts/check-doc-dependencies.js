@@ -154,7 +154,8 @@ class CrossDocumentValidator {
   }
 
   extractSprints(content) {
-    const sprintPattern = /Sprint\s+(\d+):\s*([^(]+)/g;
+    // Updated pattern to handle markdown table format with bold text and emojis
+    const sprintPattern = /\*\*[^*]*Sprint\s+(\d+):\s*([^*]+)\*\*/g;
     const sprints = [];
     let match;
 
@@ -163,6 +164,17 @@ class CrossDocumentValidator {
         number: parseInt(match[1]),
         name: match[2].trim(),
       });
+    }
+
+    // Fallback to original pattern for non-markdown format
+    if (sprints.length === 0) {
+      const fallbackPattern = /Sprint\s+(\d+):\s*([^(]+)/g;
+      while ((match = fallbackPattern.exec(content)) !== null) {
+        sprints.push({
+          number: parseInt(match[1]),
+          name: match[2].trim(),
+        });
+      }
     }
 
     return sprints;

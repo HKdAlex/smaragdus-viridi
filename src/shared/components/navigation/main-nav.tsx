@@ -1,8 +1,8 @@
 "use client";
 
 import { Button } from "@/shared/components/ui/button";
-import { ThemeToggle } from "@/shared/components/ui/theme-toggle";
 import Link from "next/link";
+import { ThemeToggle } from "@/shared/components/ui/theme-toggle";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 
@@ -31,16 +31,18 @@ export function MainNav() {
   };
 
   return (
-    <header className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-700 transition-colors duration-300">
+    <header className="bg-background border-b border-border transition-colors duration-300 sticky top-0 z-50 backdrop-blur-sm bg-background/95">
       <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8" aria-label="Top">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
-              <div className="h-8 w-8 bg-emerald-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">S</span>
+              <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
+                <span className="text-primary-foreground font-bold text-lg">
+                  S
+                </span>
               </div>
-              <span className="font-bold text-xl text-gray-900 dark:text-gray-100 transition-colors duration-300">
+              <span className="font-bold text-xl text-foreground transition-colors duration-300">
                 Smaragdus Viridi
               </span>
             </Link>
@@ -53,10 +55,10 @@ export function MainNav() {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`text-sm font-medium transition-colors hover:text-emerald-600 dark:hover:text-emerald-400 ${
+                  className={`text-sm font-medium transition-colors hover:text-primary ${
                     isCurrentPage(item.href)
-                      ? "text-emerald-600 dark:text-emerald-400 border-b-2 border-emerald-600 dark:border-emerald-400 pb-1"
-                      : "text-gray-700 dark:text-gray-300"
+                      ? "text-primary border-b-2 border-primary pb-1"
+                      : "text-muted-foreground"
                   }`}
                 >
                   {item.name}
@@ -70,7 +72,7 @@ export function MainNav() {
             {/* Search button */}
             <button
               type="button"
-              className="p-2 text-gray-600 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+              className="p-2 text-muted-foreground hover:text-primary transition-colors"
               aria-label="Search"
             >
               <svg
@@ -91,7 +93,7 @@ export function MainNav() {
             {/* Cart button */}
             <button
               type="button"
-              className="p-2 text-gray-600 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors relative"
+              className="p-2 text-muted-foreground hover:text-primary transition-colors relative"
               aria-label="Shopping cart"
             >
               <svg
@@ -108,7 +110,7 @@ export function MainNav() {
                 />
               </svg>
               {/* Cart badge - will be dynamic later */}
-              <span className="absolute -top-1 -right-1 h-4 w-4 bg-emerald-600 text-white text-xs rounded-full flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 h-4 w-4 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center">
                 0
               </span>
             </button>
@@ -122,14 +124,14 @@ export function MainNav() {
                 variant="outline"
                 asChild
                 size="sm"
-                className="border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-emerald-600 dark:hover:text-emerald-400"
+                className="border-border text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
               >
                 <Link href="/login">Sign In</Link>
               </Button>
               <Button
                 asChild
                 size="sm"
-                className="bg-emerald-600 hover:bg-emerald-700"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
               >
                 <Link href="/signup">Sign Up</Link>
               </Button>
@@ -138,7 +140,7 @@ export function MainNav() {
             {/* Mobile menu button */}
             <button
               type="button"
-              className="md:hidden p-2 text-gray-600 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+              className="md:hidden p-2 text-muted-foreground hover:text-primary transition-colors"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label="Toggle menu"
             >
@@ -169,8 +171,8 @@ export function MainNav() {
                   href={item.href}
                   className={`block px-3 py-2 text-base font-medium transition-colors ${
                     isCurrentPage(item.href)
-                      ? "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20"
-                      : "text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-gray-50 dark:hover:bg-gray-800"
+                      ? "text-primary bg-accent"
+                      : "text-muted-foreground hover:text-primary hover:bg-accent"
                   }`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
@@ -184,14 +186,14 @@ export function MainNav() {
                   variant="outline"
                   asChild
                   size="sm"
-                  className="w-full border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-emerald-600 dark:hover:text-emerald-400"
+                  className="w-full border-border text-foreground hover:bg-accent hover:text-accent-foreground"
                 >
                   <Link href="/login">Sign In</Link>
                 </Button>
                 <Button
                   asChild
                   size="sm"
-                  className="w-full bg-emerald-600 hover:bg-emerald-700"
+                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
                 >
                   <Link href="/signup">Sign Up</Link>
                 </Button>
