@@ -46,14 +46,26 @@ const CONFIG = {
   REPORT_INTERVAL: 5, // Report every 5 gemstones
 };
 
+// Russian Gemstone Classification System
+// Based on folder naming conventions from the collection
 const GEMSTONE_TYPE_MAP = {
-  А: "amethyst", // Amethyst
-  Г: "garnet", // Garnet
-  Ц: "citrine", // Citrine
-  Т: "topaz", // Topaz
-  Ф: "fluorite", // Fluorite
-  П: "peridot", // Peridot
-  default: "emerald",
+  // Numbers only (1, 1.1, 1.2, etc.) → Emeralds (изумруды)
+  А: "emerald", // А + numbers → Emeralds (изумруды)
+  Б: "emerald", // Б + numbers → Brazilian Emeralds (бразильские изумруды)
+  Г: "garnet", // Г + numbers → Garnets (гранаты)
+  Е: "emerald", // Е + numbers → Emeralds (изумруды)
+  К: "quartz", // К + numbers → Green stones/quartz (зелёные камни/кварц)
+  Л: "tourmaline", // Л + numbers → Tourmalines (турмалины)
+  М: "morganite", // М + numbers → Morganites (морганиты)
+  Н: "aquamarine", // Н + numbers → Aquamarines (аквамарины)
+  П: "peridot", // П + numbers → Peridots (перидоты)
+  Р: "zircon", // Р + numbers → Zircons (цирконы)
+  С: "sapphire", // С + numbers → Sapphires (сапфиры)
+  Т: "apatite", // Т + numbers → Apatites (апатиты)
+  Ф: "amethyst", // Ф + numbers → Amethysts (аметисты)
+  Ц: "citrine", // Ц + numbers → Citrines (цитрины)
+  Z: "tanzanite", // Z + numbers → Tanzanites (танзаниты)
+  default: "emerald", // Numbers only default to emeralds
 };
 
 const SUPPORTED_IMAGE_FORMATS = [
@@ -205,6 +217,26 @@ function formatFileSize(bytes) {
 function detectGemstoneType(folderName) {
   const firstChar = folderName.charAt(0).toUpperCase();
   return GEMSTONE_TYPE_MAP[firstChar] || GEMSTONE_TYPE_MAP.default;
+}
+
+function detectGemstoneColor(gemstoneType) {
+  // Map gemstone types to their typical colors
+  const colorMap = {
+    emerald: "green",
+    aquamarine: "blue",
+    morganite: "pink",
+    garnet: "red",
+    peridot: "green",
+    sapphire: "blue",
+    amethyst: "colorless", // Could be fancy-blue for some varieties
+    citrine: "yellow",
+    tanzanite: "fancy-blue",
+    tourmaline: "green", // Can be various colors
+    zircon: "colorless",
+    apatite: "blue",
+    quartz: "colorless",
+  };
+  return colorMap[gemstoneType] || "colorless";
 }
 
 function generateSerialNumber(folderName) {
@@ -538,10 +570,11 @@ async function processGemstoneFolder(
     stats.total.images += imageFiles.length;
     stats.total.videos += videoFiles.length;
 
-    // Create gemstone record
+    // Create gemstone record with intelligent type and color detection
+    const detectedColor = detectGemstoneColor(gemstoneType);
     const gemstoneData = {
       name: gemstoneType,
-      color: "colorless", // Default valid enum value
+      color: detectedColor, // Intelligent color based on gemstone type
       cut: "round", // Default valid enum value
       clarity: "VS1", // Default valid enum value
       weight_carats: 0,
@@ -561,7 +594,9 @@ async function processGemstoneFolder(
     };
 
     const gemstone = await createGemstoneRecord(supabase, gemstoneData);
-    console.log(`💎 Created gemstone: ${serialNumber}`);
+    console.log(
+      `💎 Created gemstone: ${serialNumber} (${gemstoneType}, ${detectedColor})`
+    );
 
     // Process images
     let imageOrder = 1;
