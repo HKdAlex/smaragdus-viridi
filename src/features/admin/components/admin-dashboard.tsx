@@ -19,6 +19,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
+import { useEffect, useState } from "react";
 
 import { AdminAnalytics } from "./admin-analytics";
 import { AdminGemstoneManager } from "./admin-gemstone-manager";
@@ -27,8 +28,8 @@ import { AdminSettings } from "./admin-settings";
 import { AdminUserManager } from "./admin-user-manager";
 // Import admin components (will be created in subsequent phases)
 import { Button } from "@/shared/components/ui/button";
+import { StatisticsService } from "../services/statistics-service";
 import { useAdmin } from "../context/admin-context";
-import { useState } from "react";
 
 type AdminTab =
   | "dashboard"
@@ -235,36 +236,139 @@ export function AdminDashboard() {
 
 // Dashboard Overview Component
 function AdminDashboardOverview() {
-  const stats = [
+  const [stats, setStats] = useState<
+    Array<{
+      title: string;
+      value: string;
+      change: string;
+      trend: "up" | "down" | "neutral";
+      icon: React.ComponentType<{ className?: string }>;
+    }>
+  >([
     {
       title: "Total Gemstones",
-      value: "1,247",
-      change: "+12%",
-      trend: "up",
+      value: "Loading...",
+      change: "",
+      trend: "neutral",
       icon: Gem,
     },
     {
       title: "Active Users",
-      value: "3,429",
-      change: "+8%",
-      trend: "up",
+      value: "Loading...",
+      change: "",
+      trend: "neutral",
       icon: Users,
     },
     {
       title: "Revenue",
-      value: "$45,231",
-      change: "+23%",
-      trend: "up",
+      value: "Loading...",
+      change: "",
+      trend: "neutral",
       icon: TrendingUp,
     },
     {
       title: "Orders",
-      value: "156",
-      change: "+5%",
-      trend: "up",
+      value: "Loading...",
+      change: "",
+      trend: "neutral",
       icon: BarChart3,
     },
-  ];
+  ]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    loadDashboardStats();
+  }, []);
+
+  const loadDashboardStats = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const result = await StatisticsService.getDashboardStats();
+
+      if (result.success) {
+        const dashboardStats = result.data;
+
+        setStats([
+          {
+            title: "Total Gemstones",
+            value: StatisticsService.formatNumber(
+              dashboardStats.totalGemstones
+            ),
+            change: `+${dashboardStats.changes.totalGemstones.percentage}%`,
+            trend: dashboardStats.changes.totalGemstones.trend,
+            icon: Gem,
+          },
+          {
+            title: "Active Users",
+            value: StatisticsService.formatNumber(dashboardStats.activeUsers),
+            change: `+${dashboardStats.changes.activeUsers.percentage}%`,
+            trend: dashboardStats.changes.activeUsers.trend,
+            icon: Users,
+          },
+          {
+            title: "Revenue",
+            value: StatisticsService.formatCurrency(
+              dashboardStats.totalRevenue
+            ),
+            change: `+${dashboardStats.changes.totalRevenue.percentage}%`,
+            trend: dashboardStats.changes.totalRevenue.trend,
+            icon: TrendingUp,
+          },
+          {
+            title: "Orders",
+            value: StatisticsService.formatNumber(dashboardStats.totalOrders),
+            change: `+${dashboardStats.changes.totalOrders.percentage}%`,
+            trend: dashboardStats.changes.totalOrders.trend,
+            icon: BarChart3,
+          },
+        ]);
+      } else {
+        setError(result.error);
+        console.error("Failed to load dashboard stats:", result.error);
+      }
+    } catch (error) {
+      setError("Failed to load dashboard statistics");
+      console.error("Dashboard stats error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-3xl font-bold text-foreground mb-2">
+            Dashboard Overview
+          </h2>
+          <p className="text-muted-foreground">
+            Monitor your gemstone business performance and manage operations
+          </p>
+        </div>
+
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="p-6">
+            <div className="text-center">
+              <h3 className="text-lg font-semibold text-red-800 mb-2">
+                Failed to Load Statistics
+              </h3>
+              <p className="text-red-600 mb-4">{error}</p>
+              <Button
+                onClick={loadDashboardStats}
+                variant="outline"
+                className="border-red-300 text-red-700 hover:bg-red-100"
+              >
+                Retry
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

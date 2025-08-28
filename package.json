@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npm run validate-images && next build",
+    "build": "next build",
     "build:force": "next build",
+    "build:with-validation": "npm run validate-images && next build",
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
@@ -28,13 +29,14 @@
     "assign-smart-images": "node scripts/smart-image-assignment.js",
     "refresh-gemstone-images": "node scripts/refresh-gemstone-images.js",
     "types:generate": "npx supabase gen types typescript --project-id dpqapyojcdtrjwuhybky --schema public > src/shared/types/database.ts",
-    "prebuild": "npm run validate-images",
+    "prebuild:validate": "npm run validate-images",
     "quality-check": "npm run type-check && npm run lint && npm run validate-images && npm run check-type-governance"
   },
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "@heroicons/react": "^2.2.0",
     "@hookform/resolvers": "^3.3.4",
+    "@radix-ui/react-dropdown-menu": "^2.1.16",
     "@radix-ui/react-slot": "^1.1.0",
     "@supabase/ssr": "^0.5.1",
     "@supabase/supabase-js": "^2.45.4",

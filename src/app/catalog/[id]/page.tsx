@@ -5,9 +5,9 @@ import type {
 } from "@/shared/types";
 
 import { GemstoneDetail } from "@/features/gemstones/components/gemstone-detail";
-import { supabase } from "@/lib/supabase";
-import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { notFound } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
 // DetailGemstone interface is now imported from shared types
 
@@ -19,6 +19,12 @@ interface PageProps {
 
 // Force dynamic rendering for this page since it contains real-time data
 export const dynamic = "force-dynamic";
+
+// Export params to satisfy Next.js requirements for dynamic routes
+export async function generateStaticParams() {
+  // Return empty array to indicate this is a fully dynamic route
+  return [];
+}
 
 async function fetchGemstoneById(id: string): Promise<DetailGemstone | null> {
   try {

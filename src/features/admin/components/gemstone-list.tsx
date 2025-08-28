@@ -3,28 +3,19 @@
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
-import { Input } from "@/shared/components/ui/input";
 import type { DatabaseGemstone } from "@/shared/types";
-import {
-  Download,
-  Edit,
-  Eye,
-  FileText,
-  Filter,
-  Gem,
-  MoreHorizontal,
-  Plus,
-  Search,
-  Trash2,
-} from "lucide-react";
+import { Edit, FileText, Gem, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
+import { ExportService, type ExportOptions } from "../services/export-service";
 import {
   GemstoneAdminService,
   type GemstoneWithRelations,
 } from "../services/gemstone-admin-service";
-import { AdvancedFilters, type AdvancedFiltersState } from "./advanced-filters";
+
 import { BulkEditModal } from "./bulk-edit-modal";
-import { ExportService, type ExportOptions } from "../services/export-service";
+import { EnhancedSearch, type SearchFilters } from "./enhanced-search";
+import { GemstoneActionsMenu } from "./gemstone-actions-menu";
+import { GemstoneDetailView } from "./gemstone-detail-view";
 
 interface GemstoneListProps {
   onCreateNew?: () => void;
@@ -45,19 +36,19 @@ export function GemstoneList({
   const [selectedGemstones, setSelectedGemstones] = useState<Set<string>>(
     new Set()
   );
-  const [advancedFiltersOpen, setAdvancedFiltersOpen] = useState(false);
   const [bulkEditOpen, setBulkEditOpen] = useState(false);
   const [exporting, setExporting] = useState(false);
-  const [advancedFilters, setAdvancedFilters] = useState<AdvancedFiltersState>({
+  const [detailViewOpen, setDetailViewOpen] = useState(false);
+  const [selectedGemstoneForView, setSelectedGemstoneForView] =
+    useState<DatabaseGemstone | null>(null);
+  const [searchFilters, setSearchFilters] = useState<SearchFilters>({
+    query: "",
+    sortBy: "created_at",
+    sortOrder: "desc",
     types: [],
     colors: [],
     cuts: [],
     clarities: [],
-    priceMin: undefined,
-    priceMax: undefined,
-    weightMin: undefined,
-    weightMax: undefined,
-    stockStatus: "all",
     origins: [],
   });
   const [availableOrigins, setAvailableOrigins] = useState<string[]>([]);
@@ -90,100 +81,138 @@ export function GemstoneList({
     }
   };
 
-  const filteredGemstones = gemstones.filter((gemstone) => {
-    // Text search filter
-    if (searchTerm) {
-      const searchLower = searchTerm.toLowerCase();
-      const matchesSearch =
-        gemstone.serial_number.toLowerCase().includes(searchLower) ||
-        gemstone.name.toLowerCase().includes(searchLower) ||
-        gemstone.color.toLowerCase().includes(searchLower) ||
-        gemstone.internal_code?.toLowerCase().includes(searchLower) ||
-        gemstone.origin?.name.toLowerCase().includes(searchLower);
+  const filteredGemstones = gemstones
+    .filter((gemstone) => {
+      // Text search filter
+      if (searchFilters.query) {
+        const searchLower = searchFilters.query.toLowerCase();
+        const matchesSearch =
+          gemstone.serial_number.toLowerCase().includes(searchLower) ||
+          gemstone.name.toLowerCase().includes(searchLower) ||
+          gemstone.color.toLowerCase().includes(searchLower) ||
+          gemstone.internal_code?.toLowerCase().includes(searchLower) ||
+          gemstone.origin?.name.toLowerCase().includes(searchLower) ||
+          gemstone.description?.toLowerCase().includes(searchLower);
 
-      if (!matchesSearch) return false;
-    }
+        if (!matchesSearch) return false;
+      }
 
-    // Advanced filters
-    // Type filter
-    if (
-      advancedFilters.types.length > 0 &&
-      !advancedFilters.types.includes(gemstone.name)
-    ) {
-      return false;
-    }
-
-    // Color filter
-    if (
-      advancedFilters.colors.length > 0 &&
-      !advancedFilters.colors.includes(gemstone.color)
-    ) {
-      return false;
-    }
-
-    // Cut filter
-    if (
-      advancedFilters.cuts.length > 0 &&
-      !advancedFilters.cuts.includes(gemstone.cut)
-    ) {
-      return false;
-    }
-
-    // Clarity filter
-    if (
-      advancedFilters.clarities.length > 0 &&
-      !advancedFilters.clarities.includes(gemstone.clarity)
-    ) {
-      return false;
-    }
-
-    // Price range filter
-    if (
-      advancedFilters.priceMin !== undefined &&
-      gemstone.price_amount < advancedFilters.priceMin
-    ) {
-      return false;
-    }
-    if (
-      advancedFilters.priceMax !== undefined &&
-      gemstone.price_amount > advancedFilters.priceMax
-    ) {
-      return false;
-    }
-
-    // Weight range filter
-    if (
-      advancedFilters.weightMin !== undefined &&
-      gemstone.weight_carats < advancedFilters.weightMin
-    ) {
-      return false;
-    }
-    if (
-      advancedFilters.weightMax !== undefined &&
-      gemstone.weight_carats > advancedFilters.weightMax
-    ) {
-      return false;
-    }
-
-    // Stock status filter
-    if (advancedFilters.stockStatus === "in_stock" && !gemstone.in_stock) {
-      return false;
-    }
-    if (advancedFilters.stockStatus === "out_of_stock" && gemstone.in_stock) {
-      return false;
-    }
-
-    // Origin filter
-    if (advancedFilters.origins.length > 0 && gemstone.origin) {
-      if (!advancedFilters.origins.includes(gemstone.origin.name)) {
+      // Type filter
+      if (
+        searchFilters.types.length > 0 &&
+        !searchFilters.types.includes(gemstone.name)
+      ) {
         return false;
       }
-    } else if (advancedFilters.origins.length > 0) {
-      return false; // No origin but origins filter is active
-    }
 
-    return true;
-  });
+      // Color filter
+      if (
+        searchFilters.colors.length > 0 &&
+        !searchFilters.colors.includes(gemstone.color)
+      ) {
+        return false;
+      }
+
+      // Cut filter
+      if (
+        searchFilters.cuts.length > 0 &&
+        !searchFilters.cuts.includes(gemstone.cut)
+      ) {
+        return false;
+      }
+
+      // Clarity filter
+      if (
+        searchFilters.clarities.length > 0 &&
+        !searchFilters.clarities.includes(gemstone.clarity)
+      ) {
+        return false;
+      }
+
+      // Price range filter
+      if (
+        searchFilters.priceMin !== undefined &&
+        gemstone.price_amount < searchFilters.priceMin
+      ) {
+        return false;
+      }
+      if (
+        searchFilters.priceMax !== undefined &&
+        gemstone.price_amount > searchFilters.priceMax
+      ) {
+        return false;
+      }
+
+      // Weight range filter
+      if (
+        searchFilters.weightMin !== undefined &&
+        gemstone.weight_carats < searchFilters.weightMin
+      ) {
+        return false;
+      }
+      if (
+        searchFilters.weightMax !== undefined &&
+        gemstone.weight_carats > searchFilters.weightMax
+      ) {
+        return false;
+      }
+
+      // Stock status filter
+      if (
+        searchFilters.inStock !== undefined &&
+        gemstone.in_stock !== searchFilters.inStock
+      ) {
+        return false;
+      }
+
+      // Origin filter
+      if (searchFilters.origins.length > 0 && gemstone.origin) {
+        if (!searchFilters.origins.includes(gemstone.origin.name)) {
+          return false;
+        }
+      } else if (searchFilters.origins.length > 0) {
+        return false; // No origin but origins filter is active
+      }
+
+      return true;
+    })
+    .sort((a, b) => {
+      let aValue: any;
+      let bValue: any;
+
+      switch (searchFilters.sortBy) {
+        case "created_at":
+          aValue = a.created_at ? new Date(a.created_at).getTime() : 0;
+          bValue = b.created_at ? new Date(b.created_at).getTime() : 0;
+          break;
+        case "price_amount":
+          aValue = a.price_amount;
+          bValue = b.price_amount;
+          break;
+        case "weight_carats":
+          aValue = a.weight_carats;
+          bValue = b.weight_carats;
+          break;
+        case "serial_number":
+          aValue = a.serial_number.toLowerCase();
+          bValue = b.serial_number.toLowerCase();
+          break;
+        case "name":
+          aValue = a.name.toLowerCase();
+          bValue = b.name.toLowerCase();
+          break;
+        default:
+          return 0;
+      }
+
+      if (aValue < bValue) {
+        return searchFilters.sortOrder === "asc" ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return searchFilters.sortOrder === "asc" ? 1 : -1;
+      }
+      return 0;
+    });
 
   const handleSelectGemstone = (gemstoneId: string, selected: boolean) => {
     const newSelected = new Set(selectedGemstones);
@@ -218,26 +247,146 @@ export function GemstoneList({
     setBulkEditOpen(false);
   };
 
-  const handleExport = async (format: 'csv' | 'pdf', selectedOnly: boolean = false) => {
+  const handleViewDetail = (gemstone: DatabaseGemstone) => {
+    setSelectedGemstoneForView(gemstone);
+    setDetailViewOpen(true);
+  };
+
+  const handleDetailViewClose = () => {
+    setDetailViewOpen(false);
+    setSelectedGemstoneForView(null);
+  };
+
+  const handleSearchFiltersChange = (filters: SearchFilters) => {
+    setSearchFilters(filters);
+  };
+
+  const handleSearchQuery = (query: string) => {
+    setSearchFilters({ ...searchFilters, query });
+  };
+
+  const handleDuplicate = async (gemstone: DatabaseGemstone) => {
+    try {
+      // Transform DatabaseGemstone to GemstoneFormData format
+      const formData = {
+        serial_number: `${gemstone.serial_number}_copy_${Date.now()}`,
+        name: gemstone.name,
+        color: gemstone.color,
+        cut: gemstone.cut,
+        clarity: gemstone.clarity,
+        weight_carats: gemstone.weight_carats,
+        length_mm: gemstone.length_mm ?? undefined,
+        width_mm: gemstone.width_mm ?? undefined,
+        depth_mm: gemstone.depth_mm ?? undefined,
+        origin_id: gemstone.origin_id ?? undefined,
+        price_amount: gemstone.price_amount,
+        price_currency: gemstone.price_currency,
+        premium_price_amount: gemstone.premium_price_amount ?? undefined,
+        premium_price_currency: gemstone.premium_price_currency ?? undefined,
+        in_stock: gemstone.in_stock ?? false,
+        delivery_days: gemstone.delivery_days ?? undefined,
+        internal_code: gemstone.internal_code
+          ? `${gemstone.internal_code}_copy`
+          : undefined,
+        description: gemstone.description ?? undefined,
+        promotional_text: undefined, // Not available in DatabaseGemstone
+      };
+
+      const result = await GemstoneAdminService.createGemstone(formData);
+
+      if (result.success) {
+        console.log("Gemstone duplicated successfully");
+        loadGemstones(); // Refresh the list
+      } else {
+        alert(`Failed to duplicate gemstone: ${result.error}`);
+      }
+    } catch (error) {
+      console.error("Error duplicating gemstone:", error);
+      alert("Failed to duplicate gemstone");
+    }
+  };
+
+  const handleExportSingle = async (gemstone: DatabaseGemstone) => {
+    await handleExport("csv", false, [gemstone.id]);
+  };
+
+  const handleArchive = async (gemstone: DatabaseGemstone) => {
+    // For now, we'll just mark as out of stock
+    try {
+      const result = await GemstoneAdminService.updateGemstone(gemstone.id, {
+        in_stock: false,
+      });
+
+      if (result.success) {
+        console.log("Gemstone archived successfully");
+        loadGemstones(); // Refresh the list
+      } else {
+        alert(`Failed to archive gemstone: ${result.error}`);
+      }
+    } catch (error) {
+      console.error("Error archiving gemstone:", error);
+      alert("Failed to archive gemstone");
+    }
+  };
+
+  const handleRestore = async (gemstone: DatabaseGemstone) => {
+    // For now, we'll just mark as in stock
+    try {
+      const result = await GemstoneAdminService.updateGemstone(gemstone.id, {
+        in_stock: true,
+      });
+
+      if (result.success) {
+        console.log("Gemstone restored successfully");
+        loadGemstones(); // Refresh the list
+      } else {
+        alert(`Failed to restore gemstone: ${result.error}`);
+      }
+    } catch (error) {
+      console.error("Error restoring gemstone:", error);
+      alert("Failed to restore gemstone");
+    }
+  };
+
+  const handleExport = async (
+    format: "csv" | "pdf",
+    selectedOnly: boolean = false,
+    specificIds?: string[]
+  ) => {
     setExporting(true);
 
     try {
-      const gemstonesToExport = selectedOnly && selectedGemstones.size > 0
-        ? filteredGemstones.filter(g => selectedGemstones.has(g.id))
-        : filteredGemstones;
+      let gemstonesToExport;
+
+      if (specificIds && specificIds.length > 0) {
+        // Export specific gemstones by ID
+        gemstonesToExport = filteredGemstones.filter((g) =>
+          specificIds.includes(g.id)
+        );
+      } else if (selectedOnly && selectedGemstones.size > 0) {
+        // Export selected gemstones
+        gemstonesToExport = filteredGemstones.filter((g) =>
+          selectedGemstones.has(g.id)
+        );
+      } else {
+        // Export all filtered gemstones
+        gemstonesToExport = filteredGemstones;
+      }
 
       const options: ExportOptions = {
         format,
-        selectedGemstones: selectedOnly && selectedGemstones.size > 0
-          ? Array.from(selectedGemstones)
-          : undefined,
+        selectedGemstones:
+          specificIds || (selectedOnly && selectedGemstones.size > 0)
+            ? Array.from(selectedGemstones)
+            : undefined,
         includeImages: false, // TODO: Implement image export
         includeMetadata: true,
       };
 
-      const result = format === 'csv'
-        ? await ExportService.exportToCSV(gemstonesToExport, options)
-        : await ExportService.exportToPDF(gemstonesToExport, options);
+      const result =
+        format === "csv"
+          ? await ExportService.exportToCSV(gemstonesToExport, options)
+          : await ExportService.exportToPDF(gemstonesToExport, options);
 
       if (result.success) {
         ExportService.downloadFile(result);
@@ -245,8 +394,8 @@ export function GemstoneList({
         alert(`Export failed: ${result.error}`);
       }
     } catch (error) {
-      console.error('Export error:', error);
-      alert('Export failed. Please try again.');
+      console.error("Export error:", error);
+      alert("Export failed. Please try again.");
     } finally {
       setExporting(false);
     }
@@ -278,101 +427,60 @@ export function GemstoneList({
 
   return (
     <div className="space-y-6">
-      {/* Header with Search and Actions */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4 flex-1">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-            <Input
-              placeholder="Search gemstones..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
+      {/* Enhanced Search */}
+      <EnhancedSearch
+        onFiltersChange={handleSearchFiltersChange}
+        onSearch={handleSearchQuery}
+        availableOrigins={availableOrigins}
+        initialFilters={searchFilters}
+      />
 
-          {selectedGemstones.size > 0 && (
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">
-                {selectedGemstones.size} selected
-              </span>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleExport('csv', true)}
-                  disabled={exporting}
-                >
-                  <FileText className="w-4 h-4 mr-2" />
-                  {exporting ? 'Exporting...' : 'Export CSV'}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleExport('pdf', true)}
-                  disabled={exporting}
-                >
-                  <FileText className="w-4 h-4 mr-2" />
-                  {exporting ? 'Exporting...' : 'Export PDF'}
-                </Button>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleBulkEdit}
-                disabled={selectedGemstones.size === 0}
-              >
-                <Edit className="w-4 h-4 mr-2" />
-                Bulk Edit
-              </Button>
-            </div>
-          )}
-        </div>
-
-        <div className="flex items-center gap-3">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setAdvancedFiltersOpen(!advancedFiltersOpen)}
-          >
-            <Filter className="w-4 h-4 mr-2" />
-            Filter
-          </Button>
-          <Button onClick={onCreateNew} className="flex items-center gap-2">
-            <Plus className="w-4 h-4" />
-            Add Gemstone
-          </Button>
+      {/* Selection Actions */}
+      {selectedGemstones.size > 0 && (
+        <div className="flex items-center gap-2 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <span className="text-sm text-blue-800">
+            {selectedGemstones.size} gemstones selected
+          </span>
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
-              onClick={() => handleExport('csv')}
+              onClick={() => handleExport("csv", true)}
               disabled={exporting}
             >
               <FileText className="w-4 h-4 mr-2" />
-              {exporting ? 'Exporting...' : 'Export All CSV'}
+              {exporting ? "Exporting..." : "Export CSV"}
             </Button>
             <Button
               variant="outline"
               size="sm"
-              onClick={() => handleExport('pdf')}
+              onClick={() => handleExport("pdf", true)}
               disabled={exporting}
             >
               <FileText className="w-4 h-4 mr-2" />
-              {exporting ? 'Exporting...' : 'Export All PDF'}
+              {exporting ? "Exporting..." : "Export PDF"}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleBulkEdit}
+              disabled={selectedGemstones.size === 0}
+            >
+              <Edit className="w-4 h-4 mr-2" />
+              Bulk Edit
             </Button>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Advanced Filters */}
-      <AdvancedFilters
-        filters={advancedFilters}
-        onFiltersChange={setAdvancedFilters}
-        isOpen={advancedFiltersOpen}
-        onToggle={() => setAdvancedFiltersOpen(!advancedFiltersOpen)}
-        availableOrigins={availableOrigins}
-      />
+      {/* Create New Button */}
+      <div className="flex justify-between items-center">
+        <div></div>
+        <Button onClick={onCreateNew} className="flex items-center gap-2">
+          <Plus className="w-4 h-4" />
+          Add Gemstone
+        </Button>
+      </div>
 
       {/* Results Summary */}
       <div className="flex items-center justify-between text-sm text-muted-foreground">
@@ -535,33 +643,17 @@ export function GemstoneList({
                         </div>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => onView?.(gemstone)}
-                          >
-                            <Eye className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => onEdit?.(gemstone)}
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => onDelete?.(gemstone)}
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm">
-                            <MoreHorizontal className="w-4 h-4" />
-                          </Button>
-                        </div>
+                        <GemstoneActionsMenu
+                          gemstone={gemstone}
+                          onView={handleViewDetail}
+                          onEdit={onEdit}
+                          onDelete={onDelete}
+                          onDuplicate={handleDuplicate}
+                          onExportSingle={handleExportSingle}
+                          onArchive={handleArchive}
+                          onRestore={handleRestore}
+                          isArchived={!gemstone.in_stock}
+                        />
                       </td>
                     </tr>
                   ))}
@@ -579,6 +671,15 @@ export function GemstoneList({
         selectedGemstones={selectedGemstones}
         onSuccess={handleBulkEditSuccess}
       />
+
+      {/* Gemstone Detail View Modal */}
+      {selectedGemstoneForView && (
+        <GemstoneDetailView
+          gemstone={selectedGemstoneForView}
+          isOpen={detailViewOpen}
+          onClose={handleDetailViewClose}
+        />
+      )}
     </div>
   );
 }

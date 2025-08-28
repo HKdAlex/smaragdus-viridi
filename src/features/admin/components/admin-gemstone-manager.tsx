@@ -2,6 +2,7 @@
 
 import { AlertCircle, Gem, Plus, Upload } from "lucide-react";
 import { Card, CardContent } from "@/shared/components/ui/card";
+import { useEffect, useState } from "react";
 
 import { BulkImportModal } from "./bulk-import-modal";
 import type { BulkImportResult } from "../services/gemstone-admin-service";
@@ -10,7 +11,7 @@ import type { DatabaseGemstone } from "@/shared/types";
 import { GemstoneAdminService } from "../services/gemstone-admin-service";
 import { GemstoneForm } from "./gemstone-form";
 import { GemstoneList } from "./gemstone-list";
-import { useState } from "react";
+import { StatisticsService } from "../services/statistics-service";
 
 type ViewMode = "list" | "create" | "edit";
 
@@ -25,6 +26,30 @@ export function AdminGemstoneManager() {
     lowStock: 0,
     outOfStock: 0,
   });
+
+  useEffect(() => {
+    loadGemstoneStats();
+  }, []);
+
+  const loadGemstoneStats = async () => {
+    try {
+      const result = await StatisticsService.getGemstoneStats();
+
+      if (result.success) {
+        const gemstoneStats = result.data;
+        setStats({
+          total: gemstoneStats.total,
+          inStock: gemstoneStats.inStock,
+          lowStock: 0, // TODO: Implement low stock logic
+          outOfStock: gemstoneStats.outOfStock,
+        });
+      } else {
+        console.error("Failed to load gemstone stats:", result.error);
+      }
+    } catch (error) {
+      console.error("Error loading gemstone stats:", error);
+    }
+  };
 
   const handleCreateNew = () => {
     setSelectedGemstone(null);
@@ -75,7 +100,9 @@ export function AdminGemstoneManager() {
 
   const handleBulkImportSuccess = (result: BulkImportResult) => {
     setIsBulkImportOpen(false);
-    // Refresh the page to show updated data
+    // Refresh the stats and gemstone list
+    loadGemstoneStats();
+    // The GemstoneList component will refresh automatically due to the reload
     window.location.reload();
   };
 

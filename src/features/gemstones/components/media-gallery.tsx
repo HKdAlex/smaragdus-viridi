@@ -57,7 +57,11 @@ export function MediaGallery({ images, videos }: MediaGalleryProps) {
     })),
   ].sort((a, b) => a.order - b.order);
 
-  const [currentIndex, setCurrentIndex] = useState(0);
+  // Find the primary image index to start with
+  const primaryImageIndex = mediaItems.findIndex((item) => item.isPrimary);
+  const initialIndex = primaryImageIndex !== -1 ? primaryImageIndex : 0;
+
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [isVideoMuted, setIsVideoMuted] = useState(true);
