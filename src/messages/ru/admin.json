@@ -1,0 +1,61 @@
+{
+  "dashboard": {
+    "title": "Панель администратора",
+    "welcome": "Добро пожаловать в панель администратора",
+    "totalGemstones": "Всего камней",
+    "activeUsers": "Активные пользователи",
+    "totalOrders": "Всего заказов",
+    "revenue": "Доход"
+  },
+  "navigation": {
+    "gemstones": "Камни",
+    "users": "Пользователи",
+    "orders": "Заказы",
+    "analytics": "Аналитика",
+    "settings": "Настройки"
+  },
+  "gemstones": {
+    "title": "Управление камнями",
+    "search": "Поиск камней...",
+    "addNew": "Добавить новый камень",
+    "edit": "Редактировать",
+    "delete": "Удалить",
+    "view": "Посмотреть детали",
+    "duplicate": "Дублировать",
+    "archive": "Архивировать",
+    "restore": "Восстановить",
+    "export": "Экспорт",
+    "import": "Импорт",
+    "bulkEdit": "Массовое редактирование",
+    "noGemstones": "Камней пока нет",
+    "noResults": "Камни не найдены",
+    "loading": "Загрузка камней...",
+    "exportCsv": "Экспорт CSV",
+    "exportPdf": "Экспорт PDF",
+    "exporting": "Экспорт...",
+    "inStock": "В наличии",
+    "outOfStock": "Нет в наличии"
+  },
+  "search": {
+    "placeholder": "Поиск камней по серийному номеру, типу, цвету или описанию...",
+    "sortBy": "Сортировать по",
+    "filters": "Фильтры",
+    "clearFilters": "Очистить все фильтры",
+    "activeFilters": "Активные фильтры ({count})",
+    "saveSearch": "Сохранить поиск",
+    "loadSearch": "Загрузить поиск",
+    "deleteSearch": "Удалить поиск",
+    "searchName": "Название поиска",
+    "savedSearches": "Сохранённые поиски",
+    "advancedFilters": "Расширенные фильтры"
+  },
+  "bulk": {
+    "selectAll": "Выбрать все",
+    "selectedCount": "Выбрано: {count}",
+    "clearSelection": "Очистить выбор",
+    "applyToSelected": "Применить к выбранным",
+    "deleteSelected": "Удалить выбранные",
+    "exportSelected": "Экспортировать выбранные",
+    "editSelected": "Редактировать выбранные"
+  }
+}

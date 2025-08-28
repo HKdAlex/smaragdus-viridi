@@ -1,0 +1,42 @@
+{
+  "company": {
+    "name": "Smaragdus Viridi",
+    "description": "Your trusted partner in premium gemstone trading. We provide jewelry professionals with access to the world's finest certified gemstones, backed by transparent grading and exceptional service.",
+    "contact": {
+      "email": "info@smaragdus-viridi.com",
+      "phone": "+1 (555) 123-4567"
+    }
+  },
+  "sections": {
+    "company": "Company",
+    "products": "Products",
+    "support": "Support",
+    "legal": "Legal"
+  },
+  "links": {
+    "company": {
+      "about": "About Us",
+      "contact": "Contact",
+      "careers": "Careers",
+      "press": "Press"
+    },
+    "products": {
+      "catalog": "Gemstone Catalog",
+      "certification": "Certification",
+      "customOrders": "Custom Orders",
+      "bulkPricing": "Bulk Pricing"
+    },
+    "support": {
+      "help": "Help Center",
+      "shipping": "Shipping Info",
+      "returns": "Returns",
+      "sizeGuide": "Size Guide"
+    },
+    "legal": {
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "cookies": "Cookie Policy"
+    }
+  },
+  "copyright": "© {year} Smaragdus Viridi. All rights reserved."
+}

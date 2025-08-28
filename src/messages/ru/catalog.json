@@ -1,0 +1,55 @@
+{
+  "title": "Каталог камней",
+  "subtitle": "Откройте для себя нашу премиальную коллекцию",
+  "loading": "Загрузка камней...",
+  "noResults": "Камни не найдены",
+  "search": {
+    "placeholder": "Поиск камней...",
+    "advanced": "Расширенный поиск",
+    "filters": "Фильтры",
+    "clearFilters": "Очистить все фильтры"
+  },
+  "filters": {
+    "title": "Фильтры",
+    "gemstoneType": "Тип камня",
+    "color": "Цвет",
+    "cut": "Огранка",
+    "clarity": "Чистота",
+    "priceRange": "Диапазон цен",
+    "weightRange": "Диапазон веса (караты)",
+    "origin": "Происхождение",
+    "certification": "Сертификация",
+    "availability": "Доступность",
+    "inStock": "В наличии",
+    "outOfStock": "Нет в наличии",
+    "reset": "Сбросить фильтры",
+    "apply": "Применить фильтры"
+  },
+  "sort": {
+    "title": "Сортировать по",
+    "newest": "Сначала новые",
+    "oldest": "Сначала старые",
+    "priceLow": "Цена: по возрастанию",
+    "priceHigh": "Цена: по убыванию",
+    "weightLow": "Вес: по возрастанию",
+    "weightHigh": "Вес: по убыванию",
+    "nameAZ": "Название: А-Я",
+    "nameZA": "Название: Я-А"
+  },
+  "product": {
+    "viewDetails": "Посмотреть детали",
+    "addToCart": "Добавить в корзину",
+    "addedToCart": "Добавлено в корзину",
+    "outOfStock": "Нет в наличии",
+    "inStock": "В наличии",
+    "price": "Цена",
+    "carat": "Карат",
+    "specifications": "Характеристики",
+    "description": "Описание",
+    "certifications": "Сертификаты",
+    "origin": "Происхождение",
+    "weight": "Вес",
+    "dimensions": "Размеры",
+    "treatment": "Обработка"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "title": "Shopping Cart",
+  "empty": {
+    "title": "Your cart is empty",
+    "subtitle": "Discover our beautiful gemstones",
+    "continueShopping": "Continue Shopping",
+    "signInRequired": "Sign In Required",
+    "signInMessage": "Please sign in to view and manage your shopping cart"
+  },
+  "items": {
+    "selectAll": "Select All ({count} items)",
+    "quantity": "Quantity",
+    "price": "Price",
+    "total": "Total",
+    "remove": "Remove",
+    "update": "Update"
+  },
+  "summary": {
+    "title": "Order Summary",
+    "subtotal": "Subtotal ({count} items)",
+    "shipping": "Shipping",
+    "tax": "Tax",
+    "total": "Total",
+    "calculatedAtCheckout": "Calculated at checkout",
+    "selectedItemsTotal": "Showing total for {count} selected item(s)"
+  },
+  "actions": {
+    "clearCart": "Clear Cart",
+    "clearing": "Clearing...",
+    "checkout": "Order {count} Item(s)",
+    "processing": "Processing Order...",
+    "tryAgain": "Try Again"
+  },
+  "loading": "Loading your cart...",
+  "error": "Error loading cart"
+}

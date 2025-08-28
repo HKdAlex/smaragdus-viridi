@@ -1,0 +1,61 @@
+{
+  "dashboard": {
+    "title": "Admin Dashboard",
+    "welcome": "Welcome to the admin panel",
+    "totalGemstones": "Total Gemstones",
+    "activeUsers": "Active Users",
+    "totalOrders": "Total Orders",
+    "revenue": "Revenue"
+  },
+  "navigation": {
+    "gemstones": "Gemstones",
+    "users": "Users",
+    "orders": "Orders",
+    "analytics": "Analytics",
+    "settings": "Settings"
+  },
+  "gemstones": {
+    "title": "Gemstone Management",
+    "search": "Search gemstones...",
+    "addNew": "Add New Gemstone",
+    "edit": "Edit",
+    "delete": "Delete",
+    "view": "View Details",
+    "duplicate": "Duplicate",
+    "archive": "Archive",
+    "restore": "Restore",
+    "export": "Export",
+    "import": "Import",
+    "bulkEdit": "Bulk Edit",
+    "noGemstones": "No gemstones yet",
+    "noResults": "No gemstones found",
+    "loading": "Loading gemstones...",
+    "exportCsv": "Export CSV",
+    "exportPdf": "Export PDF",
+    "exporting": "Exporting...",
+    "inStock": "In Stock",
+    "outOfStock": "Out of Stock"
+  },
+  "search": {
+    "placeholder": "Search gemstones by serial number, type, color, or description...",
+    "sortBy": "Sort by",
+    "filters": "Filters",
+    "clearFilters": "Clear All Filters",
+    "activeFilters": "Active Filters ({count})",
+    "saveSearch": "Save Search",
+    "loadSearch": "Load Search",
+    "deleteSearch": "Delete Search",
+    "searchName": "Search Name",
+    "savedSearches": "Saved Searches",
+    "advancedFilters": "Advanced Filters"
+  },
+  "bulk": {
+    "selectAll": "Select All",
+    "selectedCount": "Selected: {count}",
+    "clearSelection": "Clear Selection",
+    "applyToSelected": "Apply to Selected",
+    "deleteSelected": "Delete Selected",
+    "exportSelected": "Export Selected",
+    "editSelected": "Edit Selected"
+  }
+}

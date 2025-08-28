@@ -1,0 +1,45 @@
+{
+  "hero": {
+    "title": "Premium Gemstones for",
+    "titleHighlight": "Professional Jewelers",
+    "subtitle": "Discover our curated collection of certified gemstones. From rare emeralds to brilliant diamonds, each stone is professionally graded with full documentation for serious jewelry artisans.",
+    "browseCollection": "Browse Collection",
+    "learnMore": "Learn More"
+  },
+  "featured": {
+    "title": "Featured Categories",
+    "subtitle": "Professional-grade gemstones with full certification",
+    "emeralds": {
+      "title": "Emeralds",
+      "subtitle": "Colombian & Zambian origins"
+    },
+    "diamonds": {
+      "title": "Diamonds",
+      "subtitle": "GIA certified, D-J color grades"
+    },
+    "sapphires": {
+      "title": "Sapphires",
+      "subtitle": "Kashmir & Ceylon varieties"
+    }
+  },
+  "valueProps": {
+    "title": "Why Professionals Choose Us",
+    "authenticity": {
+      "title": "Certified Authenticity",
+      "description": "Every gemstone comes with professional certification from recognized laboratories"
+    },
+    "quality": {
+      "title": "Premium Quality",
+      "description": "Hand-selected stones meeting the highest standards for jewelry professionals"
+    },
+    "delivery": {
+      "title": "Fast Delivery",
+      "description": "Secure worldwide shipping with full insurance and tracking"
+    }
+  },
+  "cta": {
+    "title": "Ready to Find Your Perfect Gemstone?",
+    "subtitle": "Join thousands of professional jewelers who trust our expertise",
+    "getStarted": "Get Started Today"
+  }
+}
