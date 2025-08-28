@@ -2,6 +2,7 @@
 
 import { ArrowLeft, Lock, ShoppingBag } from "lucide-react";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 import { useAuth } from "@/features/auth/context/auth-context";
 import { Badge } from "@/shared/components/ui/badge";
@@ -14,6 +15,7 @@ import { EmptyCart } from "./empty-cart";
 
 export function CartPage() {
   const { user } = useAuth();
+  const t = useTranslations("cart");
   const {
     cartSummary,
     isLoading,
@@ -77,16 +79,16 @@ export function CartPage() {
         <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8 text-center">
           <Lock className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            Sign In Required
+            {t("authRequired.title")}
           </h1>
           <p className="text-gray-600 mb-6">
-            Please sign in to view and manage your shopping cart.
+            {t("authRequired.message")}
           </p>
           <Link
             href="/login"
             className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
-            Sign In
+            {t("authRequired.signIn")}
           </Link>
         </div>
       </div>
@@ -105,18 +107,17 @@ export function CartPage() {
                 className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
               >
                 <ArrowLeft className="w-5 h-5 mr-2" />
-                Continue Shopping
+                {t("continueShopping")}
               </Link>
             </div>
             <div className="flex items-center space-x-2">
               <ShoppingBag className="w-6 h-6 text-gray-600" />
               <h1 className="text-xl font-semibold text-gray-900">
-                Shopping Cart
+                {t("title")}
               </h1>
               {cartSummary && cartSummary.total_items > 0 && (
                 <Badge variant="secondary">
-                  {cartSummary.total_items} item
-                  {cartSummary.total_items !== 1 ? "s" : ""}
+                  {t("itemCount", { count: cartSummary.total_items })}
                 </Badge>
               )}
             </div>
@@ -130,12 +131,12 @@ export function CartPage() {
         {isLoading ? (
           <div className="flex items-center justify-center py-16">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <span className="ml-3 text-gray-600">Loading your cart...</span>
+            <span className="ml-3 text-gray-600">{t("loading")}</span>
           </div>
         ) : error ? (
           <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
             <p className="text-red-600 mb-4">{error}</p>
-            <Button onClick={() => window.location.reload()}>Try Again</Button>
+            <Button onClick={() => window.location.reload()}>{t("tryAgain")}</Button>
           </div>
         ) : !cartSummary || cartSummary.items.length === 0 ? (
           <EmptyCart />
@@ -155,7 +156,7 @@ export function CartPage() {
                         className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                       />
                       <span className="text-sm font-medium text-gray-900">
-                        Select All ({cartSummary.total_items} items)
+                        {t("selectAll", { count: cartSummary.total_items })}
                       </span>
                     </label>
                   </div>
@@ -167,7 +168,7 @@ export function CartPage() {
                     disabled={isClearing}
                     className="text-red-600 border-red-300 hover:bg-red-50"
                   >
-                    {isClearing ? "Clearing..." : "Clear Cart"}
+                    {isClearing ? t("clearing") : t("clearCart")}
                   </Button>
                 </div>
 
@@ -194,13 +195,13 @@ export function CartPage() {
             <div className="lg:col-span-1">
               <div className="bg-white rounded-lg shadow-sm p-6 sticky top-6">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                  Order Summary
+                  {t("orderSummary.title")}
                 </h2>
 
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">
-                      Subtotal ({cartSummary.total_items} items)
+                      {t("orderSummary.subtotal", { count: cartSummary.total_items })}
                     </span>
                     <span className="text-gray-900 font-medium">
                       {cartSummary.formatted_subtotal}
@@ -208,23 +209,23 @@ export function CartPage() {
                   </div>
 
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Shipping</span>
+                    <span className="text-gray-600">{t("orderSummary.shipping")}</span>
                     <span className="text-gray-900 font-medium">
-                      Calculated at checkout
+                      {t("orderSummary.calculatedAtCheckout")}
                     </span>
                   </div>
 
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Tax</span>
+                    <span className="text-gray-600">{t("orderSummary.tax")}</span>
                     <span className="text-gray-900 font-medium">
-                      Calculated at checkout
+                      {t("orderSummary.calculatedAtCheckout")}
                     </span>
                   </div>
 
                   <Separator />
 
                   <div className="flex justify-between text-lg font-semibold">
-                    <span className="text-gray-900">Total</span>
+                    <span className="text-gray-900">{t("orderSummary.total")}</span>
                     <span className="text-gray-900">
                       {selectedItemsCount === cartSummary.total_items
                         ? cartSummary.formatted_subtotal
@@ -237,8 +238,7 @@ export function CartPage() {
 
                   {selectedItemsCount !== cartSummary.total_items && (
                     <p className="text-xs text-gray-500">
-                      Showing total for {selectedItemsCount} selected item
-                      {selectedItemsCount !== 1 ? "s" : ""}
+                      {t("orderSummary.selectedItemsTotal", { count: selectedItemsCount })}
                     </p>
                   )}
                 </div>
@@ -252,17 +252,15 @@ export function CartPage() {
                   {isProcessingOrder ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Processing Order...
+                      {t("processingOrder")}
                     </>
                   ) : (
-                    `Order ${selectedItemsCount} Item${
-                      selectedItemsCount !== 1 ? "s" : ""
-                    }`
+                    t("orderItems", { count: selectedItemsCount })
                   )}
                 </Button>
 
                 <p className="text-xs text-gray-500 mt-4 text-center">
-                  Secure checkout powered by industry-leading encryption
+                  {t("secureCheckout")}
                 </p>
               </div>
             </div>
