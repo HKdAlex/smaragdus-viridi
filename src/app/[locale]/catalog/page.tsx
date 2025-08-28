@@ -1,8 +1,5 @@
 import { GemstoneCatalog } from "@/features/gemstones/components/gemstone-catalog";
 
-// Force dynamic rendering for this page since it contains client components
-export const dynamic = "force-dynamic";
-
 export default function CatalogPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">

@@ -47,5 +47,18 @@
   "available": "Available",
   "unavailable": "Unavailable",
   "inStock": "In Stock",
-  "outOfStock": "Out of Stock"
+  "outOfStock": "Out of Stock",
+  "about": {
+    "title": "About Smaragdus Viridi",
+    "subtitle": "Your trusted partner in premium gemstone trading for professional jewelers worldwide.",
+    "mission": {
+      "title": "Our Mission",
+      "description": "To provide jewelry professionals with access to the world's finest certified gemstones, backed by transparent grading and exceptional service."
+    },
+    "quality": {
+      "title": "Quality Guarantee",
+      "description": "Every gemstone in our collection is professionally graded with full certification and documentation for your peace of mind."
+    },
+    "exploreCollection": "Explore Our Collection"
+  }
 }

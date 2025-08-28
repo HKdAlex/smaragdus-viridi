@@ -12,13 +12,13 @@ import type {
 } from "@/shared/types";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { supabase } from "@/lib/supabase";
-import { SafeImage } from "@/shared/components/ui/safe-image";
-import Link from "next/link";
-import { useTranslations } from "next-intl";
-import type { AdvancedGemstoneFilters } from "../types/filter.types";
 import { AdvancedFilters } from "./filters/advanced-filters";
 import { AdvancedFiltersV2 } from "./filters/advanced-filters-v2";
+import type { AdvancedGemstoneFilters } from "../types/filter.types";
+import Link from "next/link";
+import { SafeImage } from "@/shared/components/ui/safe-image";
+import { supabase } from "@/lib/supabase";
+import { useTranslations } from "next-intl";
 
 // Enhanced gemstone interface for the catalog
 interface CatalogGemstone extends DatabaseGemstone {
@@ -532,9 +532,7 @@ export function GemstoneCatalog() {
             <h3 className="text-xl font-medium text-foreground mb-2">
               {t("noGemstonesFound")}
             </h3>
-            <p className="text-muted-foreground">
-              {t("adjustFiltersMessage")}
-            </p>
+            <p className="text-muted-foreground">{t("adjustFiltersMessage")}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

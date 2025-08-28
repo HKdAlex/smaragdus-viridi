@@ -17,9 +17,6 @@ interface PageProps {
   }>;
 }
 
-// Force dynamic rendering for this page since it contains real-time data
-export const dynamic = "force-dynamic";
-
 // Export params to satisfy Next.js requirements for dynamic routes
 export async function generateStaticParams() {
   // Return empty array to indicate this is a fully dynamic route

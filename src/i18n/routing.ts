@@ -8,5 +8,17 @@ export const routing = defineRouting({
   defaultLocale: "en",
 
   // Optional: Enable locale detection
-  localeDetection: false
+  localeDetection: false,
+
+  // Define pathnames for internationalized routes
+  pathnames: {
+    '/': '/',
+    '/about': '/about',
+    '/contact': '/contact',
+    '/cart': '/cart',
+    '/catalog': '/catalog',
+    '/catalog/[id]': '/catalog/[id]',
+    '/login': '/login',
+    '/signup': '/signup'
+  }
 });

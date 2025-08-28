@@ -27,7 +27,9 @@ export function LoginForm() {
       // Redirect to home page after successful login
       router.push("/");
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("signInError"));
+      setError(
+        err instanceof Error ? err.message : t("errors.invalidCredentials")
+      );
     } finally {
       setIsLoading(false);
     }
@@ -37,7 +39,7 @@ export function LoginForm() {
     <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-md">
       <div>
         <label htmlFor="email" className="block text-sm font-medium mb-1">
-          {t("email")}
+          {t("login.email")}
         </label>
         <Input
           id="email"
@@ -46,14 +48,14 @@ export function LoginForm() {
           onChange={(e) => setEmail(e.target.value)}
           required
           disabled={isLoading}
-          placeholder={t("emailPlaceholder")}
+          placeholder={t("login.emailPlaceholder")}
           autoComplete="email"
         />
       </div>
 
       <div>
         <label htmlFor="password" className="block text-sm font-medium mb-1">
-          {t("password")}
+          {t("login.password")}
         </label>
         <Input
           id="password"
@@ -62,7 +64,7 @@ export function LoginForm() {
           onChange={(e) => setPassword(e.target.value)}
           required
           disabled={isLoading}
-          placeholder={t("passwordPlaceholder")}
+          placeholder={t("login.passwordPlaceholder")}
           autoComplete="current-password"
         />
       </div>
@@ -74,7 +76,7 @@ export function LoginForm() {
       )}
 
       <Button type="submit" disabled={isLoading} className="w-full">
-        {isLoading ? t("signingIn") : t("signIn")}
+        {isLoading ? t("login.signingIn") : t("login.signIn")}
       </Button>
     </form>
   );

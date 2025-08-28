@@ -28,5 +28,10 @@
   "welcome": "Welcome, {email}",
   "signIn": "Sign In",
   "signUp": "Sign Up",
-  "signOut": "Sign Out"
+  "signOut": "Sign Out",
+  "home": "Home",
+  "catalog": "Catalog",
+  "about": "About",
+  "contact": "Contact",
+  "admin": "Admin"
 }
