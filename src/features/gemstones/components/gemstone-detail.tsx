@@ -1,6 +1,12 @@
 "use client";
 
 import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
+import {
   ArrowLeft,
   Heart,
   Info,
@@ -10,68 +16,21 @@ import {
   Star,
   Truck,
 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui/card";
-import type {
-  DatabaseAIAnalysisResult,
-  DatabaseCertification,
-  DatabaseGemstone,
-  DatabaseGemstoneImage,
-  DatabaseGemstoneVideo,
-  DatabaseOrigin,
-} from "@/shared/types";
 
-import { AIAnalysisDisplay } from "./ai-analysis-display";
+import { useAuth } from "@/features/auth/context/auth-context";
+import { useCart } from "@/features/cart/hooks/use-cart";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { CertificationDisplay } from "./certification-display";
+import type { DetailGemstone } from "@/shared/types";
 import Link from "next/link";
-import { MediaGallery } from "./media-gallery";
-import { RelatedGemstones } from "./related-gemstones";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { AIAnalysisDisplay } from "./ai-analysis-display";
+import { CertificationDisplay } from "./certification-display";
+import { MediaGallery } from "./media-gallery";
+import { RelatedGemstones } from "./related-gemstones";
 
-// Enhanced gemstone interface for detail page
-interface DetailGemstone {
-  id: string;
-  name: DatabaseGemstone["name"];
-  weight_carats: number;
-  color: DatabaseGemstone["color"];
-  cut: DatabaseGemstone["cut"];
-  clarity: DatabaseGemstone["clarity"];
-  price_amount: number;
-  price_currency: DatabaseGemstone["price_currency"];
-  premium_price_amount: number | null;
-  premium_price_currency: DatabaseGemstone["premium_price_currency"];
-  length_mm: number;
-  width_mm: number;
-  depth_mm: number;
-  serial_number: string;
-  internal_code: string | null;
-  in_stock: boolean | null;
-  delivery_days: number | null;
-  origin_id: string | null;
-  ai_analyzed: boolean | null;
-  ai_confidence_score: number | null;
-  ai_analysis_date: string | null;
-  created_at: string | null;
-  updated_at: string | null;
-  import_batch_id: string | null;
-  import_folder_path: string | null;
-  import_notes: string | null;
-  description: string | null;
-  promotional_text: string | null;
-  marketing_highlights: string[] | null;
-  images: DatabaseGemstoneImage[];
-  videos: DatabaseGemstoneVideo[];
-  origin: DatabaseOrigin | null;
-  certifications: DatabaseCertification[];
-  ai_analysis_results: DatabaseAIAnalysisResult[];
-}
+// DetailGemstone interface is now imported from shared types
 
 interface GemstoneDetailProps {
   gemstone: DetailGemstone;
@@ -79,8 +38,14 @@ interface GemstoneDetailProps {
 
 export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
   const router = useRouter();
+  const { user } = useAuth();
+  const { addToCart, isInCart, getCartItemQuantity } = useCart(user?.id);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [cartMessage, setCartMessage] = useState<string | null>(null);
+
+  const cartItemQuantity = getCartItemQuantity(gemstone.id);
+  const isAlreadyInCart = isInCart(gemstone.id);
 
   // Format price with currency
   const formatPrice = (amount: number, currency: string) => {
@@ -122,13 +87,64 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
 
   const qualityGrade = getQualityGrade();
 
-  // Handle add to cart (dummy for now)
+  // Handle add to cart
   const handleAddToCart = async () => {
+    console.log("🔍 Debug: handleAddToCart called", {
+      user: user ? { id: user.id, email: user.email } : null,
+      userId: user?.id,
+      gemstoneId: gemstone.id,
+      inStock: gemstone.in_stock,
+    });
+
+    if (!user) {
+      setCartMessage("Please sign in to add items to your cart");
+      setTimeout(() => setCartMessage(null), 3000);
+      return;
+    }
+
+    if (!user.id) {
+      setCartMessage(
+        "❌ User ID is missing. Please sign out and sign back in."
+      );
+      setTimeout(() => setCartMessage(null), 5000);
+      return;
+    }
+
+    if (!gemstone.in_stock) {
+      setCartMessage("This item is currently out of stock");
+      setTimeout(() => setCartMessage(null), 3000);
+      return;
+    }
+
     setIsAddingToCart(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    console.log("Added to cart:", gemstone.id);
-    setIsAddingToCart(false);
+    setCartMessage(null);
+
+    try {
+      console.log("🛒 Calling addToCart with:", {
+        gemstoneId: gemstone.id,
+        quantity: 1,
+        userId: user.id,
+      });
+
+      const success = await addToCart(gemstone.id, 1);
+      console.log("✅ Add to cart result:", success);
+
+      if (success) {
+        setCartMessage(`✅ Added to cart! (${cartItemQuantity + 1})`);
+        setTimeout(() => setCartMessage(null), 3000);
+      } else {
+        setCartMessage("❌ Failed to add item to cart");
+        setTimeout(() => setCartMessage(null), 5000);
+      }
+    } catch (error) {
+      console.error("❌ Add to cart error:", error);
+      setCartMessage(
+        `❌ Error: ${error instanceof Error ? error.message : "Unknown error"}`
+      );
+      setTimeout(() => setCartMessage(null), 5000);
+    } finally {
+      setIsAddingToCart(false);
+    }
   };
 
   // Handle add to favorites (dummy for now)
@@ -145,7 +161,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
     if (navigator.share) {
       try {
         await navigator.share({ title, url });
-      } catch (error) {
+      } catch {
         console.log("Share cancelled or failed");
       }
     } else {
@@ -335,7 +351,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
 
             {/* Promotional Text */}
             {gemstone.promotional_text && (
-              <Card className="border-0 shadow-lg bg-gradient-to-br from-primary/5 to-primary/10 backdrop-blur-sm border border-primary/20">
+              <Card className="border-0 shadow-lg bg-gradient-to-br from-primary/5 to-primary/10 backdrop-blur-sm  border-primary/20">
                 <CardContent className="p-6">
                   <h3 className="text-xl font-bold text-primary mb-4 flex items-center">
                     <div className="w-1 h-6 bg-gradient-to-b from-primary to-primary/60 rounded-full mr-3" />
@@ -372,16 +388,37 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                 </Card>
               )}
 
+            {/* Cart Message */}
+            {cartMessage && (
+              <div
+                className={`p-3 rounded-lg text-center text-sm font-medium ${
+                  cartMessage.includes("✅")
+                    ? "bg-green-50 text-green-800 border border-green-200"
+                    : cartMessage.includes("❌")
+                    ? "bg-red-50 text-red-800 border border-red-200"
+                    : "bg-blue-50 text-blue-800 border border-blue-200"
+                }`}
+              >
+                {cartMessage}
+              </div>
+            )}
+
             {/* Action Buttons */}
             <div className="flex gap-4 pt-4">
               <Button
                 size="lg"
                 onClick={handleAddToCart}
-                disabled={!gemstone.in_stock || isAddingToCart}
+                disabled={!gemstone.in_stock || isAddingToCart || !user}
                 className="flex-1 h-12 text-base font-medium shadow-lg hover:shadow-xl transition-all duration-200"
               >
                 <ShoppingCart className="w-5 h-5 mr-2" />
-                {isAddingToCart ? "Adding..." : "Add to Cart"}
+                {isAddingToCart
+                  ? "Adding..."
+                  : isAlreadyInCart
+                  ? `In Cart (${cartItemQuantity})`
+                  : user
+                  ? "Add to Cart"
+                  : "Sign In to Add"}
               </Button>
               <Button
                 variant="outline"

@@ -35,8 +35,21 @@ async function ensureTempDir() {
  */
 export async function downloadImageAsBase64(imageUrl) {
   return new Promise((resolve, reject) => {
+    const url = new URL(imageUrl);
+
+    const options = {
+      hostname: url.hostname,
+      path: url.pathname + url.search,
+      method: "GET",
+      rejectUnauthorized: false, // Allow self-signed certificates
+      timeout: 30000, // 30 second timeout
+      headers: {
+        "User-Agent": "Smaragdus-Viridi-AI-Analysis/1.0",
+      },
+    };
+
     https
-      .get(imageUrl, (response) => {
+      .get(options, (response) => {
         if (response.statusCode !== 200) {
           reject(
             new Error(`Failed to download image: HTTP ${response.statusCode}`)

@@ -9,9 +9,9 @@
  * @date 2025-01-19
  */
 
+import { COMPREHENSIVE_MULTI_IMAGE_PROMPT } from "./prompts.mjs";
 import OpenAI from "openai";
 import { downloadImageAsBase64 } from "./image-utils.mjs";
-import { COMPREHENSIVE_MULTI_IMAGE_PROMPT } from "./prompts.mjs";
 
 // Initialize OpenAI client
 let openai;
@@ -165,13 +165,45 @@ function parseAndValidateMultiImageResponse(
   cost
 ) {
   try {
-    // Extract JSON from response (AI might include explanatory text)
-    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      throw new Error("No JSON found in AI response");
+    // Extract JSON from response - handle markdown code blocks and multiple JSON blocks
+    let jsonString = null;
+
+    // First, try to extract from markdown code blocks (```json ... ```)
+    const codeBlockMatch = responseText.match(
+      /```(?:json)?\s*(\{[\s\S]*?\})\s*```/
+    );
+    if (codeBlockMatch) {
+      jsonString = codeBlockMatch[1];
+      console.log(`  📝 Found JSON in markdown code block`);
+    } else {
+      // Fallback: extract JSON using regex (AI might include explanatory text before JSON)
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        throw new Error("No JSON found in AI response");
+      }
+
+      // If there are multiple JSON blocks, take the last one (most complete)
+      const allJsonMatches = responseText.match(/\{[\s\S]*?\}/g);
+      if (allJsonMatches && allJsonMatches.length > 1) {
+        console.log(
+          `  📝 Found ${allJsonMatches.length} JSON blocks, using the last (most complete)`
+        );
+        jsonString = allJsonMatches[allJsonMatches.length - 1];
+      } else {
+        jsonString = jsonMatch[0];
+      }
     }
 
-    const parsedData = JSON.parse(jsonMatch[0]);
+    // Clean up the JSON string (remove any trailing text after the closing brace)
+    const lastBraceIndex = jsonString.lastIndexOf("}");
+    if (lastBraceIndex !== -1) {
+      jsonString = jsonString.substring(0, lastBraceIndex + 1);
+    }
+
+    console.log(
+      `  🔍 Attempting to parse JSON (${jsonString.length} characters)`
+    );
+    const parsedData = JSON.parse(jsonString);
 
     // Validate the response
     const validationResult = validateAnalysisCompleteness(

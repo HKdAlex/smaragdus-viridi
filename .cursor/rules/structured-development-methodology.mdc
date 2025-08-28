@@ -1,0 +1,161 @@
+---
+alwaysApply: true
+---
+# BBT Media Structured Development Methodology (v3.0)
+
+## Core Philosophy
+
+**"Always do a reality check, update docs if needed with findings/progress, execute, build, commit"**
+
+This methodology prevents documentation drift and ensures implementations are built on solid foundations through a systematic, quality-focused approach.
+
+## 🚀 COMPLETE 9-Step Integrated Workflow
+
+### 1. 🎯 PHASE PLANNING
+
+- Identify independent workstreams within phase
+- Map dependencies between endpoints/components
+- Plan parallel development opportunities
+- Optimize implementation order for maximum efficiency
+- **Start every complex project with strategic planning**
+
+### 2. 🔍 REALITY CHECK
+
+- **ALWAYS** verify actual vs documented implementation state
+- Check existing codebase for partial implementations
+- Identify gaps between claimed and actual progress
+- Document findings with specific percentages and details
+- **Never assume documentation is accurate**
+
+### 3. 🔗 DEPENDENCY CHECK
+
+- Verify all prerequisite phases are truly complete
+- Check database schema alignment
+- Validate existing business logic functions
+- Ensure TypeScript types are up-to-date
+- **Check for type explosion: Identify overlapping types for same entities**
+- **Validate foundations before building**
+
+### 4. 📄 UPDATE DOCS
+
+- Align documentation with reality BEFORE proceeding
+- Update progress indicators (❌ ✅ 🔄) with accurate percentages
+- Record actual implementation state and gaps found
+- Update dependencies and prerequisites
+- **Documentation must reflect reality, not aspirations**
+
+### 5. 🔧 EXECUTE
+
+- Build missing components systematically
+- Follow established patterns and conventions
+- Implement with proper error handling and logging
+- Maintain code quality standards (component decomposition, single responsibility)
+- **Build incrementally, test continuously**
+
+### 6. 🧪 MICRO-TESTING
+
+- Test each endpoint/component individually as built
+- Validate request/response shapes
+- Check error handling paths
+- Verify authentication flows
+- **Test components in isolation before integration**
+
+### 7. 🔨 BUILD & INTEGRATION
+
+- Validate implementations compile correctly
+- Fix TypeScript/linting errors immediately
+- Ensure all dependencies resolve
+- Test cross-component interactions
+- **Zero tolerance for build failures**
+
+### 8. 🔐 SECURITY REVIEW
+
+- Check authentication/authorization on all endpoints
+- Validate input sanitization
+- Review RLS policies alignment
+- Ensure no sensitive data exposure
+- **Security is not optional**
+
+### 9. 📝 COMMIT & METRICS
+
+- Document transformation with comprehensive details
+- Include before/after state in commit messages
+- Record implementation metrics and velocity
+- Update project status and documentation
+- **Every commit should tell a complete story**
+
+## ⚠️ CRITICAL RULES FOR AI AGENTS
+
+### Documentation Integrity
+
+- **NEVER** proceed without reality checking first
+- **ALWAYS** update docs if gaps are found
+- **IMMEDIATELY** record actual implementation percentages
+- **DOCUMENT** all findings and assumptions
+
+### Implementation Standards
+
+- Follow component decomposition rules (files >200-300 lines)
+- Use database-first TypeScript types from Supabase
+- **Prevent type explosion: Use database-first types, avoid duplicate types for same entities** (See `@avoiding-type-explosion.mdc`)
+- Implement comprehensive error handling
+- Maintain consistent patterns across codebase
+
+### Quality Gates
+
+```
+✅ PLANNING: Strategic roadmap with dependencies mapped
+✅ PRE-FLIGHT: Prerequisites verified, docs aligned with reality
+✅ FOUNDATIONS: Database schema & types validated
+✅ TYPE EXPLOSION CHECK: No overlapping types, database-first approach enforced
+✅ IMPLEMENTATION: Components built with proper patterns
+✅ TESTING: Individual components tested in isolation
+✅ BUILD: TypeScript passes, no linting errors, integration works
+✅ SECURITY: Auth/authorization verified, inputs sanitized
+✅ DOCUMENTATION: Reality reflected accurately with metrics
+```
+
+## 🚨 Warning Signs (Stop and Reality Check)
+
+- **Documentation Drift**: Claims "complete" but functionality missing
+- **Vague Progress**: Descriptions without specific percentages or details
+- **Inconsistent Status**: Mixed indicators across documentation
+- **Poor Code Quality**: TypeScript `any` types or missing error handling
+- **Type Explosion**: Multiple types for same database entity, semantic confusion between types
+- **Security Gaps**: Missing authentication or authorization checks
+- **Dependency Issues**: Unverified prerequisites or missing schema alignment
+- **Integration Failures**: Components failing when combined
+
+## 📊 Success Metrics to Track
+
+- **Planning Efficiency**: Dependencies mapped vs. discovered during execution
+- **Documentation Accuracy**: Actual vs. claimed progress percentages
+- **Implementation Velocity**: Components per hour with quality maintained
+- **Build Success Rate**: First attempt vs. iterations required
+- **Security Coverage**: Authentication/authorization gaps found
+- **Type Safety Compliance**: Zero `any` types, complete type coverage, no type explosion
+- **Integration Success**: Cross-component failures identified early
+
+## 🔄 When to Apply This Methodology
+
+- **ALWAYS** for complex, multi-phase projects
+- **MANDATORY** for user role systems, admin panels, API implementations
+- **REQUIRED** when documentation exists but accuracy is uncertain
+- **ESSENTIAL** for projects with multiple interconnected components
+- **CRITICAL** for any development work involving security or data integrity
+
+## 💡 Key Success Pattern
+
+```
+1. Plan → Map dependencies and identify parallel workstreams
+2. Reality Check → Find 30-75% documentation drift (common)
+3. Dependency Check → Validate foundations are solid
+4. Update Docs → Reflect actual state accurately
+5. Execute → Build systematically with proper patterns
+6. Micro-Test → Validate each component individually
+7. Build & Integration → Achieve first-attempt success
+8. Security Review → Ensure bulletproof authorization
+9. Commit & Metrics → Document complete transformation
+```
+
+**Remember**: This v3.0 methodology integrates all proven practices into a comprehensive 9-step workflow, preventing common pitfalls while ensuring consistent, high-quality, and secure implementations. Always adapt to project needs while maintaining the systematic approach and quality gates.

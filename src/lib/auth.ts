@@ -6,6 +6,17 @@ export type UserProfile = Database["public"]["Tables"]["user_profiles"]["Row"];
 // eslint-disable-next-line no-restricted-syntax
 export type UserRole = Database["public"]["Enums"]["user_role"];
 
+export interface AdminUser extends UserProfile {
+  role: 'admin';
+}
+
+export interface AuthResult {
+  success: boolean;
+  user?: User;
+  profile?: UserProfile;
+  error?: string;
+}
+
 export const auth = {
   async signUp(email: string, password: string, name: string) {
     const { data, error } = await supabase.auth.signUp({
@@ -18,21 +29,9 @@ export const auth = {
 
     if (error) throw error;
 
-    // Auto-create user profile if signup was successful
-    if (data.user && !error) {
-      const { error: profileError } = await supabase
-        .from("user_profiles")
-        .insert({
-          user_id: data.user.id,
-          name: name,
-          role: "regular_customer",
-        });
-
-      if (profileError) {
-        console.error("Failed to create user profile:", profileError);
-        // Don't throw here as the user account was created successfully
-      }
-    }
+    // Profile will be created automatically by database trigger when user confirms email
+    console.log("User account created successfully:", data.user?.email);
+    console.log("Please check your email and click the confirmation link to complete registration.");
 
     return data;
   },
@@ -67,11 +66,18 @@ export const auth = {
       .single();
 
     if (error) {
+      // If profile doesn't exist, return null instead of throwing
+      if (error.code === 'PGRST116') {
+        console.log("User profile not found, will create on demand");
+        return null;
+      }
       console.error("Failed to fetch user profile:", error);
       return null;
     }
     return data;
   },
+
+
 
   async updateUserProfile(
     userId: string, 
@@ -108,5 +114,119 @@ export const auth = {
     });
 
     if (error) throw error;
+  },
+
+  // Admin-specific methods
+  async isAdmin(userId: string): Promise<boolean> {
+    const profile = await this.getUserProfile(userId);
+    return profile?.role === 'admin';
+  },
+
+  async getAdminUsers(): Promise<UserProfile[]> {
+    const { data, error } = await supabase
+      .from("user_profiles")
+      .select("*")
+      .eq("role", "admin")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Failed to fetch admin users:", error);
+      return [];
+    }
+    return data || [];
+  },
+
+  async promoteToAdmin(userId: string): Promise<boolean> {
+    const { error } = await supabase
+      .from("user_profiles")
+      .update({
+        role: 'admin',
+        updated_at: new Date().toISOString()
+      })
+      .eq("user_id", userId);
+
+    if (error) {
+      console.error("Failed to promote user to admin:", error);
+      return false;
+    }
+    return true;
+  },
+
+  async demoteFromAdmin(userId: string): Promise<boolean> {
+    const { error } = await supabase
+      .from("user_profiles")
+      .update({
+        role: 'regular_customer',
+        updated_at: new Date().toISOString()
+      })
+      .eq("user_id", userId);
+
+    if (error) {
+      console.error("Failed to demote admin:", error);
+      return false;
+    }
+    return true;
+  },
+
+  async createAdminUser(email: string, password: string, name: string): Promise<AuthResult> {
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            name,
+            role: 'admin' // This will be set by the database trigger
+          },
+        },
+      });
+
+      if (error) throw error;
+
+      // Wait a moment for the profile to be created by the trigger
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      const profile = data.user ? await this.getUserProfile(data.user.id) : null;
+
+      return {
+        success: true,
+        user: data.user || undefined,
+        profile: profile || undefined,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to create admin user',
+      };
+    }
+  },
+
+  async getAllUsers(): Promise<UserProfile[]> {
+    const { data, error } = await supabase
+      .from("user_profiles")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Failed to fetch all users:", error);
+      return [];
+    }
+    return data || [];
+  },
+
+  async updateUserRole(userId: string, newRole: UserRole): Promise<boolean> {
+    const { error } = await supabase
+      .from("user_profiles")
+      .update({
+        role: newRole,
+        updated_at: new Date().toISOString()
+      })
+      .eq("user_id", userId);
+
+    if (error) {
+      console.error("Failed to update user role:", error);
+      return false;
+    }
+    return true;
   },
 }; 

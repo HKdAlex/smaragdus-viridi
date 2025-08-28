@@ -548,7 +548,7 @@ class EnhancedGemstoneImporter {
 
       // Process labels as special images
       await this.processFileCategory(
-          gemstone.id,
+        gemstone.id,
         gemstoneData.categorizedFiles.labels,
         "gemstone_images",
         "label"
@@ -591,6 +591,8 @@ class EnhancedGemstoneImporter {
             has_watermark: false,
             is_primary: fileType === "gemstone" && files.indexOf(file) === 0,
             alt_text: file.fileName, // Store original filename here
+            original_filename: file.fileName,
+            original_path: file.fileName, // Original path relative to folder
             created_at: new Date().toISOString(),
           });
 
@@ -602,6 +604,8 @@ class EnhancedGemstoneImporter {
             video_url: processedFile.url,
             video_order: files.indexOf(file) + 1,
             title: file.fileName, // Store original filename here
+            original_filename: file.fileName,
+            original_path: file.fileName, // Original path relative to folder
             created_at: new Date().toISOString(),
           });
 
@@ -659,14 +663,14 @@ class EnhancedGemstoneImporter {
         .toBuffer();
     }
 
-      // Upload to Supabase Storage
+    // Upload to Supabase Storage
     const storagePath = `gemstones/${gemstoneId}/images/${file.standardizedName}`;
     const { data, error } = await supabase.storage
-        .from("gemstone-media")
+      .from("gemstone-media")
       .upload(storagePath, imageBuffer, {
-          contentType: "image/jpeg",
-          upsert: false,
-        });
+        contentType: "image/jpeg",
+        upsert: false,
+      });
 
     if (error) throw error;
 
@@ -684,11 +688,11 @@ class EnhancedGemstoneImporter {
 
     const storagePath = `gemstones/${gemstoneId}/videos/${file.standardizedName}`;
     const { data, error } = await supabase.storage
-        .from("gemstone-media")
-        .upload(storagePath, videoBuffer, {
-          contentType: "video/mp4",
-          upsert: false,
-        });
+      .from("gemstone-media")
+      .upload(storagePath, videoBuffer, {
+        contentType: "video/mp4",
+        upsert: false,
+      });
 
     if (error) throw error;
 

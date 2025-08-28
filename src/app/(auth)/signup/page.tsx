@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { SignupForm } from "@/features/auth/components/signup-form";
 
-export default async function SignupPage() {
+export default function SignupPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-md w-full space-y-8 p-8">

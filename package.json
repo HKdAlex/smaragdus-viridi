@@ -27,6 +27,7 @@
     "validate-images:fix": "node scripts/validate-images.js --fix",
     "assign-smart-images": "node scripts/smart-image-assignment.js",
     "refresh-gemstone-images": "node scripts/refresh-gemstone-images.js",
+    "types:generate": "npx supabase gen types typescript --project-id dpqapyojcdtrjwuhybky --schema public > src/shared/types/database.ts",
     "prebuild": "npm run validate-images",
     "quality-check": "npm run type-check && npm run lint && npm run validate-images && npm run check-type-governance"
   },

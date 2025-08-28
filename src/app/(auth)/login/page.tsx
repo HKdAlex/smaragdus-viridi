@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { LoginForm } from "@/features/auth/components/login-form";
 
-export default async function LoginPage() {
+export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-md w-full space-y-8 p-8">

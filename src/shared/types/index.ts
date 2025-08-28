@@ -76,6 +76,131 @@ export interface OrderItem extends DatabaseOrderItem {
   readonly formatted_line_total: string
 }
 
+// ===== GEMSTONE DETAIL TYPES =====
+
+// Enhanced gemstone interface for detail page
+// Import generated database types
+
+// Use generated types for consistency (defined above)
+
+export interface DetailGemstone {
+  id: string;
+  name: GemstoneType;
+  weight_carats: number;
+  color: GemColor;
+  cut: GemCut;
+  clarity: GemClarity;
+  price_amount: number;
+  price_currency: CurrencyCode;
+  premium_price_amount: number | null;
+  premium_price_currency: CurrencyCode | null;
+  length_mm: number;
+  width_mm: number;
+  depth_mm: number;
+  serial_number: string;
+  internal_code: string | null;
+  in_stock: boolean | null;
+  delivery_days: number | null;
+  origin_id: string | null;
+  ai_analyzed: boolean | null;
+  ai_confidence_score: number | null;
+  ai_analysis_date: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+  import_batch_id: string | null;
+  import_folder_path: string | null;
+  import_notes: string | null;
+  description: string | null;
+  promotional_text: string | null;
+  marketing_highlights: string[] | null;
+  images: DatabaseGemstoneImage[];
+  videos: DatabaseGemstoneVideo[];
+  origin: DatabaseOrigin | null;
+  certifications: DatabaseCertification[];
+  ai_analysis_results: DatabaseAIAnalysisResult[];
+}
+
+// ===== CART SYSTEM TYPES =====
+
+// Enhanced cart item with gemstone relationship
+export interface CartItem {
+  readonly id: string
+  readonly user_id: string
+  readonly gemstone_id: string
+  readonly quantity: number
+  readonly added_at: string | null
+  readonly updated_at: string | null
+  readonly metadata: Record<string, unknown> | null
+  readonly gemstone?: Gemstone
+  readonly unit_price: Money
+  readonly line_total: Money
+  readonly formatted_unit_price: string
+  readonly formatted_line_total: string
+}
+
+// Cart summary for display
+export interface CartSummary {
+  readonly items: CartItem[]
+  readonly total_items: number
+  readonly subtotal: Money
+  readonly formatted_subtotal: string
+  readonly last_updated: string
+}
+
+// Cart item with selection state
+export interface CartItemWithSelection extends CartItem {
+  readonly isSelected: boolean
+  readonly onSelectionChange: (selected: boolean) => void
+}
+
+// Cart summary with selection functionality
+export interface CartSummaryWithSelection extends CartSummary {
+  readonly selectedItems: CartItem[]
+  readonly selectedItemsCount: number
+  readonly selectedTotal: Money
+  readonly formatted_selected_total: string
+  readonly allSelected: boolean
+  readonly onSelectAll: () => void
+  readonly onOrderSelected: () => Promise<boolean>
+}
+
+// Cart operation results
+export interface CartOperationResult {
+  readonly success: boolean
+  readonly item?: CartItem
+  readonly error?: string
+  readonly cart_summary?: CartSummary
+}
+
+// User preferences types
+export interface UserPreferences {
+  readonly theme: 'light' | 'dark' | 'system'
+  readonly preferred_currency: CurrencyCode
+  readonly email_notifications: boolean
+  readonly cart_updates: boolean
+  readonly order_updates: boolean
+  readonly marketing_emails: boolean
+  readonly profile_visibility: 'public' | 'private'
+  readonly data_sharing: boolean
+}
+
+// Cart validation rules
+export interface CartValidationRules {
+  readonly max_items: number
+  readonly max_quantity_per_item: number
+  readonly cart_expiration_days: number
+  readonly max_total_value: number
+  readonly min_item_price: number
+  readonly max_item_price: number
+}
+
+// Cart validation result
+export interface CartValidationResult {
+  readonly valid: boolean
+  readonly errors: string[]
+  readonly warnings: string[]
+}
+
 // ===== BUSINESS LOGIC TYPES =====
 export interface PriceCalculation {
   readonly original: number

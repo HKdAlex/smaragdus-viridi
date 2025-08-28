@@ -278,6 +278,8 @@ async function markGemstoneAsAnalyzed(
     console.log(`✅ Marked gemstone ${gemstoneId} as analyzed`);
   } catch (error) {
     console.error(`❌ Error marking gemstone as analyzed: ${error.message}`);
+    console.error(`🔧 This will cause UI to show "AI Analysis Not Available"`);
+    console.error(`💡 Manual fix: UPDATE gemstones SET ai_analyzed = true WHERE id = '${gemstoneId}'`);
     // Don't throw here - analysis save is more important
   }
 }

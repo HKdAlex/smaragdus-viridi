@@ -10,18 +10,80 @@
  * - Memory-efficient streaming for large files
  */
 
+import ffmpegPath from "@ffmpeg-installer/ffmpeg";
 import { createClient } from "@supabase/supabase-js";
+import { spawn } from "child_process";
 import crypto from "crypto";
 import dotenv from "dotenv";
-import ffmpegPath from "@ffmpeg-installer/ffmpeg";
 import fs from "fs/promises";
 import heicConvert from "heic-convert";
 import path from "path";
 import sharp from "sharp";
-import { spawn } from "child_process";
+import { createBatchTracker } from "./shared/batch-tracker.mjs";
+import { createAuditLogger } from "./shared/import-audit.mjs";
 
 // Load environment variables
 dotenv.config({ path: ".env.local" });
+
+// ================================
+// UTILITY FUNCTIONS
+// ================================
+
+/**
+ * Retry a database operation with exponential backoff
+ */
+async function retryDatabaseOperation(
+  operation,
+  operationName,
+  maxRetries = CONFIG.MAX_RETRIES
+) {
+  let lastError;
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await operation();
+    } catch (error) {
+      lastError = error;
+      console.warn(
+        `⚠️  ${operationName} failed (attempt ${attempt}/${maxRetries}):`,
+        error.message
+      );
+
+      if (attempt < maxRetries) {
+        const delay = CONFIG.RETRY_DELAY * Math.pow(2, attempt - 1); // Exponential backoff
+        console.log(`⏳ Retrying ${operationName} in ${delay}ms...`);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      }
+    }
+  }
+
+  throw new Error(
+    `${operationName} failed after ${maxRetries} attempts: ${lastError?.message}`
+  );
+}
+
+/**
+ * Create a timeout promise that rejects after the specified time
+ */
+function createTimeoutPromise(timeoutMs) {
+  return new Promise((_, reject) => {
+    setTimeout(
+      () => reject(new Error(`Operation timed out after ${timeoutMs}ms`)),
+      timeoutMs
+    );
+  });
+}
+
+/**
+ * Execute a database operation with timeout and retry
+ */
+async function executeWithTimeout(
+  operation,
+  operationName,
+  timeoutMs = CONFIG.REQUEST_TIMEOUT
+) {
+  return Promise.race([operation(), createTimeoutPromise(timeoutMs)]);
+}
 
 // ================================
 // OPTIMIZED CONFIGURATION
@@ -46,9 +108,10 @@ const CONFIG = {
   MAX_CONCURRENT_MEDIA: 5, // Process 5 media files per gemstone simultaneously
   BATCH_SIZE: 10, // Batch database operations
 
-  // Retry settings
-  RETRY_ATTEMPTS: 3,
-  RETRY_DELAY: 1000, // Reduced delay
+  // ERROR HANDLING
+  MAX_RETRIES: 5,
+  RETRY_DELAY: 2000, // 2 seconds
+  REQUEST_TIMEOUT: 60000, // 60 seconds
 
   // Progress reporting
   REPORT_INTERVAL: 10, // Report every 10 gemstones (less frequent)
@@ -142,18 +205,24 @@ class OptimizedImportStatistics {
 // OPTIMIZED UTILITY FUNCTIONS
 // ================================
 
-const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
-async function withRetry(operation, attempts = CONFIG.RETRY_ATTEMPTS) {
+async function withRetry(operation, attempts = CONFIG.MAX_RETRIES) {
   for (let i = 0; i < attempts; i++) {
     try {
       return await operation();
     } catch (error) {
-      if (i === attempts - 1) throw error;
-      if (!CONFIG.QUIET_MODE) {
-        console.log(`⚠️  Retry ${i + 1}/${attempts}: ${error.message}`);
+      if (i === attempts - 1) {
+        console.error(`💥 All ${attempts} retry attempts failed`);
+        throw error;
       }
-      await wait(CONFIG.RETRY_DELAY * Math.pow(2, i)); // Exponential backoff
+
+      const delay = CONFIG.RETRY_DELAY * Math.pow(2, i);
+      console.warn(`⚠️  Retry ${i + 1}/${attempts} failed: ${error.message}`);
+      console.log(`⏳ Waiting ${delay}ms before retry...`);
+      await wait(delay);
     }
   }
 }
@@ -360,7 +429,8 @@ async function processMediaFilesInParallel(
   processor,
   gemstoneId,
   tempDir,
-  serialNumber
+  serialNumber,
+  sourcePath
 ) {
   const semaphore = new Array(CONFIG.MAX_CONCURRENT_MEDIA).fill(null);
   let index = 0;
@@ -383,11 +453,18 @@ async function processMediaFilesInParallel(
           currentIndex + 1
         }.${extension}`;
 
+        // Calculate original path relative to source directory
+        const originalPath = path.relative(sourcePath, filePath);
+
         results.push({
           success: true,
           filename,
-          processed,
+          processed: {
+            ...processed,
+            originalName: filename, // Ensure originalName is set correctly
+          },
           storagePath,
+          originalPath,
           order: currentIndex + 1,
         });
       } catch (error) {
@@ -411,7 +488,9 @@ async function processGemstoneOptimized(
   folderPath,
   folderName,
   batchId,
-  tempDir
+  tempDir,
+  sourcePath,
+  auditLogger
 ) {
   const result = {
     success: false,
@@ -426,6 +505,24 @@ async function processGemstoneOptimized(
   try {
     // Scan folder for media files
     const allFiles = await fs.readdir(folderPath);
+
+    // Check if folder is completely empty
+    if (allFiles.length === 0) {
+      const message = `Folder ${folderName} is empty - skipping import`;
+      console.log(`ℹ️  ${message}`);
+      result.failureReasons.push(message);
+
+      // Log this as a completed operation (skipped)
+      await auditLogger.logOperation(
+        "gemstone_processing",
+        "completed",
+        { folderName, reason: "empty_folder" },
+        0
+      );
+
+      return result; // Return early without creating gemstone
+    }
+
     const imageFiles = allFiles.filter((f) =>
       SUPPORTED_IMAGE_FORMATS.includes(path.extname(f).toLowerCase())
     );
@@ -435,6 +532,27 @@ async function processGemstoneOptimized(
 
     result.found.images = imageFiles.length;
     result.found.videos = videoFiles.length;
+
+    // Check if folder has no supported media files
+    if (imageFiles.length === 0 && videoFiles.length === 0) {
+      const message = `Folder ${folderName} contains no supported media files (images/videos) - skipping import`;
+      console.log(`⚠️  ${message}`);
+      result.failureReasons.push(message);
+
+      // Log this as a completed operation (no media)
+      await auditLogger.logOperation(
+        "gemstone_processing",
+        "completed",
+        {
+          folderName,
+          reason: "no_supported_media",
+          totalFiles: allFiles.length,
+        },
+        0
+      );
+
+      return result; // Return early without creating gemstone
+    }
 
     // Detect gemstone type and create record
     const gemstoneType = detectGemstoneType(folderName);
@@ -458,6 +576,8 @@ async function processGemstoneOptimized(
       internal_code: folderName,
       serial_number: serialNumber,
       import_batch_id: batchId,
+      import_folder_path: folderPath,
+      import_notes: `Imported from ${folderName} with ${result.found.images} images and ${result.found.videos} videos`,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
@@ -472,7 +592,8 @@ async function processGemstoneOptimized(
             processImageFileOptimized,
             gemstone.id,
             tempDir,
-            serialNumber
+            serialNumber,
+            sourcePath
           )
         : Promise.resolve([]),
       videoFiles.length > 0
@@ -481,7 +602,8 @@ async function processGemstoneOptimized(
             processVideoFileOptimized,
             gemstone.id,
             tempDir,
-            serialNumber
+            serialNumber,
+            sourcePath
           )
         : Promise.resolve([]),
     ]);
@@ -502,6 +624,16 @@ async function processGemstoneOptimized(
           "image/webp"
         )
           .then((publicUrl) => {
+            // Debug logging for original_path
+            if (!CONFIG.QUIET_MODE && imageResult.order === 1) {
+              console.log(`   📁 Debug - Image ${imageResult.filename}:`);
+              console.log(`      originalPath: ${imageResult.originalPath}`);
+              console.log(`      filename: ${imageResult.filename}`);
+              console.log(
+                `      processed.originalName: ${imageResult.processed.originalName}`
+              );
+            }
+
             imageRecords.push({
               gemstone_id: gemstone.id,
               image_url: publicUrl,
@@ -509,6 +641,8 @@ async function processGemstoneOptimized(
               is_primary: imageResult.order === 1,
               has_watermark: false, // Disabled for speed
               alt_text: imageResult.processed.originalName,
+              original_filename: imageResult.filename, // Use filename from result
+              original_path: imageResult.originalPath || imageResult.filename, // Use originalPath or fallback to filename
             });
             result.imported.images++;
             result.compressionSavings.images +=
@@ -541,6 +675,8 @@ async function processGemstoneOptimized(
               duration_seconds: null,
               thumbnail_url: null,
               title: videoResult.processed.originalName,
+              original_filename: videoResult.filename, // Use filename from result
+              original_path: videoResult.originalPath || videoResult.filename, // Use originalPath or fallback to filename
             });
             result.imported.videos++;
             result.compressionSavings.videos +=
@@ -588,11 +724,37 @@ async function processGemstoneOptimized(
         }`
       );
     }
+
+    // Log successful gemstone processing
+    auditLogger.logOperationComplete(
+      "gemstone_processing",
+      {
+        gemstoneId: gemstone.id,
+        serialNumber,
+        gemstoneType,
+        detectedColor,
+        imagesProcessed: result.imported.images,
+        videosProcessed: result.imported.videos,
+        compressionSavings: result.compressionSavings,
+      },
+      { folderName }
+    );
   } catch (error) {
     result.failureReasons.push(`Gemstone processing: ${error.message}`);
     if (!CONFIG.QUIET_MODE) {
       console.log(`❌ ${folderName}: ${error.message}`);
     }
+
+    // Log failed gemstone processing
+    auditLogger.logError(
+      error,
+      {
+        folderName,
+        operation: "gemstone_processing",
+        failureReasons: result.failureReasons,
+      },
+      "gemstone_processing"
+    );
   }
 
   return result;
@@ -611,6 +773,7 @@ async function main() {
   // Parse command line arguments
   const args = process.argv.slice(2);
   const dryRun = args.includes("--dry-run");
+  const freshImport = args.includes("--fresh-import");
   const maxFolders =
     parseInt(args.find((arg) => arg.startsWith("--max"))?.split("=")[1]) ||
     parseInt(args[args.indexOf("--max") + 1]) ||
@@ -627,7 +790,11 @@ async function main() {
   }
 
   console.log(`📁 Source: ${sourcePath}`);
-  console.log(`🔍 Mode: ${dryRun ? "DRY RUN" : "LIVE IMPORT"}`);
+  console.log(
+    `🔍 Mode: ${
+      dryRun ? "DRY RUN" : freshImport ? "FRESH IMPORT" : "LIVE IMPORT"
+    }`
+  );
   console.log(
     `⚡ Concurrency: ${CONFIG.MAX_CONCURRENT_GEMSTONES} gemstones, ${CONFIG.MAX_CONCURRENT_MEDIA} media/gemstone`
   );
@@ -649,6 +816,68 @@ async function main() {
 
   const stats = new OptimizedImportStatistics();
 
+  // Generate batch ID first
+  const batchId = crypto.randomUUID();
+
+  // Create batch record FIRST before initializing trackers
+  console.log("📝 Creating batch record...");
+
+  const batchData = {
+    id: batchId,
+    batch_name: `Optimized Import v3.0 - ${new Date().toISOString()}`,
+    source_path: sourcePath,
+    total_folders: maxFolders || 100, // Use maxFolders or default estimate
+    status: "processing",
+    ai_analysis_enabled: false,
+    processing_started_at: new Date().toISOString(),
+  };
+
+  await retryDatabaseOperation(async () => {
+    const { error } = await executeWithTimeout(
+      () => supabase.from("import_batches").insert(batchData),
+      "Batch creation",
+      CONFIG.REQUEST_TIMEOUT
+    );
+
+    if (error) {
+      throw new Error(`Database error: ${error.message}`);
+    }
+
+    return true;
+  }, "Batch record creation");
+
+  console.log(`📝 Created batch record: ${batchId}`);
+
+  // Initialize batch tracking and audit logging AFTER creating the batch
+  const batchTracker = createBatchTracker(batchId, {
+    trackPerformance: true,
+    enableAuditTrail: true,
+    collectMetadata: true,
+  });
+
+  const auditLogger = createAuditLogger(batchId, {
+    logToFile: true,
+    logToDatabase: true,
+    enableRealTime: false,
+    logLevel: "info",
+  });
+
+  await batchTracker.initialize({
+    sourcePath,
+    scriptVersion: "v3.0-optimized",
+    importType: freshImport ? "fresh_import" : "regular_import",
+    commandArgs: process.argv.slice(2),
+  });
+
+  await auditLogger.initialize({
+    script: "gemstone-import-system-v3-optimized.mjs",
+    version: "3.0",
+    source: sourcePath,
+    importType: freshImport ? "fresh_import" : "regular_import",
+  });
+
+  auditLogger.logOperationStart("import_process", { sourcePath, freshImport });
+
   try {
     // Scan source directory
     const allItems = await fs.readdir(sourcePath);
@@ -659,7 +888,38 @@ async function main() {
         const itemPath = path.join(sourcePath, item);
         const stat = await fs.stat(itemPath);
         if (stat.isDirectory()) {
-          validFolders.push(item);
+          // Check if folder is empty or has no supported media files
+          try {
+            const folderContents = await fs.readdir(itemPath);
+
+            if (folderContents.length === 0) {
+              console.log(`ℹ️  Skipping empty folder: ${item}`);
+              continue; // Skip empty folders
+            }
+
+            // Check for supported media files
+            const hasImages = folderContents.some((file) =>
+              SUPPORTED_IMAGE_FORMATS.includes(path.extname(file).toLowerCase())
+            );
+            const hasVideos = folderContents.some((file) =>
+              SUPPORTED_VIDEO_FORMATS.includes(path.extname(file).toLowerCase())
+            );
+
+            if (!hasImages && !hasVideos) {
+              console.log(
+                `⚠️  Skipping folder with no supported media: ${item} (${folderContents.length} unsupported files)`
+              );
+              continue; // Skip folders with no supported media
+            }
+
+            validFolders.push(item);
+          } catch (folderError) {
+            console.log(
+              `⚠️  Error reading folder ${item}: ${folderError.message}`
+            );
+            // Still add the folder but log the error - let the processing handle it
+            validFolders.push(item);
+          }
         }
       } catch {
         // Skip invalid items
@@ -677,6 +937,22 @@ async function main() {
       console.log(`🎯 Processing first ${targetFolders.length} folders`);
     }
 
+    // Update batch tracker with totals
+    await batchTracker.updateProgress({
+      totalFolders: validFolders.length,
+      totalGemstones: targetFolders.length,
+    });
+
+    auditLogger.log(
+      "folders_discovered",
+      `Found ${validFolders.length} folders, processing ${targetFolders.length}`,
+      {
+        totalFolders: validFolders.length,
+        targetFolders: targetFolders.length,
+        sourcePath,
+      }
+    );
+
     if (dryRun) {
       console.log(
         "🔍 DRY RUN - Estimated processing time with optimizations: ~40% faster"
@@ -684,19 +960,20 @@ async function main() {
       return;
     }
 
-    // Create batch record
-    const batchId = crypto.randomUUID();
-    await supabase.from("import_batches").insert({
-      id: batchId,
-      batch_name: `Optimized Import v3.0 - ${new Date().toISOString()}`,
-      source_path: sourcePath,
-      total_folders: targetFolders.length,
-      status: "processing",
-      ai_analysis_enabled: false,
-      processing_started_at: new Date().toISOString(),
-    });
+    // Handle fresh import mode
+    if (freshImport) {
+      console.log("\n🗑️  FRESH IMPORT MODE: Clearing existing data...");
+      try {
+        const { clearAllData } = await import("./clear-all-data.mjs");
+        await clearAllData();
+        console.log("✅ Existing data cleared successfully\n");
+      } catch (error) {
+        console.error("❌ Failed to clear existing data:", error.message);
+        console.log("💡 Continuing with import anyway...");
+      }
+    }
 
-    console.log(`📝 Created batch record: ${batchId}`);
+    // Batch record already created above
 
     // Process gemstones in parallel batches
     const semaphore = new Array(CONFIG.MAX_CONCURRENT_GEMSTONES).fill(null);
@@ -715,7 +992,9 @@ async function main() {
             folderPath,
             folderName,
             batchId,
-            tempDir
+            tempDir,
+            sourcePath,
+            auditLogger
           );
           allResults.push(result);
 
@@ -761,6 +1040,26 @@ async function main() {
 
     // Final report
     const finalReport = stats.getProgressReport();
+
+    // Complete batch tracking and audit logging
+    const finalStats = {
+      totalGemstones: stats.processed.gemstones,
+      processedGemstones: stats.processed.gemstones,
+      totalImages: stats.processed.images,
+      processedImages: stats.processed.images,
+      totalVideos: stats.processed.videos,
+      processedVideos: stats.processed.videos,
+      compressionSavings: stats.compressionSavings,
+    };
+
+    await batchTracker.complete(true, finalStats);
+
+    await auditLogger.complete(true, {
+      finalStats,
+      performance: finalReport,
+      batchId,
+    });
+
     console.log("\n🎉 OPTIMIZED IMPORT COMPLETED!");
     console.log(`⚡ Average Speed: ${finalReport.gemsPerSec} gemstones/second`);
     console.log(`⏱️  Total Time: ${finalReport.elapsed}s`);
@@ -771,12 +1070,30 @@ async function main() {
       `💾 Storage Saved: ${formatFileSize(finalReport.compressionSavings)}`
     );
     console.log(`🆔 Batch ID: ${batchId}`);
+    console.log(`📊 Audit Session: ${batchId}`);
   } catch (error) {
     console.error("💥 Import failed:", error.message);
+
+    // Log import failure to audit trail
+    await auditLogger.logError(
+      error,
+      {
+        operation: "import_process",
+        batchId,
+        sourcePath,
+      },
+      "import_process"
+    );
+
+    await auditLogger.complete(false, {
+      error: error.message,
+      batchId,
+    });
+
     throw error;
   } finally {
     // Cleanup temp directory
-    await fs.rmdir(tempDir, { recursive: true }).catch(() => {});
+    await fs.rm(tempDir, { recursive: true }).catch(() => {});
   }
 }
 
@@ -787,4 +1104,3 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     process.exit(1);
   });
 }
- 

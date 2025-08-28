@@ -3,6 +3,7 @@
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { useAuth } from "../context/auth-context";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export function SignupForm() {
@@ -13,6 +14,7 @@ export function SignupForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const router = useRouter();
 
   const { signUp } = useAuth();
 
@@ -52,6 +54,13 @@ export function SignupForm() {
         <div className="text-green-600 text-sm bg-green-50 p-3 rounded-md">
           Please check your email to confirm your account before signing in.
         </div>
+        <Button
+          variant="outline"
+          onClick={() => router.push("/login")}
+          className="w-full"
+        >
+          Go to Login
+        </Button>
       </div>
     );
   }
@@ -70,6 +79,7 @@ export function SignupForm() {
           required
           disabled={isLoading}
           placeholder="Enter your full name"
+          autoComplete="name"
         />
       </div>
 
@@ -85,6 +95,7 @@ export function SignupForm() {
           required
           disabled={isLoading}
           placeholder="Enter your email"
+          autoComplete="email"
         />
       </div>
 
@@ -100,6 +111,7 @@ export function SignupForm() {
           required
           disabled={isLoading}
           placeholder="Enter your password"
+          autoComplete="new-password"
         />
       </div>
 
@@ -118,6 +130,7 @@ export function SignupForm() {
           required
           disabled={isLoading}
           placeholder="Confirm your password"
+          autoComplete="new-password"
         />
       </div>
 

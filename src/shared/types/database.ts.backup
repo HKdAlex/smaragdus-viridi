@@ -1,0 +1,123 @@
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
+
+// Minimal database types for user profiles and gemstones
+export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "12.2.3 (519615d)"
+  }
+  public: {
+    Tables: {
+      user_profiles: {
+        Row: {
+          id: string
+          user_id: string
+          name: string
+          phone: string | null
+          role: Database["public"]["Enums"]["user_role"] | null
+          discount_percentage: number | null
+          preferred_currency: Database["public"]["Enums"]["currency_code"] | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          name: string
+          phone?: string | null
+          role?: Database["public"]["Enums"]["user_role"] | null
+          discount_percentage?: number | null
+          preferred_currency?: Database["public"]["Enums"]["currency_code"] | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          name?: string
+          phone?: string | null
+          role?: Database["public"]["Enums"]["user_role"] | null
+          discount_percentage?: number | null
+          preferred_currency?: Database["public"]["Enums"]["currency_code"] | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      gemstones: {
+        Row: {
+          id: string
+          name: string
+          color: string
+          cut: string
+          clarity: string
+          weight_carats: number
+          price_amount: number
+          price_currency: string
+          serial_number: string
+          internal_code: string | null
+          in_stock: boolean | null
+          delivery_days: number | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          name: string
+          color: string
+          cut: string
+          clarity: string
+          weight_carats: number
+          price_amount: number
+          price_currency: string
+          serial_number: string
+          internal_code?: string | null
+          in_stock?: boolean | null
+          delivery_days?: number | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          name?: string
+          color?: string
+          cut?: string
+          clarity?: string
+          weight_carats?: number
+          price_amount?: number
+          price_currency?: string
+          serial_number?: string
+          internal_code?: string | null
+          in_stock?: boolean | null
+          delivery_days?: number | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+    }
+    Enums: {
+      user_role: "admin" | "regular_customer" | "premium_customer" | "guest"
+      currency_code: "USD" | "EUR" | "GBP" | "RUB" | "CHF" | "JPY"
+      gemstone_type: "diamond" | "emerald" | "ruby" | "sapphire" | "amethyst" | "topaz" | "garnet" | "peridot" | "citrine" | "tanzanite" | "aquamarine" | "morganite" | "tourmaline" | "zircon" | "apatite" | "quartz"
+      gem_color: "red" | "blue" | "green" | "yellow" | "pink" | "white" | "black" | "colorless" | "D" | "E" | "F" | "G" | "H" | "I" | "J" | "K" | "L" | "M" | "fancy-yellow" | "fancy-blue" | "fancy-pink" | "fancy-green"
+      gem_cut: "round" | "oval" | "marquise" | "pear" | "emerald" | "princess" | "cushion" | "radiant" | "fantasy"
+      gem_clarity: "FL" | "IF" | "VVS1" | "VVS2" | "VS1" | "VS2" | "SI1" | "SI2" | "I1"
+      order_status: "pending" | "confirmed" | "processing" | "shipped" | "delivered" | "cancelled"
+      payment_type: "bank_transfer" | "crypto" | "cash" | "stripe"
+    }
+    Functions: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
+}

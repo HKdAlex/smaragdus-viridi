@@ -10,8 +10,8 @@ interface AuthContextType {
   user: User | null;
   profile: UserProfile | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, name: string) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<any>;
+  signUp: (email: string, password: string, name: string) => Promise<any>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -36,9 +36,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Get initial session
     const getInitialSession = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
         setUser(session?.user ?? null);
-        
+
         if (session?.user) {
           const userProfile = await auth.getUserProfile(session.user.id);
           setProfile(userProfile);
@@ -57,16 +59,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state changed:", event, session?.user?.email);
-      
+
       setUser(session?.user ?? null);
-      
+
       if (session?.user) {
         const userProfile = await auth.getUserProfile(session.user.id);
         setProfile(userProfile);
       } else {
         setProfile(null);
       }
-      
+
       setLoading(false);
     });
 
@@ -76,8 +78,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signIn = async (email: string, password: string) => {
     setLoading(true);
     try {
-      await auth.signIn(email, password);
-      // User state will be updated by the auth state change listener
+      const result = await auth.signIn(email, password);
+
+      if (result.user) {
+        setUser(result.user);
+        // Profile will be loaded automatically by the useEffect when user changes
+      }
+
+      setLoading(false);
+      return result;
     } catch (error) {
       setLoading(false);
       throw error;
@@ -87,8 +96,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signUp = async (email: string, password: string, name: string) => {
     setLoading(true);
     try {
-      await auth.signUp(email, password, name);
-      // User state will be updated by the auth state change listener
+      const result = await auth.signUp(email, password, name);
+
+      // After successful signup, the user will need to confirm email
+      // Profile will be created when they sign in after confirmation
+      console.log(
+        "Signup successful, please check your email for confirmation"
+      );
+
+      setLoading(false);
+      return result;
     } catch (error) {
       setLoading(false);
       throw error;
@@ -129,4 +146,4 @@ export const useAuth = () => {
     throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
-}; 
+};

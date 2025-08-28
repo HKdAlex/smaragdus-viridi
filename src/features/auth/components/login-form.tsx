@@ -3,6 +3,7 @@
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { useAuth } from "../context/auth-context";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export function LoginForm() {
@@ -10,6 +11,7 @@ export function LoginForm() {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const router = useRouter();
 
   const { signIn } = useAuth();
 
@@ -20,6 +22,8 @@ export function LoginForm() {
 
     try {
       await signIn(email, password);
+      // Redirect to home page after successful login
+      router.push("/");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Sign in failed");
     } finally {
@@ -41,6 +45,7 @@ export function LoginForm() {
           required
           disabled={isLoading}
           placeholder="Enter your email"
+          autoComplete="email"
         />
       </div>
 
@@ -56,6 +61,7 @@ export function LoginForm() {
           required
           disabled={isLoading}
           placeholder="Enter your password"
+          autoComplete="current-password"
         />
       </div>
 

@@ -370,32 +370,116 @@ async function generateSummaryReport() {
  * Main execution function
  */
 async function main() {
+  // Parse command line arguments
+  const args = process.argv.slice(2);
+  const fullReimport = args.includes("--full-reimport");
+  const sourcePath = args
+    .find((arg) => arg.startsWith("--source="))
+    ?.split("=")[1];
+  const keepExisting = args.includes("--keep-existing");
+
   try {
-    console.log("🌟 FRESH GEMSTONE IMAGE ASSIGNMENT");
-    console.log("Replacing ALL images with fresh, curated content");
-    console.log(
-      "📸 Using user-specified high-quality images for diamonds & emeralds"
-    );
-    console.log("═".repeat(60));
+    if (fullReimport) {
+      console.log("🔄 FULL GEMSTONE REIMPORT MODE");
+      console.log("Reimporting from original source directories");
+      console.log("═".repeat(60));
 
-    // Step 1: Clear existing images
-    await clearExistingImages();
+      await performFullReimport(sourcePath);
+    } else {
+      console.log("🌟 FRESH GEMSTONE IMAGE ASSIGNMENT");
+      console.log("Replacing ALL images with fresh, curated content");
+      console.log(
+        "📸 Using user-specified high-quality images for diamonds & emeralds"
+      );
+      console.log("═".repeat(60));
 
-    // Step 2: Fetch all gemstones
-    const gemstones = await fetchAllGemstones();
+      // Step 1: Clear existing images (unless keeping them)
+      if (!keepExisting) {
+        await clearExistingImages();
+      }
 
-    // Step 3: Assign fresh images
-    const assignments = await assignFreshImages(gemstones);
+      // Step 2: Fetch all gemstones
+      const gemstones = await fetchAllGemstones();
 
-    // Step 4: Insert into database
-    await insertImageAssignments(assignments);
+      // Step 3: Assign fresh images
+      const assignments = await assignFreshImages(gemstones);
 
-    // Step 5: Generate summary
-    await generateSummaryReport();
+      // Step 4: Insert into database
+      await insertImageAssignments(assignments);
+
+      // Step 5: Generate summary
+      await generateSummaryReport();
+    }
   } catch (error) {
-    console.error("❌ Fresh image assignment failed:", error.message);
+    console.error("❌ Operation failed:", error.message);
     process.exit(1);
   }
+}
+
+/**
+ * Perform full reimport from original source directories
+ */
+async function performFullReimport(sourcePath = null) {
+  const defaultSourcePath = "/Volumes/2TB/gems";
+  const targetPath = sourcePath || defaultSourcePath;
+
+  console.log(`📁 Source path: ${targetPath}`);
+  console.log(`🔍 Checking if source directory exists...`);
+
+  // Check if source directory exists
+  try {
+    const fs = await import("fs/promises");
+    await fs.access(targetPath);
+    console.log("✅ Source directory found");
+  } catch (error) {
+    console.error(`❌ Source directory not found: ${targetPath}`);
+    console.log(
+      "💡 Make sure the external drive is mounted or specify a different path:"
+    );
+    console.log(
+      `   node scripts/refresh-gemstone-images.js --full-reimport --source="/path/to/gems"`
+    );
+    process.exit(1);
+  }
+
+  console.log("\n🚀 Starting full reimport process...");
+
+  // Step 1: Clear existing data (optional - ask user)
+  const shouldClear = process.argv.includes("--clear-data");
+  if (shouldClear) {
+    console.log("🗑️  Clearing existing gemstone data...");
+    const { clearAllData } = await import("./clear-all-data.mjs");
+    await clearAllData();
+  }
+
+  // Step 2: Run the optimized import system
+  console.log("📦 Running optimized import system...");
+  const { spawn } = await import("child_process");
+
+  const importProcess = spawn(
+    "node",
+    [
+      "scripts/gemstone-import-system-v3-optimized.mjs",
+      `--source=${targetPath}`,
+      "--max=100", // Process in batches to avoid overwhelming
+    ],
+    {
+      stdio: "inherit",
+    }
+  );
+
+  return new Promise((resolve, reject) => {
+    importProcess.on("close", (code) => {
+      if (code === 0) {
+        console.log("\n🎉 Full reimport completed successfully!");
+        resolve();
+      } else {
+        reject(new Error(`Import process exited with code ${code}`));
+      }
+    });
+
+    importProcess.on("error", reject);
+  });
 }
 
 // Run the script

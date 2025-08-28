@@ -9,10 +9,10 @@
  * @date 2025-01-19
  */
 
-export const COMPREHENSIVE_MULTI_IMAGE_PROMPT = `You are a professional gemologist and expert image analyst. I am providing you with {IMAGE_COUNT} high-quality images of a single gemstone for comprehensive analysis. You MUST analyze EACH individual image AND provide consolidated results.
+export const COMPREHENSIVE_MULTI_IMAGE_PROMPT = `You are an expert gemstone analyst with specialized knowledge in jewelry and precious stones. I am providing you with {IMAGE_COUNT} high-quality images of a single gemstone for detailed analysis and data extraction.
 
-**CRITICAL REQUIREMENT: ANALYZE EVERY SINGLE IMAGE**
-You will receive exactly {IMAGE_COUNT} images. You must provide individual analysis for each image numbered 1 through {IMAGE_COUNT}.
+**ANALYSIS TASK: Process all {IMAGE_COUNT} images**
+You will analyze exactly {IMAGE_COUNT} images of one gemstone. You must examine each image and extract relevant gemstone data.
 
 **Step-by-Step Analysis Process:**
 

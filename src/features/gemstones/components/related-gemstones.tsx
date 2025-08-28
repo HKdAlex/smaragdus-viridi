@@ -126,12 +126,14 @@ export function RelatedGemstones({
         // Sort images by order for each gemstone
         results.forEach((gemstone) => {
           if (gemstone.images) {
-            gemstone.images.sort((a, b) => a.image_order - b.image_order);
+            gemstone.images.sort(
+              (a: any, b: any) => a.image_order - b.image_order
+            );
           }
         });
 
         // Sort results by relevance score
-        const sortedResults = results.sort((a, b) => {
+        const sortedResults = results.sort((a: any, b: any) => {
           let scoreA = 0;
           let scoreB = 0;
 
@@ -213,13 +215,14 @@ export function RelatedGemstones({
 
   // Get similarity badge
   const getSimilarityReason = (gemstone: RelatedGemstone) => {
-    if (gemstone.name === gemstoneType && gemstone.color === color) {
+    const dbGem = gemstone as DatabaseGemstone;
+    if (dbGem.name === gemstoneType && dbGem.color === color) {
       return { text: "Same Type & Color", variant: "default" as const };
     }
-    if (gemstone.name === gemstoneType) {
+    if (dbGem.name === gemstoneType) {
       return { text: "Same Type", variant: "secondary" as const };
     }
-    if (gemstone.color === color) {
+    if (dbGem.color === color) {
       return { text: "Same Color", variant: "outline" as const };
     }
     return { text: "Similar Price", variant: "outline" as const };
@@ -291,8 +294,8 @@ export function RelatedGemstones({
 
             return (
               <Link
-                key={gemstone.id}
-                href={`/catalog/${gemstone.id}`}
+                key={(gemstone as DatabaseGemstone).id}
+                href={`/catalog/${(gemstone as DatabaseGemstone).id}`}
                 className="flex-shrink-0 w-64 group"
               >
                 <div className="space-y-3">
@@ -301,7 +304,11 @@ export function RelatedGemstones({
                     {primaryImage ? (
                       <SafeImage
                         src={primaryImage.image_url}
-                        alt={`${gemstone.weight_carats}ct ${gemstone.color} ${gemstone.name}`}
+                        alt={`${
+                          (gemstone as DatabaseGemstone).weight_carats
+                        }ct ${(gemstone as DatabaseGemstone).color} ${
+                          (gemstone as DatabaseGemstone).name
+                        }`}
                         width={256}
                         height={256}
                         className="object-cover transition-transform duration-300 group-hover:scale-105"
@@ -330,7 +337,10 @@ export function RelatedGemstones({
                         className="h-8 w-8 bg-white/90 hover:bg-white"
                         onClick={(e) => {
                           e.preventDefault();
-                          console.log("Add to favorites:", gemstone.id);
+                          console.log(
+                            "Add to favorites:",
+                            (gemstone as DatabaseGemstone).id
+                          );
                         }}
                       >
                         <Heart className="w-4 h-4" />
@@ -338,7 +348,7 @@ export function RelatedGemstones({
                     </div>
 
                     {/* Stock Status */}
-                    {!gemstone.in_stock && (
+                    {!(gemstone as DatabaseGemstone).in_stock && (
                       <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                         <Badge variant="destructive">Out of Stock</Badge>
                       </div>
@@ -349,11 +359,13 @@ export function RelatedGemstones({
                   <div className="space-y-2">
                     <div className="space-y-1">
                       <h4 className="font-medium text-sm line-clamp-1 capitalize">
-                        {gemstone.weight_carats}ct {gemstone.color}{" "}
-                        {gemstone.name}
+                        {(gemstone as DatabaseGemstone).weight_carats}ct{" "}
+                        {(gemstone as DatabaseGemstone).color}{" "}
+                        {(gemstone as DatabaseGemstone).name}
                       </h4>
                       <p className="text-xs text-muted-foreground line-clamp-1">
-                        {gemstone.cut} Cut • {gemstone.clarity} Clarity
+                        {(gemstone as DatabaseGemstone).cut} Cut •{" "}
+                        {(gemstone as DatabaseGemstone).clarity} Clarity
                       </p>
                       {gemstone.origin && (
                         <p className="text-xs text-muted-foreground line-clamp-1">
@@ -365,15 +377,15 @@ export function RelatedGemstones({
                     <div className="flex items-center justify-between">
                       <span className="font-semibold text-sm">
                         {formatPrice(
-                          gemstone.price_amount,
-                          gemstone.price_currency
+                          (gemstone as DatabaseGemstone).price_amount,
+                          (gemstone as DatabaseGemstone).price_currency
                         )}
                       </span>
                       <div className="flex items-center gap-1">
                         <Star className="w-3 h-3 text-yellow-500 fill-current" />
                         <span className="text-xs text-muted-foreground">
-                          {gemstone.clarity === "FL" ||
-                          gemstone.clarity === "IF"
+                          {(gemstone as DatabaseGemstone).clarity === "FL" ||
+                          (gemstone as DatabaseGemstone).clarity === "IF"
                             ? "5.0"
                             : "4.8"}
                         </span>

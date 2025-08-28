@@ -1,10 +1,27 @@
 "use client";
 
+import { useMemo, useState } from "react";
+
+import { useAuth } from "@/features/auth/context/auth-context";
+import { useCart } from "@/features/cart/hooks/use-cart";
 import { Button } from "@/shared/components/ui/button";
-import Link from "next/link";
 import { ThemeToggle } from "@/shared/components/ui/theme-toggle";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+
+// Safe admin status hook that doesn't throw if AdminProvider is not available
+function useSafeAdminStatus() {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const {
+      useAdminStatus,
+    } = require("@/features/admin/context/admin-context");
+    return useAdminStatus();
+  } catch {
+    // AdminProvider not available, return safe defaults
+    return { isAdmin: false, isLoading: false };
+  }
+}
 
 interface NavItem {
   name: string;
@@ -19,9 +36,18 @@ const navigation: NavItem[] = [
   { name: "Contact", href: "/contact" },
 ];
 
+// Admin navigation (conditionally shown)
+const adminNavigation: NavItem[] = [{ name: "Admin", href: "/admin" }];
+
 export function MainNav() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const { user, signOut } = useAuth();
+  const { isAdmin } = useSafeAdminStatus();
+
+  // Memoize userId to prevent unnecessary re-renders
+  const userId = useMemo(() => user?.id, [user?.id]);
+  const { getItemCount } = useCart(userId);
 
   const isCurrentPage = (href: string) => {
     if (href === "/") {
@@ -64,6 +90,22 @@ export function MainNav() {
                   {item.name}
                 </Link>
               ))}
+
+              {/* Admin Navigation - only show for admin users */}
+              {isAdmin &&
+                adminNavigation.map((item) => (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={`text-sm font-medium transition-colors hover:text-primary ${
+                      isCurrentPage(item.href)
+                        ? "text-primary border-b-2 border-primary pb-1"
+                        : "text-muted-foreground"
+                    }`}
+                  >
+                    {item.name}
+                  </Link>
+                ))}
             </div>
           </div>
 
@@ -91,50 +133,80 @@ export function MainNav() {
             </button>
 
             {/* Cart button */}
-            <button
-              type="button"
-              className="p-2 text-muted-foreground hover:text-primary transition-colors relative"
-              aria-label="Shopping cart"
-            >
-              <svg
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="1.5"
-                stroke="currentColor"
+            {user && (
+              <Link
+                href="/cart"
+                className="p-2 text-muted-foreground hover:text-primary transition-colors relative"
+                aria-label="Shopping cart"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.119-1.243l1.263-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
-                />
-              </svg>
-              {/* Cart badge - will be dynamic later */}
-              <span className="absolute -top-1 -right-1 h-4 w-4 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center">
-                0
-              </span>
-            </button>
+                <svg
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth="1.5"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.119-1.243l1.263-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
+                  />
+                </svg>
+                {/* Cart badge - dynamic count */}
+                {getItemCount() > 0 && (
+                  <span className="absolute -top-1 -right-1 h-4 min-w-4 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center px-1">
+                    {getItemCount() > 99 ? "99+" : getItemCount()}
+                  </span>
+                )}
+              </Link>
+            )}
 
             {/* Theme toggle */}
             <ThemeToggle />
 
             {/* Auth buttons */}
             <div className="hidden sm:flex items-center space-x-3">
-              <Button
-                variant="outline"
-                asChild
-                size="sm"
-                className="border-border text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
-              >
-                <Link href="/login">Sign In</Link>
-              </Button>
-              <Button
-                asChild
-                size="sm"
-                className="bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
-              >
-                <Link href="/signup">Sign Up</Link>
-              </Button>
+              {user ? (
+                // User is signed in - show user menu
+                <div className="flex items-center space-x-3">
+                  <span className="text-sm text-muted-foreground">
+                    Welcome, {user.email}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={async () => {
+                      try {
+                        await signOut();
+                      } catch (error) {
+                        console.error("Sign out failed:", error);
+                      }
+                    }}
+                    className="border-border text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+                  >
+                    Sign Out
+                  </Button>
+                </div>
+              ) : (
+                // User is not signed in - show auth buttons
+                <>
+                  <Button
+                    variant="outline"
+                    asChild
+                    size="sm"
+                    className="border-border text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+                  >
+                    <Link href="/login">Sign In</Link>
+                  </Button>
+                  <Button
+                    asChild
+                    size="sm"
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                  >
+                    <Link href="/signup">Sign Up</Link>
+                  </Button>
+                </>
+              )}
             </div>
 
             {/* Mobile menu button */}
@@ -180,23 +252,67 @@ export function MainNav() {
                 </Link>
               ))}
 
+              {/* Mobile Admin Navigation - only show for admin users */}
+              {isAdmin &&
+                adminNavigation.map((item) => (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={`block px-3 py-2 text-base font-medium transition-colors ${
+                      isCurrentPage(item.href)
+                        ? "text-primary bg-accent"
+                        : "text-muted-foreground hover:text-primary hover:bg-accent"
+                    }`}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {item.name}
+                  </Link>
+                ))}
+
               {/* Mobile auth buttons */}
               <div className="px-3 py-2 space-y-2">
-                <Button
-                  variant="outline"
-                  asChild
-                  size="sm"
-                  className="w-full border-border text-foreground hover:bg-accent hover:text-accent-foreground"
-                >
-                  <Link href="/login">Sign In</Link>
-                </Button>
-                <Button
-                  asChild
-                  size="sm"
-                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-                >
-                  <Link href="/signup">Sign Up</Link>
-                </Button>
+                {user ? (
+                  // User is signed in - show user info and sign out
+                  <>
+                    <div className="px-3 py-2 text-sm text-muted-foreground">
+                      Welcome, {user.email}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={async () => {
+                        try {
+                          await signOut();
+                          setMobileMenuOpen(false);
+                        } catch (error) {
+                          console.error("Sign out failed:", error);
+                        }
+                      }}
+                      className="w-full border-border text-foreground hover:bg-accent hover:text-accent-foreground"
+                    >
+                      Sign Out
+                    </Button>
+                  </>
+                ) : (
+                  // User is not signed in - show auth buttons
+                  <>
+                    <Button
+                      variant="outline"
+                      asChild
+                      size="sm"
+                      className="w-full border-border text-foreground hover:bg-accent hover:text-accent-foreground"
+                    >
+                      <Link href="/login">Sign In</Link>
+                    </Button>
+                    <Button
+                      asChild
+                      size="sm"
+                      className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                    >
+                      <Link href="/signup">Sign Up</Link>
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           </div>

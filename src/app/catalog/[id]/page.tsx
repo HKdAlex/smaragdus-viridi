@@ -1,10 +1,7 @@
 import type {
-  DatabaseAIAnalysisResult,
-  DatabaseCertification,
-  DatabaseGemstone,
   DatabaseGemstoneImage,
   DatabaseGemstoneVideo,
-  DatabaseOrigin,
+  DetailGemstone,
 } from "@/shared/types";
 
 import { GemstoneDetail } from "@/features/gemstones/components/gemstone-detail";
@@ -12,14 +9,7 @@ import { supabase } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
-// Enhanced gemstone interface for detail page
-interface DetailGemstone extends DatabaseGemstone {
-  images: DatabaseGemstoneImage[];
-  videos: DatabaseGemstoneVideo[];
-  origin: DatabaseOrigin | null;
-  certifications: DatabaseCertification[];
-  ai_analysis_results: DatabaseAIAnalysisResult[];
-}
+// DetailGemstone interface is now imported from shared types
 
 interface PageProps {
   params: Promise<{
@@ -78,12 +68,18 @@ async function fetchGemstoneById(id: string): Promise<DetailGemstone | null> {
 
     // Sort images by order
     if (gemstone.images) {
-      gemstone.images.sort((a, b) => a.image_order - b.image_order);
+      gemstone.images.sort(
+        (a: DatabaseGemstoneImage, b: DatabaseGemstoneImage) =>
+          a.image_order - b.image_order
+      );
     }
 
     // Sort videos by order
     if (gemstone.videos) {
-      gemstone.videos.sort((a, b) => a.video_order - b.video_order);
+      gemstone.videos.sort(
+        (a: DatabaseGemstoneVideo, b: DatabaseGemstoneVideo) =>
+          a.video_order - b.video_order
+      );
     }
 
     console.log(`✅ [GemstoneDetail] Successfully fetched gemstone:`, {

@@ -153,6 +153,18 @@ node scripts/ai-gemstone-analyzer-v3.mjs --limit 5
 node scripts/test-multi-image.mjs
 ```
 
+### Database Type Generation
+
+```bash
+# Generate TypeScript types from Supabase schema
+npm run types:generate
+
+# Or run directly
+node scripts/generate-supabase-types.mjs
+```
+
+This command generates up-to-date TypeScript types from your Supabase database schema, ensuring type safety between your database and application. Run this whenever you modify your database schema.
+
 ### Quality Gates
 
 ```bash

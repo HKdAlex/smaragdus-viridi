@@ -589,6 +589,8 @@ async function processGemstoneFolder(
       internal_code: folderName,
       serial_number: serialNumber,
       import_batch_id: batchId,
+      import_folder_path: folderPath,
+      import_notes: `Imported from ${folderName} with ${imageFiles.length} images and ${videoFiles.length} videos`,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
@@ -630,6 +632,11 @@ async function processGemstoneFolder(
             is_primary: imageOrder === 2, // First image is primary
             has_watermark: true,
             alt_text: processed.originalName,
+            original_filename: processed.originalName,
+            original_path: storagePath.replace(
+              "gemstones/" + gemstone.id + "/images/",
+              ""
+            ),
           },
           "gemstone_images"
         );
@@ -687,6 +694,11 @@ async function processGemstoneFolder(
             duration_seconds: null, // TODO: Extract duration
             thumbnail_url: null, // TODO: Generate thumbnail
             title: processed.originalName,
+            original_filename: processed.originalName,
+            original_path: storagePath.replace(
+              "gemstones/" + gemstone.id + "/videos/",
+              ""
+            ),
           },
           "gemstone_videos"
         );

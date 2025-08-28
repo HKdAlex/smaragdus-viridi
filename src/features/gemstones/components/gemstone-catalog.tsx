@@ -12,18 +12,27 @@ import type {
 } from "@/shared/types";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { supabase } from "@/lib/supabase";
+import { SafeImage } from "@/shared/components/ui/safe-image";
+import Link from "next/link";
+import type { AdvancedGemstoneFilters } from "../types/filter.types";
 import { AdvancedFilters } from "./filters/advanced-filters";
 import { AdvancedFiltersV2 } from "./filters/advanced-filters-v2";
-import type { AdvancedGemstoneFilters } from "../types/filter.types";
-import Link from "next/link";
-import { SafeImage } from "@/shared/components/ui/safe-image";
-import { supabase } from "@/lib/supabase";
 
 // Enhanced gemstone interface for the catalog
 interface CatalogGemstone extends DatabaseGemstone {
   images?: DatabaseGemstoneImage[];
   origin?: DatabaseOrigin | null;
   certifications?: DatabaseCertification[];
+  ai_analysis?:
+    | {
+        id: string;
+        confidence_score: number | null;
+        analysis_type: string;
+        extracted_data: any;
+        created_at: string;
+      }[]
+    | null; // Array since there can be multiple AI analyses
 }
 
 interface GemstoneFilters {
@@ -38,7 +47,43 @@ interface GemstoneFilters {
   inStockOnly?: boolean;
   hasImages?: boolean;
   hasCertification?: boolean;
+  hasAIAnalysis?: boolean;
 }
+
+// Helper function to check if gemstone has meaningful AI analysis
+const hasMeaningfulAIAnalysis = (
+  aiAnalysis: any[] | null | undefined
+): boolean => {
+  if (!aiAnalysis || !Array.isArray(aiAnalysis) || aiAnalysis.length === 0) {
+    return false;
+  }
+
+  // Check if any analysis has high confidence score and meaningful extracted data
+  return aiAnalysis.some((analysis) => {
+    const hasHighConfidence =
+      analysis.confidence_score && analysis.confidence_score >= 0.5;
+    const hasExtractedData =
+      analysis.extracted_data &&
+      typeof analysis.extracted_data === "object" &&
+      Object.keys(analysis.extracted_data).length > 0;
+
+    return hasHighConfidence && hasExtractedData;
+  });
+};
+
+// Get the best AI analysis for display
+const getBestAIAnalysis = (aiAnalysis: any[] | null | undefined) => {
+  if (!aiAnalysis || !Array.isArray(aiAnalysis) || aiAnalysis.length === 0) {
+    return null;
+  }
+
+  // Return the analysis with highest confidence score
+  return aiAnalysis.reduce((best, current) => {
+    const currentScore = current.confidence_score || 0;
+    const bestScore = best.confidence_score || 0;
+    return currentScore > bestScore ? current : best;
+  });
+};
 
 export function GemstoneCatalog() {
   const [allGemstones, setAllGemstones] = useState<CatalogGemstone[]>([]);
@@ -102,39 +147,43 @@ export function GemstoneCatalog() {
       // Search filter
       if (filters.search) {
         const searchTerm = filters.search.toLowerCase();
-        filtered = filtered.filter(
-          (gem) =>
-            gem.serial_number.toLowerCase().includes(searchTerm) ||
-            gem.internal_code?.toLowerCase().includes(searchTerm) ||
-            gem.name.toLowerCase().includes(searchTerm) ||
-            gem.color.toLowerCase().includes(searchTerm) ||
-            gem.cut.toLowerCase().includes(searchTerm)
-        );
+        filtered = filtered.filter((gem) => {
+          const dbGem = gem as DatabaseGemstone;
+          return (
+            dbGem.serial_number.toLowerCase().includes(searchTerm) ||
+            dbGem.internal_code?.toLowerCase().includes(searchTerm) ||
+            dbGem.name.toLowerCase().includes(searchTerm) ||
+            dbGem.color.toLowerCase().includes(searchTerm) ||
+            dbGem.cut.toLowerCase().includes(searchTerm)
+          );
+        });
       }
 
       // Gemstone types filter
       if (filters.gemstoneTypes?.length) {
         filtered = filtered.filter((gem) =>
-          filters.gemstoneTypes!.includes(gem.name)
+          filters.gemstoneTypes!.includes((gem as DatabaseGemstone).name)
         );
       }
 
       // Colors filter
       if (filters.colors?.length) {
         filtered = filtered.filter((gem) =>
-          filters.colors!.includes(gem.color)
+          filters.colors!.includes((gem as DatabaseGemstone).color)
         );
       }
 
       // Cuts filter
       if (filters.cuts?.length) {
-        filtered = filtered.filter((gem) => filters.cuts!.includes(gem.cut));
+        filtered = filtered.filter((gem) =>
+          filters.cuts!.includes((gem as DatabaseGemstone).cut)
+        );
       }
 
       // Clarities filter
       if (filters.clarities?.length) {
         filtered = filtered.filter((gem) =>
-          filters.clarities!.includes(gem.clarity)
+          filters.clarities!.includes((gem as DatabaseGemstone).clarity)
         );
       }
 
@@ -151,7 +200,9 @@ export function GemstoneCatalog() {
         const minCents = filters.priceRange.min * 100;
         const maxCents = filters.priceRange.max * 100;
         filtered = filtered.filter(
-          (gem) => gem.price_amount >= minCents && gem.price_amount <= maxCents
+          (gem) =>
+            (gem as DatabaseGemstone).price_amount >= minCents &&
+            (gem as DatabaseGemstone).price_amount <= maxCents
         );
       }
 
@@ -159,14 +210,15 @@ export function GemstoneCatalog() {
       if (filters.weightRange) {
         filtered = filtered.filter(
           (gem) =>
-            gem.weight_carats >= filters.weightRange!.min &&
-            gem.weight_carats <= filters.weightRange!.max
+            (gem as DatabaseGemstone).weight_carats >=
+              filters.weightRange!.min &&
+            (gem as DatabaseGemstone).weight_carats <= filters.weightRange!.max
         );
       }
 
       // In stock filter
       if (filters.inStockOnly) {
-        filtered = filtered.filter((gem) => gem.in_stock);
+        filtered = filtered.filter((gem) => (gem as DatabaseGemstone).in_stock);
       }
 
       // Has images filter
@@ -180,6 +232,13 @@ export function GemstoneCatalog() {
       if (filters.hasCertification) {
         filtered = filtered.filter(
           (gem) => gem.certifications && gem.certifications.length > 0
+        );
+      }
+
+      // Has AI analysis filter
+      if (filters.hasAIAnalysis) {
+        filtered = filtered.filter((gem) =>
+          hasMeaningfulAIAnalysis(gem.ai_analysis)
         );
       }
 
@@ -210,7 +269,8 @@ export function GemstoneCatalog() {
   // Calculate available filter options from ALL gemstones (not filtered)
   const availableGemstoneTypes = useMemo(() => {
     const typeCounts = allGemstones.reduce((acc, gem) => {
-      acc[gem.name] = (acc[gem.name] || 0) + 1;
+      acc[(gem as DatabaseGemstone).name] =
+        (acc[(gem as DatabaseGemstone).name] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
 
@@ -223,7 +283,8 @@ export function GemstoneCatalog() {
 
   const availableColors = useMemo(() => {
     const colorCounts = allGemstones.reduce((acc, gem) => {
-      acc[gem.color] = (acc[gem.color] || 0) + 1;
+      acc[(gem as DatabaseGemstone).color] =
+        (acc[(gem as DatabaseGemstone).color] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
 
@@ -250,7 +311,8 @@ export function GemstoneCatalog() {
 
   const availableCuts = useMemo(() => {
     const cutCounts = allGemstones.reduce((acc, gem) => {
-      acc[gem.cut] = (acc[gem.cut] || 0) + 1;
+      acc[(gem as DatabaseGemstone).cut] =
+        (acc[(gem as DatabaseGemstone).cut] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
 
@@ -263,7 +325,8 @@ export function GemstoneCatalog() {
 
   const availableClarities = useMemo(() => {
     const clarityCounts = allGemstones.reduce((acc, gem) => {
-      acc[gem.clarity] = (acc[gem.clarity] || 0) + 1;
+      acc[(gem as DatabaseGemstone).clarity] =
+        (acc[(gem as DatabaseGemstone).clarity] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
 
@@ -321,7 +384,8 @@ export function GemstoneCatalog() {
           *,
           images:gemstone_images(*),
           origin:origins(*),
-          certifications:certifications(*)
+          certifications:certifications(*),
+          ai_analysis:ai_analysis_results(id, confidence_score, analysis_type, extracted_data, created_at)
         `
         )
         .order("created_at", { ascending: false });
@@ -334,7 +398,17 @@ export function GemstoneCatalog() {
         count: data?.length || 0,
       });
 
-      setAllGemstones(data || []);
+      // Transform data to match expected CatalogGemstone format
+      const transformedData = (data || []).map((gemstone) => ({
+        ...gemstone,
+        ai_analysis: (gemstone.ai_analysis || []).map((analysis: any) => ({
+          ...analysis,
+          created_at: analysis.created_at || new Date().toISOString(),
+          extracted_data: analysis.extracted_data || {},
+        })),
+      }));
+
+      setAllGemstones(transformedData);
     } catch (error) {
       console.error("❌ [GemstoneCatalog] Error loading gemstones:", error);
     } finally {
@@ -467,8 +541,8 @@ export function GemstoneCatalog() {
 
               return (
                 <Link
-                  key={gemstone.id}
-                  href={`/catalog/${gemstone.id}`}
+                  key={(gemstone as DatabaseGemstone).id}
+                  href={`/catalog/${(gemstone as DatabaseGemstone).id}`}
                   className="bg-card border border-border rounded-lg overflow-hidden 
                              hover:shadow-lg hover:shadow-primary/10 
                              transition-all duration-300 group 
@@ -479,16 +553,20 @@ export function GemstoneCatalog() {
                     {primaryImage ? (
                       <SafeImage
                         src={primaryImage.image_url}
-                        alt={`${gemstone.color} ${gemstone.name}`}
+                        alt={`${(gemstone as DatabaseGemstone).color} ${
+                          (gemstone as DatabaseGemstone).name
+                        }`}
                         width={400}
                         height={400}
-                        className="object-cover w-full h-full transition-transform duration-300 
+                        className="object-cover w-full h-full transition-transform duration-300
                                    group-hover:scale-105"
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                         onError={(error: string) => {
                           if (process.env.NODE_ENV === "development") {
                             console.warn(
-                              `Image failed to load for ${gemstone.serial_number}:`,
+                              `Image failed to load for ${
+                                (gemstone as DatabaseGemstone).serial_number
+                              }:`,
                               error
                             );
                           }
@@ -502,40 +580,68 @@ export function GemstoneCatalog() {
 
                     {/* Serial number overlay */}
                     <div className="absolute bottom-2 right-2 bg-black/75 text-white text-xs px-2 py-1 rounded backdrop-blur-sm">
-                      {gemstone.serial_number}
+                      {(gemstone as DatabaseGemstone).serial_number}
                     </div>
 
                     {/* Stock status */}
-                    {!gemstone.in_stock && (
+                    {!(gemstone as DatabaseGemstone).in_stock && (
                       <div className="absolute top-2 left-2 bg-destructive text-destructive-foreground text-xs px-2 py-1 rounded">
                         Out of Stock
                       </div>
                     )}
 
                     {/* Availability indicator */}
-                    {gemstone.in_stock && (
+                    {(gemstone as DatabaseGemstone).in_stock && (
                       <div className="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded">
                         Available
                       </div>
                     )}
+
+                    {/* AI Analysis indicator - only show when there's meaningful data */}
+                    {hasMeaningfulAIAnalysis(gemstone.ai_analysis) &&
+                      (() => {
+                        const bestAnalysis = getBestAIAnalysis(
+                          gemstone.ai_analysis
+                        );
+                        return (
+                          <div className="absolute top-2 right-2 flex items-center space-x-1">
+                            <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white text-xs px-2 py-1 rounded flex items-center space-x-1 shadow-sm">
+                              <span>🤖</span>
+                              <span>AI</span>
+                            </div>
+                            {bestAnalysis?.confidence_score &&
+                              bestAnalysis.confidence_score >= 0.5 && (
+                                <div className="bg-gradient-to-r from-blue-600 to-purple-700 text-white text-xs px-2 py-1 rounded shadow-sm">
+                                  {(
+                                    bestAnalysis.confidence_score * 100
+                                  ).toFixed(0)}
+                                  %
+                                </div>
+                              )}
+                          </div>
+                        );
+                      })()}
                   </div>
 
                   {/* Details */}
                   <div className="p-4">
                     <div className="flex items-start justify-between mb-2">
                       <h3 className="font-semibold text-card-foreground capitalize leading-tight">
-                        {gemstone.color} {gemstone.name}
+                        {(gemstone as DatabaseGemstone).color}{" "}
+                        {(gemstone as DatabaseGemstone).name}
                       </h3>
                       <span className="text-sm text-muted-foreground capitalize ml-2 flex-shrink-0">
-                        {gemstone.cut}
+                        {(gemstone as DatabaseGemstone).cut}
                       </span>
                     </div>
 
                     <div className="space-y-1 text-sm text-muted-foreground mb-3">
                       <div className="font-medium text-foreground">
-                        {gemstone.weight_carats}ct
+                        {(gemstone as DatabaseGemstone).weight_carats}ct
                       </div>
-                      <div>{gemstone.clarity} clarity</div>
+                      <div>
+                        {(gemstone as DatabaseGemstone).clarity} clarity
+                      </div>
                       {gemstone.origin && (
                         <div className="text-xs">
                           Origin: {gemstone.origin.name}
@@ -546,14 +652,14 @@ export function GemstoneCatalog() {
                     <div className="flex items-center justify-between pt-2 border-t border-border">
                       <div className="text-lg font-bold text-primary">
                         {formatPrice(
-                          gemstone.price_amount,
-                          gemstone.price_currency
+                          (gemstone as DatabaseGemstone).price_amount,
+                          (gemstone as DatabaseGemstone).price_currency
                         )}
                       </div>
 
-                      {gemstone.delivery_days && (
+                      {(gemstone as DatabaseGemstone).delivery_days && (
                         <div className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
-                          {gemstone.delivery_days} days
+                          {(gemstone as DatabaseGemstone).delivery_days} days
                         </div>
                       )}
                     </div>

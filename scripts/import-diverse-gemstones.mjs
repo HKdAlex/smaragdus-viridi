@@ -103,7 +103,8 @@ async function importGemstone(folderName, batchId) {
         internal_code: folderName,
         serial_number: serialNumber,
         import_batch_id: batchId,
-        original_path: folderPath,
+        import_folder_path: folderPath,
+        import_notes: `Diverse selection import from ${folderName}`,
       })
       .select()
       .single();
@@ -123,12 +124,29 @@ async function importGemstone(folderName, batchId) {
 
 // Main import function
 async function importDiverseGemstones() {
+  // Parse command line arguments
+  const args = process.argv.slice(2);
+  const freshImport = args.includes("--fresh-import");
   const batchId = crypto.randomUUID();
 
   console.log(`🚀 Starting diverse gemstone import`);
   console.log(`📦 Batch ID: ${batchId}`);
   console.log(`📁 Source: ${GEMS_SOURCE}`);
+  console.log(`🔍 Mode: ${freshImport ? "FRESH IMPORT" : "REGULAR IMPORT"}`);
   console.log(`💎 Importing ${DIVERSE_GEMSTONES.length} diverse gemstones\n`);
+
+  // Handle fresh import mode
+  if (freshImport) {
+    console.log("🗑️  FRESH IMPORT MODE: Clearing existing data...");
+    try {
+      const { clearAllData } = await import("./clear-all-data.mjs");
+      await clearAllData();
+      console.log("✅ Existing data cleared successfully\n");
+    } catch (error) {
+      console.error("❌ Failed to clear existing data:", error.message);
+      console.log("💡 Continuing with import anyway...\n");
+    }
+  }
 
   // Create import batch record
   const { error: batchError } = await supabase.from("import_batches").insert({
