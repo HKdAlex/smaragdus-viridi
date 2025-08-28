@@ -15,6 +15,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { SafeImage } from "@/shared/components/ui/safe-image";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import type { AdvancedGemstoneFilters } from "../types/filter.types";
 import { AdvancedFilters } from "./filters/advanced-filters";
 import { AdvancedFiltersV2 } from "./filters/advanced-filters-v2";
@@ -86,6 +87,8 @@ const getBestAIAnalysis = (aiAnalysis: any[] | null | undefined) => {
 };
 
 export function GemstoneCatalog() {
+  const t = useTranslations("catalog");
+
   const [allGemstones, setAllGemstones] = useState<CatalogGemstone[]>([]);
   const [filteredGemstones, setFilteredGemstones] = useState<CatalogGemstone[]>(
     []
@@ -466,7 +469,7 @@ export function GemstoneCatalog() {
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            📝 Standard Filters
+            {t("standardFilters")}
           </button>
           <button
             onClick={() => setUseVisualFilters(true)}
@@ -476,7 +479,7 @@ export function GemstoneCatalog() {
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            ✨ Visual Filters
+            {t("visualFilters")}
           </button>
         </div>
       </div>
@@ -519,8 +522,7 @@ export function GemstoneCatalog() {
       <div>
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-foreground">
-            {filteredGemstones.length} Gemstone
-            {filteredGemstones.length !== 1 ? "s" : ""} Found
+            {t("resultsFound", { count: filteredGemstones.length })}
           </h2>
         </div>
 
@@ -528,10 +530,10 @@ export function GemstoneCatalog() {
           <div className="text-center py-12">
             <div className="text-6xl text-muted-foreground mb-4">💎</div>
             <h3 className="text-xl font-medium text-foreground mb-2">
-              No gemstones found
+              {t("noGemstonesFound")}
             </h3>
             <p className="text-muted-foreground">
-              Try adjusting your filters to see more results.
+              {t("adjustFiltersMessage")}
             </p>
           </div>
         ) : (

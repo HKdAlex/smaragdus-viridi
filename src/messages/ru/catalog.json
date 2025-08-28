@@ -51,5 +51,11 @@
     "weight": "Вес",
     "dimensions": "Размеры",
     "treatment": "Обработка"
-  }
+  },
+  "standardFilters": "Стандартные фильтры",
+  "visualFilters": "Визуальные фильтры",
+  "noGemstonesFound": "Камни не найдены",
+  "adjustFiltersMessage": "Попробуйте изменить фильтры, чтобы увидеть больше результатов.",
+  "resultsFound": "Найден {count} камень",
+  "resultsFound_other": "Найдено {count} камней"
 }

@@ -568,7 +568,7 @@ _No active development issues - project in planning phase_
 └─ Inventory: Real-time availability updates
 ```
 
-#### **Sprint 6: Order Processing** (Weeks 11-12)
+#### **Sprint 7: Customer Support** (Weeks 13-14)
 
 **Goals**: Real-time chat system
 
@@ -606,26 +606,7 @@ _No active development issues - project in planning phase_
 └─ Analytics: Comprehensive admin insights
 ```
 
-#### **Sprint 8: Admin Dashboard** (Weeks 15-16)
-
-**Goals**: Ring size visualizer
-
-```
-🏗️ DELIVERABLES
-├─ 3D ring size visualization with Three.js
-├─ Interactive gemstone rendering
-├─ Ring size calculator and guide
-├─ Responsive 3D performance
-└─ Mobile 3D optimization
-
-📊 SUCCESS METRICS
-├─ 3D Viz: Smooth 60fps rendering on mobile
-├─ Accuracy: Precise ring size calculations
-├─ Performance: <3s initial load time
-└─ UX: Intuitive 3D interaction
-```
-
-#### **Sprint 7: Customer Support** (Weeks 13-14)
+#### **Sprint 9: 3D Visualization** (Weeks 17-18)
 
 **Goals**: File uploads and downloads
 

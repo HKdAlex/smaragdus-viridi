@@ -51,5 +51,11 @@
     "weight": "Weight",
     "dimensions": "Dimensions",
     "treatment": "Treatment"
-  }
+  },
+  "standardFilters": "Standard Filters",
+  "visualFilters": "Visual Filters",
+  "noGemstonesFound": "No gemstones found",
+  "adjustFiltersMessage": "Try adjusting your filters to see more results.",
+  "resultsFound": "{count} gemstone found",
+  "resultsFound_other": "{count} gemstones found"
 }
