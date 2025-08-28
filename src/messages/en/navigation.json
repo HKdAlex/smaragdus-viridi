@@ -24,5 +24,9 @@
   "terms": "Terms of Service",
   "cookies": "Cookie Policy",
   "careers": "Careers",
-  "press": "Press"
+  "press": "Press",
+  "welcome": "Welcome, {email}",
+  "signIn": "Sign In",
+  "signUp": "Sign Up",
+  "signOut": "Sign Out"
 }

@@ -41,6 +41,13 @@ const nextConfig: NextConfig = {
     ],
   },
 
+  // Internationalization configuration
+  i18n: {
+    locales: ["en", "ru"],
+    defaultLocale: "en",
+    localeDetection: false,
+  },
+
 };
 
 export default nextConfig;

@@ -5,6 +5,7 @@ import { Input } from "@/shared/components/ui/input";
 import { useAuth } from "../context/auth-context";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 export function SignupForm() {
   const [name, setName] = useState("");
@@ -15,6 +16,7 @@ export function SignupForm() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const router = useRouter();
+  const t = useTranslations("auth");
 
   const { signUp } = useAuth();
 
@@ -26,14 +28,14 @@ export function SignupForm() {
 
     // Validate passwords match
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      setError(t("errors.passwordMismatch"));
       setIsLoading(false);
       return;
     }
 
     // Validate password strength
     if (password.length < 6) {
-      setError("Password must be at least 6 characters long");
+      setError(t("errors.weakPassword"));
       setIsLoading(false);
       return;
     }
@@ -42,7 +44,7 @@ export function SignupForm() {
       await signUp(email, password, name);
       setSuccess(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Sign up failed");
+      setError(err instanceof Error ? err.message : t("signup.signUpError"));
     } finally {
       setIsLoading(false);
     }
@@ -52,14 +54,14 @@ export function SignupForm() {
     return (
       <div className="w-full max-w-md space-y-4">
         <div className="text-green-600 text-sm bg-green-50 p-3 rounded-md">
-          Please check your email to confirm your account before signing in.
+          {t("signup.successMessage")}
         </div>
         <Button
           variant="outline"
           onClick={() => router.push("/login")}
           className="w-full"
         >
-          Go to Login
+          {t("signup.goToLogin")}
         </Button>
       </div>
     );
@@ -69,7 +71,7 @@ export function SignupForm() {
     <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-md">
       <div>
         <label htmlFor="name" className="block text-sm font-medium mb-1">
-          Full Name
+          {t("signup.name")}
         </label>
         <Input
           id="name"
@@ -78,14 +80,14 @@ export function SignupForm() {
           onChange={(e) => setName(e.target.value)}
           required
           disabled={isLoading}
-          placeholder="Enter your full name"
+          placeholder={t("signup.namePlaceholder")}
           autoComplete="name"
         />
       </div>
 
       <div>
         <label htmlFor="email" className="block text-sm font-medium mb-1">
-          Email
+          {t("signup.email")}
         </label>
         <Input
           id="email"
@@ -94,14 +96,14 @@ export function SignupForm() {
           onChange={(e) => setEmail(e.target.value)}
           required
           disabled={isLoading}
-          placeholder="Enter your email"
+          placeholder={t("signup.emailPlaceholder")}
           autoComplete="email"
         />
       </div>
 
       <div>
         <label htmlFor="password" className="block text-sm font-medium mb-1">
-          Password
+          {t("signup.password")}
         </label>
         <Input
           id="password"
@@ -110,7 +112,7 @@ export function SignupForm() {
           onChange={(e) => setPassword(e.target.value)}
           required
           disabled={isLoading}
-          placeholder="Enter your password"
+          placeholder={t("signup.passwordPlaceholder")}
           autoComplete="new-password"
         />
       </div>
@@ -120,7 +122,7 @@ export function SignupForm() {
           htmlFor="confirmPassword"
           className="block text-sm font-medium mb-1"
         >
-          Confirm Password
+          {t("signup.confirmPassword")}
         </label>
         <Input
           id="confirmPassword"
@@ -129,7 +131,7 @@ export function SignupForm() {
           onChange={(e) => setConfirmPassword(e.target.value)}
           required
           disabled={isLoading}
-          placeholder="Confirm your password"
+          placeholder={t("signup.confirmPasswordPlaceholder")}
           autoComplete="new-password"
         />
       </div>
@@ -141,7 +143,7 @@ export function SignupForm() {
       )}
 
       <Button type="submit" disabled={isLoading} className="w-full">
-        {isLoading ? "Creating account..." : "Sign Up"}
+        {isLoading ? t("signup.creatingAccount") : t("signup.signUp")}
       </Button>
     </form>
   );

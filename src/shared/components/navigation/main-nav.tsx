@@ -2,12 +2,14 @@
 
 import { useMemo, useState } from "react";
 
+import { Button } from "@/shared/components/ui/button";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import Link from "next/link";
+import { ThemeToggle } from "@/shared/components/ui/theme-toggle";
 import { useAuth } from "@/features/auth/context/auth-context";
 import { useCart } from "@/features/cart/hooks/use-cart";
-import { Button } from "@/shared/components/ui/button";
-import { ThemeToggle } from "@/shared/components/ui/theme-toggle";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 // Safe admin status hook that doesn't throw if AdminProvider is not available
 function useSafeAdminStatus() {
@@ -29,25 +31,27 @@ interface NavItem {
   current?: boolean;
 }
 
-const navigation: NavItem[] = [
-  { name: "Home", href: "/" },
-  { name: "Catalog", href: "/catalog" },
-  { name: "About", href: "/about" },
-  { name: "Contact", href: "/contact" },
-];
-
-// Admin navigation (conditionally shown)
-const adminNavigation: NavItem[] = [{ name: "Admin", href: "/admin" }];
-
 export function MainNav() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
   const { user, signOut } = useAuth();
   const { isAdmin } = useSafeAdminStatus();
+  const t = useTranslations("navigation");
 
   // Memoize userId to prevent unnecessary re-renders
   const userId = useMemo(() => user?.id, [user?.id]);
   const { getItemCount } = useCart(userId);
+
+  // Create navigation arrays with translations
+  const navigation: NavItem[] = [
+    { name: t("home"), href: "/" },
+    { name: t("catalog"), href: "/catalog" },
+    { name: t("about"), href: "/about" },
+    { name: t("contact"), href: "/contact" },
+  ];
+
+  // Admin navigation (conditionally shown)
+  const adminNavigation: NavItem[] = [{ name: t("admin"), href: "/admin" }];
 
   const isCurrentPage = (href: string) => {
     if (href === "/") {
@@ -164,13 +168,16 @@ export function MainNav() {
             {/* Theme toggle */}
             <ThemeToggle />
 
+            {/* Language switcher */}
+            <LanguageSwitcher />
+
             {/* Auth buttons */}
             <div className="hidden sm:flex items-center space-x-3">
               {user ? (
                 // User is signed in - show user menu
                 <div className="flex items-center space-x-3">
                   <span className="text-sm text-muted-foreground">
-                    Welcome, {user.email}
+                    {t("welcome", { email: user.email || "User" })}
                   </span>
                   <Button
                     variant="outline"
@@ -184,7 +191,7 @@ export function MainNav() {
                     }}
                     className="border-border text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
                   >
-                    Sign Out
+                    {t("signOut")}
                   </Button>
                 </div>
               ) : (
@@ -196,14 +203,14 @@ export function MainNav() {
                     size="sm"
                     className="border-border text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
                   >
-                    <Link href="/login">Sign In</Link>
+                    <Link href="/login">{t("signIn")}</Link>
                   </Button>
                   <Button
                     asChild
                     size="sm"
                     className="bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
                   >
-                    <Link href="/signup">Sign Up</Link>
+                    <Link href="/signup">{t("signUp")}</Link>
                   </Button>
                 </>
               )}
@@ -275,7 +282,7 @@ export function MainNav() {
                   // User is signed in - show user info and sign out
                   <>
                     <div className="px-3 py-2 text-sm text-muted-foreground">
-                      Welcome, {user.email}
+                      {t("welcome", { email: user.email || "User" })}
                     </div>
                     <Button
                       variant="outline"
@@ -290,7 +297,7 @@ export function MainNav() {
                       }}
                       className="w-full border-border text-foreground hover:bg-accent hover:text-accent-foreground"
                     >
-                      Sign Out
+                      {t("signOut")}
                     </Button>
                   </>
                 ) : (
@@ -302,14 +309,14 @@ export function MainNav() {
                       size="sm"
                       className="w-full border-border text-foreground hover:bg-accent hover:text-accent-foreground"
                     >
-                      <Link href="/login">Sign In</Link>
+                      <Link href="/login">{t("signIn")}</Link>
                     </Button>
                     <Button
                       asChild
                       size="sm"
                       className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
                     >
-                      <Link href="/signup">Sign Up</Link>
+                      <Link href="/signup">{t("signUp")}</Link>
                     </Button>
                   </>
                 )}

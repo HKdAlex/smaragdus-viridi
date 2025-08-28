@@ -5,6 +5,7 @@ import { Input } from "@/shared/components/ui/input";
 import { useAuth } from "../context/auth-context";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 export function LoginForm() {
   const [email, setEmail] = useState("");
@@ -12,6 +13,7 @@ export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+  const t = useTranslations("auth");
 
   const { signIn } = useAuth();
 
@@ -25,7 +27,7 @@ export function LoginForm() {
       // Redirect to home page after successful login
       router.push("/");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Sign in failed");
+      setError(err instanceof Error ? err.message : t("signInError"));
     } finally {
       setIsLoading(false);
     }
@@ -35,7 +37,7 @@ export function LoginForm() {
     <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-md">
       <div>
         <label htmlFor="email" className="block text-sm font-medium mb-1">
-          Email
+          {t("email")}
         </label>
         <Input
           id="email"
@@ -44,14 +46,14 @@ export function LoginForm() {
           onChange={(e) => setEmail(e.target.value)}
           required
           disabled={isLoading}
-          placeholder="Enter your email"
+          placeholder={t("emailPlaceholder")}
           autoComplete="email"
         />
       </div>
 
       <div>
         <label htmlFor="password" className="block text-sm font-medium mb-1">
-          Password
+          {t("password")}
         </label>
         <Input
           id="password"
@@ -60,7 +62,7 @@ export function LoginForm() {
           onChange={(e) => setPassword(e.target.value)}
           required
           disabled={isLoading}
-          placeholder="Enter your password"
+          placeholder={t("passwordPlaceholder")}
           autoComplete="current-password"
         />
       </div>
@@ -72,7 +74,7 @@ export function LoginForm() {
       )}
 
       <Button type="submit" disabled={isLoading} className="w-full">
-        {isLoading ? "Signing in..." : "Sign In"}
+        {isLoading ? t("signingIn") : t("signIn")}
       </Button>
     </form>
   );
