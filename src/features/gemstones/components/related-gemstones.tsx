@@ -21,7 +21,12 @@ import { SafeImage } from "@/shared/components/ui/safe-image";
 import { supabase } from "@/lib/supabase";
 
 interface RelatedGemstonesProps {
-  currentGemstone: DatabaseGemstone;
+  currentGemstone: {
+    id: string;
+    name: DatabaseGemstone["name"];
+    color: DatabaseGemstone["color"];
+    price_amount: number;
+  };
   gemstoneType: DatabaseGemstone["name"];
   color: DatabaseGemstone["color"];
   priceRange: {

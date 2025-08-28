@@ -204,7 +204,13 @@ export const GEMSTONE_TYPE_LABELS: Record<GemstoneType, string> = {
   garnet: 'Garnet',
   peridot: 'Peridot',
   citrine: 'Citrine',
-  tanzanite: 'Tanzanite'
+  tanzanite: 'Tanzanite',
+  aquamarine: 'Aquamarine',
+  morganite: 'Morganite',
+  tourmaline: 'Tourmaline',
+  zircon: 'Zircon',
+  apatite: 'Apatite',
+  quartz: 'Quartz'
 }
 
 export const COLOR_LABELS: Record<GemColor, string> = {

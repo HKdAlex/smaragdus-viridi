@@ -1,4 +1,5 @@
 import type {
+  DatabaseAIAnalysisResult,
   DatabaseCertification,
   DatabaseGemstone,
   DatabaseGemstoneImage,
@@ -17,6 +18,7 @@ interface DetailGemstone extends DatabaseGemstone {
   videos: DatabaseGemstoneVideo[];
   origin: DatabaseOrigin | null;
   certifications: DatabaseCertification[];
+  ai_analysis_results: DatabaseAIAnalysisResult[];
 }
 
 interface PageProps {
@@ -55,17 +57,23 @@ async function fetchGemstoneById(id: string): Promise<DetailGemstone | null> {
       .eq("id", id)
       .single();
 
-    if (gemstoneError) {
+    if (gemstoneError || !gemstone) {
       console.error(
-        `❌ [GemstoneDetail] Error fetching gemstone:`,
+        `❌ [GemstoneDetail] Failed to fetch gemstone:`,
         gemstoneError
       );
       return null;
     }
 
-    if (!gemstone) {
-      console.log(`❌ [GemstoneDetail] Gemstone not found: ${id}`);
-      return null;
+    // Fetch AI analysis results separately
+    const { data: aiAnalysisResults, error: aiError } = await supabase
+      .from("ai_analysis_results")
+      .select("*")
+      .eq("gemstone_id", id)
+      .order("created_at", { ascending: false });
+
+    if (aiError) {
+      console.warn(`⚠️ [GemstoneDetail] Failed to fetch AI analysis:`, aiError);
     }
 
     // Sort images by order
@@ -86,9 +94,30 @@ async function fetchGemstoneById(id: string): Promise<DetailGemstone | null> {
       videos_count: gemstone.videos?.length || 0,
       has_origin: !!gemstone.origin,
       certifications_count: gemstone.certifications?.length || 0,
+      ai_analysis_count: aiAnalysisResults?.length || 0,
     });
 
-    return gemstone as DetailGemstone;
+    const finalGemstone = {
+      ...gemstone,
+      ai_analysis_results:
+        aiAnalysisResults?.map((result) => ({
+          ...result,
+          confidence_score: result.confidence_score
+            ? Number(result.confidence_score)
+            : null,
+          processing_cost_usd: result.processing_cost_usd
+            ? Number(result.processing_cost_usd)
+            : null,
+          processing_time_ms: result.processing_time_ms
+            ? Number(result.processing_time_ms)
+            : null,
+        })) || [],
+      ai_confidence_score: gemstone.ai_confidence_score
+        ? Number(gemstone.ai_confidence_score)
+        : null,
+    } as DetailGemstone;
+
+    return finalGemstone;
   } catch (error) {
     console.error(`❌ [GemstoneDetail] Unexpected error:`, error);
     return null;

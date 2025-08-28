@@ -15,11 +15,11 @@ import { dirname, join } from "path";
 import { createClient } from "@supabase/supabase-js";
 import crypto from "crypto";
 import dotenv from "dotenv";
+import { fileURLToPath } from "url";
 import fs from "fs/promises";
 import heicConvert from "heic-convert";
 import path from "path";
 import sharp from "sharp";
-import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -548,7 +548,7 @@ class EnhancedGemstoneImporter {
 
       // Process labels as special images
       await this.processFileCategory(
-        gemstone.id,
+          gemstone.id,
         gemstoneData.categorizedFiles.labels,
         "gemstone_images",
         "label"
@@ -659,14 +659,14 @@ class EnhancedGemstoneImporter {
         .toBuffer();
     }
 
-    // Upload to Supabase Storage
+      // Upload to Supabase Storage
     const storagePath = `gemstones/${gemstoneId}/images/${file.standardizedName}`;
     const { data, error } = await supabase.storage
-      .from("gemstone-media")
+        .from("gemstone-media")
       .upload(storagePath, imageBuffer, {
-        contentType: "image/jpeg",
-        upsert: false,
-      });
+          contentType: "image/jpeg",
+          upsert: false,
+        });
 
     if (error) throw error;
 
@@ -684,11 +684,11 @@ class EnhancedGemstoneImporter {
 
     const storagePath = `gemstones/${gemstoneId}/videos/${file.standardizedName}`;
     const { data, error } = await supabase.storage
-      .from("gemstone-media")
-      .upload(storagePath, videoBuffer, {
-        contentType: "video/mp4",
-        upsert: false,
-      });
+        .from("gemstone-media")
+        .upload(storagePath, videoBuffer, {
+          contentType: "video/mp4",
+          upsert: false,
+        });
 
     if (error) throw error;
 

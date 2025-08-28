@@ -1,19 +1,6 @@
 "use client";
 
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui/card";
-import type {
-  DatabaseCertification,
-  DatabaseGemstone,
-  DatabaseGemstoneImage,
-  DatabaseGemstoneVideo,
-  DatabaseOrigin,
-} from "@/shared/types";
-import {
   ArrowLeft,
   Heart,
   Info,
@@ -23,28 +10,67 @@ import {
   Star,
   Truck,
 } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
+import type {
+  DatabaseAIAnalysisResult,
+  DatabaseCertification,
+  DatabaseGemstone,
+  DatabaseGemstoneImage,
+  DatabaseGemstoneVideo,
+  DatabaseOrigin,
+} from "@/shared/types";
 
+import { AIAnalysisDisplay } from "./ai-analysis-display";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { CertificationDisplay } from "./certification-display";
+import Link from "next/link";
 import { MediaGallery } from "./media-gallery";
 import { RelatedGemstones } from "./related-gemstones";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 // Enhanced gemstone interface for detail page
-interface DetailGemstone extends DatabaseGemstone {
+interface DetailGemstone {
+  id: string;
+  name: DatabaseGemstone["name"];
+  weight_carats: number;
+  color: DatabaseGemstone["color"];
+  cut: DatabaseGemstone["cut"];
+  clarity: DatabaseGemstone["clarity"];
+  price_amount: number;
+  price_currency: DatabaseGemstone["price_currency"];
+  premium_price_amount: number | null;
+  premium_price_currency: DatabaseGemstone["premium_price_currency"];
+  length_mm: number;
+  width_mm: number;
+  depth_mm: number;
+  serial_number: string;
+  internal_code: string | null;
+  in_stock: boolean | null;
+  delivery_days: number | null;
+  origin_id: string | null;
+  ai_analyzed: boolean | null;
+  ai_confidence_score: number | null;
+  ai_analysis_date: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+  import_batch_id: string | null;
+  import_folder_path: string | null;
+  import_notes: string | null;
+  description: string | null;
+  promotional_text: string | null;
+  marketing_highlights: string[] | null;
   images: DatabaseGemstoneImage[];
   videos: DatabaseGemstoneVideo[];
   origin: DatabaseOrigin | null;
   certifications: DatabaseCertification[];
-  description?: string | null;
-  promotional_text?: string | null;
-  marketing_highlights?: string[] | null;
-  ai_confidence_score?: number | null;
-  ai_analyzed?: boolean | null;
-  ai_analysis_date?: string | null;
+  ai_analysis_results: DatabaseAIAnalysisResult[];
 }
 
 interface GemstoneDetailProps {
@@ -381,7 +407,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {/* 4Cs */}
                 <div className="bg-gradient-to-br from-muted/30 to-card p-6 rounded-xl border border-border shadow-sm">
                   <h4 className="font-bold text-base text-foreground mb-4 flex items-center">
@@ -517,54 +543,18 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                     )}
                   </div>
                 </div>
-
-                {/* AI Analysis */}
-                {gemstone.ai_analyzed && gemstone.ai_confidence_score && (
-                  <div className="bg-gradient-to-br from-primary/5 to-primary/10 p-6 rounded-xl border border-primary/20 shadow-sm">
-                    <h4 className="font-bold text-base text-foreground mb-4 flex items-center">
-                      <div className="w-1 h-5 bg-gradient-to-b from-primary to-primary/60 rounded-full mr-2" />
-                      AI Analysis
-                    </h4>
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">
-                          Confidence Score
-                        </span>
-                        <div className="flex items-center gap-2">
-                          <div className="w-20 h-3 bg-muted rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-gradient-to-r from-primary to-primary/80 transition-all duration-300"
-                              style={{
-                                width: `${gemstone.ai_confidence_score * 100}%`,
-                              }}
-                            />
-                          </div>
-                          <span className="text-sm font-bold text-primary">
-                            {Math.round(gemstone.ai_confidence_score * 100)}%
-                          </span>
-                        </div>
-                      </div>
-                      {gemstone.ai_analysis_date && (
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">
-                            Analysis Date
-                          </span>
-                          <span className="font-semibold text-foreground text-sm">
-                            {new Date(
-                              gemstone.ai_analysis_date
-                            ).toLocaleDateString()}
-                          </span>
-                        </div>
-                      )}
-                      <div className="text-sm text-primary/80 italic">
-                        AI-verified gemstone attributes and quality assessment
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
             </CardContent>
           </Card>
+
+          {/* Enhanced AI Analysis Section */}
+          <AIAnalysisDisplay
+            gemstoneId={gemstone.id}
+            analysisData={gemstone.ai_analysis_results}
+            aiAnalyzed={gemstone.ai_analyzed || false}
+            aiConfidenceScore={gemstone.ai_confidence_score || undefined}
+            aiAnalysisDate={gemstone.ai_analysis_date || undefined}
+          />
 
           {/* Certifications */}
           {gemstone.certifications.length > 0 && (

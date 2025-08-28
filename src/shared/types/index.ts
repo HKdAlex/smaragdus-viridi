@@ -27,6 +27,9 @@ export type DatabaseOrderItem = Database['public']['Tables']['order_items']['Row
 export type DatabaseCartItem = Database['public']['Tables']['cart_items']['Row']
 export type DatabaseFavorite = Database['public']['Tables']['favorites']['Row']
 export type DatabaseChatMessage = Database['public']['Tables']['chat_messages']['Row']
+export type DatabaseAIAnalysisResult = Database['public']['Tables']['ai_analysis_results']['Row']
+export type DatabaseImageClassification = Database['public']['Tables']['image_classifications']['Row']
+export type DatabaseImportBatch = Database['public']['Tables']['import_batches']['Row']
 
 // ===== APPLICATION LAYER EXTENSIONS =====
 // These extend database types with computed properties and business logic

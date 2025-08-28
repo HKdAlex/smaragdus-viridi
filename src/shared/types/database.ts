@@ -9,6 +9,59 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      ai_analysis_results: {
+        Row: {
+          ai_model_version: string | null
+          analysis_type: string
+          confidence_score: number | null
+          created_at: string | null
+          extracted_data: Json | null
+          gemstone_id: string
+          id: string
+          input_data: Json
+          processing_cost_usd: number | null
+          processing_time_ms: number | null
+          raw_response: Json
+          updated_at: string | null
+        }
+        Insert: {
+          ai_model_version?: string | null
+          analysis_type: string
+          confidence_score?: number | null
+          created_at?: string | null
+          extracted_data?: Json | null
+          gemstone_id: string
+          id?: string
+          input_data: Json
+          processing_cost_usd?: number | null
+          processing_time_ms?: number | null
+          raw_response: Json
+          updated_at?: string | null
+        }
+        Update: {
+          ai_model_version?: string | null
+          analysis_type?: string
+          confidence_score?: number | null
+          created_at?: string | null
+          extracted_data?: Json | null
+          gemstone_id?: string
+          id?: string
+          input_data?: Json
+          processing_cost_usd?: number | null
+          processing_time_ms?: number | null
+          raw_response?: Json
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_analysis_results_gemstone_id_fkey"
+            columns: ["gemstone_id"]
+            isOneToOne: false
+            referencedRelation: "gemstones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cart_items: {
         Row: {
           added_at: string | null
@@ -170,31 +223,49 @@ export type Database = {
       }
       gemstone_images: {
         Row: {
+          ai_analysis_date: string | null
+          ai_analyzed: boolean | null
+          alt_text: string | null
           created_at: string | null
           gemstone_id: string
           has_watermark: boolean | null
           id: string
           image_order: number
+          image_type: string | null
           image_url: string
           is_primary: boolean | null
+          original_filename: string | null
+          original_path: string | null
         }
         Insert: {
+          ai_analysis_date?: string | null
+          ai_analyzed?: boolean | null
+          alt_text?: string | null
           created_at?: string | null
           gemstone_id: string
           has_watermark?: boolean | null
           id?: string
           image_order: number
+          image_type?: string | null
           image_url: string
           is_primary?: boolean | null
+          original_filename?: string | null
+          original_path?: string | null
         }
         Update: {
+          ai_analysis_date?: string | null
+          ai_analyzed?: boolean | null
+          alt_text?: string | null
           created_at?: string | null
           gemstone_id?: string
           has_watermark?: boolean | null
           id?: string
           image_order?: number
+          image_type?: string | null
           image_url?: string
           is_primary?: boolean | null
+          original_filename?: string | null
+          original_path?: string | null
         }
         Relationships: [
           {
@@ -208,29 +279,44 @@ export type Database = {
       }
       gemstone_videos: {
         Row: {
+          ai_analysis_date: string | null
+          ai_analyzed: boolean | null
           created_at: string | null
           duration_seconds: number | null
           gemstone_id: string
           id: string
+          original_filename: string | null
+          original_path: string | null
           thumbnail_url: string | null
+          title: string | null
           video_order: number
           video_url: string
         }
         Insert: {
+          ai_analysis_date?: string | null
+          ai_analyzed?: boolean | null
           created_at?: string | null
           duration_seconds?: number | null
           gemstone_id: string
           id?: string
+          original_filename?: string | null
+          original_path?: string | null
           thumbnail_url?: string | null
+          title?: string | null
           video_order: number
           video_url: string
         }
         Update: {
+          ai_analysis_date?: string | null
+          ai_analyzed?: boolean | null
           created_at?: string | null
           duration_seconds?: number | null
           gemstone_id?: string
           id?: string
+          original_filename?: string | null
+          original_path?: string | null
           thumbnail_url?: string | null
+          title?: string | null
           video_order?: number
           video_url?: string
         }
@@ -246,16 +332,24 @@ export type Database = {
       }
       gemstones: {
         Row: {
+          ai_analysis_date: string | null
+          ai_analyzed: boolean | null
+          ai_confidence_score: number | null
           clarity: Database["public"]["Enums"]["gem_clarity"]
           color: Database["public"]["Enums"]["gem_color"]
           created_at: string | null
           cut: Database["public"]["Enums"]["gem_cut"]
           delivery_days: number | null
           depth_mm: number
+          description: string | null
           id: string
+          import_batch_id: string | null
+          import_folder_path: string | null
+          import_notes: string | null
           in_stock: boolean | null
           internal_code: string | null
           length_mm: number
+          marketing_highlights: string[] | null
           name: Database["public"]["Enums"]["gemstone_type"]
           origin_id: string | null
           premium_price_amount: number | null
@@ -264,22 +358,31 @@ export type Database = {
             | null
           price_amount: number
           price_currency: Database["public"]["Enums"]["currency_code"]
+          promotional_text: string | null
           serial_number: string
           updated_at: string | null
           weight_carats: number
           width_mm: number
         }
         Insert: {
+          ai_analysis_date?: string | null
+          ai_analyzed?: boolean | null
+          ai_confidence_score?: number | null
           clarity: Database["public"]["Enums"]["gem_clarity"]
           color: Database["public"]["Enums"]["gem_color"]
           created_at?: string | null
           cut: Database["public"]["Enums"]["gem_cut"]
           delivery_days?: number | null
           depth_mm: number
+          description?: string | null
           id?: string
+          import_batch_id?: string | null
+          import_folder_path?: string | null
+          import_notes?: string | null
           in_stock?: boolean | null
           internal_code?: string | null
           length_mm: number
+          marketing_highlights?: string[] | null
           name: Database["public"]["Enums"]["gemstone_type"]
           origin_id?: string | null
           premium_price_amount?: number | null
@@ -288,22 +391,31 @@ export type Database = {
             | null
           price_amount: number
           price_currency: Database["public"]["Enums"]["currency_code"]
+          promotional_text?: string | null
           serial_number: string
           updated_at?: string | null
           weight_carats: number
           width_mm: number
         }
         Update: {
+          ai_analysis_date?: string | null
+          ai_analyzed?: boolean | null
+          ai_confidence_score?: number | null
           clarity?: Database["public"]["Enums"]["gem_clarity"]
           color?: Database["public"]["Enums"]["gem_color"]
           created_at?: string | null
           cut?: Database["public"]["Enums"]["gem_cut"]
           delivery_days?: number | null
           depth_mm?: number
+          description?: string | null
           id?: string
+          import_batch_id?: string | null
+          import_folder_path?: string | null
+          import_notes?: string | null
           in_stock?: boolean | null
           internal_code?: string | null
           length_mm?: number
+          marketing_highlights?: string[] | null
           name?: Database["public"]["Enums"]["gemstone_type"]
           origin_id?: string | null
           premium_price_amount?: number | null
@@ -312,12 +424,20 @@ export type Database = {
             | null
           price_amount?: number
           price_currency?: Database["public"]["Enums"]["currency_code"]
+          promotional_text?: string | null
           serial_number?: string
           updated_at?: string | null
           weight_carats?: number
           width_mm?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "gemstones_import_batch_id_fkey"
+            columns: ["import_batch_id"]
+            isOneToOne: false
+            referencedRelation: "import_batches"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "gemstones_origin_id_fkey"
             columns: ["origin_id"]
@@ -326,6 +446,107 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      image_classifications: {
+        Row: {
+          ai_description: string | null
+          classification: string
+          confidence_score: number | null
+          created_at: string | null
+          extracted_data: Json | null
+          extracted_text: string | null
+          id: string
+          image_id: string
+        }
+        Insert: {
+          ai_description?: string | null
+          classification: string
+          confidence_score?: number | null
+          created_at?: string | null
+          extracted_data?: Json | null
+          extracted_text?: string | null
+          id?: string
+          image_id: string
+        }
+        Update: {
+          ai_description?: string | null
+          classification?: string
+          confidence_score?: number | null
+          created_at?: string | null
+          extracted_data?: Json | null
+          extracted_text?: string | null
+          id?: string
+          image_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "image_classifications_image_id_fkey"
+            columns: ["image_id"]
+            isOneToOne: false
+            referencedRelation: "gemstone_images"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      import_batches: {
+        Row: {
+          ai_analysis_enabled: boolean | null
+          batch_name: string
+          created_at: string | null
+          error_message: string | null
+          id: string
+          processed_files: number | null
+          processed_folders: number | null
+          processed_gemstones: number | null
+          processing_completed_at: string | null
+          processing_started_at: string | null
+          source_path: string
+          status: string | null
+          total_cost_usd: number | null
+          total_files: number | null
+          total_folders: number
+          total_gemstones: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          ai_analysis_enabled?: boolean | null
+          batch_name: string
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          processed_files?: number | null
+          processed_folders?: number | null
+          processed_gemstones?: number | null
+          processing_completed_at?: string | null
+          processing_started_at?: string | null
+          source_path: string
+          status?: string | null
+          total_cost_usd?: number | null
+          total_files?: number | null
+          total_folders: number
+          total_gemstones?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          ai_analysis_enabled?: boolean | null
+          batch_name?: string
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          processed_files?: number | null
+          processed_folders?: number | null
+          processed_gemstones?: number | null
+          processing_completed_at?: string | null
+          processing_started_at?: string | null
+          source_path?: string
+          status?: string | null
+          total_cost_usd?: number | null
+          total_files?: number | null
+          total_folders?: number
+          total_gemstones?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       order_items: {
         Row: {
@@ -540,6 +761,12 @@ export type Database = {
         | "peridot"
         | "citrine"
         | "tanzanite"
+        | "aquamarine"
+        | "morganite"
+        | "tourmaline"
+        | "zircon"
+        | "apatite"
+        | "quartz"
       order_status:
         | "pending"
         | "confirmed"
@@ -722,7 +949,22 @@ export const Constants = {
         "peridot",
         "citrine",
         "tanzanite",
+        "aquamarine",
+        "morganite",
+        "tourmaline",
+        "zircon",
+        "apatite",
+        "quartz",
       ],
+      order_status: [
+        "pending",
+        "confirmed",
+        "processing",
+        "shipped",
+        "delivered",
+        "cancelled",
+      ],
+      payment_type: ["bank_transfer", "crypto", "cash", "stripe"],
       user_role: ["admin", "regular_customer", "premium_customer", "guest"],
     },
   },

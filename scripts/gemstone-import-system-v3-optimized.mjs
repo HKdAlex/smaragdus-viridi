@@ -10,15 +10,15 @@
  * - Memory-efficient streaming for large files
  */
 
-import ffmpegPath from "@ffmpeg-installer/ffmpeg";
 import { createClient } from "@supabase/supabase-js";
-import { spawn } from "child_process";
 import crypto from "crypto";
 import dotenv from "dotenv";
+import ffmpegPath from "@ffmpeg-installer/ffmpeg";
 import fs from "fs/promises";
 import heicConvert from "heic-convert";
 import path from "path";
 import sharp from "sharp";
+import { spawn } from "child_process";
 
 // Load environment variables
 dotenv.config({ path: ".env.local" });
@@ -787,3 +787,4 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     process.exit(1);
   });
 }
+ 
