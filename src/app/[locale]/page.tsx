@@ -58,7 +58,7 @@ export default async function HomePage() {
             <div className="group relative overflow-hidden rounded-lg bg-gray-100 aspect-square">
               <Image
                 src="https://ik.imagekit.io/gemsonline/wp-content/uploads/2025/01/Emrald_gemstone-1.jpg"
-                alt="Premium emerald gemstones"
+                alt={t("featured.emeralds.alt")}
                 fill
                 className="object-cover group-hover:scale-105 transition-transform duration-300"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -79,7 +79,7 @@ export default async function HomePage() {
             <div className="group relative overflow-hidden rounded-lg bg-gray-100 aspect-square">
               <Image
                 src="https://labgrowndiamondscalgary.com/sitefiles/wp-content/uploads/2024/02/lab-grown-diamonds.png"
-                alt="Premium lab-grown diamonds"
+                alt={t("featured.diamonds.alt")}
                 fill
                 className="object-cover group-hover:scale-105 transition-transform duration-300"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -100,7 +100,7 @@ export default async function HomePage() {
             <div className="group relative overflow-hidden rounded-lg bg-gray-100 aspect-square">
               <Image
                 src="https://images.unsplash.com/photo-1735480165389-cb621e7d6756?w=800&auto=format&fit=crop&q=80"
-                alt="Premium sapphire gemstones"
+                alt={t("featured.sapphires.alt")}
                 fill
                 className="object-cover group-hover:scale-105 transition-transform duration-300"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"

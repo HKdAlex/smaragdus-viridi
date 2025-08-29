@@ -48,6 +48,7 @@ export function MainNav() {
   const { user, signOut } = useAuth();
   const { isAdmin } = useSafeAdminStatus();
   const t = useTranslations("navigation");
+  const tAccessibility = useTranslations("common.accessibility");
 
   // Memoize userId to prevent unnecessary re-renders
   const userId = useMemo(() => user?.id, [user?.id]);
@@ -129,8 +130,8 @@ export function MainNav() {
             {/* Search button */}
             <button
               type="button"
-              className="p-2 text-muted-foreground hover:text-primary transition-colors"
-              aria-label="Search"
+              className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+              aria-label={tAccessibility("search")}
             >
               <svg
                 className="h-5 w-5"
@@ -152,7 +153,7 @@ export function MainNav() {
               <Link
                 href="/cart"
                 className="p-2 text-muted-foreground hover:text-primary transition-colors relative"
-                aria-label="Shopping cart"
+                aria-label={tAccessibility("shoppingCart")}
               >
                 <svg
                   className="h-5 w-5"
@@ -188,7 +189,7 @@ export function MainNav() {
                 // User is signed in - show user menu
                 <div className="flex items-center space-x-3">
                   <span className="text-sm text-muted-foreground">
-                    {t("welcome", { email: user.email || "User" })}
+                    {t("welcome", { email: user.email || tAccessibility("user") })}
                   </span>
                   <Button
                     variant="outline"
@@ -230,9 +231,9 @@ export function MainNav() {
             {/* Mobile menu button */}
             <button
               type="button"
-              className="md:hidden p-2 text-muted-foreground hover:text-primary transition-colors"
+              className="md:hidden p-2 text-gray-400 hover:text-gray-600 transition-colors"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Toggle menu"
+              aria-label={tAccessibility("toggleMenu")}
             >
               <svg
                 className="h-6 w-6"
@@ -293,7 +294,7 @@ export function MainNav() {
                   // User is signed in - show user info and sign out
                   <>
                     <div className="px-3 py-2 text-sm text-muted-foreground">
-                      {t("welcome", { email: user.email || "User" })}
+                      {t("welcome", { email: user.email || tAccessibility("user") })}
                     </div>
                     <Button
                       variant="outline"

@@ -37,7 +37,9 @@
     "total": "Итого",
     "calculatedAtCheckout": "Рассчитывается при оформлении",
     "selectedItemsTotal": "Показана сумма для {count} выбранного товара",
-    "selectedItemsTotal_other": "Показана сумма для {count} выбранных товаров"
+    "selectedItemsTotal_other": "Показана сумма для {count} выбранных товаров",
+    "selectedItems": "Выбранные товары ({count})",
+    "selectedTotal": "Выбранный итог"
   },
   "actions": {
     "clearCart": "Очистить корзину",
@@ -45,8 +47,18 @@
     "checkout": "Заказать {count} товар",
     "checkout_other": "Заказать {count} товаров",
     "processing": "Обработка заказа...",
-    "tryAgain": "Попробовать снова"
+    "tryAgain": "Попробовать снова",
+    "orderSelectedItems": "Заказать выбранные товары ({count})",
+    "selectAll": "Выбрать все",
+    "deselectAll": "Снять выбор",
+    "continueShopping": "Продолжить покупки"
   },
   "loading": "Загрузка корзины...",
-  "error": "Ошибка загрузки корзины"
+  "error": "Ошибка загрузки корзины",
+  "accessibility": {
+    "search": "Поиск",
+    "shoppingCart": "Корзина покупок",
+    "toggleMenu": "Переключить меню",
+    "closeCart": "Закрыть корзину"
+  }
 }

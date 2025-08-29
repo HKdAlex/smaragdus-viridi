@@ -11,15 +11,18 @@
     "subtitle": "Professional-grade gemstones with full certification",
     "emeralds": {
       "title": "Emeralds",
-      "subtitle": "Colombian & Zambian origins"
+      "subtitle": "Colombian & Zambian origins",
+      "alt": "Premium emerald gemstones"
     },
     "diamonds": {
       "title": "Diamonds",
-      "subtitle": "GIA certified, D-J color grades"
+      "subtitle": "GIA certified, D-J color grades",
+      "alt": "Premium lab-grown diamonds"
     },
     "sapphires": {
       "title": "Sapphires",
-      "subtitle": "Kashmir & Ceylon varieties"
+      "subtitle": "Kashmir & Ceylon varieties",
+      "alt": "Premium sapphire gemstones"
     }
   },
   "valueProps": {

@@ -1,11 +1,15 @@
 "use client";
 
+import {
+  removeFromCart,
+  updateCartItemQuantity,
+} from "../services/cart-service";
+
 import { Button } from "@/shared/components/ui/button";
-import { useTranslations } from "next-intl";
 import type { CartItem as CartItemType } from "@/shared/types";
 import Image from "next/image";
 import { useState } from "react";
-import { updateCartItemQuantity, removeFromCart } from "../services/cart-service";
+import { useTranslations } from "next-intl";
 
 interface CartItemProps {
   item: CartItemType;
@@ -59,9 +63,7 @@ export function CartItem({
   if (!item.gemstone) {
     return (
       <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-        <p className="text-red-700 text-sm">
-          {t("gemstoneInfoNotAvailable")}
-        </p>
+        <p className="text-red-700 text-sm">{t("gemstoneInfoNotAvailable")}</p>
       </div>
     );
   }

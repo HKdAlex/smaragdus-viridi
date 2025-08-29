@@ -8,6 +8,8 @@ import { Separator } from "@/shared/components/ui/separator";
 import { useCart } from "../hooks/use-cart";
 import { CartItem } from "./cart-item";
 import { EmptyCart } from "./empty-cart";
+import { useTranslations } from "next-intl";
+import { useAuth } from "@/features/auth/hooks/use-auth";
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -16,6 +18,10 @@ interface CartDrawerProps {
 }
 
 export function CartDrawer({ isOpen, onClose, onCheckout }: CartDrawerProps) {
+  const { user } = useAuth();
+  const userId = user?.id;
+  const t = useTranslations("cart");
+  const tAccessibility = useTranslations("common.accessibility");
   const {
     cartSummary,
     isLoading,
@@ -85,18 +91,17 @@ export function CartDrawer({ isOpen, onClose, onCheckout }: CartDrawerProps) {
           {/* Header */}
           <div className="flex items-center justify-between border-b px-4 py-3">
             <div className="flex items-center space-x-2">
-              <h2 className="text-lg font-semibold">Shopping Cart</h2>
+              <h2 className="text-lg font-semibold">{t("title")}</h2>
               {cartSummary && cartSummary.total_items > 0 && (
                 <Badge variant="secondary">
-                  {cartSummary.total_items} item
-                  {cartSummary.total_items !== 1 ? "s" : ""}
+                  {cartSummary.total_items} {cartSummary.total_items === 1 ? "item" : "items"}
                 </Badge>
               )}
             </div>
             <button
               onClick={onClose}
               className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
-              aria-label="Close cart"
+              aria-label={tAccessibility("closeCart")}
             >
               <svg
                 className="h-5 w-5"
@@ -168,22 +173,22 @@ export function CartDrawer({ isOpen, onClose, onCheckout }: CartDrawerProps) {
               {/* Selected Items Summary */}
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span>Selected items ({selectedItemsCount})</span>
+                  <span>{t("summary.selectedItems", { count: selectedItemsCount })}</span>
                   <span className="font-medium">
                     {formatPrice(selectedTotal.amount, selectedTotal.currency)}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm text-gray-600">
-                  <span>Shipping</span>
-                  <span>Calculated at checkout</span>
+                  <span>{t("summary.shipping")}</span>
+                  <span>{t("summary.calculatedAtCheckout")}</span>
                 </div>
                 <div className="flex justify-between text-sm text-gray-600">
-                  <span>Tax</span>
-                  <span>Calculated at checkout</span>
+                  <span>{t("summary.tax")}</span>
+                  <span>{t("summary.calculatedAtCheckout")}</span>
                 </div>
                 <Separator />
                 <div className="flex justify-between text-lg font-semibold">
-                  <span>Selected Total</span>
+                  <span>{t("summary.selectedTotal")}</span>
                   <span>
                     {formatPrice(selectedTotal.amount, selectedTotal.currency)}
                   </span>
@@ -198,7 +203,7 @@ export function CartDrawer({ isOpen, onClose, onCheckout }: CartDrawerProps) {
                   size="lg"
                   disabled={isLoading || selectedItemsCount === 0}
                 >
-                  Order Selected Items ({selectedItemsCount})
+                  {t("actions.orderSelectedItems", { count: selectedItemsCount })}
                 </Button>
 
                 <div className="flex space-x-2">
@@ -208,7 +213,7 @@ export function CartDrawer({ isOpen, onClose, onCheckout }: CartDrawerProps) {
                     disabled={isLoading}
                     className="flex-1"
                   >
-                    {allSelected ? "Deselect All" : "Select All"}
+                    {allSelected ? t("actions.deselectAll") : t("actions.selectAll")}
                   </Button>
 
                   <Button
@@ -220,16 +225,16 @@ export function CartDrawer({ isOpen, onClose, onCheckout }: CartDrawerProps) {
                     {isClearing ? (
                       <div className="flex items-center space-x-2">
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600"></div>
-                        <span>Clearing...</span>
+                        <span>{t("actions.clearing")}</span>
                       </div>
                     ) : (
-                      "Clear Cart"
+                      t("actions.clearCart")
                     )}
                   </Button>
                 </div>
 
                 <Button variant="ghost" onClick={onClose} className="w-full">
-                  Continue Shopping
+                  {t("actions.continueShopping")}
                 </Button>
               </div>
             </div>

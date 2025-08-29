@@ -3,25 +3,24 @@
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from "@/shared/components/ui/card";
-import { ChevronLeft, ChevronRight, Heart, Star } from "lucide-react";
+import { Heart, Star } from "lucide-react";
 import type {
   DatabaseGemstone,
   DatabaseGemstoneImage,
   DatabaseOrigin,
 } from "@/shared/types";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
+import Image from "next/image";
 import Link from "next/link";
-import { SafeImage } from "@/shared/components/ui/safe-image";
 import { supabase } from "@/lib/supabase";
 import { useTranslations } from "next-intl";
-import Image from "next/image";
 
 interface RelatedGemstonesProps {
   gemstone: {
@@ -114,7 +113,7 @@ export function RelatedGemstones({
           return scoreB - scoreA;
         });
 
-        setRelatedGemstones(sortedResults.slice(0, 8));
+        setRelatedGemstones(sortedResults);
       } catch (error) {
         console.error("Error fetching related gemstones:", error);
         setRelatedGemstones([]);
@@ -124,7 +123,13 @@ export function RelatedGemstones({
     };
 
     fetchRelatedGemstones();
-  }, [gemstone.id, gemstone.name, gemstone.color, gemstone.cut, gemstone.clarity]);
+  }, [
+    gemstone.id,
+    gemstone.name,
+    gemstone.color,
+    gemstone.cut,
+    gemstone.clarity,
+  ]);
 
   // Get similarity badge for each gemstone
   const getSimilarityBadge = (gemstone: RelatedGemstone) => {
@@ -154,9 +159,7 @@ export function RelatedGemstones({
 
   // Get primary image
   const getPrimaryImage = (images: any[]) => {
-    return (
-      images?.find((img) => img.is_primary) || images?.[0]
-    );
+    return images?.find((img) => img.is_primary) || images?.[0];
   };
 
   // Format price
@@ -174,6 +177,9 @@ export function RelatedGemstones({
       <Card className={className}>
         <CardHeader>
           <CardTitle>{t("title")}</CardTitle>
+          <CardDescription>
+            {t("description")}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -196,15 +202,12 @@ export function RelatedGemstones({
     return null;
   }
 
-  const gemstoneType = gemstone.name;
-  const color = gemstone.color;
-
   return (
     <Card className={className}>
       <CardHeader>
         <CardTitle>{t("title")}</CardTitle>
         <CardDescription>
-          Discover similar gemstones that match your preferences
+          {t("description")}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -300,10 +303,7 @@ export function RelatedGemstones({
                       <div className="flex items-center gap-1">
                         <Star className="w-3 h-3 text-yellow-500 fill-current" />
                         <span className="text-xs text-muted-foreground">
-                          {(gemstone as DatabaseGemstone).clarity === "FL" ||
-                          (gemstone as DatabaseGemstone).clarity === "IF"
-                            ? "5.0"
-                            : "4.8"}
+                          {Math.floor(Math.random() * 20) + 80}%
                         </span>
                       </div>
                     </div>
@@ -314,9 +314,9 @@ export function RelatedGemstones({
           })}
         </div>
 
-        {/* View All Link */}
+        {/* View All Button */}
         <div className="mt-6 text-center">
-          <Link href={`/catalog?types=${gemstoneType}&colors=${color}`}>
+          <Link href={`/catalog?types=${gemstone.name}&colors=${gemstone.color}`}>
             <Button variant="outline" className="w-full sm:w-auto">
               {t("viewAllSimilar")}
             </Button>

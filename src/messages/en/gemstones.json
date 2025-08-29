@@ -199,6 +199,7 @@
   },
   "related": {
     "title": "Similar Gemstones",
+    "description": "Discover similar gemstones that match your preferences",
     "noImage": "No Image",
     "outOfStock": "Out of Stock",
     "viewAllSimilar": "View All Similar Gemstones",

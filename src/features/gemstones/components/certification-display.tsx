@@ -1,15 +1,21 @@
 "use client";
 
-import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
+import {
+  AlertCircle,
+  CheckCircle,
+  Download,
+  ExternalLink,
+  Shield,
+} from "lucide-react";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
-import { AlertCircle, CheckCircle, Download, ExternalLink, Shield } from "lucide-react";
+
+import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
 import { useTranslations } from "next-intl";
 
 interface Certification {
@@ -70,7 +76,7 @@ export function CertificationDisplay({
   certifications,
 }: CertificationDisplayProps) {
   const t = useTranslations("gemstones.certifications");
-  
+
   if (certifications.length === 0) {
     return null;
   }
@@ -101,7 +107,9 @@ export function CertificationDisplay({
         ) : (
           <AlertCircle className="w-3 h-3 mr-1" />
         )}
-        {isHighTrust ? t("trustLevels.verifiedAuthority") : t("trustLevels.recognizedAuthority")}
+        {isHighTrust
+          ? t("trustLevels.verifiedAuthority")
+          : t("trustLevels.recognizedAuthority")}
       </Badge>
     );
   };
@@ -130,10 +138,14 @@ export function CertificationDisplay({
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
                     <h4 className={`font-semibold ${authority.color} mb-1`}>
-                      {t(`authorities.${cert.certificate_type}.name`, { fallback: authority.name })}
+                      {t(`authorities.${cert.certificate_type}.name`, {
+                        fallback: authority.name,
+                      })}
                     </h4>
                     <p className="text-sm text-gray-600 mb-2">
-                      {t(`authorities.${cert.certificate_type}.description`, { fallback: authority.description })}
+                      {t(`authorities.${cert.certificate_type}.description`, {
+                        fallback: authority.description,
+                      })}
                     </p>
                     {getTrustBadge(
                       cert.certificate_type as keyof typeof CERTIFICATE_AUTHORITIES
@@ -144,7 +156,9 @@ export function CertificationDisplay({
                 <div className="space-y-2 text-sm">
                   {cert.certificate_number && (
                     <p className="text-gray-700">
-                      {t("certificateNumber", { number: cert.certificate_number })}
+                      {t("certificateNumber", {
+                        number: cert.certificate_number,
+                      })}
                     </p>
                   )}
                   {cert.issued_date && (
@@ -159,7 +173,9 @@ export function CertificationDisplay({
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => window.open(cert.certificate_url, "_blank")}
+                      onClick={() =>
+                        window.open(cert.certificate_url, "_blank")
+                      }
                     >
                       <ExternalLink className="w-4 h-4 mr-2" />
                       {t("viewCertificate")}
