@@ -527,5 +527,29 @@
     "descriptionPlaceholder": "Подробное описание камня...",
     "promotionalTextPlaceholder": "Специальный рекламный контент или особенности...",
     "marketingHighlightPlaceholder": "Добавить маркетинговую особенность..."
+  },
+  "gemstoneManagement": {
+    "title": "Управление драгоценными камнями",
+    "description": "Управляйте каталогом камней, инвентарем и ценами",
+    "bulkImport": "Массовый импорт",
+    "addGemstone": "Добавить камень",
+    "stats": {
+      "totalGemstones": "Всего камней",
+      "inStock": "В наличии",
+      "lowStock": "Низкий запас",
+      "outOfStock": "Нет в наличии",
+      "totalValue": "Общая стоимость"
+    },
+    "notice": {
+      "title": "Управление камнями активно",
+      "description": "удаляйте и управляйте камнями. Статистика будет рассчитана из ваших фактических данных после добавления камней."
+    }
+  },
+  "inventory": {
+    "activeAlerts": "Активные предупреждения",
+    "alerts": "предупреждений"
+  },
+  "inventoryManagement": {
+    "activeAlerts": "Активные предупреждения"
   }
 }

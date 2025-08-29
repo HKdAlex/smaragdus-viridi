@@ -1,23 +1,48 @@
 {
   "dashboard": {
-    "loading": "Loading dashboard...",
-    "accessRequired": "Admin access required",
-    "privilegesRequired": "You need administrator privileges to access this dashboard",
-    "goToLogin": "Go to Login",
+    "title": "Admin Dashboard",
+    "welcome": "Welcome to the admin panel",
+    "loading": "Loading admin dashboard...",
+    "accessRequired": "Admin Access Required",
+    "privilegesRequired": "You need administrator privileges to access this area.",
+    "goToLogin": "Go to Admin Login",
+    "totalGemstones": "Total Gemstones",
+    "activeUsers": "Active Users",
+    "totalOrders": "Total Orders",
+    "revenue": "Revenue",
+    "overview": {
+      "title": "Dashboard Overview",
+      "description": "Monitor your gemstone business performance and manage operations"
+    },
     "stats": {
       "totalGemstones": "Total Gemstones",
       "activeUsers": "Active Users",
-      "totalRevenue": "Total Revenue",
-      "totalOrders": "Total Orders"
+      "revenue": "Revenue",
+      "orders": "Orders",
+      "loading": "Loading...",
+      "fromLastMonth": "from last month",
+      "loadError": "Failed to load dashboard statistics",
+      "loadErrorTitle": "Failed to Load Statistics",
+      "retry": "Retry"
     },
     "quickActions": {
+      "title": "Quick Actions",
       "uploadGemstones": "Upload Gemstones",
-      "uploadGemstonesDesc": "Bulk upload gemstones from CSV or Excel files"
+      "uploadGemstonesDesc": "Add new stones to catalog",
+      "editPrices": "Edit Prices",
+      "editPricesDesc": "Update pricing across catalog",
+      "userManagement": "User Management",
+      "userManagementDesc": "Manage user roles and access"
     },
-    "recentActivity": "Recent Activity",
-    "manageGemstones": "Manage your gemstone catalog, inventory, and pricing",
-    "totalGemstonesDesc": "Total number of gemstones in your catalog",
-    "gemstoneStatsDesc": "delete, and manage gemstones. Statistics will be calculated from your actual data once gemstones are added."
+    "recentActivity": {
+      "title": "Recent Activity",
+      "newGemstoneAdded": "New gemstone added to catalog",
+      "twoHoursAgo": "2 hours ago",
+      "userPromoted": "User promoted to admin",
+      "fiveHoursAgo": "5 hours ago",
+      "priceUpdateApplied": "Price update applied to {count} gemstones",
+      "oneDayAgo": "1 day ago"
+    }
   },
   "header": {
     "title": "Admin Dashboard",
@@ -502,5 +527,29 @@
     "descriptionPlaceholder": "Detailed description of the gemstone...",
     "promotionalTextPlaceholder": "Special promotional content or highlights...",
     "marketingHighlightPlaceholder": "Add a marketing highlight..."
+  },
+  "gemstoneManagement": {
+    "title": "Gemstone Management",
+    "description": "Manage your gemstone catalog, inventory, and pricing",
+    "bulkImport": "Bulk Import",
+    "addGemstone": "Add Gemstone",
+    "stats": {
+      "totalGemstones": "Total Gemstones",
+      "inStock": "In Stock",
+      "lowStock": "Low Stock",
+      "outOfStock": "Out of Stock",
+      "totalValue": "Total Value"
+    },
+    "notice": {
+      "title": "Admin Gemstone Management Active",
+      "description": "delete, and manage gemstones. Statistics will be calculated from your actual data once gemstones are added."
+    }
+  },
+  "inventory": {
+    "activeAlerts": "Active Alerts",
+    "alerts": "alerts"
+  },
+  "inventoryManagement": {
+    "activeAlerts": "Active Alerts"
   }
 }

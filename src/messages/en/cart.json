@@ -23,44 +23,30 @@
     "price": "Price",
     "total": "Total",
     "remove": "Remove",
-    "update": "Update",
-    "gemstoneInfoNotAvailable": "Gemstone information not available",
-    "gemstoneNameNotAvailable": "Gemstone name not available",
-    "each": "each",
-    "removeFromCart": "Remove {name} from cart"
+    "update": "Update"
+  },
+  "itemCount": {
+    "singular": "item",
+    "plural": "items"
   },
   "summary": {
-    "title": "Order Summary",
-    "subtotal": "Subtotal ({count} items)",
+    "selectedItems": "Selected items ({count})",
     "shipping": "Shipping",
     "tax": "Tax",
-    "total": "Total",
     "calculatedAtCheckout": "Calculated at checkout",
-    "selectedItemsTotal": "Showing total for {count} selected item(s)",
-    "selectedItems": "Selected items ({count})",
     "selectedTotal": "Selected Total"
   },
   "actions": {
-    "clearCart": "Clear Cart",
-    "clearing": "Clearing...",
-    "checkout": "Order {count} Item(s)",
-    "processing": "Processing Order...",
-    "tryAgain": "Try Again",
     "orderSelectedItems": "Order Selected Items ({count})",
     "selectAll": "Select All",
     "deselectAll": "Deselect All",
+    "clearCart": "Clear Cart",
+    "clearing": "Clearing...",
     "continueShopping": "Continue Shopping"
   },
   "loading": "Loading your cart...",
   "error": "Error loading cart",
   "accessibility": {
-    "search": "Search",
-    "shoppingCart": "Shopping cart",
-    "toggleMenu": "Toggle menu",
     "closeCart": "Close cart"
-  },
-  "itemCount": {
-    "singular": "item",
-    "plural": "items"
   }
 }

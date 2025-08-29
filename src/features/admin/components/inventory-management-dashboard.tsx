@@ -28,7 +28,8 @@ import {
 } from "../services/inventory-management-service";
 
 export function InventoryManagementDashboard() {
-  const t = useTranslations("admin.inventoryManagement");
+  const t = useTranslations("admin.gemstoneManagement");
+  const tInventory = useTranslations("admin.inventoryManagement");
   const [report, setReport] = useState<InventoryReport | null>(null);
   const [alerts, setAlerts] = useState<InventoryAlert[]>([]);
   const [loading, setLoading] = useState(true);
@@ -244,7 +245,7 @@ export function InventoryManagementDashboard() {
                   {stats.totalGemstones.toLocaleString()}
                 </p>
                 <p className="text-sm text-blue-700 dark:text-blue-300">
-                  Total Gemstones
+                  {t("stats.totalGemstones")}
                 </p>
               </div>
             </div>
@@ -262,7 +263,7 @@ export function InventoryManagementDashboard() {
                   {stats.inStock.toLocaleString()}
                 </p>
                 <p className="text-sm text-green-700 dark:text-green-300">
-                  In Stock
+                  {t("stats.inStock")}
                 </p>
               </div>
             </div>
@@ -280,7 +281,7 @@ export function InventoryManagementDashboard() {
                   {stats.outOfStock.toLocaleString()}
                 </p>
                 <p className="text-sm text-red-700 dark:text-red-300">
-                  Out of Stock
+                  {t("stats.outOfStock")}
                 </p>
               </div>
             </div>
@@ -298,7 +299,7 @@ export function InventoryManagementDashboard() {
                   {formatPrice(stats.totalValue)}
                 </p>
                 <p className="text-sm text-yellow-700 dark:text-yellow-300">
-                  Total Value
+                  {t("stats.totalValue")}
                 </p>
               </div>
             </div>
@@ -312,7 +313,7 @@ export function InventoryManagementDashboard() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <AlertTriangle className="w-5 h-5 text-red-500" />
-              Active Alerts ({alerts.length})
+              {tInventory("activeAlerts")} ({alerts.length})
             </CardTitle>
           </CardHeader>
           <CardContent>

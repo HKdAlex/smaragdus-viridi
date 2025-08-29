@@ -220,7 +220,10 @@ export function RelatedGemstones({
   const getSimilarityReason = (gemstone: RelatedGemstone) => {
     const dbGem = gemstone as DatabaseGemstone;
     if (dbGem.name === gemstoneType && dbGem.color === color) {
-      return { text: t("similarity.sameTypeAndColor"), variant: "default" as const };
+      return {
+        text: t("similarity.sameTypeAndColor"),
+        variant: "default" as const,
+      };
     }
     if (dbGem.name === gemstoneType) {
       return { text: t("similarity.sameType"), variant: "secondary" as const };
@@ -233,11 +236,11 @@ export function RelatedGemstones({
 
   if (loading) {
     return (
-              <Card>
-          <CardHeader>
-            <CardTitle>{t("title")}</CardTitle>
-          </CardHeader>
-          <CardContent>
+      <Card>
+        <CardHeader>
+          <CardTitle>{t("title")}</CardTitle>
+        </CardHeader>
+        <CardContent>
           <div className="flex gap-4 overflow-hidden">
             {[...Array(4)].map((_, i) => (
               <div key={i} className="flex-shrink-0 w-64 space-y-3">
@@ -260,10 +263,10 @@ export function RelatedGemstones({
 
   return (
     <Card>
-              <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>{t("title")}</CardTitle>
-            <div className="flex gap-2">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle>{t("title")}</CardTitle>
+          <div className="flex gap-2">
             <Button
               variant="outline"
               size="icon"

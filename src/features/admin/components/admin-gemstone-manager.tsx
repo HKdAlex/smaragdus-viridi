@@ -12,10 +12,12 @@ import { GemstoneAdminService } from "../services/gemstone-admin-service";
 import { GemstoneForm } from "./gemstone-form";
 import { GemstoneList } from "./gemstone-list";
 import { StatisticsService } from "../services/statistics-service";
+import { useTranslations } from "next-intl";
 
 type ViewMode = "list" | "create" | "edit";
 
 export function AdminGemstoneManager() {
+  const t = useTranslations("admin.gemstoneManagement");
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [selectedGemstone, setSelectedGemstone] =
     useState<DatabaseGemstone | null>(null);
@@ -154,10 +156,10 @@ export function AdminGemstoneManager() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold text-foreground">
-            Gemstone Management
+            {t("title")}
           </h2>
           <p className="text-muted-foreground">
-            Manage your gemstone catalog, inventory, and pricing
+            {t("description")}
           </p>
         </div>
 
@@ -168,11 +170,11 @@ export function AdminGemstoneManager() {
             className="flex items-center gap-2"
           >
             <Upload className="w-4 h-4" />
-            Bulk Import
+            {t("bulkImport")}
           </Button>
           <Button onClick={handleCreateNew} className="flex items-center gap-2">
             <Plus className="w-4 h-4" />
-            Add Gemstone
+            {t("addGemstone")}
           </Button>
         </div>
       </div>
@@ -189,7 +191,7 @@ export function AdminGemstoneManager() {
                 <p className="text-2xl font-bold">
                   {stats.total.toLocaleString()}
                 </p>
-                <p className="text-sm text-muted-foreground">Total Gemstones</p>
+                <p className="text-sm text-muted-foreground">{t("stats.totalGemstones")}</p>
               </div>
             </div>
           </CardContent>
@@ -205,7 +207,7 @@ export function AdminGemstoneManager() {
                 <p className="text-2xl font-bold">
                   {stats.inStock.toLocaleString()}
                 </p>
-                <p className="text-sm text-muted-foreground">In Stock</p>
+                <p className="text-sm text-muted-foreground">{t("stats.inStock")}</p>
               </div>
             </div>
           </CardContent>
@@ -221,7 +223,7 @@ export function AdminGemstoneManager() {
                 <p className="text-2xl font-bold">
                   {stats.lowStock.toLocaleString()}
                 </p>
-                <p className="text-sm text-muted-foreground">Low Stock</p>
+                <p className="text-sm text-muted-foreground">{t("stats.lowStock")}</p>
               </div>
             </div>
           </CardContent>
@@ -237,7 +239,7 @@ export function AdminGemstoneManager() {
                 <p className="text-2xl font-bold">
                   {stats.outOfStock.toLocaleString()}
                 </p>
-                <p className="text-sm text-muted-foreground">Out of Stock</p>
+                <p className="text-sm text-muted-foreground">{t("stats.outOfStock")}</p>
               </div>
             </div>
           </CardContent>
@@ -251,12 +253,10 @@ export function AdminGemstoneManager() {
             <AlertCircle className="w-6 h-6 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
             <div>
               <h3 className="font-medium text-blue-900 dark:text-blue-100 mb-2">
-                Admin Gemstone Management Active
+                {t("notice.title")}
               </h3>
               <p className="text-blue-800 dark:text-blue-200 text-sm">
-                Full CRUD operations are now available. You can create, edit,
-                delete, and manage gemstones. Statistics will be calculated from
-                your actual data once gemstones are added.
+                {t("notice.description")}
               </p>
             </div>
           </div>
