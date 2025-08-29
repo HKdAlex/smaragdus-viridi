@@ -323,7 +323,7 @@ export function RelatedGemstones({
                     ) : (
                       <div className="w-full h-full bg-muted flex items-center justify-center">
                         <span className="text-muted-foreground text-sm">
-                          No Image
+                          {t("noImage")}
                         </span>
                       </div>
                     )}
@@ -356,7 +356,7 @@ export function RelatedGemstones({
                     {/* Stock Status */}
                     {!(gemstone as DatabaseGemstone).in_stock && (
                       <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                        <Badge variant="destructive">Out of Stock</Badge>
+                        <Badge variant="destructive">{t("outOfStock")}</Badge>
                       </div>
                     )}
                   </div>
@@ -408,7 +408,7 @@ export function RelatedGemstones({
         <div className="mt-6 text-center">
           <Link href={`/catalog?types=${gemstoneType}&colors=${color}`}>
             <Button variant="outline" className="w-full sm:w-auto">
-              View All Similar Gemstones
+              {t("viewAllSimilar")}
             </Button>
           </Link>
         </div>

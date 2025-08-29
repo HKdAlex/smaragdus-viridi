@@ -80,8 +80,7 @@ export function PreferencesProvider({
       const prefs = await preferencesService.getUserPreferences(userId);
       setPreferences(prefs);
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : t("loadFailed");
+      const errorMessage = err instanceof Error ? err.message : t("loadFailed");
       setError(errorMessage);
     } finally {
       setIsLoading(false);

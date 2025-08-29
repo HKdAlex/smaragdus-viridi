@@ -40,7 +40,8 @@ type MediaItem = {
 
 export function MediaGallery({ images, videos }: MediaGalleryProps) {
   const t = useTranslations("errors.media");
-  
+  const tMedia = useTranslations("gemstones.media");
+
   // Combine and sort media items
   const mediaItems: MediaItem[] = [
     ...images.map((img) => ({
@@ -165,7 +166,7 @@ export function MediaGallery({ images, videos }: MediaGalleryProps) {
   if (mediaItems.length === 0) {
     return (
       <div className="aspect-square bg-muted rounded-lg flex items-center justify-center">
-        <p className="text-muted-foreground">No media available</p>
+        <p className="text-muted-foreground">{tMedia("noMediaAvailable")}</p>
       </div>
     );
   }

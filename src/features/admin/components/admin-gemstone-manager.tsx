@@ -66,13 +66,13 @@ export function AdminGemstoneManager() {
 
   const handleView = (gemstone: DatabaseGemstone) => {
     // TODO: Implement view mode
-    console.log("View gemstone:", gemstone);
+    console.log(t("viewGemstone", { gemstone: gemstone.serial_number }));
   };
 
   const handleDelete = async (gemstone: DatabaseGemstone) => {
     if (
       confirm(
-        `Are you sure you want to delete "${gemstone.serial_number}"? This action cannot be undone.`
+        t("deleteConfirmation", { serialNumber: gemstone.serial_number })
       )
     ) {
       const result = await GemstoneAdminService.deleteGemstone(gemstone.id);
@@ -80,7 +80,7 @@ export function AdminGemstoneManager() {
         // Refresh the list
         window.location.reload();
       } else {
-        alert(`Failed to delete gemstone: ${result.error}`);
+        alert(t("deleteFailed", { error: result.error }));
       }
     }
   };

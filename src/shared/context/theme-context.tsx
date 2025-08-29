@@ -1,8 +1,8 @@
 "use client";
 
 import { useTheme, type Theme } from "@/shared/hooks/use-theme";
-import { createContext, useContext, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
+import { createContext, useContext, type ReactNode } from "react";
 
 interface ThemeContextType {
   theme: Theme;

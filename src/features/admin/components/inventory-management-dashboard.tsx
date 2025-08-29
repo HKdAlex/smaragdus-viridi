@@ -79,12 +79,12 @@ export function InventoryManagementDashboard() {
 
   const handleBulkInventoryUpdate = async () => {
     if (selectedGemstones.size === 0) {
-      alert("Please select gemstones to update");
+      alert(tInventory("selectGemstonesToUpdate"));
       return;
     }
 
     if (!bulkUpdate.reason.trim()) {
-      alert("Please provide a reason for the inventory update");
+      alert(tInventory("provideReasonForUpdate"));
       return;
     }
 
@@ -99,15 +99,15 @@ export function InventoryManagementDashboard() {
       });
 
       if (result.success) {
-        alert(`Updated ${result.updated} gemstones, ${result.failed} failed`);
+        alert(tInventory("bulkUpdateSuccess", { updated: result.updated, failed: result.failed }));
         setSelectedGemstones(new Set());
         setBulkUpdate({ inStock: true, deliveryDays: "", reason: "" });
         loadInventoryData(); // Refresh data
       } else {
-        alert(`Bulk update failed: ${result.error}`);
+        alert(tInventory("bulkUpdateFailed", { error: result.error }));
       }
     } catch (err) {
-      alert("An unexpected error occurred during bulk update");
+      alert(tInventory("unexpectedError"));
     }
   };
 
@@ -422,7 +422,7 @@ export function InventoryManagementDashboard() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <AlertTriangle className="w-5 h-5 text-red-500" />
-              Out of Stock ({outOfStock.length})
+              {t("outOfStock", { count: outOfStock.length })}
             </CardTitle>
           </CardHeader>
           <CardContent>

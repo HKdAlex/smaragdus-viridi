@@ -533,6 +533,13 @@
     "description": "Manage your gemstone catalog, inventory, and pricing",
     "bulkImport": "Bulk Import",
     "addGemstone": "Add Gemstone",
+    "createNew": "Create New Gemstone",
+    "backToList": "← Back to List",
+    "editGemstone": "Edit Gemstone: {serialNumber}",
+    "deleteConfirmation": "Are you sure you want to delete \"{serialNumber}\"? This action cannot be undone.",
+    "deleteFailed": "Failed to delete gemstone: {error}",
+    "viewGemstone": "View gemstone: {gemstone}",
+    "loadGemstoneStatsFailed": "Failed to load gemstone stats",
     "stats": {
       "totalGemstones": "Total Gemstones",
       "inStock": "In Stock",
@@ -550,6 +557,22 @@
     "alerts": "alerts"
   },
   "inventoryManagement": {
-    "activeAlerts": "Active Alerts"
+    "title": "Inventory Management",
+    "description": "Manage gemstone inventory levels",
+    "outOfStock": "Out of Stock ({count})",
+    "selectGemstonesToUpdate": "Please select gemstones to update",
+    "provideReasonForUpdate": "Please provide a reason for the inventory update",
+    "bulkUpdateSuccess": "Updated {updated} gemstones, {failed} failed",
+    "bulkUpdateFailed": "Bulk update failed: {error}",
+    "unexpectedError": "An unexpected error occurred during bulk update"
+  },
+  "priceAnalytics": {
+    "title": "Price Analytics",
+    "description": "Analyze and update gemstone pricing",
+    "enterPercentageOrAmount": "Please enter either a percentage or fixed amount",
+    "provideReasonForUpdate": "Please provide a reason for the price update",
+    "bulkUpdateSuccess": "Updated {updated} gemstones, {failed} failed",
+    "bulkUpdateFailed": "Bulk update failed: {error}",
+    "unexpectedError": "An unexpected error occurred during bulk update"
   }
 }
