@@ -204,6 +204,15 @@
     "outOfStock": "Out of Stock",
     "viewAllSimilar": "View All Similar Gemstones",
     "cut": "Cut",
-    "clarity": "Clarity"
+    "clarity": "Clarity",
+    "similarity": {
+      "verySimilar": "Very Similar",
+      "similar": "Similar",
+      "related": "Related",
+      "sameTypeAndColor": "Same Type & Color",
+      "sameType": "Same Type",
+      "sameColor": "Same Color",
+      "similarPrice": "Similar Price"
+    }
   }
 }

@@ -58,5 +58,9 @@
     "shoppingCart": "Shopping cart",
     "toggleMenu": "Toggle menu",
     "closeCart": "Close cart"
+  },
+  "itemCount": {
+    "singular": "item",
+    "plural": "items"
   }
 }

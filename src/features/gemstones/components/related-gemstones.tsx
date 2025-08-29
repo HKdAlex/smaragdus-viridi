@@ -3,41 +3,38 @@
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
-import { Heart, Star } from "lucide-react";
+import { ChevronLeft, ChevronRight, Heart, Star } from "lucide-react";
 import type {
   DatabaseGemstone,
   DatabaseGemstoneImage,
   DatabaseOrigin,
 } from "@/shared/types";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import Image from "next/image";
 import Link from "next/link";
+import { SafeImage } from "@/shared/components/ui/safe-image";
 import { supabase } from "@/lib/supabase";
-import { useTranslations } from "next-intl";
+import { useTranslation } from "react-i18next";
 
 interface RelatedGemstonesProps {
-  gemstone: {
+  currentGemstone: {
     id: string;
     name: DatabaseGemstone["name"];
     color: DatabaseGemstone["color"];
-    cut: DatabaseGemstone["cut"];
-    clarity: DatabaseGemstone["clarity"];
-    weight_carats: number;
     price_amount: number;
-    price_currency: string;
-    serial_number: string;
-    in_stock: boolean;
-    images?: DatabaseGemstoneImage[];
-    origin?: DatabaseOrigin | null;
   };
-  className?: string;
+  gemstoneType: DatabaseGemstone["name"];
+  color: DatabaseGemstone["color"];
+  priceRange: {
+    min: number;
+    max: number;
+    currency: string;
+  };
 }
 
 interface RelatedGemstone extends DatabaseGemstone {
@@ -46,149 +43,207 @@ interface RelatedGemstone extends DatabaseGemstone {
 }
 
 export function RelatedGemstones({
-  gemstone,
-  className,
+  currentGemstone,
+  gemstoneType,
+  color,
+  priceRange,
 }: RelatedGemstonesProps) {
   const [relatedGemstones, setRelatedGemstones] = useState<RelatedGemstone[]>(
     []
   );
-  const [isLoading, setIsLoading] = useState(true);
-  const t = useTranslations("gemstones.related");
+  const [loading, setLoading] = useState(true);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation();
 
   // Fetch related gemstones based on similarity criteria
   useEffect(() => {
     const fetchRelatedGemstones = async () => {
       try {
+        setLoading(true);
+
         // Build query for similar gemstones
-        const { data, error } = await supabase
+        let query = supabase
           .from("gemstones")
           .select(
             `
-            id,
-            name,
-            color,
-            cut,
-            clarity,
-            weight_carats,
-            price_amount,
-            price_currency,
-            serial_number,
-            in_stock,
-            images (
-              id,
-              image_url,
-              is_primary
-            ),
-            origin (
-              id,
-              name,
-              country
-            )
+            *,
+            origin:origins(*),
+            images:gemstone_images(*)
           `
           )
+          .neq("id", currentGemstone.id) // Exclude current gemstone
           .eq("in_stock", true) // Only show available gemstones
-          .neq("id", gemstone.id) // Exclude current gemstone
-          .eq("name", gemstone.name) // Same gemstone type
-          .limit(8);
+          .limit(12);
 
-        if (error) throw error;
+        // Apply similarity filters in order of priority
+        // 1. Same type and similar price range (highest priority)
+        // 2. Same color and similar price range
+        // 3. Same type only
+        // 4. Similar price range only
 
-        // Sort by similarity (same color, cut, clarity)
-        const sortedResults = (data || []).sort((a, b) => {
+        const { data: sameTypeAndPrice, error: error1 } = await query
+          .eq("name", gemstoneType)
+          .gte("price_amount", priceRange.min)
+          .lte("price_amount", priceRange.max);
+
+        if (error1) throw error1;
+
+        let results = sameTypeAndPrice || [];
+
+        // If we need more results, fetch same color and similar price
+        if (results.length < 8) {
+          const { data: sameColorAndPrice, error: error2 } = await query
+            .eq("color", color)
+            .gte("price_amount", priceRange.min)
+            .lte("price_amount", priceRange.max);
+
+          if (error2) throw error2;
+
+          // Merge results, avoiding duplicates
+          const existingIds = new Set(results.map((g) => g.id));
+          const newResults = (sameColorAndPrice || []).filter(
+            (g) => !existingIds.has(g.id)
+          );
+          results = [...results, ...newResults];
+        }
+
+        // If we still need more, fetch same type regardless of price
+        if (results.length < 8) {
+          const { data: sameType, error: error3 } = await query.eq(
+            "name",
+            gemstoneType
+          );
+
+          if (error3) throw error3;
+
+          const existingIds = new Set(results.map((g) => g.id));
+          const newResults = (sameType || []).filter(
+            (g) => !existingIds.has(g.id)
+          );
+          results = [...results, ...newResults];
+        }
+
+        // Sort images by order for each gemstone
+        results.forEach((gemstone) => {
+          if (gemstone.images) {
+            gemstone.images.sort(
+              (a: any, b: any) => a.image_order - b.image_order
+            );
+          }
+        });
+
+        // Sort results by relevance score
+        const sortedResults = results.sort((a: any, b: any) => {
           let scoreA = 0;
           let scoreB = 0;
 
-          // Color similarity
-          if (a.color === gemstone.color) scoreA += 3;
-          if (b.color === gemstone.color) scoreB += 3;
+          // Same type bonus
+          if (a.name === gemstoneType) scoreA += 3;
+          if (b.name === gemstoneType) scoreB += 3;
 
-          // Cut similarity
-          if (a.cut === gemstone.cut) scoreA += 2;
-          if (b.cut === gemstone.cut) scoreB += 2;
+          // Same color bonus
+          if (a.color === color) scoreA += 2;
+          if (b.color === color) scoreB += 2;
 
-          // Clarity similarity
-          if (a.clarity === gemstone.clarity) scoreA += 1;
-          if (b.clarity === gemstone.clarity) scoreB += 1;
+          // Price proximity bonus
+          const currentPrice = currentGemstone.price_amount;
+          const priceDistanceA = Math.abs(a.price_amount - currentPrice);
+          const priceDistanceB = Math.abs(b.price_amount - currentPrice);
+
+          if (priceDistanceA < priceDistanceB) scoreA += 1;
+          if (priceDistanceB < priceDistanceA) scoreB += 1;
 
           return scoreB - scoreA;
         });
 
-        setRelatedGemstones(sortedResults);
+        setRelatedGemstones(sortedResults.slice(0, 8));
       } catch (error) {
         console.error("Error fetching related gemstones:", error);
         setRelatedGemstones([]);
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
     };
 
     fetchRelatedGemstones();
-  }, [
-    gemstone.id,
-    gemstone.name,
-    gemstone.color,
-    gemstone.cut,
-    gemstone.clarity,
-  ]);
+  }, [currentGemstone.id, gemstoneType, color, priceRange.min, priceRange.max]);
 
-  // Get similarity badge for each gemstone
-  const getSimilarityBadge = (gemstone: RelatedGemstone) => {
-    const similarities = [];
-
-    if (gemstone.color === gemstone.color) similarities.push("color");
-    if (gemstone.cut === gemstone.cut) similarities.push("cut");
-    if (gemstone.clarity === gemstone.clarity) similarities.push("clarity");
-
-    if (similarities.length >= 3) {
-      return {
-        text: "Very Similar",
-        variant: "default" as const,
-      };
-    } else if (similarities.length >= 2) {
-      return {
-        text: "Similar",
-        variant: "secondary" as const,
-      };
-    } else {
-      return {
-        text: "Related",
-        variant: "outline" as const,
-      };
+  // Handle scroll functionality
+  const updateScrollButtons = () => {
+    if (scrollContainerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } =
+        scrollContainerRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 1);
     }
   };
 
-  // Get primary image
-  const getPrimaryImage = (images: any[]) => {
-    return images?.find((img) => img.is_primary) || images?.[0];
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: -300, behavior: "smooth" });
+    }
   };
+
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: 300, behavior: "smooth" });
+    }
+  };
+
+  useEffect(() => {
+    updateScrollButtons();
+    const container = scrollContainerRef.current;
+    if (container) {
+      container.addEventListener("scroll", updateScrollButtons);
+      return () => container.removeEventListener("scroll", updateScrollButtons);
+    }
+  }, [relatedGemstones]);
 
   // Format price
   const formatPrice = (amount: number, currency: string) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: currency || "USD",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
+      currency: currency,
     }).format(amount / 100);
   };
 
-  if (isLoading) {
+  // Get primary image
+  const getPrimaryImage = (images?: DatabaseGemstoneImage[]) => {
+    if (!images || images.length === 0) return null;
+    return images.find((img) => img.is_primary) || images[0];
+  };
+
+  // Get similarity badge
+  const getSimilarityReason = (gemstone: RelatedGemstone) => {
+    const dbGem = gemstone as DatabaseGemstone;
+    if (dbGem.name === gemstoneType && dbGem.color === color) {
+      return { text: t("similarity.sameTypeAndColor"), variant: "default" as const };
+    }
+    if (dbGem.name === gemstoneType) {
+      return { text: t("similarity.sameType"), variant: "secondary" as const };
+    }
+    if (dbGem.color === color) {
+      return { text: t("similarity.sameColor"), variant: "outline" as const };
+    }
+    return { text: t("similarity.similarPrice"), variant: "outline" as const };
+  };
+
+  if (loading) {
     return (
-      <Card className={className}>
+      <Card>
         <CardHeader>
           <CardTitle>{t("title")}</CardTitle>
-          <CardDescription>
-            {t("description")}
-          </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="space-y-3">
-                <div className="aspect-square bg-muted rounded-lg animate-pulse" />
+          <div className="flex gap-4 overflow-hidden">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="flex-shrink-0 w-64 space-y-3">
+                <div className="aspect-square bg-muted rounded-lg animate-pulse"></div>
                 <div className="space-y-2">
-                  <div className="h-4 bg-muted rounded animate-pulse" />
-                  <div className="h-3 bg-muted rounded animate-pulse w-2/3" />
+                  <div className="h-4 bg-muted rounded animate-pulse"></div>
+                  <div className="h-3 bg-muted rounded w-3/4 animate-pulse"></div>
                 </div>
               </div>
             ))}
@@ -203,40 +258,68 @@ export function RelatedGemstones({
   }
 
   return (
-    <Card className={className}>
+    <Card>
       <CardHeader>
-        <CardTitle>{t("title")}</CardTitle>
-        <CardDescription>
-          {t("description")}
-        </CardDescription>
+        <div className="flex items-center justify-between">
+          <CardTitle>{t("title")}</CardTitle>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={scrollLeft}
+              disabled={!canScrollLeft}
+              className="h-9 w-9 border-2 hover:border-primary/50 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed hover:shadow-md"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={scrollRight}
+              disabled={!canScrollRight}
+              className="h-9 w-9 border-2 hover:border-primary/50 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed hover:shadow-md"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div
+          ref={scrollContainerRef}
+          className="flex gap-4 overflow-x-auto scrollbar-hide pb-2"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        >
           {relatedGemstones.map((gemstone) => {
             const primaryImage = getPrimaryImage(gemstone.images);
-            const similarity = getSimilarityBadge(gemstone);
+            const similarity = getSimilarityReason(gemstone);
 
             return (
               <Link
                 key={(gemstone as DatabaseGemstone).id}
                 href={`/catalog/${(gemstone as DatabaseGemstone).id}`}
-                className="group block"
+                className="flex-shrink-0 w-64 group"
               >
                 <div className="space-y-3">
                   {/* Image */}
-                  <div className="relative aspect-square overflow-hidden rounded-lg border">
+                  <div className="relative aspect-square bg-muted rounded-lg overflow-hidden">
                     {primaryImage ? (
-                      <Image
+                      <SafeImage
                         src={primaryImage.image_url}
-                        alt={`${gemstone.name} ${gemstone.color} ${gemstone.cut}`}
-                        fill
+                        alt={`${
+                          (gemstone as DatabaseGemstone).weight_carats
+                        }ct ${(gemstone as DatabaseGemstone).color} ${
+                          (gemstone as DatabaseGemstone).name
+                        }`}
+                        width={256}
+                        height={256}
                         className="object-cover transition-transform duration-300 group-hover:scale-105"
                         sizes="256px"
                       />
                     ) : (
                       <div className="w-full h-full bg-muted flex items-center justify-center">
                         <span className="text-muted-foreground text-sm">
-                          {t("noImage")}
+                          No Image
                         </span>
                       </div>
                     )}
@@ -269,7 +352,7 @@ export function RelatedGemstones({
                     {/* Stock Status */}
                     {!(gemstone as DatabaseGemstone).in_stock && (
                       <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                        <Badge variant="destructive">{t("outOfStock")}</Badge>
+                        <Badge variant="destructive">Out of Stock</Badge>
                       </div>
                     )}
                   </div>
@@ -283,8 +366,8 @@ export function RelatedGemstones({
                         {(gemstone as DatabaseGemstone).name}
                       </h4>
                       <p className="text-xs text-muted-foreground line-clamp-1">
-                        {(gemstone as DatabaseGemstone).cut} {t("cut")} •{" "}
-                        {(gemstone as DatabaseGemstone).clarity} {t("clarity")}
+                        {(gemstone as DatabaseGemstone).cut} Cut •{" "}
+                        {(gemstone as DatabaseGemstone).clarity} Clarity
                       </p>
                       {gemstone.origin && (
                         <p className="text-xs text-muted-foreground line-clamp-1">
@@ -303,7 +386,10 @@ export function RelatedGemstones({
                       <div className="flex items-center gap-1">
                         <Star className="w-3 h-3 text-yellow-500 fill-current" />
                         <span className="text-xs text-muted-foreground">
-                          {Math.floor(Math.random() * 20) + 80}%
+                          {(gemstone as DatabaseGemstone).clarity === "FL" ||
+                          (gemstone as DatabaseGemstone).clarity === "IF"
+                            ? "5.0"
+                            : "4.8"}
                         </span>
                       </div>
                     </div>
@@ -314,11 +400,11 @@ export function RelatedGemstones({
           })}
         </div>
 
-        {/* View All Button */}
+        {/* View All Link */}
         <div className="mt-6 text-center">
-          <Link href={`/catalog?types=${gemstone.name}&colors=${gemstone.color}`}>
+          <Link href={`/catalog?types=${gemstoneType}&colors=${color}`}>
             <Button variant="outline" className="w-full sm:w-auto">
-              {t("viewAllSimilar")}
+              View All Similar Gemstones
             </Button>
           </Link>
         </div>

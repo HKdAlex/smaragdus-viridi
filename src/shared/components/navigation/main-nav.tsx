@@ -1,16 +1,14 @@
 "use client";
 
 import { Link, usePathname } from "@/i18n/navigation";
-import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import { Button } from "@/shared/components/ui/button";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeToggle } from "@/shared/components/ui/theme-toggle";
 import { useAuth } from "@/features/auth/context/auth-context";
 import { useCart } from "@/features/cart/hooks/use-cart";
-
-
+import { useTranslations } from "next-intl";
 
 // Safe admin status hook that doesn't throw if AdminProvider is not available
 function useSafeAdminStatus() {
@@ -189,7 +187,9 @@ export function MainNav() {
                 // User is signed in - show user menu
                 <div className="flex items-center space-x-3">
                   <span className="text-sm text-muted-foreground">
-                    {t("welcome", { email: user.email || tAccessibility("user") })}
+                    {t("welcome", {
+                      email: user.email || tAccessibility("user"),
+                    })}
                   </span>
                   <Button
                     variant="outline"
@@ -294,7 +294,9 @@ export function MainNav() {
                   // User is signed in - show user info and sign out
                   <>
                     <div className="px-3 py-2 text-sm text-muted-foreground">
-                      {t("welcome", { email: user.email || tAccessibility("user") })}
+                      {t("welcome", {
+                        email: user.email || tAccessibility("user"),
+                      })}
                     </div>
                     <Button
                       variant="outline"

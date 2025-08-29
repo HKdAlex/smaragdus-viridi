@@ -204,6 +204,15 @@
     "outOfStock": "Нет в наличии",
     "viewAllSimilar": "Посмотреть все похожие камни",
     "cut": "Огранка",
-    "clarity": "Чистота"
+    "clarity": "Чистота",
+    "similarity": {
+      "verySimilar": "Очень похожий",
+      "similar": "Похожий",
+      "related": "Родственный",
+      "sameTypeAndColor": "Тот же тип и цвет",
+      "sameType": "Тот же тип",
+      "sameColor": "Тот же цвет",
+      "similarPrice": "Похожая цена"
+    }
   }
 }
