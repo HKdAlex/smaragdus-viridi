@@ -15,7 +15,9 @@ import { useTranslations } from "next-intl";
 
 export function CartPage() {
   const { user } = useAuth();
+  const userId = user?.id;
   const t = useTranslations("cart");
+  const tErrors = useTranslations("errors.cart");
   const {
     cartSummary,
     isLoading,
@@ -51,16 +53,9 @@ export function CartPage() {
 
   const handleOrderSelected = async () => {
     if (selectedItemsCount === 0) return;
-
-    setIsProcessingOrder(true);
-    // TODO: Implement order processing
-    console.log(`Processing order for ${selectedItemsCount} selected items`);
-
-    // Simulate processing delay
-    setTimeout(() => {
-      setIsProcessingOrder(false);
-      // TODO: Navigate to checkout or order confirmation
-    }, 2000);
+    // TODO: Implement order processing for selected items
+    console.log(tErrors("orderProcessingFailed"), selectedItemsCount);
+    // Process the order...
   };
 
   const formatPrice = (amount: number, currency: string) => {

@@ -214,5 +214,8 @@
       "sameColor": "Тот же цвет",
       "similarPrice": "Похожая цена"
     }
+  },
+  "filters": {
+    "coloredGemstones": "Цветные драгоценные камни"
   }
 }

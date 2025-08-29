@@ -172,10 +172,10 @@ const ColorPicker = ({
       <h3 className="text-sm font-semibold text-foreground">Color</h3>
 
       {/* Colored Gemstones */}
-      <div className="space-y-2">
-        <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-          Colored Gemstones
-        </h4>
+      <div className="space-y-3">
+        <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">
+          {t("coloredGemstones")}
+        </h3>
         <div className="grid grid-cols-4 gap-2">
           {colorOptions.map(({ value, label, gradient }) => (
             <button
@@ -590,7 +590,7 @@ export function AdvancedFiltersV2({
   className = "",
 }: AdvancedFiltersV2Props) {
   const pathname = usePathname();
-  const t = useTranslations("filters.advancedV2");
+  const t = useTranslations("gemstones.filters");
 
   const {
     filters,

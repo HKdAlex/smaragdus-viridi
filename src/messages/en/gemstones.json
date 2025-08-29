@@ -214,5 +214,8 @@
       "sameColor": "Same Color",
       "similarPrice": "Similar Price"
     }
+  },
+  "filters": {
+    "coloredGemstones": "Colored Gemstones"
   }
 }

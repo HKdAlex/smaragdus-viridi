@@ -19,7 +19,7 @@ import { Button } from "@/shared/components/ui/button";
 import Link from "next/link";
 import { SafeImage } from "@/shared/components/ui/safe-image";
 import { supabase } from "@/lib/supabase";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 
 interface RelatedGemstonesProps {
   currentGemstone: {
@@ -55,7 +55,8 @@ export function RelatedGemstones({
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const { t } = useTranslation();
+  const t = useTranslations("gemstones.related");
+  const tErrors = useTranslations("errors.cart");
 
   // Fetch related gemstones based on similarity criteria
   useEffect(() => {
@@ -160,7 +161,7 @@ export function RelatedGemstones({
 
         setRelatedGemstones(sortedResults.slice(0, 8));
       } catch (error) {
-        console.error("Error fetching related gemstones:", error);
+        console.error(tErrors("fetchRelatedFailed"), error);
         setRelatedGemstones([]);
       } finally {
         setLoading(false);
@@ -232,11 +233,11 @@ export function RelatedGemstones({
 
   if (loading) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>{t("title")}</CardTitle>
-        </CardHeader>
-        <CardContent>
+              <Card>
+          <CardHeader>
+            <CardTitle>{t("title")}</CardTitle>
+          </CardHeader>
+          <CardContent>
           <div className="flex gap-4 overflow-hidden">
             {[...Array(4)].map((_, i) => (
               <div key={i} className="flex-shrink-0 w-64 space-y-3">
@@ -259,10 +260,10 @@ export function RelatedGemstones({
 
   return (
     <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle>{t("title")}</CardTitle>
-          <div className="flex gap-2">
+              <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>{t("title")}</CardTitle>
+            <div className="flex gap-2">
             <Button
               variant="outline"
               size="icon"

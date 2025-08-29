@@ -4,6 +4,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { UserProfile, auth } from "@/lib/auth";
 
 import { User } from "@supabase/supabase-js";
+import { useTranslations } from "next-intl";
 
 // Simple logger for now - will be replaced with proper logger later
 const adminLogger = {
@@ -48,6 +49,7 @@ interface AdminContextType {
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
 export function AdminProvider({ children }: { children: React.ReactNode }) {
+  const t = useTranslations("errors.admin");
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -189,7 +191,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     try {
       return await auth.getAllUsers();
     } catch (error) {
-      adminLogger.error("Failed to fetch all users", error as Error);
+      adminLogger.error(t("fetchUsersFailed"), error as Error);
       return [];
     }
   };
@@ -254,7 +256,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     try {
       return await auth.getAdminUsers();
     } catch (error) {
-      adminLogger.error("Failed to fetch admin users", error as Error);
+      adminLogger.error(t("fetchAdminUsersFailed"), error as Error);
       return [];
     }
   };

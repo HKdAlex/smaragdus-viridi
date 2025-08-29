@@ -10,6 +10,7 @@ import React, {
 } from "react";
 
 import { PreferencesService } from "../services/preferences-service";
+import { useTranslations } from "next-intl";
 
 interface PreferencesContextType {
   preferences: UserPreferences | null;
@@ -53,6 +54,7 @@ export function PreferencesProvider({
   const [error, setError] = useState<string | null>(null);
 
   const preferencesService = new PreferencesService();
+  const t = useTranslations("errors.admin");
 
   // Load preferences when userId changes
   useEffect(() => {
@@ -213,21 +215,17 @@ export function PreferencesProvider({
           // Update local state
           setPreferences((prev) => (prev ? { ...prev, ...privacy } : null));
         } else {
-          setError("Failed to update privacy settings");
+          setError(t("updatePrivacyFailed"));
         }
         return success;
-      } catch (err) {
-        const errorMessage =
-          err instanceof Error
-            ? err.message
-            : "Failed to update privacy settings";
-        setError(errorMessage);
-        return false;
+      } catch (error) {
+        console.error("Failed to update privacy settings:", error);
+        setError(t("updatePrivacyFailed"));
       } finally {
         setIsLoading(false);
       }
     },
-    [userId, preferencesService]
+    [userId, preferencesService, t]
   );
 
   const refreshPreferences = useCallback(async (): Promise<void> => {
