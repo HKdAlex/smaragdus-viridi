@@ -5,6 +5,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 import { User } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
+import { useTranslations } from "next-intl";
 
 interface AuthContextType {
   user: User | null;
@@ -143,7 +144,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    const t = useTranslations("errors.auth");
+    throw new Error(t("contextError"));
   }
   return context;
 };

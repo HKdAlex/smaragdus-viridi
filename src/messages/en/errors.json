@@ -18,15 +18,17 @@
     "tooManyAttempts": "Too many login attempts. Please try again later.",
     "sessionExpired": "Your session has expired. Please sign in again.",
     "accountLocked": "Account temporarily locked due to security reasons.",
-    "passwordExpired": "Your password has expired. Please reset it."
+    "passwordExpired": "Your password has expired. Please reset it.",
+    "contextError": "useAuth must be used within an AuthProvider",
+    "signOutFailed": "Sign out failed"
   },
   "cart": {
-    "loadFailed": "Failed to load cart",
-    "updateFailed": "Failed to update cart item",
-    "removeFailed": "Failed to remove item from cart",
-    "clearFailed": "Failed to clear cart",
-    "fetchRelatedFailed": "Error fetching related gemstones",
-    "orderProcessingFailed": "Failed to process order"
+    "itemNotAvailable": "This item is no longer available.",
+    "insufficientStock": "Insufficient stock for this item.",
+    "cartEmpty": "Your cart is empty.",
+    "maximumItems": "Maximum cart items reached.",
+    "invalidQuantity": "Invalid quantity specified.",
+    "itemAlreadyInCart": "This item is already in your cart."
   },
   "checkout": {
     "paymentFailed": "Payment failed. Please try again.",
@@ -66,10 +68,5 @@
     "description": "The page you're looking for doesn't exist or has been moved.",
     "goHome": "Go Home",
     "browseCatalog": "Browse Catalog"
-  },
-  "admin": {
-    "fetchUsersFailed": "Failed to fetch all users",
-    "fetchAdminUsersFailed": "Failed to fetch admin users",
-    "updatePrivacyFailed": "Failed to update privacy settings"
   }
 }

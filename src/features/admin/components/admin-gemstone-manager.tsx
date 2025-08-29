@@ -155,12 +155,8 @@ export function AdminGemstoneManager() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold text-foreground">
-            {t("title")}
-          </h2>
-          <p className="text-muted-foreground">
-            {t("description")}
-          </p>
+          <h2 className="text-3xl font-bold text-foreground">{t("title")}</h2>
+          <p className="text-muted-foreground">{t("description")}</p>
         </div>
 
         <div className="flex items-center gap-3">
@@ -191,7 +187,9 @@ export function AdminGemstoneManager() {
                 <p className="text-2xl font-bold">
                   {stats.total.toLocaleString()}
                 </p>
-                <p className="text-sm text-muted-foreground">{t("stats.totalGemstones")}</p>
+                <p className="text-sm text-muted-foreground">
+                  {t("stats.totalGemstones")}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -207,7 +205,9 @@ export function AdminGemstoneManager() {
                 <p className="text-2xl font-bold">
                   {stats.inStock.toLocaleString()}
                 </p>
-                <p className="text-sm text-muted-foreground">{t("stats.inStock")}</p>
+                <p className="text-sm text-muted-foreground">
+                  {t("stats.inStock")}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -223,7 +223,9 @@ export function AdminGemstoneManager() {
                 <p className="text-2xl font-bold">
                   {stats.lowStock.toLocaleString()}
                 </p>
-                <p className="text-sm text-muted-foreground">{t("stats.lowStock")}</p>
+                <p className="text-sm text-muted-foreground">
+                  {t("stats.lowStock")}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -239,7 +241,9 @@ export function AdminGemstoneManager() {
                 <p className="text-2xl font-bold">
                   {stats.outOfStock.toLocaleString()}
                 </p>
-                <p className="text-sm text-muted-foreground">{t("stats.outOfStock")}</p>
+                <p className="text-sm text-muted-foreground">
+                  {t("stats.outOfStock")}
+                </p>
               </div>
             </div>
           </CardContent>

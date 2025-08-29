@@ -91,7 +91,9 @@ export function CartDrawer({ isOpen, onClose, onCheckout }: CartDrawerProps) {
               {cartSummary && cartSummary.total_items > 0 && (
                 <Badge variant="secondary">
                   {cartSummary.total_items}{" "}
-                  {cartSummary.total_items === 1 ? t("itemCount.singular") : t("itemCount.plural")}
+                  {cartSummary.total_items === 1
+                    ? t("itemCount.singular")
+                    : t("itemCount.plural")}
                 </Badge>
               )}
             </div>
@@ -170,7 +172,9 @@ export function CartDrawer({ isOpen, onClose, onCheckout }: CartDrawerProps) {
               {/* Selected Items Summary */}
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span>{t("summary.selectedItems", { count: selectedItemsCount })}</span>
+                  <span>
+                    {t("summary.selectedItems", { count: selectedItemsCount })}
+                  </span>
                   <span className="font-medium">
                     {formatPrice(selectedTotal.amount, selectedTotal.currency)}
                   </span>
@@ -200,7 +204,9 @@ export function CartDrawer({ isOpen, onClose, onCheckout }: CartDrawerProps) {
                   size="lg"
                   disabled={isLoading || selectedItemsCount === 0}
                 >
-                  {t("actions.orderSelectedItems", { count: selectedItemsCount })}
+                  {t("actions.orderSelectedItems", {
+                    count: selectedItemsCount,
+                  })}
                 </Button>
 
                 <div className="flex space-x-2">
@@ -210,7 +216,9 @@ export function CartDrawer({ isOpen, onClose, onCheckout }: CartDrawerProps) {
                     disabled={isLoading}
                     className="flex-1"
                   >
-                    {allSelected ? t("actions.deselectAll") : t("actions.selectAll")}
+                    {allSelected
+                      ? t("actions.deselectAll")
+                      : t("actions.selectAll")}
                   </Button>
 
                   <Button

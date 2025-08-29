@@ -30,48 +30,6 @@ interface CertificationDisplayProps {
   certifications: Certification[];
 }
 
-// Certificate authority information
-const CERTIFICATE_AUTHORITIES = {
-  GIA: {
-    name: "Gemological Institute of America",
-    description:
-      "The world's foremost authority on diamonds, colored stones and pearls",
-    trustLevel: "high",
-    color: "text-blue-600",
-    bgColor: "bg-blue-50",
-  },
-  Gübelin: {
-    name: "Gübelin Gem Lab",
-    description:
-      "Swiss gemological laboratory renowned for colored stone expertise",
-    trustLevel: "high",
-    color: "text-green-600",
-    bgColor: "bg-green-50",
-  },
-  SSEF: {
-    name: "Swiss Gemmological Institute",
-    description: "Leading European laboratory for gemstone identification",
-    trustLevel: "high",
-    color: "text-purple-600",
-    bgColor: "bg-purple-50",
-  },
-  AGS: {
-    name: "American Gem Society",
-    description:
-      "Scientific approach to diamond grading and gemstone evaluation",
-    trustLevel: "high",
-    color: "text-indigo-600",
-    bgColor: "bg-indigo-50",
-  },
-  other: {
-    name: "Other Certificate",
-    description: "Additional certification from recognized authority",
-    trustLevel: "medium",
-    color: "text-gray-600",
-    bgColor: "bg-gray-50",
-  },
-} as const;
-
 export function CertificationDisplay({
   certifications,
 }: CertificationDisplayProps) {
@@ -88,6 +46,45 @@ export function CertificationDisplay({
       day: "numeric",
     });
   };
+
+  // Certificate authority information
+  const CERTIFICATE_AUTHORITIES = {
+    GIA: {
+      name: t("authorities.GIA.name"),
+      description: t("authorities.GIA.description"),
+      trustLevel: "high",
+      color: "text-blue-600",
+      bgColor: "bg-blue-50",
+    },
+    Gübelin: {
+      name: t("authorities.Gübelin.name"),
+      description: t("authorities.Gübelin.description"),
+      trustLevel: "high",
+      color: "text-green-600",
+      bgColor: "bg-green-50",
+    },
+    SSEF: {
+      name: t("authorities.SSEF.name"),
+      description: t("authorities.SSEF.description"),
+      trustLevel: "high",
+      color: "text-purple-600",
+      bgColor: "bg-purple-50",
+    },
+    AGS: {
+      name: t("authorities.AGS.name"),
+      description: t("authorities.AGS.description"),
+      trustLevel: "high",
+      color: "text-indigo-600",
+      bgColor: "bg-indigo-50",
+    },
+    other: {
+      name: t("authorities.other.name"),
+      description: t("authorities.other.description"),
+      trustLevel: "medium",
+      color: "text-gray-600",
+      bgColor: "bg-gray-50",
+    },
+  } as const;
 
   const getTrustBadge = (type: keyof typeof CERTIFICATE_AUTHORITIES) => {
     const authority = CERTIFICATE_AUTHORITIES[type];
@@ -127,8 +124,9 @@ export function CertificationDisplay({
           {certifications.map((cert) => {
             const authority =
               CERTIFICATE_AUTHORITIES[
-                cert.certificate_type as keyof typeof CERTIFICATE_AUTHORITIES
-              ] || CERTIFICATE_AUTHORITIES.other;
+                (cert.certificate_type as keyof typeof CERTIFICATE_AUTHORITIES) ||
+                  "other"
+              ];
 
             return (
               <div
@@ -138,14 +136,10 @@ export function CertificationDisplay({
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
                     <h4 className={`font-semibold ${authority.color} mb-1`}>
-                      {t(`authorities.${cert.certificate_type}.name`, {
-                        fallback: authority.name,
-                      })}
+                      {authority.name}
                     </h4>
                     <p className="text-sm text-gray-600 mb-2">
-                      {t(`authorities.${cert.certificate_type}.description`, {
-                        fallback: authority.description,
-                      })}
+                      {authority.description}
                     </p>
                     {getTrustBadge(
                       cert.certificate_type as keyof typeof CERTIFICATE_AUTHORITIES
@@ -156,9 +150,7 @@ export function CertificationDisplay({
                 <div className="space-y-2 text-sm">
                   {cert.certificate_number && (
                     <p className="text-gray-700">
-                      {t("certificateNumber", {
-                        number: cert.certificate_number,
-                      })}
+                      {t("certificateNumber", { number: cert.certificate_number })}
                     </p>
                   )}
                   {cert.issued_date && (
@@ -181,34 +173,34 @@ export function CertificationDisplay({
                       {t("viewCertificate")}
                     </Button>
 
-                    {cert.certificate_type === "GIA" && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          // Handle GIA certificate download
-                          window.open(cert.certificate_url, "_blank");
-                        }}
-                      >
-                        <Download className="w-4 h-4 mr-2" />
-                        {t("downloadCertificate")}
-                      </Button>
-                    )}
+                                         {cert.certificate_type === "GIA" && (
+                       <Button
+                         variant="outline"
+                         size="sm"
+                         onClick={() => {
+                           // Handle GIA certificate download
+                           window.open(cert.certificate_url, "_blank");
+                         }}
+                       >
+                         <Download className="w-4 h-4 mr-2" />
+                         {t("downloadCertificate")}
+                       </Button>
+                     )}
 
-                    {(cert.certificate_type === "SSEF" ||
-                      cert.certificate_type === "Gübelin") && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          // Handle SSEF/Gübelin certificate download
-                          window.open(cert.certificate_url, "_blank");
-                        }}
-                      >
-                        <Download className="w-4 h-4 mr-2" />
-                        {t("downloadCertificate")}
-                      </Button>
-                    )}
+                                         {(cert.certificate_type === "SSEF" ||
+                       cert.certificate_type === "Gübelin") && (
+                       <Button
+                         variant="outline"
+                         size="sm"
+                         onClick={() => {
+                           // Handle SSEF/Gübelin certificate download
+                           window.open(cert.certificate_url, "_blank");
+                         }}
+                       >
+                         <Download className="w-4 h-4 mr-2" />
+                         {t("downloadCertificate")}
+                       </Button>
+                     )}
                   </div>
                 )}
               </div>

@@ -119,23 +119,38 @@
     "synthetic": "Synthetic"
   },
   "certifications": {
-    "gia": "GIA (Gemological Institute of America)",
-    "ags": "AGS (American Gem Society)",
-    "sse": "SSEF (Swiss Gemmological Institute)",
-    "egl": "EGL (European Gemological Laboratory)",
-    "igi": "IGI (International Gemological Institute)",
-    "gia-report": "GIA Report",
-    "gia-certificate": "GIA Certificate",
-    "ags-report": "AGS Report",
-    "sse-report": "SSEF Report",
-    "egl-report": "EGL Report",
-    "igi-report": "IGI Report",
-    "gia-dpl": "GIA Diamond Plot",
-    "gia-aas": "GIA Advanced Analysis Service",
-    "gia-light-performance": "GIA Light Performance",
-    "gia-color-master": "GIA Color Master",
-    "gia-clarity-master": "GIA Clarity Master",
-    "none": "No Certification"
+    "title": "Certifications",
+    "noCertifications": "No certifications available",
+    "trustLevels": {
+      "verifiedAuthority": "Verified Authority",
+      "recognizedAuthority": "Recognized Authority"
+    },
+    "certificateNumber": "Certificate Number: {number}",
+    "issuedDate": "Issued: {date}",
+    "viewCertificate": "View Certificate",
+    "downloadCertificate": "Download Certificate",
+    "authorities": {
+      "GIA": {
+        "name": "Gemological Institute of America",
+        "description": "The world's foremost authority on diamonds, colored stones and pearls"
+      },
+      "Gübelin": {
+        "name": "Gübelin Gem Lab",
+        "description": "Swiss gemological laboratory renowned for colored stone expertise"
+      },
+      "SSEF": {
+        "name": "Swiss Gemmological Institute",
+        "description": "Leading European laboratory for gemstone identification"
+      },
+      "AGS": {
+        "name": "American Gem Society",
+        "description": "Scientific approach to diamond grading and gemstone evaluation"
+      },
+      "other": {
+        "name": "Other Certificate",
+        "description": "Additional certification from recognized authority"
+      }
+    }
   },
   "properties": {
     "weight": "Weight",
