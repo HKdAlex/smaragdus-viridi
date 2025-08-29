@@ -7,10 +7,6 @@ import { Footer } from "@/shared/components/layout/footer";
 import { MainNav } from "@/shared/components/navigation/main-nav";
 import type { Metadata } from "next";
 import { ThemeProvider } from "@/shared/context/theme-context";
-import { headers } from "next/headers";
-import { NextIntlClientProvider } from "next-intl";
-import { getMessages } from "next-intl/server";
-import { routing } from "@/i18n/routing";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
