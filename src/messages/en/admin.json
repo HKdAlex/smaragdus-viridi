@@ -2,17 +2,90 @@
   "dashboard": {
     "title": "Admin Dashboard",
     "welcome": "Welcome to the admin panel",
+    "loading": "Loading admin dashboard...",
+    "accessRequired": "Admin Access Required",
+    "privilegesRequired": "You need administrator privileges to access this area.",
+    "goToLogin": "Go to Admin Login",
     "totalGemstones": "Total Gemstones",
     "activeUsers": "Active Users",
     "totalOrders": "Total Orders",
-    "revenue": "Revenue"
+    "revenue": "Revenue",
+    "overview": {
+      "title": "Dashboard Overview",
+      "description": "Monitor your gemstone business performance and manage operations"
+    },
+    "stats": {
+      "totalGemstones": "Total Gemstones",
+      "activeUsers": "Active Users",
+      "revenue": "Revenue",
+      "orders": "Orders",
+      "loading": "Loading...",
+      "fromLastMonth": "from last month",
+      "loadError": "Failed to load dashboard statistics",
+      "loadErrorTitle": "Failed to Load Statistics",
+      "retry": "Retry"
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "uploadGemstones": "Upload Gemstones",
+      "uploadGemstonesDesc": "Add new stones to catalog",
+      "editPrices": "Edit Prices",
+      "editPricesDesc": "Update pricing across catalog",
+      "userManagement": "User Management",
+      "userManagementDesc": "Manage user roles and access"
+    },
+    "recentActivity": {
+      "title": "Recent Activity",
+      "newGemstoneAdded": "New gemstone added to catalog",
+      "twoHoursAgo": "2 hours ago",
+      "userPromoted": "User promoted to admin",
+      "fiveHoursAgo": "5 hours ago",
+      "priceUpdateApplied": "Price update applied to {count} gemstones",
+      "oneDayAgo": "1 day ago"
+    }
+  },
+  "header": {
+    "title": "Admin Dashboard",
+    "welcomeBack": "Welcome back, {name}",
+    "signOut": "Sign Out"
+  },
+  "tabs": {
+    "dashboard": "Overview and key metrics",
+    "gemstones": "Manage gemstone catalog and inventory",
+    "pricing": "Pricing analytics and inventory management",
+    "users": "User management and permissions",
+    "analytics": "Performance metrics and insights",
+    "settings": "System configuration and preferences"
+  },
+  "login": {
+    "title": "Admin Access",
+    "subtitle": "Sign in to access the administration dashboard",
+    "emailLabel": "Email Address",
+    "emailPlaceholder": "admin@smaragdus-viridi.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Enter your admin password",
+    "signInButton": "Sign In",
+    "signingIn": "Signing In...",
+    "loginFailed": "Login failed",
+    "unexpectedError": "An unexpected error occurred",
+    "invalidCredentials": "Invalid email or password",
+    "requirements": {
+      "title": "Admin Access Requirements",
+      "role": "• Administrator role required",
+      "security": "• Secure authentication with 2FA recommended",
+      "session": "• Session expires after 24 hours of inactivity",
+      "audit": "• All admin actions are logged and audited"
+    },
+    "returnToSite": "← Return to Main Site"
   },
   "navigation": {
+    "dashboard": "Dashboard",
     "gemstones": "Gemstones",
+    "pricing": "Price & Inventory",
     "users": "Users",
-    "orders": "Orders",
     "analytics": "Analytics",
-    "settings": "Settings"
+    "settings": "Settings",
+    "orders": "Orders"
   },
   "gemstones": {
     "title": "Gemstone Management",
@@ -36,6 +109,305 @@
     "inStock": "In Stock",
     "outOfStock": "Out of Stock"
   },
+  "gemstoneList": {
+    "loading": "Loading gemstones...",
+    "selectedCount": "{count} gemstones selected",
+    "exporting": "Exporting...",
+    "exportCsv": "Export CSV",
+    "exportPdf": "Export PDF",
+    "bulkEdit": "Bulk Edit",
+    "addGemstone": "Add Gemstone",
+    "resultsSummary": "Showing {showing} of {total} gemstones{searchTerm, select, empty {} other { for \"{searchTerm}\"}}",
+    "selected": "{count} selected",
+    "noResultsFound": "No gemstones found",
+    "noGemstonesYet": "No gemstones yet",
+    "tryAdjustingSearch": "Try adjusting your search terms or filters.",
+    "getStartedMessage": "Get started by adding your first gemstone to the catalog.",
+    "addFirstGemstone": "Add Your First Gemstone",
+    "tableHeaders": {
+      "gemstone": "Gemstone",
+      "details": "Details",
+      "price": "Price",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "cutFormat": "{cut} cut",
+    "clarityFormat": "{clarity} clarity",
+    "originFormat": "{name}, {country}",
+    "premium": "Premium",
+    "inStock": "In Stock",
+    "outOfStock": "Out of Stock",
+    "deliveryDays": "{days} days",
+    "messages": {
+      "duplicateSuccess": "Gemstone duplicated successfully",
+      "archiveSuccess": "Gemstone archived successfully",
+      "restoreSuccess": "Gemstone restored successfully"
+    },
+    "errors": {
+      "loadFailed": "Failed to load gemstones:",
+      "duplicateFailed": "Failed to duplicate gemstone: {error}",
+      "duplicateError": "Error duplicating gemstone:",
+      "archiveFailed": "Failed to archive gemstone: {error}",
+      "archiveError": "Error archiving gemstone:",
+      "restoreFailed": "Failed to restore gemstone: {error}",
+      "restoreError": "Error restoring gemstone:",
+      "exportFailed": "Export failed: {error}",
+      "exportError": "Export error:"
+    }
+  },
+  "gemstoneDetail": {
+    "title": "Gemstone Details",
+    "basicInformation": "Basic Information",
+    "serialNumber": "Serial Number",
+    "internalCode": "Internal Code",
+    "gemstoneType": "Gemstone Type",
+    "stockStatus": "Stock Status",
+    "gemstoneProperties": "Gemstone Properties",
+    "color": "Color",
+    "cut": "Cut",
+    "clarity": "Clarity",
+    "weight": "Weight",
+    "dimensions": "Dimensions",
+    "dimensions_length": "{length}mm L",
+    "dimensions_width": "{width}mm W",
+    "dimensions_depth": "{depth}mm D",
+    "pricingInformation": "Pricing Information",
+    "regularPrice": "Regular Price",
+    "premiumPrice": "Premium Price",
+    "deliveryTime": "Delivery Time",
+    "businessDays": "{days} business days",
+    "description": "Description",
+    "recordInformation": "Record Information",
+    "created": "Created",
+    "lastUpdated": "Last Updated",
+    "close": "Close",
+    "notSpecified": "Not specified",
+    "notSet": "Not set",
+    "unknown": "Unknown",
+    "inStock": "In Stock",
+    "outOfStock": "Out of Stock"
+  },
+  "gemstoneActions": {
+    "openMenu": "Open menu",
+    "actions": "Actions",
+    "viewDetails": "View Details",
+    "editGemstone": "Edit Gemstone",
+    "copySerialNumber": "Copy Serial Number",
+    "openInNewTab": "Open in New Tab",
+    "duplicateGemstone": "Duplicate Gemstone",
+    "exportToCsv": "Export to CSV",
+    "restoreGemstone": "Restore Gemstone",
+    "archiveGemstone": "Archive Gemstone",
+    "deleteGemstone": "Delete Gemstone",
+    "deleteConfirmation": "Are you sure you want to delete \"{serialNumber}\"? This action cannot be undone.",
+    "messages": {
+      "serialNumberCopied": "Serial number copied to clipboard"
+    },
+    "errors": {
+      "copyFailed": "Failed to copy serial number:"
+    }
+  },
+  "bulkEdit": {
+    "title": "Bulk Edit Gemstones",
+    "selectedCount": "{count} Gemstones Selected",
+    "selectionDescription": "Choose which fields to update for all selected gemstones",
+    "updatePrice": "Update Price",
+    "priceAmount": "Price Amount (USD)",
+    "willSetTo": "Will set to {amount}",
+    "currency": "Currency",
+    "premiumCurrency": "Premium Currency (Optional)",
+    "sameAsRegular": "Same as regular",
+    "updateStockStatus": "Update Stock Status",
+    "stockStatus": "Stock Status",
+    "inStock": "In Stock",
+    "outOfStock": "Out of Stock",
+    "deliveryDays": "Delivery Days",
+    "updateDescription": "Update Description",
+    "updatePromotionalText": "Update Promotional Text",
+    "updateInternalCode": "Update Internal Code",
+    "descriptionPlaceholder": "Enter new description...",
+    "promotionalTextPlaceholder": "Enter promotional text...",
+    "internalCodePlaceholder": "Enter internal code...",
+    "errors": {
+      "loadFailed": "Failed to load selected gemstones:",
+      "updateFailed": "Failed to update {serialNumber}: {error}",
+      "updateError": "Error updating {serialNumber}: {error}",
+      "systemError": "System error occurred during bulk update"
+    }
+  },
+  "enhancedSearch": {
+    "searchPlaceholder": "Search gemstones by serial number, type, color, or description...",
+    "sortBy": "Sort by",
+    "filters": "Filters",
+    "clearFilters": "Clear All Filters",
+    "activeFilters": "Active Filters ({count})",
+    "saveSearch": "Save Search",
+    "loadSearch": "Load Search",
+    "deleteSearch": "Delete Search",
+    "searchName": "Search Name",
+    "savedSearches": "Saved Searches",
+    "advancedFilters": "Advanced Filters",
+    "sortLabels": {
+      "dateAdded": "Date Added",
+      "price": "Price",
+      "weight": "Weight",
+      "serialNumber": "Serial Number",
+      "gemstoneType": "Gemstone Type"
+    },
+    "filterLabels": {
+      "minPrice": "Min Price",
+      "maxPrice": "Max Price",
+      "minWeight": "Min Weight",
+      "maxWeight": "Max Weight",
+      "type": "Type",
+      "color": "Color",
+      "cut": "Cut",
+      "clarity": "Clarity",
+      "origin": "Origin",
+      "stockStatus": "Stock Status"
+    },
+    "inStock": "In Stock",
+    "outOfStock": "Out of Stock",
+    "searchNamePlaceholder": "Enter a name for this search",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "reviewChanges": "Review Changes",
+    "confirmBulkUpdate": "Confirm Bulk Update",
+    "confirmBulkUpdateDescription": "You are about to update {count} gemstones. This action cannot be undone.",
+    "changesToApply": "Changes to Apply",
+    "price": "Price",
+    "stockStatus": "Stock Status",
+    "inStock": "In Stock",
+    "outOfStock": "Out of Stock",
+    "days": "days",
+    "description": "Description",
+    "promotionalText": "Promotional Text",
+    "internalCode": "Internal Code",
+    "back": "Back",
+    "applyChangesToGemstones": "Apply Changes to {count} Gemstones",
+    "updatingGemstones": "Updating Gemstones...",
+    "processingGemstones": "Processing {count} gemstones",
+    "bulkUpdateComplete": "Bulk Update Complete",
+    "bulkUpdateResults": "{success} updated successfully, {failed} failed",
+    "updated": "Updated",
+    "failed": "Failed",
+    "updateErrors": "Update Errors",
+    "close": "Close",
+    "viewUpdatedList": "View Updated List",
+    "priceUpdated": "Price updated",
+    "noRecentPriceChanges": "No recent price changes",
+    "bulkPriceUpdate": "Bulk Price Update",
+    "percentageIncrease": "Percentage Increase (%)",
+    "fixedAmount": "Fixed Amount ($)",
+    "reason": "Reason",
+    "marketAdjustmentPlaceholder": "Market adjustment",
+    "applyBulkUpdate": "Apply Bulk Update",
+    "bulkUpdateDescription": "This will update the 5 most recently modified gemstones",
+    "update": "Update",
+    "bulkInventoryUpdate": "Bulk Inventory Update ({count} selected)",
+    "stockUpdatePlaceholder": "Stock update",
+    "clearSelection": "Clear Selection"
+  },
+  "priceInventoryManager": {
+    "title": "Price & Inventory Management",
+    "description": "Comprehensive pricing analytics and inventory control",
+    "backToOverview": "Back to Overview",
+    "priceAnalytics": "Price Analytics",
+    "inventoryManagement": "Inventory Management",
+    "priceAnalyticsDescription": "View pricing insights, distribution, and trends",
+    "inventoryControl": "Inventory Control",
+    "inventoryControlDescription": "Manage stock levels and track inventory",
+    "bulkOperations": "Bulk Operations",
+    "bulkOperationsDescription": "Update prices and inventory for multiple items",
+    "priceOverview": "Price Overview",
+    "averagePrice": "Average Price",
+    "priceRange": "Price Range",
+    "activeCurrencies": "Active Currencies",
+    "recentChanges": "Recent Changes",
+    "viewDetailedAnalytics": "View Detailed Analytics",
+    "inventoryOverview": "Inventory Overview",
+    "totalItems": "Total Items",
+    "lowStockAlert": "Low Stock Alert",
+    "manageInventory": "Manage Inventory",
+    "quickActions": "Quick Actions",
+    "priceAnalysis": "Price Analysis",
+    "stockUpdate": "Stock Update",
+    "viewAlerts": "View Alerts",
+    "recentActivity": "Recent Activity",
+    "inStock": "In Stock",
+    "outOfStock": "Out of Stock"
+  },
+  "analytics": {
+    "title": "Analytics & Insights",
+    "description": "Track performance metrics and business insights",
+    "revenueThisMonth": "Revenue This Month",
+    "ordersThisMonth": "Orders This Month",
+    "activeUsers": "Active Users",
+    "avgOrderValue": "Avg Order Value",
+    "advancedAnalyticsDashboard": "Advanced Analytics Dashboard",
+    "comingSoon": "Analytics Dashboard Coming Soon",
+    "comingSoonDescription": "The comprehensive analytics and insights dashboard will be implemented in Phase 5, including charts, reports, and business intelligence features.",
+    "salesAnalytics": "Sales Analytics",
+    "salesAnalyticsDescription": "Revenue trends, conversion rates, and sales performance",
+    "userAnalytics": "User Analytics",
+    "userAnalyticsDescription": "User behavior, engagement metrics, and retention data",
+    "inventoryAnalytics": "Inventory Analytics",
+    "inventoryAnalyticsDescription": "Stock levels, turnover rates, and inventory optimization"
+  },
+  "advancedFilters": {
+    "title": "Advanced Filters",
+    "resetAll": "Reset All",
+    "filterGemstones": "Filter Gemstones",
+    "gemstoneType": "Gemstone Type",
+    "color": "Color",
+    "cut": "Cut",
+    "clarity": "Clarity",
+    "priceRange": "Price Range (USD)",
+    "minPrice": "Min Price",
+    "maxPrice": "Max Price",
+    "noLimit": "No limit",
+    "weightRange": "Weight Range (carats)",
+    "minWeight": "Min Weight",
+    "maxWeight": "Max Weight",
+    "stockStatus": "Stock Status",
+    "allItems": "All Items",
+    "inStockOnly": "In Stock Only",
+    "outOfStockOnly": "Out of Stock Only",
+    "origin": "Origin"
+  },
+  "priceAnalytics": {
+    "title": "Price Analytics",
+    "description": "Comprehensive pricing insights and bulk price management",
+    "loading": "Loading price analytics...",
+    "errorLoading": "Error loading analytics",
+    "errorLoadingTitle": "Error Loading Analytics",
+    "retry": "Retry",
+    "refresh": "Refresh",
+    "noDataAvailable": "No pricing data available",
+    "noPricingData": "No Pricing Data",
+    "noPricingDataDescription": "Add gemstones with pricing information to see analytics and insights.",
+    "averagePrice": "Average Price",
+    "highestPrice": "Highest Price",
+    "currencies": "Currencies",
+    "recentChanges": "Recent Changes"
+  },
+  "bulkImport": {
+    "title": "Bulk Import Gemstones",
+    "error": "Error",
+    "importFromCSV": "Import Gemstones from CSV",
+    "uploadDescription": "Upload a CSV file with your gemstone data. Make sure to follow the correct format.",
+    "downloadTemplate": "Download Template",
+    "dropFileHere": "Drop your CSV file here, or click to browse",
+    "fileSizeLimit": "Supports CSV files up to 10MB",
+    "fileParsedSuccessfully": "File Parsed Successfully",
+    "foundValidGemstones": "Found {count} valid gemstones to import",
+    "importPreview": "Import Preview",
+    "errors": {
+      "parseFailed": "Failed to parse CSV file. Please check the format.",
+      "readFailed": "Failed to read file. Please try again.",
+      "importFailed": "Import failed. Please try again."
+    }
+  },
   "search": {
     "placeholder": "Search gemstones by serial number, type, color, or description...",
     "sortBy": "Sort by",
@@ -57,5 +429,103 @@
     "deleteSelected": "Delete Selected",
     "exportSelected": "Export Selected",
     "editSelected": "Edit Selected"
+  },
+  "users": {
+    "title": "User Management",
+    "subtitle": "Manage user accounts, roles, and permissions",
+    "addUser": "Add User",
+    "manageRoles": "Manage Roles",
+    "stats": {
+      "totalUsers": "Total Users",
+      "activeUsers": "Active Users",
+      "vipUsers": "VIP Users",
+      "admins": "Admins"
+    },
+    "system": {
+      "title": "User Management System",
+      "comingSoon": "User Management Coming Soon",
+      "description": "Advanced user management features will be available in the next update"
+    }
+  },
+  "settings": {
+    "title": "System Settings",
+    "subtitle": "Configure system preferences and administrative settings",
+    "security": {
+      "title": "Security Settings",
+      "twoFactor": {
+        "title": "Two-Factor Authentication",
+        "description": "Require 2FA for admin accounts"
+      },
+      "sessionTimeout": {
+        "title": "Session Timeout",
+        "description": "Auto-logout after inactivity"
+      },
+      "passwordPolicy": {
+        "title": "Password Policy",
+        "description": "Set password requirements"
+      }
+    },
+    "database": {
+      "title": "Database Settings",
+      "backup": {
+        "title": "Backup Schedule",
+        "description": "Automatic database backups"
+      },
+      "retention": {
+        "title": "Data Retention",
+        "description": "Log and audit data retention"
+      },
+      "performance": {
+        "title": "Performance Tuning",
+        "description": "Database optimization settings"
+      }
+    },
+    "ui": {
+      "title": "UI Settings",
+      "theme": {
+        "title": "Theme Configuration",
+        "description": "Customize admin interface theme"
+      },
+      "layout": {
+        "title": "Layout Preferences",
+        "description": "Sidebar and navigation settings"
+      },
+      "notifications": {
+        "title": "Notification Settings",
+        "description": "Admin notification preferences"
+      }
+    },
+    "general": {
+      "title": "General Settings",
+      "site": {
+        "title": "Site Configuration",
+        "description": "Basic site settings and branding"
+      },
+      "email": {
+        "title": "Email Settings",
+        "description": "SMTP configuration and templates"
+      },
+      "api": {
+        "title": "API Configuration",
+        "description": "External service integrations"
+      }
+    },
+    "advanced": {
+      "title": "Advanced Configuration",
+      "comingSoon": "Advanced Settings Coming Soon",
+      "description": "The comprehensive settings management interface will be implemented in Phase 5, including security policies, system configuration, and advanced options."
+    },
+    "configure": "Configure"
+  },
+  "gemstoneForm": {
+    "serialNumberPlaceholder": "e.g., DIA-2025-001",
+    "internalCodePlaceholder": "e.g., INV-001",
+    "selectOriginPlaceholder": "Select origin (optional)",
+    "noOriginSpecified": "No origin specified",
+    "optionalPlaceholder": "Optional",
+    "deliveryDaysPlaceholder": "e.g., 7",
+    "descriptionPlaceholder": "Detailed description of the gemstone...",
+    "promotionalTextPlaceholder": "Special promotional content or highlights...",
+    "marketingHighlightPlaceholder": "Add a marketing highlight..."
   }
 }

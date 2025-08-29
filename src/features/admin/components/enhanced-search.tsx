@@ -27,6 +27,7 @@ import { useEffect, useState } from "react";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
+import { useTranslations } from "next-intl";
 
 export interface SearchFilters {
   query: string;
@@ -78,6 +79,7 @@ export function EnhancedSearch({
   onLoadSearch,
   onDeleteSearch,
 }: EnhancedSearchProps) {
+  const t = useTranslations("admin.enhancedSearch");
   const [filters, setFilters] = useState<SearchFilters>({
     query: "",
     sortBy: "created_at",
@@ -191,11 +193,11 @@ export function EnhancedSearch({
 
   const getSortLabel = (sortBy: SearchFilters["sortBy"]) => {
     const labels = {
-      created_at: "Date Added",
-      price_amount: "Price",
-      weight_carats: "Weight",
-      serial_number: "Serial Number",
-      name: "Gemstone Type",
+      created_at: t("sortLabels.dateAdded"),
+      price_amount: t("sortLabels.price"),
+      weight_carats: t("sortLabels.weight"),
+      serial_number: t("sortLabels.serialNumber"),
+      name: t("sortLabels.gemstoneType"),
     };
     return labels[sortBy];
   };
@@ -269,7 +271,7 @@ export function EnhancedSearch({
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
           <Input
-            placeholder="Search gemstones by serial number, type, color, or description..."
+            placeholder={t("searchPlaceholder")}
             value={filters.query}
             onChange={(e) => handleQueryChange(e.target.value)}
             className="pl-10"
@@ -278,14 +280,22 @@ export function EnhancedSearch({
 
         <Select value={filters.sortBy} onValueChange={handleSortChange}>
           <SelectTrigger className="w-48">
-            <SelectValue placeholder="Sort by" />
+            <SelectValue placeholder={t("sortBy")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="created_at">Date Added</SelectItem>
-            <SelectItem value="price_amount">Price</SelectItem>
-            <SelectItem value="weight_carats">Weight</SelectItem>
-            <SelectItem value="serial_number">Serial Number</SelectItem>
-            <SelectItem value="name">Gemstone Type</SelectItem>
+            <SelectItem value="created_at">
+              {t("sortLabels.dateAdded")}
+            </SelectItem>
+            <SelectItem value="price_amount">
+              {t("sortLabels.price")}
+            </SelectItem>
+            <SelectItem value="weight_carats">
+              {t("sortLabels.weight")}
+            </SelectItem>
+            <SelectItem value="serial_number">
+              {t("sortLabels.serialNumber")}
+            </SelectItem>
+            <SelectItem value="name">{t("sortLabels.gemstoneType")}</SelectItem>
           </SelectContent>
         </Select>
 
@@ -308,7 +318,7 @@ export function EnhancedSearch({
           className="flex items-center gap-2"
         >
           <Filter className="w-4 h-4" />
-          Filters
+          {t("filters")}
           {activeFiltersCount > 0 && (
             <Badge variant="secondary" className="ml-1">
               {activeFiltersCount}
@@ -319,7 +329,7 @@ export function EnhancedSearch({
         {activeFiltersCount > 0 && (
           <Button variant="ghost" size="sm" onClick={clearAllFilters}>
             <X className="w-4 h-4" />
-            Clear
+            {t("clearFilters")}
           </Button>
         )}
       </div>
@@ -329,7 +339,8 @@ export function EnhancedSearch({
         <div className="flex flex-wrap gap-2">
           {filters.priceMin && (
             <Badge variant="secondary" className="flex items-center gap-1">
-              Min Price: ${(filters.priceMin / 100).toLocaleString()}
+              {t("filterLabels.minPrice")}: $
+              {(filters.priceMin / 100).toLocaleString()}
               <X
                 className="w-3 h-3 cursor-pointer"
                 onClick={() => setFilters({ ...filters, priceMin: undefined })}
@@ -338,7 +349,8 @@ export function EnhancedSearch({
           )}
           {filters.priceMax && (
             <Badge variant="secondary" className="flex items-center gap-1">
-              Max Price: ${(filters.priceMax / 100).toLocaleString()}
+              {t("filterLabels.maxPrice")}: $
+              {(filters.priceMax / 100).toLocaleString()}
               <X
                 className="w-3 h-3 cursor-pointer"
                 onClick={() => setFilters({ ...filters, priceMax: undefined })}
@@ -347,7 +359,7 @@ export function EnhancedSearch({
           )}
           {filters.weightMin && (
             <Badge variant="secondary" className="flex items-center gap-1">
-              Min Weight: {filters.weightMin}ct
+              {t("filterLabels.minWeight")}: {filters.weightMin}ct
               <X
                 className="w-3 h-3 cursor-pointer"
                 onClick={() => setFilters({ ...filters, weightMin: undefined })}
@@ -356,7 +368,7 @@ export function EnhancedSearch({
           )}
           {filters.weightMax && (
             <Badge variant="secondary" className="flex items-center gap-1">
-              Max Weight: {filters.weightMax}ct
+              {t("filterLabels.maxWeight")}: {filters.weightMax}ct
               <X
                 className="w-3 h-3 cursor-pointer"
                 onClick={() => setFilters({ ...filters, weightMax: undefined })}
@@ -369,7 +381,7 @@ export function EnhancedSearch({
               variant="secondary"
               className="flex items-center gap-1 capitalize"
             >
-              Type: {type}
+              {t("filterLabels.type")}: {type}
               <X
                 className="w-3 h-3 cursor-pointer"
                 onClick={() => handleMultiSelectChange("types", type, false)}
@@ -382,7 +394,7 @@ export function EnhancedSearch({
               variant="secondary"
               className="flex items-center gap-1 capitalize"
             >
-              Color: {color}
+              {t("filterLabels.color")}: {color}
               <X
                 className="w-3 h-3 cursor-pointer"
                 onClick={() => handleMultiSelectChange("colors", color, false)}
@@ -395,7 +407,7 @@ export function EnhancedSearch({
               variant="secondary"
               className="flex items-center gap-1 capitalize"
             >
-              Cut: {cut}
+              {t("filterLabels.cut")}: {cut}
               <X
                 className="w-3 h-3 cursor-pointer"
                 onClick={() => handleMultiSelectChange("cuts", cut, false)}
@@ -408,7 +420,7 @@ export function EnhancedSearch({
               variant="secondary"
               className="flex items-center gap-1"
             >
-              Clarity: {clarity}
+              {t("filterLabels.clarity")}: {clarity}
               <X
                 className="w-3 h-3 cursor-pointer"
                 onClick={() =>
@@ -423,7 +435,7 @@ export function EnhancedSearch({
               variant="secondary"
               className="flex items-center gap-1 capitalize"
             >
-              Origin: {origin}
+              {t("filterLabels.origin")}: {origin}
               <X
                 className="w-3 h-3 cursor-pointer"
                 onClick={() =>
@@ -434,7 +446,8 @@ export function EnhancedSearch({
           ))}
           {filters.inStock !== undefined && (
             <Badge variant="secondary" className="flex items-center gap-1">
-              Stock: {filters.inStock ? "In Stock" : "Out of Stock"}
+              {t("filterLabels.stockStatus")}:{" "}
+              {filters.inStock ? t("inStock") : t("outOfStock")}
               <X
                 className="w-3 h-3 cursor-pointer"
                 onClick={() => setFilters({ ...filters, inStock: undefined })}
@@ -448,7 +461,7 @@ export function EnhancedSearch({
       {showAdvanced && (
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-lg">Advanced Filters</CardTitle>
+            <CardTitle className="text-lg">{t("advancedFilters")}</CardTitle>
             <div className="flex items-center gap-2">
               {onSaveSearch && (
                 <Button
@@ -458,7 +471,7 @@ export function EnhancedSearch({
                   disabled={activeFiltersCount === 0}
                 >
                   <Save className="w-4 h-4 mr-2" />
-                  Save Search
+                  {t("saveSearch")}
                 </Button>
               )}
               {savedSearches.length > 0 && (
@@ -470,7 +483,7 @@ export function EnhancedSearch({
                 >
                   <SelectTrigger className="w-48">
                     <History className="w-4 h-4 mr-2" />
-                    <SelectValue placeholder="Load saved search" />
+                    <SelectValue placeholder={t("loadSearch")} />
                   </SelectTrigger>
                   <SelectContent>
                     {savedSearches.map((search) => (
@@ -508,7 +521,7 @@ export function EnhancedSearch({
                     </label>
                     <Input
                       type="number"
-                      placeholder="No limit"
+                      placeholder={t("noLimit")}
                       value={filters.priceMax ? filters.priceMax / 100 : ""}
                       onChange={(e) =>
                         handleRangeChange("priceMax", e.target.value)
@@ -542,7 +555,7 @@ export function EnhancedSearch({
                     <Input
                       type="number"
                       step="0.01"
-                      placeholder="No limit"
+                      placeholder={t("noLimit")}
                       value={filters.weightMax || ""}
                       onChange={(e) =>
                         handleRangeChange("weightMax", e.target.value)
@@ -555,7 +568,7 @@ export function EnhancedSearch({
 
             {/* Stock Status */}
             <div>
-              <h4 className="font-medium mb-3">Stock Status</h4>
+              <h4 className="font-medium mb-3">{t("stockStatus")}</h4>
               <Select
                 value={
                   filters.inStock === undefined
@@ -570,10 +583,10 @@ export function EnhancedSearch({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Items</SelectItem>
-                  <SelectItem value="in_stock">In Stock Only</SelectItem>
+                  <SelectItem value="all">{t("allItems")}</SelectItem>
+                  <SelectItem value="in_stock">{t("inStockOnly")}</SelectItem>
                   <SelectItem value="out_of_stock">
-                    Out of Stock Only
+                    {t("outOfStockOnly")}
                   </SelectItem>
                 </SelectContent>
               </Select>
@@ -582,7 +595,7 @@ export function EnhancedSearch({
             {/* Origins */}
             {availableOrigins.length > 0 && (
               <div>
-                <h4 className="font-medium mb-3">Origins</h4>
+                <h4 className="font-medium mb-3">{t("origin")}</h4>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                   {availableOrigins.map((origin) => (
                     <label
@@ -612,7 +625,7 @@ export function EnhancedSearch({
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {/* Types */}
               <div>
-                <h4 className="font-medium mb-3">Gemstone Types</h4>
+                <h4 className="font-medium mb-3">{t("gemstoneType")}</h4>
                 <div className="space-y-2 max-h-48 overflow-y-auto">
                   {gemstoneTypes.map((type) => (
                     <label
@@ -639,7 +652,7 @@ export function EnhancedSearch({
 
               {/* Colors */}
               <div>
-                <h4 className="font-medium mb-3">Colors</h4>
+                <h4 className="font-medium mb-3">{t("color")}</h4>
                 <div className="space-y-2 max-h-48 overflow-y-auto">
                   {gemColors.map((color) => (
                     <label
@@ -666,7 +679,7 @@ export function EnhancedSearch({
 
               {/* Cuts */}
               <div>
-                <h4 className="font-medium mb-3">Cuts</h4>
+                <h4 className="font-medium mb-3">{t("cut")}</h4>
                 <div className="space-y-2 max-h-48 overflow-y-auto">
                   {gemCuts.map((cut) => (
                     <label
@@ -689,7 +702,7 @@ export function EnhancedSearch({
 
               {/* Clarities */}
               <div>
-                <h4 className="font-medium mb-3">Clarities</h4>
+                <h4 className="font-medium mb-3">{t("clarity")}</h4>
                 <div className="space-y-2 max-h-48 overflow-y-auto">
                   {gemClarities.map((clarity) => (
                     <label
@@ -722,14 +735,14 @@ export function EnhancedSearch({
       {showSaveDialog && (
         <Card className="border-2 border-blue-200">
           <CardHeader>
-            <CardTitle>Save Search</CardTitle>
+            <CardTitle>{t("saveSearch")}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium">Search Name</label>
+                <label className="text-sm font-medium">{t("searchName")}</label>
                 <Input
-                  placeholder="Enter a name for this search"
+                  placeholder={t("searchNamePlaceholder")}
                   value={saveSearchName}
                   onChange={(e) => setSaveSearchName(e.target.value)}
                   onKeyPress={(e) => {
@@ -742,13 +755,13 @@ export function EnhancedSearch({
                   variant="outline"
                   onClick={() => setShowSaveDialog(false)}
                 >
-                  Cancel
+                  {t("cancel")}
                 </Button>
                 <Button
                   onClick={saveCurrentSearch}
                   disabled={!saveSearchName.trim()}
                 >
-                  Save Search
+                  {t("saveSearch")}
                 </Button>
               </div>
             </div>

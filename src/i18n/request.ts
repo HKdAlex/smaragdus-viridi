@@ -10,8 +10,11 @@ export default getRequestConfig(async ({ requestLocale }) => {
     locale = routing.defaultLocale;
   }
 
+  // Import the modular translation files
+  const messages = (await import(`../messages/${locale}/index.ts`)).default;
+
   return {
     locale,
-    messages: (await import(`../messages/${locale}.json`)).default
+    messages
   };
 });

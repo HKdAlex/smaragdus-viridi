@@ -9,23 +9,24 @@ import {
 import { Shield, UserCheck, UserPlus, Users } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
+import { useTranslations } from "next-intl";
 
 export function AdminUserManager() {
+  const t = useTranslations("admin");
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold text-foreground">
-            User Management
+            {t("users.title")}
           </h2>
-          <p className="text-muted-foreground">
-            Manage user accounts, roles, and permissions
-          </p>
+          <p className="text-muted-foreground">{t("users.subtitle")}</p>
         </div>
 
         <Button className="flex items-center gap-2">
           <UserPlus className="w-4 h-4" />
-          Add User
+          {t("users.addUser")}
         </Button>
       </div>
 
@@ -39,7 +40,9 @@ export function AdminUserManager() {
               </div>
               <div>
                 <p className="text-2xl font-bold">3,429</p>
-                <p className="text-sm text-muted-foreground">Total Users</p>
+                <p className="text-sm text-muted-foreground">
+                  {t("users.stats.totalUsers")}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -53,7 +56,9 @@ export function AdminUserManager() {
               </div>
               <div>
                 <p className="text-2xl font-bold">2,890</p>
-                <p className="text-sm text-muted-foreground">Active Users</p>
+                <p className="text-sm text-muted-foreground">
+                  {t("users.stats.activeUsers")}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -67,7 +72,9 @@ export function AdminUserManager() {
               </div>
               <div>
                 <p className="text-2xl font-bold">12</p>
-                <p className="text-sm text-muted-foreground">VIP Users</p>
+                <p className="text-sm text-muted-foreground">
+                  {t("users.stats.vipUsers")}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -81,7 +88,9 @@ export function AdminUserManager() {
               </div>
               <div>
                 <p className="text-2xl font-bold">3</p>
-                <p className="text-sm text-muted-foreground">Admins</p>
+                <p className="text-sm text-muted-foreground">
+                  {t("users.stats.admins")}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -91,28 +100,26 @@ export function AdminUserManager() {
       {/* User Management Placeholder */}
       <Card className="border-0 shadow-lg bg-gradient-to-br from-card to-muted/20">
         <CardHeader>
-          <CardTitle>User Management System</CardTitle>
+          <CardTitle>{t("users.system.title")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-center py-12">
             <Users className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-medium text-foreground mb-2">
-              User Management Coming Soon
+              {t("users.system.comingSoon")}
             </h3>
             <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-              The comprehensive user management interface will be implemented in
-              Phase 2, including role management, user creation, and permission
-              controls.
+              {t("users.system.description")}
             </p>
 
             <div className="flex justify-center gap-3">
               <Button variant="outline" disabled>
                 <UserPlus className="w-4 h-4 mr-2" />
-                Create User
+                {t("users.addUser")}
               </Button>
               <Button variant="outline" disabled>
                 <Shield className="w-4 h-4 mr-2" />
-                Manage Roles
+                {t("users.manageRoles")}
               </Button>
             </div>
           </div>

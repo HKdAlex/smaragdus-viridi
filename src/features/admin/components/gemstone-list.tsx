@@ -5,6 +5,7 @@ import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import type { DatabaseGemstone } from "@/shared/types";
 import { Edit, FileText, Gem, Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { ExportService, type ExportOptions } from "../services/export-service";
 import {
@@ -30,6 +31,7 @@ export function GemstoneList({
   onView,
   onDelete,
 }: GemstoneListProps) {
+  const t = useTranslations("admin.gemstoneList");
   const [gemstones, setGemstones] = useState<GemstoneWithRelations[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -75,7 +77,7 @@ export function GemstoneList({
         setAvailableOrigins(origins);
       }
     } catch (error) {
-      console.error("Failed to load gemstones:", error);
+      console.error(t("errors.loadFailed"), error);
     } finally {
       setLoading(false);
     }
@@ -295,14 +297,18 @@ export function GemstoneList({
       const result = await GemstoneAdminService.createGemstone(formData);
 
       if (result.success) {
-        console.log("Gemstone duplicated successfully");
+        console.log(t("messages.duplicateSuccess"));
         loadGemstones(); // Refresh the list
       } else {
-        alert(`Failed to duplicate gemstone: ${result.error}`);
+        alert(
+          t("errors.duplicateFailed", {
+            error: result.error || "Unknown error",
+          })
+        );
       }
     } catch (error) {
-      console.error("Error duplicating gemstone:", error);
-      alert("Failed to duplicate gemstone");
+      console.error(t("errors.duplicateError"), error);
+      alert(t("errors.duplicateFailed"));
     }
   };
 
@@ -318,14 +324,16 @@ export function GemstoneList({
       });
 
       if (result.success) {
-        console.log("Gemstone archived successfully");
+        console.log(t("messages.archiveSuccess"));
         loadGemstones(); // Refresh the list
       } else {
-        alert(`Failed to archive gemstone: ${result.error}`);
+        alert(
+          t("errors.archiveFailed", { error: result.error || "Unknown error" })
+        );
       }
     } catch (error) {
-      console.error("Error archiving gemstone:", error);
-      alert("Failed to archive gemstone");
+      console.error(t("errors.archiveError"), error);
+      alert(t("errors.archiveFailed"));
     }
   };
 
@@ -337,14 +345,16 @@ export function GemstoneList({
       });
 
       if (result.success) {
-        console.log("Gemstone restored successfully");
+        console.log(t("messages.restoreSuccess"));
         loadGemstones(); // Refresh the list
       } else {
-        alert(`Failed to restore gemstone: ${result.error}`);
+        alert(
+          t("errors.restoreFailed", { error: result.error || "Unknown error" })
+        );
       }
     } catch (error) {
-      console.error("Error restoring gemstone:", error);
-      alert("Failed to restore gemstone");
+      console.error(t("errors.restoreError"), error);
+      alert(t("errors.restoreFailed"));
     }
   };
 
@@ -391,11 +401,13 @@ export function GemstoneList({
       if (result.success) {
         ExportService.downloadFile(result);
       } else {
-        alert(`Export failed: ${result.error}`);
+        alert(
+          t("errors.exportFailed", { error: result.error || "Unknown error" })
+        );
       }
     } catch (error) {
-      console.error("Export error:", error);
-      alert("Export failed. Please try again.");
+      console.error(t("errors.exportError"), error);
+      alert(t("errors.exportFailed"));
     } finally {
       setExporting(false);
     }
@@ -418,7 +430,7 @@ export function GemstoneList({
         <CardContent className="p-8">
           <div className="flex items-center justify-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mr-4"></div>
-            <p className="text-muted-foreground">Loading gemstones...</p>
+            <p className="text-muted-foreground">{t("loading")}</p>
           </div>
         </CardContent>
       </Card>
@@ -439,7 +451,7 @@ export function GemstoneList({
       {selectedGemstones.size > 0 && (
         <div className="flex items-center gap-2 p-4 bg-blue-50 border border-blue-200 rounded-lg">
           <span className="text-sm text-blue-800">
-            {selectedGemstones.size} gemstones selected
+            {t("selectedCount", { count: selectedGemstones.size })}
           </span>
           <div className="flex items-center gap-2">
             <Button
@@ -449,7 +461,7 @@ export function GemstoneList({
               disabled={exporting}
             >
               <FileText className="w-4 h-4 mr-2" />
-              {exporting ? "Exporting..." : "Export CSV"}
+              {exporting ? t("exporting") : t("exportCsv")}
             </Button>
             <Button
               variant="outline"
@@ -458,7 +470,7 @@ export function GemstoneList({
               disabled={exporting}
             >
               <FileText className="w-4 h-4 mr-2" />
-              {exporting ? "Exporting..." : "Export PDF"}
+              {exporting ? t("exporting") : t("exportPdf")}
             </Button>
             <Button
               variant="outline"
@@ -467,7 +479,7 @@ export function GemstoneList({
               disabled={selectedGemstones.size === 0}
             >
               <Edit className="w-4 h-4 mr-2" />
-              Bulk Edit
+              {t("bulkEdit")}
             </Button>
           </div>
         </div>
@@ -478,18 +490,22 @@ export function GemstoneList({
         <div></div>
         <Button onClick={onCreateNew} className="flex items-center gap-2">
           <Plus className="w-4 h-4" />
-          Add Gemstone
+          {t("addGemstone")}
         </Button>
       </div>
 
       {/* Results Summary */}
       <div className="flex items-center justify-between text-sm text-muted-foreground">
         <span>
-          Showing {filteredGemstones.length} of {gemstones.length} gemstones
-          {searchTerm && ` for "${searchTerm}"`}
+          {t("resultsSummary", {
+            showing: filteredGemstones.length,
+            total: gemstones.length,
+            searchTerm: searchTerm || "",
+          })}
         </span>
         <span>
-          {selectedGemstones.size > 0 && `${selectedGemstones.size} selected`}
+          {selectedGemstones.size > 0 &&
+            t("selected", { count: selectedGemstones.size })}
         </span>
       </div>
 
@@ -500,12 +516,10 @@ export function GemstoneList({
             <div className="text-center py-12">
               <Gem className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-medium text-foreground mb-2">
-                {searchTerm ? "No gemstones found" : "No gemstones yet"}
+                {searchTerm ? t("noResultsFound") : t("noGemstonesYet")}
               </h3>
               <p className="text-muted-foreground mb-6">
-                {searchTerm
-                  ? "Try adjusting your search terms or filters."
-                  : "Get started by adding your first gemstone to the catalog."}
+                {searchTerm ? t("tryAdjustingSearch") : t("getStartedMessage")}
               </p>
               {!searchTerm && (
                 <Button
@@ -513,7 +527,7 @@ export function GemstoneList({
                   className="flex items-center gap-2"
                 >
                   <Plus className="w-4 h-4" />
-                  Add Your First Gemstone
+                  {t("addFirstGemstone")}
                 </Button>
               )}
             </div>
@@ -534,19 +548,19 @@ export function GemstoneList({
                       />
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                      Gemstone
+                      {t("tableHeaders.gemstone")}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                      Details
+                      {t("tableHeaders.details")}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                      Price
+                      {t("tableHeaders.price")}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                      Status
+                      {t("tableHeaders.status")}
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                      Actions
+                      {t("tableHeaders.actions")}
                     </th>
                   </tr>
                 </thead>
@@ -596,11 +610,18 @@ export function GemstoneList({
                       </td>
                       <td className="px-6 py-4">
                         <div className="text-sm text-foreground">
-                          <div className="capitalize">{gemstone.cut} cut</div>
-                          <div>{gemstone.clarity} clarity</div>
+                          <div className="capitalize">
+                            {t("cutFormat", { cut: gemstone.cut })}
+                          </div>
+                          <div>
+                            {t("clarityFormat", { clarity: gemstone.clarity })}
+                          </div>
                           {gemstone.origin && (
                             <div className="text-muted-foreground">
-                              {gemstone.origin.name}, {gemstone.origin.country}
+                              {t("originFormat", {
+                                name: gemstone.origin.name,
+                                country: gemstone.origin.country,
+                              })}
                             </div>
                           )}
                         </div>
@@ -615,7 +636,7 @@ export function GemstoneList({
                           </div>
                           {gemstone.premium_price_amount && (
                             <div className="text-muted-foreground">
-                              Premium:{" "}
+                              {t("premium")}:{" "}
                               {formatPrice(
                                 gemstone.premium_price_amount,
                                 gemstone.premium_price_currency ||
@@ -633,11 +654,13 @@ export function GemstoneList({
                             }
                             className="w-fit"
                           >
-                            {gemstone.in_stock ? "In Stock" : "Out of Stock"}
+                            {gemstone.in_stock ? t("inStock") : t("outOfStock")}
                           </Badge>
                           {gemstone.delivery_days && (
                             <span className="text-xs text-muted-foreground">
-                              {gemstone.delivery_days} days
+                              {t("deliveryDays", {
+                                days: gemstone.delivery_days,
+                              })}
                             </span>
                           )}
                         </div>

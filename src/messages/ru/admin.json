@@ -2,17 +2,90 @@
   "dashboard": {
     "title": "Панель администратора",
     "welcome": "Добро пожаловать в панель администратора",
+    "loading": "Загрузка панели администратора...",
+    "accessRequired": "Требуется доступ администратора",
+    "privilegesRequired": "Для доступа к этой области требуются права администратора.",
+    "goToLogin": "Перейти к входу администратора",
     "totalGemstones": "Всего камней",
     "activeUsers": "Активные пользователи",
     "totalOrders": "Всего заказов",
-    "revenue": "Доход"
+    "revenue": "Доход",
+    "overview": {
+      "title": "Обзор панели управления",
+      "description": "Отслеживайте производительность вашего бизнеса по камням и управляйте операциями"
+    },
+    "stats": {
+      "totalGemstones": "Всего камней",
+      "activeUsers": "Активные пользователи",
+      "revenue": "Доход",
+      "orders": "Заказы",
+      "loading": "Загрузка...",
+      "fromLastMonth": "с прошлого месяца",
+      "loadError": "Не удалось загрузить статистику панели управления",
+      "loadErrorTitle": "Не удалось загрузить статистику",
+      "retry": "Повторить"
+    },
+    "quickActions": {
+      "title": "Быстрые действия",
+      "uploadGemstones": "Загрузить камни",
+      "uploadGemstonesDesc": "Добавить новые камни в каталог",
+      "editPrices": "Редактировать цены",
+      "editPricesDesc": "Обновить цены по всему каталогу",
+      "userManagement": "Управление пользователями",
+      "userManagementDesc": "Управление ролями и доступом пользователей"
+    },
+    "recentActivity": {
+      "title": "Недавняя активность",
+      "newGemstoneAdded": "Новый камень добавлен в каталог",
+      "twoHoursAgo": "2 часа назад",
+      "userPromoted": "Пользователь повышен до администратора",
+      "fiveHoursAgo": "5 часов назад",
+      "priceUpdateApplied": "Обновление цен применено к {count} камням",
+      "oneDayAgo": "1 день назад"
+    }
+  },
+  "header": {
+    "title": "Панель администратора",
+    "welcomeBack": "Добро пожаловать, {name}",
+    "signOut": "Выйти"
+  },
+  "tabs": {
+    "dashboard": "Обзор и ключевые показатели",
+    "gemstones": "Управление каталогом камней и складом",
+    "pricing": "Аналитика цен и управление складом",
+    "users": "Управление пользователями и разрешениями",
+    "analytics": "Показатели производительности и аналитика",
+    "settings": "Конфигурация системы и настройки"
+  },
+  "login": {
+    "title": "Доступ администратора",
+    "subtitle": "Войдите в систему для доступа к панели администратора",
+    "emailLabel": "Адрес электронной почты",
+    "emailPlaceholder": "admin@smaragdus-viridi.com",
+    "passwordLabel": "Пароль",
+    "passwordPlaceholder": "Введите пароль администратора",
+    "signInButton": "Войти",
+    "signingIn": "Вход в систему...",
+    "loginFailed": "Ошибка входа",
+    "unexpectedError": "Произошла неожиданная ошибка",
+    "invalidCredentials": "Неверный email или пароль",
+    "requirements": {
+      "title": "Требования к доступу администратора",
+      "role": "• Требуется роль администратора",
+      "security": "• Рекомендуется безопасная аутентификация с 2FA",
+      "session": "• Сессия истекает через 24 часа неактивности",
+      "audit": "• Все действия администратора записываются и аудируются"
+    },
+    "returnToSite": "← Вернуться на главный сайт"
   },
   "navigation": {
+    "dashboard": "Панель управления",
     "gemstones": "Камни",
+    "pricing": "Цены и склад",
     "users": "Пользователи",
-    "orders": "Заказы",
     "analytics": "Аналитика",
-    "settings": "Настройки"
+    "settings": "Настройки",
+    "orders": "Заказы"
   },
   "gemstones": {
     "title": "Управление камнями",
@@ -36,6 +109,305 @@
     "inStock": "В наличии",
     "outOfStock": "Нет в наличии"
   },
+  "gemstoneList": {
+    "loading": "Загрузка камней...",
+    "selectedCount": "Выбрано камней: {count}",
+    "exporting": "Экспорт...",
+    "exportCsv": "Экспорт CSV",
+    "exportPdf": "Экспорт PDF",
+    "bulkEdit": "Массовое редактирование",
+    "addGemstone": "Добавить камень",
+    "resultsSummary": "Показано {showing} из {total} камней{searchTerm, select, empty {} other { для \"{searchTerm}\"}}",
+    "selected": "выбрано {count}",
+    "noResultsFound": "Камни не найдены",
+    "noGemstonesYet": "Камней пока нет",
+    "tryAdjustingSearch": "Попробуйте изменить условия поиска или фильтры.",
+    "getStartedMessage": "Начните с добавления первого камня в каталог.",
+    "addFirstGemstone": "Добавить первый камень",
+    "tableHeaders": {
+      "gemstone": "Камень",
+      "details": "Детали",
+      "price": "Цена",
+      "status": "Статус",
+      "actions": "Действия"
+    },
+    "cutFormat": "огранка {cut}",
+    "clarityFormat": "чистота {clarity}",
+    "originFormat": "{name}, {country}",
+    "premium": "Премиум",
+    "inStock": "В наличии",
+    "outOfStock": "Нет в наличии",
+    "deliveryDays": "{days} дней",
+    "messages": {
+      "duplicateSuccess": "Камень успешно продублирован",
+      "archiveSuccess": "Камень успешно архивирован",
+      "restoreSuccess": "Камень успешно восстановлен"
+    },
+    "errors": {
+      "loadFailed": "Не удалось загрузить камни:",
+      "duplicateFailed": "Не удалось продублировать камень: {error}",
+      "duplicateError": "Ошибка дублирования камня:",
+      "archiveFailed": "Не удалось архивировать камень: {error}",
+      "archiveError": "Ошибка архивирования камня:",
+      "restoreFailed": "Не удалось восстановить камень: {error}",
+      "restoreError": "Ошибка восстановления камня:",
+      "exportFailed": "Ошибка экспорта: {error}",
+      "exportError": "Ошибка экспорта:"
+    }
+  },
+  "gemstoneDetail": {
+    "title": "Детали камня",
+    "basicInformation": "Основная информация",
+    "serialNumber": "Серийный номер",
+    "internalCode": "Внутренний код",
+    "gemstoneType": "Тип камня",
+    "stockStatus": "Статус наличия",
+    "gemstoneProperties": "Свойства камня",
+    "color": "Цвет",
+    "cut": "Огранка",
+    "clarity": "Чистота",
+    "weight": "Вес",
+    "dimensions": "Размеры",
+    "dimensions_length": "{length}мм Д",
+    "dimensions_width": "{width}мм Ш",
+    "dimensions_depth": "{depth}мм Г",
+    "pricingInformation": "Информация о цене",
+    "regularPrice": "Обычная цена",
+    "premiumPrice": "Премиум цена",
+    "deliveryTime": "Время доставки",
+    "businessDays": "{days} рабочих дней",
+    "description": "Описание",
+    "recordInformation": "Информация о записи",
+    "created": "Создано",
+    "lastUpdated": "Последнее обновление",
+    "close": "Закрыть",
+    "notSpecified": "Не указано",
+    "notSet": "Не установлено",
+    "unknown": "Неизвестно",
+    "inStock": "В наличии",
+    "outOfStock": "Нет в наличии"
+  },
+  "gemstoneActions": {
+    "openMenu": "Открыть меню",
+    "actions": "Действия",
+    "viewDetails": "Посмотреть детали",
+    "editGemstone": "Редактировать камень",
+    "copySerialNumber": "Копировать серийный номер",
+    "openInNewTab": "Открыть в новой вкладке",
+    "duplicateGemstone": "Дублировать камень",
+    "exportToCsv": "Экспорт в CSV",
+    "restoreGemstone": "Восстановить камень",
+    "archiveGemstone": "Архивировать камень",
+    "deleteGemstone": "Удалить камень",
+    "deleteConfirmation": "Вы уверены, что хотите удалить \"{serialNumber}\"? Это действие нельзя отменить.",
+    "messages": {
+      "serialNumberCopied": "Серийный номер скопирован в буфер обмена"
+    },
+    "errors": {
+      "copyFailed": "Не удалось скопировать серийный номер:"
+    }
+  },
+  "bulkEdit": {
+    "title": "Массовое редактирование камней",
+    "selectedCount": "Выбрано камней: {count}",
+    "selectionDescription": "Выберите поля для обновления всех выбранных камней",
+    "updatePrice": "Обновить цену",
+    "priceAmount": "Сумма цены (USD)",
+    "willSetTo": "Будет установлено: {amount}",
+    "currency": "Валюта",
+    "premiumCurrency": "Премиум валюта (необязательно)",
+    "sameAsRegular": "Как обычная",
+    "updateStockStatus": "Обновить статус наличия",
+    "stockStatus": "Статус наличия",
+    "inStock": "В наличии",
+    "outOfStock": "Нет в наличии",
+    "deliveryDays": "Дни доставки",
+    "updateDescription": "Обновить описание",
+    "updatePromotionalText": "Обновить рекламный текст",
+    "updateInternalCode": "Обновить внутренний код",
+    "descriptionPlaceholder": "Введите новое описание...",
+    "promotionalTextPlaceholder": "Введите рекламный текст...",
+    "internalCodePlaceholder": "Введите внутренний код...",
+    "errors": {
+      "loadFailed": "Не удалось загрузить выбранные камни:",
+      "updateFailed": "Не удалось обновить {serialNumber}: {error}",
+      "updateError": "Ошибка обновления {serialNumber}: {error}",
+      "systemError": "Произошла системная ошибка во время массового обновления"
+    }
+  },
+  "enhancedSearch": {
+    "searchPlaceholder": "Поиск камней по серийному номеру, типу, цвету или описанию...",
+    "sortBy": "Сортировать по",
+    "filters": "Фильтры",
+    "clearFilters": "Очистить все фильтры",
+    "activeFilters": "Активные фильтры ({count})",
+    "saveSearch": "Сохранить поиск",
+    "loadSearch": "Загрузить поиск",
+    "deleteSearch": "Удалить поиск",
+    "searchName": "Название поиска",
+    "savedSearches": "Сохранённые поиски",
+    "advancedFilters": "Расширенные фильтры",
+    "sortLabels": {
+      "dateAdded": "Дата добавления",
+      "price": "Цена",
+      "weight": "Вес",
+      "serialNumber": "Серийный номер",
+      "gemstoneType": "Тип камня"
+    },
+    "filterLabels": {
+      "minPrice": "Мин. цена",
+      "maxPrice": "Макс. цена",
+      "minWeight": "Мин. вес",
+      "maxWeight": "Макс. вес",
+      "type": "Тип",
+      "color": "Цвет",
+      "cut": "Огранка",
+      "clarity": "Чистота",
+      "origin": "Происхождение",
+      "stockStatus": "Наличие"
+    },
+    "inStock": "В наличии",
+    "outOfStock": "Нет в наличии",
+    "searchNamePlaceholder": "Введите название для этого поиска",
+    "cancel": "Отмена",
+    "confirm": "Подтвердить",
+    "reviewChanges": "Просмотр изменений",
+    "confirmBulkUpdate": "Подтвердить массовое обновление",
+    "confirmBulkUpdateDescription": "Вы собираетесь обновить {count} камней. Это действие нельзя отменить.",
+    "changesToApply": "Изменения для применения",
+    "price": "Цена",
+    "stockStatus": "Статус наличия",
+    "inStock": "В наличии",
+    "outOfStock": "Нет в наличии",
+    "days": "дней",
+    "description": "Описание",
+    "promotionalText": "Рекламный текст",
+    "internalCode": "Внутренний код",
+    "back": "Назад",
+    "applyChangesToGemstones": "Применить изменения к {count} камням",
+    "updatingGemstones": "Обновление камней...",
+    "processingGemstones": "Обработка {count} камней",
+    "bulkUpdateComplete": "Массовое обновление завершено",
+    "bulkUpdateResults": "{success} успешно обновлено, {failed} не удалось",
+    "updated": "Обновлено",
+    "failed": "Не удалось",
+    "updateErrors": "Ошибки обновления",
+    "close": "Закрыть",
+    "viewUpdatedList": "Просмотр обновленного списка",
+    "priceUpdated": "Цена обновлена",
+    "noRecentPriceChanges": "Нет недавних изменений цен",
+    "bulkPriceUpdate": "Массовое обновление цен",
+    "percentageIncrease": "Процентное увеличение (%)",
+    "fixedAmount": "Фиксированная сумма ($)",
+    "reason": "Причина",
+    "marketAdjustmentPlaceholder": "Рыночная корректировка",
+    "applyBulkUpdate": "Применить массовое обновление",
+    "bulkUpdateDescription": "Это обновит 5 недавно измененных камней",
+    "update": "Обновить",
+    "bulkInventoryUpdate": "Массовое обновление инвентаря ({count} выбрано)",
+    "stockUpdatePlaceholder": "Обновление наличия",
+    "clearSelection": "Очистить выбор"
+  },
+  "priceInventoryManager": {
+    "title": "Управление ценами и складом",
+    "description": "Комплексная аналитика цен и контроль складских запасов",
+    "backToOverview": "Назад к обзору",
+    "priceAnalytics": "Аналитика цен",
+    "inventoryManagement": "Управление складом",
+    "priceAnalyticsDescription": "Просмотр аналитики цен, распределения и трендов",
+    "inventoryControl": "Контроль складских запасов",
+    "inventoryControlDescription": "Управление уровнями запасов и отслеживание складских остатков",
+    "bulkOperations": "Массовые операции",
+    "bulkOperationsDescription": "Обновление цен и складских запасов для нескольких товаров",
+    "priceOverview": "Обзор цен",
+    "averagePrice": "Средняя цена",
+    "priceRange": "Диапазон цен",
+    "activeCurrencies": "Активные валюты",
+    "recentChanges": "Последние изменения",
+    "viewDetailedAnalytics": "Просмотр детальной аналитики",
+    "inventoryOverview": "Обзор складских запасов",
+    "totalItems": "Всего товаров",
+    "lowStockAlert": "Предупреждение о низком запасе",
+    "manageInventory": "Управление складом",
+    "quickActions": "Быстрые действия",
+    "priceAnalysis": "Анализ цен",
+    "stockUpdate": "Обновление запасов",
+    "viewAlerts": "Просмотр предупреждений",
+    "recentActivity": "Последняя активность",
+    "inStock": "В наличии",
+    "outOfStock": "Нет в наличии"
+  },
+  "analytics": {
+    "title": "Аналитика и инсайты",
+    "description": "Отслеживание метрик производительности и бизнес-инсайтов",
+    "revenueThisMonth": "Доход за этот месяц",
+    "ordersThisMonth": "Заказы за этот месяц",
+    "activeUsers": "Активные пользователи",
+    "avgOrderValue": "Средний чек",
+    "advancedAnalyticsDashboard": "Расширенная аналитическая панель",
+    "comingSoon": "Аналитическая панель скоро появится",
+    "comingSoonDescription": "Комплексная аналитическая панель и инсайты будут реализованы в Фазе 5, включая графики, отчеты и функции бизнес-аналитики.",
+    "salesAnalytics": "Аналитика продаж",
+    "salesAnalyticsDescription": "Тренды доходов, конверсия и производительность продаж",
+    "userAnalytics": "Аналитика пользователей",
+    "userAnalyticsDescription": "Поведение пользователей, метрики вовлеченности и данные удержания",
+    "inventoryAnalytics": "Аналитика складских запасов",
+    "inventoryAnalyticsDescription": "Уровни запасов, оборачиваемость и оптимизация складских запасов"
+  },
+  "advancedFilters": {
+    "title": "Расширенные фильтры",
+    "resetAll": "Сбросить все",
+    "filterGemstones": "Фильтр камней",
+    "gemstoneType": "Тип камня",
+    "color": "Цвет",
+    "cut": "Огранка",
+    "clarity": "Чистота",
+    "priceRange": "Диапазон цен (USD)",
+    "minPrice": "Мин. цена",
+    "maxPrice": "Макс. цена",
+    "noLimit": "Без ограничений",
+    "weightRange": "Диапазон веса (караты)",
+    "minWeight": "Мин. вес",
+    "maxWeight": "Макс. вес",
+    "stockStatus": "Статус наличия",
+    "allItems": "Все товары",
+    "inStockOnly": "Только в наличии",
+    "outOfStockOnly": "Только отсутствующие",
+    "origin": "Происхождение"
+  },
+  "priceAnalytics": {
+    "title": "Аналитика цен",
+    "description": "Комплексная аналитика цен и массовое управление ценами",
+    "loading": "Загрузка аналитики цен...",
+    "errorLoading": "Ошибка загрузки аналитики",
+    "errorLoadingTitle": "Ошибка загрузки аналитики",
+    "retry": "Повторить",
+    "refresh": "Обновить",
+    "noDataAvailable": "Данные о ценах недоступны",
+    "noPricingData": "Нет данных о ценах",
+    "noPricingDataDescription": "Добавьте камни с информацией о ценах для просмотра аналитики и инсайтов.",
+    "averagePrice": "Средняя цена",
+    "highestPrice": "Максимальная цена",
+    "currencies": "Валюты",
+    "recentChanges": "Последние изменения"
+  },
+  "bulkImport": {
+    "title": "Массовый импорт камней",
+    "error": "Ошибка",
+    "importFromCSV": "Импорт камней из CSV",
+    "uploadDescription": "Загрузите CSV файл с данными о камнях. Убедитесь, что формат правильный.",
+    "downloadTemplate": "Скачать шаблон",
+    "dropFileHere": "Перетащите CSV файл сюда или нажмите для выбора",
+    "fileSizeLimit": "Поддерживает CSV файлы до 10МБ",
+    "fileParsedSuccessfully": "Файл успешно обработан",
+    "foundValidGemstones": "Найдено {count} валидных камней для импорта",
+    "importPreview": "Предварительный просмотр импорта",
+    "errors": {
+      "parseFailed": "Не удалось обработать CSV файл. Проверьте формат.",
+      "readFailed": "Не удалось прочитать файл. Попробуйте снова.",
+      "importFailed": "Импорт не удался. Попробуйте снова."
+    }
+  },
   "search": {
     "placeholder": "Поиск камней по серийному номеру, типу, цвету или описанию...",
     "sortBy": "Сортировать по",
@@ -57,5 +429,103 @@
     "deleteSelected": "Удалить выбранные",
     "exportSelected": "Экспортировать выбранные",
     "editSelected": "Редактировать выбранные"
+  },
+  "users": {
+    "title": "Управление пользователями",
+    "subtitle": "Управление учетными записями, ролями и разрешениями пользователей",
+    "addUser": "Добавить пользователя",
+    "manageRoles": "Управление ролями",
+    "stats": {
+      "totalUsers": "Всего пользователей",
+      "activeUsers": "Активных пользователей",
+      "vipUsers": "VIP пользователей",
+      "admins": "Администраторов"
+    },
+    "system": {
+      "title": "Система управления пользователями",
+      "comingSoon": "Управление пользователями скоро",
+      "description": "Расширенные функции управления пользователями будут доступны в следующем обновлении"
+    }
+  },
+  "settings": {
+    "title": "Системные настройки",
+    "subtitle": "Настройка системных предпочтений и административных параметров",
+    "security": {
+      "title": "Настройки безопасности",
+      "twoFactor": {
+        "title": "Двухфакторная аутентификация",
+        "description": "Требовать 2FA для учетных записей администраторов"
+      },
+      "sessionTimeout": {
+        "title": "Тайм-аут сессии",
+        "description": "Автоматический выход после неактивности"
+      },
+      "passwordPolicy": {
+        "title": "Политика паролей",
+        "description": "Установить требования к паролям"
+      }
+    },
+    "database": {
+      "title": "Настройки базы данных",
+      "backup": {
+        "title": "Расписание резервного копирования",
+        "description": "Автоматическое резервное копирование базы данных"
+      },
+      "retention": {
+        "title": "Хранение данных",
+        "description": "Хранение журналов и данных аудита"
+      },
+      "performance": {
+        "title": "Оптимизация производительности",
+        "description": "Настройки оптимизации базы данных"
+      }
+    },
+    "ui": {
+      "title": "Настройки интерфейса",
+      "theme": {
+        "title": "Настройка темы",
+        "description": "Настройка темы интерфейса администратора"
+      },
+      "layout": {
+        "title": "Настройки макета",
+        "description": "Настройки боковой панели и навигации"
+      },
+      "notifications": {
+        "title": "Настройки уведомлений",
+        "description": "Настройки уведомлений администратора"
+      }
+    },
+    "general": {
+      "title": "Общие настройки",
+      "site": {
+        "title": "Настройки сайта",
+        "description": "Основные настройки сайта и брендинг"
+      },
+      "email": {
+        "title": "Настройки электронной почты",
+        "description": "Конфигурация SMTP и шаблоны"
+      },
+      "api": {
+        "title": "Настройки API",
+        "description": "Интеграции с внешними сервисами"
+      }
+    },
+    "advanced": {
+      "title": "Расширенная конфигурация",
+      "comingSoon": "Расширенные настройки скоро",
+      "description": "Комплексный интерфейс управления настройками будет реализован в Фазе 5, включая политики безопасности, системную конфигурацию и расширенные опции."
+    },
+    "configure": "Настроить"
+  },
+  "gemstoneForm": {
+    "serialNumberPlaceholder": "например, DIA-2025-001",
+    "internalCodePlaceholder": "например, INV-001",
+    "selectOriginPlaceholder": "Выберите происхождение (необязательно)",
+    "noOriginSpecified": "Происхождение не указано",
+    "optionalPlaceholder": "Необязательно",
+    "deliveryDaysPlaceholder": "например, 7",
+    "descriptionPlaceholder": "Подробное описание камня...",
+    "promotionalTextPlaceholder": "Специальный рекламный контент или особенности...",
+    "marketingHighlightPlaceholder": "Добавить маркетинговую особенность..."
   }
 }

@@ -19,6 +19,7 @@ import {
   Settings,
   TrendingUp,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import {
   InventoryManagementService,
@@ -27,6 +28,7 @@ import {
 } from "../services/inventory-management-service";
 
 export function InventoryManagementDashboard() {
+  const t = useTranslations("admin.inventoryManagement");
   const [report, setReport] = useState<InventoryReport | null>(null);
   const [alerts, setAlerts] = useState<InventoryAlert[]>([]);
   const [loading, setLoading] = useState(true);
@@ -453,7 +455,7 @@ export function InventoryManagementDashboard() {
                     </span>
                     <Button size="sm" variant="outline">
                       <Edit className="w-3 h-3 mr-1" />
-                      Update
+                      {t("update")}
                     </Button>
                   </div>
                 </div>
@@ -469,13 +471,15 @@ export function InventoryManagementDashboard() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Settings className="w-5 h-5" />
-              Bulk Inventory Update ({selectedGemstones.size} selected)
+              {t("bulkInventoryUpdate", { count: selectedGemstones.size })}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Stock Status</label>
+                <label className="text-sm font-medium">
+                  {t("stockStatus")}
+                </label>
                 <select
                   value={bulkUpdate.inStock.toString()}
                   onChange={(e) =>
@@ -486,13 +490,15 @@ export function InventoryManagementDashboard() {
                   }
                   className="w-full p-2 border rounded-lg"
                 >
-                  <option value="true">In Stock</option>
-                  <option value="false">Out of Stock</option>
+                  <option value="true">{t("inStock")}</option>
+                  <option value="false">{t("outOfStock")}</option>
                 </select>
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Delivery Days</label>
+                <label className="text-sm font-medium">
+                  {t("deliveryDays")}
+                </label>
                 <Input
                   type="number"
                   placeholder="7"
@@ -507,9 +513,9 @@ export function InventoryManagementDashboard() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Reason</label>
+                <label className="text-sm font-medium">{t("reason")}</label>
                 <Input
-                  placeholder="Stock update"
+                  placeholder={t("stockUpdatePlaceholder")}
                   value={bulkUpdate.reason}
                   onChange={(e) =>
                     setBulkUpdate((prev) => ({
@@ -527,14 +533,14 @@ export function InventoryManagementDashboard() {
                 disabled={!bulkUpdate.reason.trim()}
               >
                 <Package className="w-4 h-4 mr-2" />
-                Apply Bulk Update
+                {t("applyBulkUpdate")}
               </Button>
 
               <Button
                 variant="outline"
                 onClick={() => setSelectedGemstones(new Set())}
               >
-                Clear Selection
+                {t("clearSelection")}
               </Button>
             </div>
           </CardContent>

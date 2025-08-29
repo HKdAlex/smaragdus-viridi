@@ -1,33 +1,35 @@
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
+  const t = useTranslations("footer");
 
   const companyLinks = [
-    { name: "About Us", href: "/about" },
-    { name: "Contact", href: "/contact" },
-    { name: "Careers", href: "/careers" },
-    { name: "Press", href: "/press" },
+    { name: t("links.company.about"), href: "/about" },
+    { name: t("links.company.contact"), href: "/contact" },
+    { name: t("links.company.careers"), href: "/careers" },
+    { name: t("links.company.press"), href: "/press" },
   ];
 
   const productLinks = [
-    { name: "Gemstone Catalog", href: "/catalog" },
-    { name: "Certification", href: "/certification" },
-    { name: "Custom Orders", href: "/custom" },
-    { name: "Bulk Pricing", href: "/bulk" },
+    { name: t("links.products.catalog"), href: "/catalog" },
+    { name: t("links.products.certification"), href: "/certification" },
+    { name: t("links.products.customOrders"), href: "/custom" },
+    { name: t("links.products.bulkPricing"), href: "/bulk" },
   ];
 
   const supportLinks = [
-    { name: "Help Center", href: "/help" },
-    { name: "Shipping Info", href: "/shipping" },
-    { name: "Returns", href: "/returns" },
-    { name: "Size Guide", href: "/size-guide" },
+    { name: t("links.support.help"), href: "/help" },
+    { name: t("links.support.shipping"), href: "/shipping" },
+    { name: t("links.support.returns"), href: "/returns" },
+    { name: t("links.support.sizeGuide"), href: "/size-guide" },
   ];
 
   const legalLinks = [
-    { name: "Privacy Policy", href: "/privacy" },
-    { name: "Terms of Service", href: "/terms" },
-    { name: "Cookie Policy", href: "/cookies" },
+    { name: t("links.legal.privacy"), href: "/privacy" },
+    { name: t("links.legal.terms"), href: "/terms" },
+    { name: t("links.legal.cookies"), href: "/cookies" },
   ];
 
   return (
@@ -43,14 +45,11 @@ export function Footer() {
                   <span className="text-white font-bold text-lg">S</span>
                 </div>
                 <span className="font-bold text-xl text-gray-900 dark:text-gray-100">
-                  Smaragdus Viridi
+                  {t("company.name")}
                 </span>
               </div>
               <p className="text-gray-600 dark:text-gray-300 mb-6 max-w-md">
-                Your trusted partner in premium gemstone trading. We provide
-                jewelry professionals with access to the world's finest
-                certified gemstones, backed by transparent grading and
-                exceptional service.
+                {t("company.description")}
               </p>
 
               {/* Contact Info */}
@@ -69,7 +68,7 @@ export function Footer() {
                       d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"
                     />
                   </svg>
-                  <span>info@smaragdus-viridi.com</span>
+                  <span>{t("company.contact.email")}</span>
                 </div>
                 <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-300">
                   <svg
@@ -85,7 +84,7 @@ export function Footer() {
                       d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"
                     />
                   </svg>
-                  <span>+1 (555) 123-4567</span>
+                  <span>{t("company.contact.phone")}</span>
                 </div>
               </div>
             </div>
@@ -93,7 +92,7 @@ export function Footer() {
             {/* Company Links */}
             <div>
               <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 tracking-wider uppercase mb-4">
-                Company
+                {t("sections.company")}
               </h3>
               <ul className="space-y-3">
                 {companyLinks.map((link) => (
@@ -112,7 +111,7 @@ export function Footer() {
             {/* Product Links */}
             <div>
               <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 tracking-wider uppercase mb-4">
-                Products
+                {t("sections.products")}
               </h3>
               <ul className="space-y-3">
                 {productLinks.map((link) => (
@@ -131,7 +130,7 @@ export function Footer() {
             {/* Support Links */}
             <div>
               <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 tracking-wider uppercase mb-4">
-                Support
+                {t("sections.support")}
               </h3>
               <ul className="space-y-3">
                 {supportLinks.map((link) => (
@@ -154,7 +153,7 @@ export function Footer() {
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             {/* Copyright */}
             <div className="text-gray-600 dark:text-gray-300 text-sm">
-              © {currentYear} Smaragdus Viridi. All rights reserved.
+              {t("copyright", { year: currentYear })}
             </div>
 
             {/* Legal Links */}

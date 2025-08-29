@@ -8,16 +8,15 @@ import {
   CardTitle,
 } from "@/shared/components/ui/card";
 
+import { useTranslations } from "next-intl";
+
 export function AdminAnalytics() {
+  const t = useTranslations("admin.analytics");
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-bold text-foreground">
-          Analytics & Insights
-        </h2>
-        <p className="text-muted-foreground">
-          Track performance metrics and business insights
-        </p>
+        <h2 className="text-3xl font-bold text-foreground">{t("title")}</h2>
+        <p className="text-muted-foreground">{t("description")}</p>
       </div>
 
       {/* Analytics Overview */}
@@ -31,7 +30,7 @@ export function AdminAnalytics() {
               <div>
                 <p className="text-2xl font-bold">$45,231</p>
                 <p className="text-sm text-muted-foreground">
-                  Revenue This Month
+                  {t("revenueThisMonth")}
                 </p>
                 <p className="text-xs text-green-600">+23% from last month</p>
               </div>
@@ -48,7 +47,7 @@ export function AdminAnalytics() {
               <div>
                 <p className="text-2xl font-bold">156</p>
                 <p className="text-sm text-muted-foreground">
-                  Orders This Month
+                  {t("ordersThisMonth")}
                 </p>
                 <p className="text-xs text-blue-600">+5% from last month</p>
               </div>
@@ -64,7 +63,9 @@ export function AdminAnalytics() {
               </div>
               <div>
                 <p className="text-2xl font-bold">3,429</p>
-                <p className="text-sm text-muted-foreground">Active Users</p>
+                <p className="text-sm text-muted-foreground">
+                  {t("activeUsers")}
+                </p>
                 <p className="text-xs text-purple-600">+8% from last month</p>
               </div>
             </div>
@@ -79,7 +80,9 @@ export function AdminAnalytics() {
               </div>
               <div>
                 <p className="text-2xl font-bold">$289</p>
-                <p className="text-sm text-muted-foreground">Avg Order Value</p>
+                <p className="text-sm text-muted-foreground">
+                  {t("avgOrderValue")}
+                </p>
                 <p className="text-xs text-orange-600">+12% from last month</p>
               </div>
             </div>
@@ -90,39 +93,37 @@ export function AdminAnalytics() {
       {/* Analytics Placeholder */}
       <Card className="border-0 shadow-lg bg-gradient-to-br from-card to-muted/20">
         <CardHeader>
-          <CardTitle>Advanced Analytics Dashboard</CardTitle>
+          <CardTitle>{t("advancedAnalyticsDashboard")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-center py-12">
             <BarChart3 className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-medium text-foreground mb-2">
-              Analytics Dashboard Coming Soon
+              {t("comingSoon")}
             </h3>
             <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-              The comprehensive analytics and insights dashboard will be
-              implemented in Phase 5, including charts, reports, and business
-              intelligence features.
+              {t("comingSoonDescription")}
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
               <div className="p-4 bg-muted/30 rounded-lg">
-                <h4 className="font-medium mb-2">Sales Analytics</h4>
+                <h4 className="font-medium mb-2">{t("salesAnalytics")}</h4>
                 <p className="text-sm text-muted-foreground">
-                  Revenue trends, conversion rates, and sales performance
+                  {t("salesAnalyticsDescription")}
                 </p>
               </div>
 
               <div className="p-4 bg-muted/30 rounded-lg">
-                <h4 className="font-medium mb-2">User Analytics</h4>
+                <h4 className="font-medium mb-2">{t("userAnalytics")}</h4>
                 <p className="text-sm text-muted-foreground">
-                  User behavior, engagement metrics, and retention data
+                  {t("userAnalyticsDescription")}
                 </p>
               </div>
 
               <div className="p-4 bg-muted/30 rounded-lg">
-                <h4 className="font-medium mb-2">Inventory Analytics</h4>
+                <h4 className="font-medium mb-2">{t("inventoryAnalytics")}</h4>
                 <p className="text-sm text-muted-foreground">
-                  Stock levels, turnover rates, and inventory optimization
+                  {t("inventoryAnalyticsDescription")}
                 </p>
               </div>
             </div>

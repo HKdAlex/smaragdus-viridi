@@ -5,9 +5,11 @@ import cart from './cart.json'
 import catalog from './catalog.json'
 import common from './common.json'
 import errors from './errors.json'
+import filters from './filters.json'
 import footer from './footer.json'
 import forms from './forms.json'
 import gemstones from './gemstones.json'
+import home from './home.json'
 import navigation from './navigation.json'
 
 export const ru = {
@@ -20,7 +22,9 @@ export const ru = {
   footer,
   forms,
   errors,
-  gemstones
+  filters,
+  gemstones,
+  home
 }
 
 export default ru

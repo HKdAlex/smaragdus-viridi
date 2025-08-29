@@ -24,6 +24,7 @@ import { Button } from "@/shared/components/ui/button";
 import type { DatabaseGemstone } from "@/shared/types";
 import { Separator } from "@/shared/components/ui/separator";
 import { formatPrice } from "@/shared/utils/formatters";
+import { useTranslations } from "next-intl";
 
 interface GemstoneDetailViewProps {
   gemstone: DatabaseGemstone;
@@ -36,6 +37,7 @@ export function GemstoneDetailView({
   isOpen,
   onClose,
 }: GemstoneDetailViewProps) {
+  const t = useTranslations("admin.gemstoneDetail");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -59,10 +61,13 @@ export function GemstoneDetailView({
 
   const formatDimensions = () => {
     const dims = [];
-    if (gemstone.length_mm) dims.push(`${gemstone.length_mm}mm L`);
-    if (gemstone.width_mm) dims.push(`${gemstone.width_mm}mm W`);
-    if (gemstone.depth_mm) dims.push(`${gemstone.depth_mm}mm D`);
-    return dims.length > 0 ? dims.join(" × ") : "Not specified";
+    if (gemstone.length_mm)
+      dims.push(t("dimensions_length", { length: gemstone.length_mm }));
+    if (gemstone.width_mm)
+      dims.push(t("dimensions_width", { width: gemstone.width_mm }));
+    if (gemstone.depth_mm)
+      dims.push(t("dimensions_depth", { depth: gemstone.depth_mm }));
+    return dims.length > 0 ? dims.join(" × ") : t("notSpecified");
   };
 
   const getStockStatusColor = (inStock: boolean | null) => {
@@ -72,7 +77,7 @@ export function GemstoneDetailView({
   };
 
   const getStockStatusText = (inStock: boolean | null) => {
-    return inStock ?? false ? "In Stock" : "Out of Stock";
+    return inStock ?? false ? t("inStock") : t("outOfStock");
   };
 
   return (
@@ -82,9 +87,7 @@ export function GemstoneDetailView({
         <div className="flex items-center justify-between p-6 border-b">
           <div className="flex items-center gap-3">
             <Eye className="w-6 h-6 text-blue-600" />
-            <h2 className="text-2xl font-bold text-gray-900">
-              Gemstone Details
-            </h2>
+            <h2 className="text-2xl font-bold text-gray-900">{t("title")}</h2>
           </div>
           <Button variant="ghost" size="sm" onClick={onClose}>
             <X className="w-5 h-5" />
@@ -99,14 +102,14 @@ export function GemstoneDetailView({
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Gem className="w-5 h-5" />
-                  Basic Information
+                  {t("basicInformation")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium text-gray-600">
-                      Serial Number
+                      {t("serialNumber")}
                     </label>
                     <p className="text-lg font-semibold text-blue-600">
                       {gemstone.serial_number}
@@ -114,21 +117,21 @@ export function GemstoneDetailView({
                   </div>
                   <div>
                     <label className="text-sm font-medium text-gray-600">
-                      Internal Code
+                      {t("internalCode")}
                     </label>
                     <p className="text-lg font-semibold">
-                      {gemstone.internal_code || "Not set"}
+                      {gemstone.internal_code || t("notSet")}
                     </p>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-gray-600">
-                      Gemstone Type
+                      {t("gemstoneType")}
                     </label>
                     <p className="text-lg capitalize">{gemstone.name}</p>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-gray-600">
-                      Stock Status
+                      {t("stockStatus")}
                     </label>
                     <Badge className={getStockStatusColor(gemstone.in_stock)}>
                       {getStockStatusText(gemstone.in_stock)}
@@ -143,7 +146,7 @@ export function GemstoneDetailView({
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Info className="w-5 h-5" />
-                  Gemstone Properties
+                  {t("gemstoneProperties")}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -152,25 +155,25 @@ export function GemstoneDetailView({
                     <div className="text-2xl font-bold text-blue-600">
                       {gemstone.color}
                     </div>
-                    <div className="text-sm text-gray-600">Color</div>
+                    <div className="text-sm text-gray-600">{t("color")}</div>
                   </div>
                   <div className="text-center p-4 bg-gray-50 rounded-lg">
                     <div className="text-2xl font-bold text-blue-600">
                       {gemstone.cut}
                     </div>
-                    <div className="text-sm text-gray-600">Cut</div>
+                    <div className="text-sm text-gray-600">{t("cut")}</div>
                   </div>
                   <div className="text-center p-4 bg-gray-50 rounded-lg">
                     <div className="text-2xl font-bold text-blue-600">
                       {gemstone.clarity}
                     </div>
-                    <div className="text-sm text-gray-600">Clarity</div>
+                    <div className="text-sm text-gray-600">{t("clarity")}</div>
                   </div>
                   <div className="text-center p-4 bg-gray-50 rounded-lg">
                     <div className="text-2xl font-bold text-blue-600">
                       {gemstone.weight_carats}ct
                     </div>
-                    <div className="text-sm text-gray-600">Weight</div>
+                    <div className="text-sm text-gray-600">{t("weight")}</div>
                   </div>
                 </div>
 
@@ -179,7 +182,7 @@ export function GemstoneDetailView({
                 <div>
                   <label className="text-sm font-medium text-gray-600 flex items-center gap-2">
                     <Ruler className="w-4 h-4" />
-                    Dimensions
+                    {t("dimensions")}
                   </label>
                   <p className="text-lg">{formatDimensions()}</p>
                 </div>
@@ -191,14 +194,14 @@ export function GemstoneDetailView({
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <DollarSign className="w-5 h-5" />
-                  Pricing Information
+                  {t("pricingInformation")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium text-gray-600">
-                      Regular Price
+                      {t("regularPrice")}
                     </label>
                     <p className="text-2xl font-bold text-green-600">
                       {formatPrice(
@@ -210,7 +213,7 @@ export function GemstoneDetailView({
                   {gemstone.premium_price_amount && (
                     <div>
                       <label className="text-sm font-medium text-gray-600">
-                        Premium Price
+                        {t("premiumPrice")}
                       </label>
                       <p className="text-2xl font-bold text-purple-600">
                         {formatPrice(
@@ -227,10 +230,10 @@ export function GemstoneDetailView({
                   <div>
                     <label className="text-sm font-medium text-gray-600 flex items-center gap-2">
                       <Package className="w-4 h-4" />
-                      Delivery Time
+                      {t("deliveryTime")}
                     </label>
                     <p className="text-lg">
-                      {gemstone.delivery_days} business days
+                      {t("businessDays", { days: gemstone.delivery_days })}
                     </p>
                   </div>
                 )}
@@ -243,7 +246,7 @@ export function GemstoneDetailView({
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Tag className="w-5 h-5" />
-                    Description
+                    {t("description")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -259,24 +262,26 @@ export function GemstoneDetailView({
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Calendar className="w-5 h-5" />
-                  Record Information
+                  {t("recordInformation")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Created:</span>
+                  <span className="text-sm text-gray-600">{t("created")}:</span>
                   <span className="text-sm">
                     {gemstone.created_at
                       ? formatDate(gemstone.created_at)
-                      : "Unknown"}
+                      : t("unknown")}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Last Updated:</span>
+                  <span className="text-sm text-gray-600">
+                    {t("lastUpdated")}:
+                  </span>
                   <span className="text-sm">
                     {gemstone.updated_at
                       ? formatDate(gemstone.updated_at)
-                      : "Unknown"}
+                      : t("unknown")}
                   </span>
                 </div>
               </CardContent>
@@ -287,7 +292,7 @@ export function GemstoneDetailView({
         {/* Footer */}
         <div className="flex justify-end gap-3 p-6 border-t bg-gray-50">
           <Button variant="outline" onClick={onClose}>
-            Close
+            {t("close")}
           </Button>
         </div>
       </div>

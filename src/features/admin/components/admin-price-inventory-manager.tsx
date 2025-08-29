@@ -19,10 +19,12 @@ import { Button } from "@/shared/components/ui/button";
 import { InventoryManagementDashboard } from "./inventory-management-dashboard";
 import { PriceAnalyticsDashboard } from "./price-analytics-dashboard";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 type ViewMode = "overview" | "pricing" | "inventory";
 
 export function AdminPriceInventoryManager() {
+  const t = useTranslations("admin.priceInventoryManager");
   const [viewMode, setViewMode] = useState<ViewMode>("overview");
 
   if (viewMode === "pricing") {
@@ -30,10 +32,10 @@ export function AdminPriceInventoryManager() {
       <div className="space-y-6">
         <div className="flex items-center gap-4">
           <Button variant="outline" onClick={() => setViewMode("overview")}>
-            ← Back to Overview
+            ← {t("backToOverview")}
           </Button>
           <h2 className="text-3xl font-bold text-foreground">
-            Price Analytics
+            {t("priceAnalytics")}
           </h2>
         </div>
         <PriceAnalyticsDashboard />
@@ -46,10 +48,10 @@ export function AdminPriceInventoryManager() {
       <div className="space-y-6">
         <div className="flex items-center gap-4">
           <Button variant="outline" onClick={() => setViewMode("overview")}>
-            ← Back to Overview
+            ← {t("backToOverview")}
           </Button>
           <h2 className="text-3xl font-bold text-foreground">
-            Inventory Management
+            {t("inventoryManagement")}
           </h2>
         </div>
         <InventoryManagementDashboard />
@@ -61,12 +63,8 @@ export function AdminPriceInventoryManager() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold text-foreground">
-            Price & Inventory Management
-          </h2>
-          <p className="text-muted-foreground">
-            Comprehensive pricing analytics and inventory control
-          </p>
+          <h2 className="text-3xl font-bold text-foreground">{t("title")}</h2>
+          <p className="text-muted-foreground">{t("description")}</p>
         </div>
       </div>
 
@@ -83,10 +81,10 @@ export function AdminPriceInventoryManager() {
               </div>
               <div className="flex-1">
                 <h3 className="font-semibold text-blue-900 dark:text-blue-100">
-                  Price Analytics
+                  {t("priceAnalytics")}
                 </h3>
                 <p className="text-sm text-blue-700 dark:text-blue-300">
-                  View pricing insights, distribution, and trends
+                  {t("priceAnalyticsDescription")}
                 </p>
               </div>
               <TrendingUp className="w-5 h-5 text-blue-600 dark:text-blue-400" />
@@ -105,10 +103,10 @@ export function AdminPriceInventoryManager() {
               </div>
               <div className="flex-1">
                 <h3 className="font-semibold text-green-900 dark:text-green-100">
-                  Inventory Control
+                  {t("inventoryControl")}
                 </h3>
                 <p className="text-sm text-green-700 dark:text-green-300">
-                  Manage stock levels and track inventory
+                  {t("inventoryControlDescription")}
                 </p>
               </div>
               <Settings className="w-5 h-5 text-green-600 dark:text-green-400" />
@@ -124,10 +122,10 @@ export function AdminPriceInventoryManager() {
               </div>
               <div className="flex-1">
                 <h3 className="font-semibold text-purple-900 dark:text-purple-100">
-                  Bulk Operations
+                  {t("bulkOperations")}
                 </h3>
                 <p className="text-sm text-purple-700 dark:text-purple-300">
-                  Update prices and inventory for multiple items
+                  {t("bulkOperationsDescription")}
                 </p>
               </div>
               <AlertTriangle className="w-5 h-5 text-purple-600 dark:text-purple-400" />
@@ -143,32 +141,32 @@ export function AdminPriceInventoryManager() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <DollarSign className="w-5 h-5" />
-              Price Overview
+              {t("priceOverview")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
                 <span className="text-sm text-muted-foreground">
-                  Average Price
+                  {t("averagePrice")}
                 </span>
                 <span className="font-medium">$2,450</span>
               </div>
               <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
                 <span className="text-sm text-muted-foreground">
-                  Price Range
+                  {t("priceRange")}
                 </span>
                 <span className="font-medium">$150 - $45,000</span>
               </div>
               <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
                 <span className="text-sm text-muted-foreground">
-                  Active Currencies
+                  {t("activeCurrencies")}
                 </span>
                 <span className="font-medium">USD, EUR, GBP</span>
               </div>
               <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
                 <span className="text-sm text-muted-foreground">
-                  Recent Changes
+                  {t("recentChanges")}
                 </span>
                 <span className="font-medium">12 this week</span>
               </div>
@@ -178,7 +176,7 @@ export function AdminPriceInventoryManager() {
               onClick={() => setViewMode("pricing")}
             >
               <BarChart3 className="w-4 h-4 mr-2" />
-              View Detailed Analytics
+              {t("viewDetailedAnalytics")}
             </Button>
           </CardContent>
         </Card>
@@ -188,20 +186,20 @@ export function AdminPriceInventoryManager() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Package className="w-5 h-5" />
-              Inventory Overview
+              {t("inventoryOverview")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
                 <span className="text-sm text-muted-foreground">
-                  Total Items
+                  {t("totalItems")}
                 </span>
                 <span className="font-medium">1,247</span>
               </div>
               <div className="flex items-center justify-between p-3 rounded-lg bg-green-50 dark:bg-green-950/30">
                 <span className="text-sm text-green-700 dark:text-green-300">
-                  In Stock
+                  {t("inStock")}
                 </span>
                 <span className="font-medium text-green-700 dark:text-green-300">
                   1,189
@@ -209,7 +207,7 @@ export function AdminPriceInventoryManager() {
               </div>
               <div className="flex items-center justify-between p-3 rounded-lg bg-red-50 dark:bg-red-950/30">
                 <span className="text-sm text-red-700 dark:text-red-300">
-                  Out of Stock
+                  {t("outOfStock")}
                 </span>
                 <span className="font-medium text-red-700 dark:text-red-300">
                   58
@@ -217,7 +215,7 @@ export function AdminPriceInventoryManager() {
               </div>
               <div className="flex items-center justify-between p-3 rounded-lg bg-yellow-50 dark:bg-yellow-950/30">
                 <span className="text-sm text-yellow-700 dark:text-yellow-300">
-                  Low Stock Alert
+                  {t("lowStockAlert")}
                 </span>
                 <span className="font-medium text-yellow-700 dark:text-yellow-300">
                   12
@@ -230,7 +228,7 @@ export function AdminPriceInventoryManager() {
               onClick={() => setViewMode("inventory")}
             >
               <Package className="w-4 h-4 mr-2" />
-              Manage Inventory
+              {t("manageInventory")}
             </Button>
           </CardContent>
         </Card>
@@ -239,7 +237,7 @@ export function AdminPriceInventoryManager() {
       {/* Quick Actions */}
       <Card className="border-0 shadow-lg bg-gradient-to-br from-card to-muted/20">
         <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
+          <CardTitle>{t("quickActions")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -248,28 +246,28 @@ export function AdminPriceInventoryManager() {
               className="h-20 flex flex-col items-center gap-2"
             >
               <TrendingUp className="w-6 h-6" />
-              <span className="text-sm">Price Analysis</span>
+              <span className="text-sm">{t("priceAnalysis")}</span>
             </Button>
             <Button
               variant="outline"
               className="h-20 flex flex-col items-center gap-2"
             >
               <Package className="w-6 h-6" />
-              <span className="text-sm">Stock Update</span>
+              <span className="text-sm">{t("stockUpdate")}</span>
             </Button>
             <Button
               variant="outline"
               className="h-20 flex flex-col items-center gap-2"
             >
               <AlertTriangle className="w-6 h-6" />
-              <span className="text-sm">View Alerts</span>
+              <span className="text-sm">{t("viewAlerts")}</span>
             </Button>
             <Button
               variant="outline"
               className="h-20 flex flex-col items-center gap-2"
             >
               <Settings className="w-6 h-6" />
-              <span className="text-sm">Bulk Operations</span>
+              <span className="text-sm">{t("bulkOperations")}</span>
             </Button>
           </div>
         </CardContent>
@@ -278,7 +276,7 @@ export function AdminPriceInventoryManager() {
       {/* Recent Activity */}
       <Card className="border-0 shadow-lg bg-gradient-to-br from-card to-muted/20">
         <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
+          <CardTitle>{t("recentActivity")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">

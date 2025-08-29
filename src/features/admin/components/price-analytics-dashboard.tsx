@@ -17,6 +17,7 @@ import {
   RefreshCw,
   TrendingUp,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import {
   PriceManagementService,
@@ -24,6 +25,7 @@ import {
 } from "../services/price-management-service";
 
 export function PriceAnalyticsDashboard() {
+  const t = useTranslations("admin.priceAnalytics");
   const [analytics, setAnalytics] = useState<PriceAnalytics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -111,10 +113,8 @@ export function PriceAnalyticsDashboard() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-3xl font-bold text-foreground">
-              Price Analytics
-            </h2>
-            <p className="text-muted-foreground">Loading price analytics...</p>
+            <h2 className="text-3xl font-bold text-foreground">{t("title")}</h2>
+            <p className="text-muted-foreground">{t("loading")}</p>
           </div>
         </div>
 
@@ -142,10 +142,8 @@ export function PriceAnalyticsDashboard() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-3xl font-bold text-foreground">
-              Price Analytics
-            </h2>
-            <p className="text-muted-foreground">Error loading analytics</p>
+            <h2 className="text-3xl font-bold text-foreground">{t("title")}</h2>
+            <p className="text-muted-foreground">{t("errorLoading")}</p>
           </div>
         </div>
 
@@ -155,12 +153,12 @@ export function PriceAnalyticsDashboard() {
               <AlertTriangle className="w-6 h-6 text-red-600" />
               <div>
                 <h3 className="font-medium text-red-900 dark:text-red-100">
-                  Error Loading Analytics
+                  {t("errorLoadingTitle")}
                 </h3>
                 <p className="text-red-800 dark:text-red-200">{error}</p>
                 <Button onClick={loadAnalytics} className="mt-3">
                   <RefreshCw className="w-4 h-4 mr-2" />
-                  Retry
+                  {t("retry")}
                 </Button>
               </div>
             </div>
@@ -175,10 +173,8 @@ export function PriceAnalyticsDashboard() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-3xl font-bold text-foreground">
-              Price Analytics
-            </h2>
-            <p className="text-muted-foreground">No pricing data available</p>
+            <h2 className="text-3xl font-bold text-foreground">{t("title")}</h2>
+            <p className="text-muted-foreground">{t("noDataAvailable")}</p>
           </div>
         </div>
 
@@ -186,11 +182,10 @@ export function PriceAnalyticsDashboard() {
           <CardContent className="p-12 text-center">
             <DollarSign className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-medium text-foreground mb-2">
-              No Pricing Data
+              {t("noPricingData")}
             </h3>
             <p className="text-muted-foreground mb-6">
-              Add gemstones with pricing information to see analytics and
-              insights.
+              {t("noPricingDataDescription")}
             </p>
           </CardContent>
         </Card>
@@ -202,17 +197,13 @@ export function PriceAnalyticsDashboard() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold text-foreground">
-            Price Analytics
-          </h2>
-          <p className="text-muted-foreground">
-            Comprehensive pricing insights and bulk price management
-          </p>
+          <h2 className="text-3xl font-bold text-foreground">{t("title")}</h2>
+          <p className="text-muted-foreground">{t("description")}</p>
         </div>
 
         <Button onClick={loadAnalytics} variant="outline">
           <RefreshCw className="w-4 h-4 mr-2" />
-          Refresh
+          {t("refresh")}
         </Button>
       </div>
 
@@ -229,7 +220,7 @@ export function PriceAnalyticsDashboard() {
                   {formatPrice(analytics.averagePrice)}
                 </p>
                 <p className="text-sm text-blue-700 dark:text-blue-300">
-                  Average Price
+                  {t("averagePrice")}
                 </p>
               </div>
             </div>
@@ -247,7 +238,7 @@ export function PriceAnalyticsDashboard() {
                   {formatPrice(analytics.priceRange.max)}
                 </p>
                 <p className="text-sm text-green-700 dark:text-green-300">
-                  Highest Price
+                  {t("highestPrice")}
                 </p>
               </div>
             </div>
@@ -265,7 +256,7 @@ export function PriceAnalyticsDashboard() {
                   {analytics.currencyBreakdown.length}
                 </p>
                 <p className="text-sm text-purple-700 dark:text-purple-300">
-                  Currencies
+                  {t("currencies")}
                 </p>
               </div>
             </div>
@@ -283,7 +274,7 @@ export function PriceAnalyticsDashboard() {
                   {analytics.recentChanges.length}
                 </p>
                 <p className="text-sm text-orange-700 dark:text-orange-300">
-                  Recent Changes
+                  {t("recentChanges")}
                 </p>
               </div>
             </div>
@@ -391,7 +382,7 @@ export function PriceAnalyticsDashboard() {
                     Gemstone {change.gemstone_id.slice(0, 8)}
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    {change.reason || "Price updated"}
+                    {change.reason || t("priceUpdated")}
                   </div>
                 </div>
                 <div className="text-right">
@@ -407,7 +398,7 @@ export function PriceAnalyticsDashboard() {
             ))}
             {analytics.recentChanges.length === 0 && (
               <div className="text-center py-6 text-muted-foreground">
-                No recent price changes
+                {t("noRecentPriceChanges")}
               </div>
             )}
           </div>
@@ -419,14 +410,14 @@ export function PriceAnalyticsDashboard() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Percent className="w-5 h-5" />
-            Bulk Price Update
+            {t("bulkPriceUpdate")}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div className="space-y-2">
               <label className="text-sm font-medium">
-                Percentage Increase (%)
+                {t("percentageIncrease")}
               </label>
               <Input
                 type="number"
@@ -442,7 +433,7 @@ export function PriceAnalyticsDashboard() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Fixed Amount ($)</label>
+              <label className="text-sm font-medium">{t("fixedAmount")}</label>
               <Input
                 type="number"
                 placeholder="500"
@@ -457,9 +448,9 @@ export function PriceAnalyticsDashboard() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Reason</label>
+              <label className="text-sm font-medium">{t("reason")}</label>
               <Input
-                placeholder="Market adjustment"
+                placeholder={t("marketAdjustmentPlaceholder")}
                 value={bulkUpdate.reason}
                 onChange={(e) =>
                   setBulkUpdate((prev) => ({ ...prev, reason: e.target.value }))
@@ -474,11 +465,11 @@ export function PriceAnalyticsDashboard() {
               disabled={!bulkUpdate.reason.trim()}
             >
               <Percent className="w-4 h-4 mr-2" />
-              Apply Bulk Update
+              {t("applyBulkUpdate")}
             </Button>
 
             <div className="text-sm text-muted-foreground">
-              This will update the 5 most recently modified gemstones
+              {t("bulkUpdateDescription")}
             </div>
           </div>
         </CardContent>

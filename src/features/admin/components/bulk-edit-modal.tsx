@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/shared/components/ui/select";
 import { AlertTriangle, CheckCircle, Edit, Loader2, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/shared/components/ui/button";
@@ -68,6 +69,7 @@ export function BulkEditModal({
   selectedGemstones,
   onSuccess,
 }: BulkEditModalProps) {
+  const t = useTranslations("admin.bulkEdit");
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState<
     "select" | "confirm" | "processing" | "results"
@@ -111,7 +113,7 @@ export function BulkEditModal({
 
       setSelectedGemstonesData(gemstones);
     } catch (error) {
-      console.error("Failed to load selected gemstones:", error);
+      console.error(t("errors.loadFailed"), error);
     }
   };
 
@@ -209,7 +211,10 @@ export function BulkEditModal({
             } else {
               failedCount++;
               errors.push(
-                `Failed to update ${gemstone.serial_number}: ${result.error}`
+                t("errors.updateFailed", {
+                  serialNumber: gemstone.serial_number,
+                  error: result.error || "Unknown error",
+                })
               );
             }
           } else {
@@ -217,7 +222,12 @@ export function BulkEditModal({
           }
         } catch (error) {
           failedCount++;
-          errors.push(`Error updating ${gemstone.serial_number}: ${error}`);
+          errors.push(
+            t("errors.updateError", {
+              serialNumber: gemstone.serial_number,
+              error: String(error),
+            })
+          );
         }
       }
 
@@ -232,7 +242,7 @@ export function BulkEditModal({
       setResults({
         success: 0,
         failed: selectedGemstonesData.length,
-        errors: ["System error occurred during bulk update"],
+        errors: [t("errors.systemError")],
       });
       setStep("results");
     } finally {
@@ -267,9 +277,7 @@ export function BulkEditModal({
       <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b">
-          <h2 className="text-2xl font-bold text-gray-900">
-            Bulk Edit Gemstones
-          </h2>
+          <h2 className="text-2xl font-bold text-gray-900">{t("title")}</h2>
           <button
             onClick={handleClose}
             className="text-gray-400 hover:text-gray-600"
@@ -288,10 +296,12 @@ export function BulkEditModal({
                   <Edit className="w-6 h-6 text-blue-600" />
                   <div>
                     <h3 className="font-medium text-blue-900">
-                      {selectedGemstonesData.length} Gemstones Selected
+                      {t("selectedCount", {
+                        count: selectedGemstonesData.length,
+                      })}
                     </h3>
                     <p className="text-sm text-blue-700">
-                      Choose which fields to update for all selected gemstones
+                      {t("selectionDescription")}
                     </p>
                   </div>
                 </div>
@@ -312,7 +322,9 @@ export function BulkEditModal({
                           }))
                         }
                       />
-                      <CardTitle className="text-lg">Update Price</CardTitle>
+                      <CardTitle className="text-lg">
+                        {t("updatePrice")}
+                      </CardTitle>
                     </div>
                   </CardHeader>
                   {bulkEditData.updatePrice && (
@@ -320,7 +332,7 @@ export function BulkEditModal({
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium mb-1">
-                            Price Amount (USD)
+                            {t("priceAmount")}
                           </label>
                           <Input
                             type="number"
@@ -336,14 +348,17 @@ export function BulkEditModal({
                           />
                           {bulkEditData.priceAmount && (
                             <p className="text-xs text-gray-600 mt-1">
-                              Will set to{" "}
-                              {formatCurrency(bulkEditData.priceAmount)}
+                              {t("willSetTo", {
+                                amount: formatCurrency(
+                                  bulkEditData.priceAmount
+                                ),
+                              })}
                             </p>
                           )}
                         </div>
                         <div>
                           <label className="block text-sm font-medium mb-1">
-                            Currency
+                            {t("currency")}
                           </label>
                           <Select
                             value={bulkEditData.priceCurrency || "USD"}
@@ -369,7 +384,7 @@ export function BulkEditModal({
                         </div>
                         <div>
                           <label className="block text-sm font-medium mb-1">
-                            Premium Currency (Optional)
+                            {t("premiumCurrency")}
                           </label>
                           <Select
                             value={bulkEditData.premium_price_currency || ""}
@@ -381,10 +396,12 @@ export function BulkEditModal({
                             }
                           >
                             <SelectTrigger>
-                              <SelectValue placeholder="Same as regular" />
+                              <SelectValue placeholder={t("sameAsRegular")} />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="">Same as regular</SelectItem>
+                              <SelectItem value="">
+                                {t("sameAsRegular")}
+                              </SelectItem>
                               <SelectItem value="USD">USD</SelectItem>
                               <SelectItem value="EUR">EUR</SelectItem>
                               <SelectItem value="GBP">GBP</SelectItem>
@@ -413,7 +430,7 @@ export function BulkEditModal({
                         }
                       />
                       <CardTitle className="text-lg">
-                        Update Stock Status
+                        {t("updateStockStatus")}
                       </CardTitle>
                     </div>
                   </CardHeader>
@@ -422,7 +439,7 @@ export function BulkEditModal({
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium mb-1">
-                            Stock Status
+                            {t("stockStatus")}
                           </label>
                           <Select
                             value={bulkEditData.inStock?.toString() || "true"}
@@ -437,16 +454,18 @@ export function BulkEditModal({
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="true">In Stock</SelectItem>
+                              <SelectItem value="true">
+                                {t("inStock")}
+                              </SelectItem>
                               <SelectItem value="false">
-                                Out of Stock
+                                {t("outOfStock")}
                               </SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
                         <div>
                           <label className="block text-sm font-medium mb-1">
-                            Delivery Days
+                            {t("deliveryDays")}
                           </label>
                           <Input
                             type="number"
@@ -480,14 +499,14 @@ export function BulkEditModal({
                         }
                       />
                       <CardTitle className="text-lg">
-                        Update Description
+                        {t("updateDescription")}
                       </CardTitle>
                     </div>
                   </CardHeader>
                   {bulkEditData.updateDescription && (
                     <CardContent>
                       <Textarea
-                        placeholder="Enter new description..."
+                        placeholder={t("descriptionPlaceholder")}
                         value={bulkEditData.description || ""}
                         onChange={(e) =>
                           setBulkEditData((prev) => ({
@@ -515,14 +534,14 @@ export function BulkEditModal({
                         }
                       />
                       <CardTitle className="text-lg">
-                        Update Promotional Text
+                        {t("updatePromotionalText")}
                       </CardTitle>
                     </div>
                   </CardHeader>
                   {bulkEditData.updatePromotionalText && (
                     <CardContent>
                       <Textarea
-                        placeholder="Enter promotional text..."
+                        placeholder={t("promotionalTextPlaceholder")}
                         value={bulkEditData.promotionalText || ""}
                         onChange={(e) =>
                           setBulkEditData((prev) => ({
@@ -550,14 +569,14 @@ export function BulkEditModal({
                         }
                       />
                       <CardTitle className="text-lg">
-                        Update Internal Code
+                        {t("updateInternalCode")}
                       </CardTitle>
                     </div>
                   </CardHeader>
                   {bulkEditData.updateInternalCode && (
                     <CardContent>
                       <Input
-                        placeholder="Enter internal code..."
+                        placeholder={t("internalCodePlaceholder")}
                         value={bulkEditData.internalCode || ""}
                         onChange={(e) =>
                           setBulkEditData((prev) => ({
@@ -574,13 +593,13 @@ export function BulkEditModal({
               {/* Action Buttons */}
               <div className="flex justify-end gap-3 pt-6 border-t">
                 <Button variant="outline" onClick={handleClose}>
-                  Cancel
+                  {t("cancel")}
                 </Button>
                 <Button
                   onClick={() => setStep("confirm")}
                   disabled={getSelectedFieldsCount() === 0}
                 >
-                  Review Changes
+                  {t("reviewChanges")}
                 </Button>
               </div>
             </div>
@@ -591,23 +610,24 @@ export function BulkEditModal({
               <div className="text-center">
                 <AlertTriangle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  Confirm Bulk Update
+                  {t("confirmBulkUpdate")}
                 </h3>
                 <p className="text-gray-600 mb-6">
-                  You are about to update {selectedGemstonesData.length}{" "}
-                  gemstones. This action cannot be undone.
+                  {t("confirmBulkUpdateDescription", {
+                    count: selectedGemstonesData.length,
+                  })}
                 </p>
               </div>
 
               {/* Changes Summary */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Changes to Apply</CardTitle>
+                  <CardTitle>{t("changesToApply")}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {bulkEditData.updatePrice && (
                     <div className="flex justify-between items-center p-2 bg-blue-50 rounded">
-                      <span className="font-medium">Price:</span>
+                      <span className="font-medium">{t("price")}:</span>
                       <span>
                         {formatCurrency(bulkEditData.priceAmount!)} (
                         {bulkEditData.priceCurrency})
@@ -617,18 +637,20 @@ export function BulkEditModal({
 
                   {bulkEditData.updateStock && (
                     <div className="flex justify-between items-center p-2 bg-green-50 rounded">
-                      <span className="font-medium">Stock Status:</span>
+                      <span className="font-medium">{t("stockStatus")}:</span>
                       <span>
-                        {bulkEditData.inStock ? "In Stock" : "Out of Stock"}
+                        {bulkEditData.inStock ? t("inStock") : t("outOfStock")}
                         {bulkEditData.deliveryDays &&
-                          ` (${bulkEditData.deliveryDays} days)`}
+                          ` (${bulkEditData.deliveryDays} ${t("days")})`}
                       </span>
                     </div>
                   )}
 
                   {bulkEditData.updateDescription && (
                     <div className="p-2 bg-purple-50 rounded">
-                      <div className="font-medium mb-1">Description:</div>
+                      <div className="font-medium mb-1">
+                        {t("description")}:
+                      </div>
                       <div className="text-sm text-gray-600">
                         {bulkEditData.description}
                       </div>
@@ -637,7 +659,9 @@ export function BulkEditModal({
 
                   {bulkEditData.updatePromotionalText && (
                     <div className="p-2 bg-orange-50 rounded">
-                      <div className="font-medium mb-1">Promotional Text:</div>
+                      <div className="font-medium mb-1">
+                        {t("promotionalText")}:
+                      </div>
                       <div className="text-sm text-gray-600">
                         {bulkEditData.promotionalText}
                       </div>
@@ -646,7 +670,7 @@ export function BulkEditModal({
 
                   {bulkEditData.updateInternalCode && (
                     <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                      <span className="font-medium">Internal Code:</span>
+                      <span className="font-medium">{t("internalCode")}:</span>
                       <span>{bulkEditData.internalCode}</span>
                     </div>
                   )}
@@ -655,7 +679,7 @@ export function BulkEditModal({
 
               <div className="flex justify-end gap-3">
                 <Button variant="outline" onClick={() => setStep("select")}>
-                  Back
+                  {t("back")}
                 </Button>
                 <Button onClick={handleBulkUpdate} disabled={loading}>
                   {loading ? (
@@ -663,7 +687,9 @@ export function BulkEditModal({
                   ) : (
                     <Edit className="w-4 h-4 mr-2" />
                   )}
-                  Apply Changes to {selectedGemstonesData.length} Gemstones
+                  {t("applyChangesToGemstones", {
+                    count: selectedGemstonesData.length,
+                  })}
                 </Button>
               </div>
             </div>
@@ -673,10 +699,12 @@ export function BulkEditModal({
             <div className="text-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-6"></div>
               <h3 className="text-lg font-medium text-gray-900 mb-2">
-                Updating Gemstones...
+                {t("updatingGemstones")}
               </h3>
               <p className="text-gray-600">
-                Processing {selectedGemstonesData.length} gemstones
+                {t("processingGemstones", {
+                  count: selectedGemstonesData.length,
+                })}
               </p>
             </div>
           )}
@@ -690,11 +718,13 @@ export function BulkEditModal({
                   <AlertTriangle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
                 )}
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  Bulk Update Complete
+                  {t("bulkUpdateComplete")}
                 </h3>
                 <p className="text-gray-600">
-                  {results.success} updated successfully, {results.failed}{" "}
-                  failed
+                  {t("bulkUpdateResults", {
+                    success: results.success,
+                    failed: results.failed,
+                  })}
                 </p>
               </div>
 
@@ -706,7 +736,7 @@ export function BulkEditModal({
                     <div className="text-2xl font-bold text-green-900">
                       {results.success}
                     </div>
-                    <div className="text-sm text-green-700">Updated</div>
+                    <div className="text-sm text-green-700">{t("updated")}</div>
                   </CardContent>
                 </Card>
 
@@ -716,7 +746,7 @@ export function BulkEditModal({
                     <div className="text-2xl font-bold text-red-900">
                       {results.failed}
                     </div>
-                    <div className="text-sm text-red-700">Failed</div>
+                    <div className="text-sm text-red-700">{t("failed")}</div>
                   </CardContent>
                 </Card>
               </div>
@@ -726,7 +756,7 @@ export function BulkEditModal({
                 <Card className="border-red-200 bg-red-50">
                   <CardHeader>
                     <CardTitle className="text-red-900">
-                      Update Errors
+                      {t("updateErrors")}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -743,11 +773,11 @@ export function BulkEditModal({
 
               <div className="flex justify-end gap-3">
                 <Button variant="outline" onClick={handleClose}>
-                  Close
+                  {t("close")}
                 </Button>
                 {results.success > 0 && (
                   <Button onClick={() => window.location.reload()}>
-                    View Updated List
+                    {t("viewUpdatedList")}
                   </Button>
                 )}
               </div>

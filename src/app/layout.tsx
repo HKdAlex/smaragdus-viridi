@@ -3,8 +3,6 @@ import "./globals.css";
 import { Geist, Geist_Mono } from "next/font/google";
 
 import { AuthProvider } from "@/features/auth/context/auth-context";
-import { Footer } from "@/shared/components/layout/footer";
-import { MainNav } from "@/shared/components/navigation/main-nav";
 import type { Metadata } from "next";
 import { ThemeProvider } from "@/shared/context/theme-context";
 
@@ -68,7 +66,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html suppressHydrationWarning>
       <head>
         <meta name="theme-color" content="#ffffff" />
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
@@ -78,13 +76,7 @@ export default async function RootLayout({
         suppressHydrationWarning
       >
         <ThemeProvider>
-          <AuthProvider>
-            <div className="flex flex-col min-h-screen">
-              <MainNav />
-              <main className="flex-1">{children}</main>
-              <Footer />
-            </div>
-          </AuthProvider>
+          <AuthProvider>{children}</AuthProvider>
         </ThemeProvider>
       </body>
     </html>

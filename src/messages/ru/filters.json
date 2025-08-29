@@ -1,0 +1,31 @@
+{
+  "advanced": {
+    "title": "Расширенные фильтры",
+    "activeFilters": "{count} активно",
+    "resetAll": "Сбросить все",
+    "search": "Поиск",
+    "searchPlaceholder": "Поиск по серийному номеру или коду...",
+    "selectGemstoneTypes": "Выберите типы камней...",
+    "color": "Цвет",
+    "selectColors": "Выберите цвета...",
+    "cut": "Огранка",
+    "selectCuts": "Выберите огранки...",
+    "clarity": "Чистота",
+    "selectClarities": "Выберите чистоту...",
+    "origin": "Происхождение",
+    "selectOrigins": "Выберите происхождение...",
+    "priceRange": "Диапазон цен",
+    "caratWeight": "Вес в каратах",
+    "inStockOnly": "Только в наличии",
+    "hasCertification": "Есть сертификация",
+    "hasImages": "Есть изображения"
+  },
+  "advancedV2": {
+    "title": "Найдите свой идеальный камень",
+    "subtitle": "Используйте наши визуальные фильтры для поиска красивых камней",
+    "resetAll": "Сбросить все ({count})",
+    "searchPlaceholder": "Поиск по серийному номеру, типу или описанию...",
+    "filtersApplied": "{count} фильтр{count, plural, one {} other {ов}} применен{count, plural, one {} other {о}}",
+    "personalizedResults": "Показываем персонализированные результаты на основе ваших предпочтений"
+  }
+}

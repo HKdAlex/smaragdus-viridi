@@ -9,6 +9,7 @@ import { useCallback, useEffect } from "react";
 
 import { useAdvancedFilters } from "../../hooks/use-advanced-filters";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 // Visual Cut Shapes Component
 const CutShapeSelector = ({
@@ -589,6 +590,7 @@ export function AdvancedFiltersV2({
   className = "",
 }: AdvancedFiltersV2Props) {
   const pathname = usePathname();
+  const t = useTranslations("filters.advancedV2");
 
   const {
     filters,
@@ -632,10 +634,10 @@ export function AdvancedFiltersV2({
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-lg font-bold text-card-foreground">
-              Find Your Perfect Gemstone
+              {t("title")}
             </h2>
             <p className="text-sm text-muted-foreground mt-1">
-              Use our visual filters to discover beautiful gems
+              {t("subtitle")}
             </p>
           </div>
           {activeFilterCount > 0 && (
@@ -645,7 +647,7 @@ export function AdvancedFiltersV2({
             >
               <XMarkIcon className="w-4 h-4" />
               <span className="text-sm font-medium">
-                Reset All ({activeFilterCount})
+                {t("resetAll", { count: activeFilterCount })}
               </span>
             </button>
           )}
@@ -658,7 +660,7 @@ export function AdvancedFiltersV2({
           <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
           <input
             type="text"
-            placeholder="Search by serial number, type, or description..."
+            placeholder={t("searchPlaceholder")}
             value={filters.search || ""}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-12 pr-4 py-3 border border-border bg-background text-foreground rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-colors placeholder:text-muted-foreground"
@@ -738,11 +740,10 @@ export function AdvancedFiltersV2({
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-primary">
-                  {activeFilterCount} filter{activeFilterCount !== 1 ? "s" : ""}{" "}
-                  applied
+                  {t("filtersApplied", { count: activeFilterCount })}
                 </p>
                 <p className="text-xs text-primary/80 mt-1">
-                  Showing personalized results based on your preferences
+                  {t("personalizedResults")}
                 </p>
               </div>
               <div className="text-2xl">✨</div>

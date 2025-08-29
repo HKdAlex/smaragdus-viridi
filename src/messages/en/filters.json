@@ -1,0 +1,31 @@
+{
+  "advanced": {
+    "title": "Advanced Filters",
+    "activeFilters": "{count} active",
+    "resetAll": "Reset All",
+    "search": "Search",
+    "searchPlaceholder": "Search by serial number or code...",
+    "selectGemstoneTypes": "Select gemstone types...",
+    "color": "Color",
+    "selectColors": "Select colors...",
+    "cut": "Cut",
+    "selectCuts": "Select cuts...",
+    "clarity": "Clarity",
+    "selectClarities": "Select clarities...",
+    "origin": "Origin",
+    "selectOrigins": "Select origins...",
+    "priceRange": "Price Range",
+    "caratWeight": "Carat Weight",
+    "inStockOnly": "In Stock Only",
+    "hasCertification": "Has Certification",
+    "hasImages": "Has Images"
+  },
+  "advancedV2": {
+    "title": "Find Your Perfect Gemstone",
+    "subtitle": "Use our visual filters to discover beautiful gems",
+    "resetAll": "Reset All ({count})",
+    "searchPlaceholder": "Search by serial number, type, or description...",
+    "filtersApplied": "{count} filter{count, plural, one {} other {s}} applied",
+    "personalizedResults": "Showing personalized results based on your preferences"
+  }
+}

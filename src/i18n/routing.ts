@@ -19,6 +19,12 @@ export const routing = defineRouting({
     '/catalog': '/catalog',
     '/catalog/[id]': '/catalog/[id]',
     '/login': '/login',
-    '/signup': '/signup'
+    '/signup': '/signup',
+    '/admin': '/admin',
+    '/admin/dashboard': '/admin/dashboard',
+    '/admin/login': '/admin/login',
+    // Add any other dynamic routes your app uses
+    '/gemstones/[id]': '/gemstones/[id]',
+    '/products/[id]': '/products/[id]'
   }
 });

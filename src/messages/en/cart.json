@@ -1,11 +1,21 @@
 {
   "title": "Shopping Cart",
+  "continueShopping": "Continue Shopping",
   "empty": {
     "title": "Your cart is empty",
-    "subtitle": "Discover our beautiful gemstones",
+    "subtitle": "Add some beautiful gemstones to your cart and start building your collection.",
+    "browseGemstones": "Browse Gemstones",
+    "learnAboutGemstones": "Learn About Gemstones",
     "continueShopping": "Continue Shopping",
     "signInRequired": "Sign In Required",
-    "signInMessage": "Please sign in to view and manage your shopping cart"
+    "signInMessage": "Please sign in to view and manage your shopping cart",
+    "shoppingTips": "Shopping Tips",
+    "tips": {
+      "filters": "Use filters to find specific gemstone types and price ranges",
+      "certificates": "All gemstones come with certificates of authenticity",
+      "freeShipping": "Free shipping on orders over $500",
+      "returns": "30-day return policy on all purchases"
+    }
   },
   "items": {
     "selectAll": "Select All ({count} items)",

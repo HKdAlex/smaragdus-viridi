@@ -20,6 +20,7 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Input } from "@/shared/components/ui/input";
+import { useTranslations } from "next-intl";
 
 export interface AdvancedFiltersState {
   types: string[];
@@ -111,6 +112,7 @@ export function AdvancedFilters({
   onToggle,
   availableOrigins = [],
 }: AdvancedFiltersProps) {
+  const t = useTranslations("admin.advancedFilters");
   const [localFilters, setLocalFilters] =
     useState<AdvancedFiltersState>(filters);
 
@@ -211,7 +213,7 @@ export function AdvancedFilters({
           className="flex items-center gap-2"
         >
           <Filter className="w-4 h-4" />
-          Advanced Filters
+          {t("title")}
           {getActiveFiltersCount() > 0 && (
             <Badge variant="secondary" className="ml-1">
               {getActiveFiltersCount()}
@@ -232,7 +234,7 @@ export function AdvancedFilters({
             className="text-gray-600 hover:text-gray-800"
           >
             <RotateCcw className="w-4 h-4 mr-1" />
-            Reset All
+            {t("resetAll")}
           </Button>
         )}
       </div>
@@ -241,12 +243,14 @@ export function AdvancedFilters({
       {isOpen && (
         <Card className="border-0 shadow-lg">
           <CardHeader className="pb-4">
-            <CardTitle className="text-lg">Filter Gemstones</CardTitle>
+            <CardTitle className="text-lg">{t("filterGemstones")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Type Filter */}
             <div>
-              <h4 className="font-medium text-gray-900 mb-3">Gemstone Type</h4>
+              <h4 className="font-medium text-gray-900 mb-3">
+                {t("gemstoneType")}
+              </h4>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
                 {GEMSTONE_TYPES.map((type) => (
                   <label
@@ -271,7 +275,7 @@ export function AdvancedFilters({
 
             {/* Color Filter */}
             <div>
-              <h4 className="font-medium text-gray-900 mb-3">Color</h4>
+              <h4 className="font-medium text-gray-900 mb-3">{t("color")}</h4>
               <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
                 {GEM_COLORS.map((color) => (
                   <label
@@ -296,7 +300,7 @@ export function AdvancedFilters({
 
             {/* Cut Filter */}
             <div>
-              <h4 className="font-medium text-gray-900 mb-3">Cut</h4>
+              <h4 className="font-medium text-gray-900 mb-3">{t("cut")}</h4>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                 {GEM_CUTS.map((cut) => (
                   <label
@@ -317,7 +321,7 @@ export function AdvancedFilters({
 
             {/* Clarity Filter */}
             <div>
-              <h4 className="font-medium text-gray-900 mb-3">Clarity</h4>
+              <h4 className="font-medium text-gray-900 mb-3">{t("clarity")}</h4>
               <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
                 {GEM_CLARITIES.map((clarity) => (
                   <label
@@ -343,12 +347,12 @@ export function AdvancedFilters({
             {/* Price Range */}
             <div>
               <h4 className="font-medium text-gray-900 mb-3">
-                Price Range (USD)
+                {t("priceRange")}
               </h4>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm text-gray-600 mb-1">
-                    Min Price
+                    {t("minPrice")}
                   </label>
                   <Input
                     type="number"
@@ -366,11 +370,11 @@ export function AdvancedFilters({
                 </div>
                 <div>
                   <label className="block text-sm text-gray-600 mb-1">
-                    Max Price
+                    {t("maxPrice")}
                   </label>
                   <Input
                     type="number"
-                    placeholder="No limit"
+                    placeholder={t("noLimit")}
                     value={localFilters.priceMax || ""}
                     onChange={(e) =>
                       handlePriceRangeChange(
@@ -399,12 +403,12 @@ export function AdvancedFilters({
             {/* Weight Range */}
             <div>
               <h4 className="font-medium text-gray-900 mb-3">
-                Weight Range (carats)
+                {t("weightRange")}
               </h4>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm text-gray-600 mb-1">
-                    Min Weight
+                    {t("minWeight")}
                   </label>
                   <Input
                     type="number"
@@ -421,12 +425,12 @@ export function AdvancedFilters({
                 </div>
                 <div>
                   <label className="block text-sm text-gray-600 mb-1">
-                    Max Weight
+                    {t("maxWeight")}
                   </label>
                   <Input
                     type="number"
                     step="0.01"
-                    placeholder="No limit"
+                    placeholder={t("noLimit")}
                     value={localFilters.weightMax || ""}
                     onChange={(e) =>
                       handleWeightRangeChange(
@@ -452,7 +456,9 @@ export function AdvancedFilters({
 
             {/* Stock Status */}
             <div>
-              <h4 className="font-medium text-gray-900 mb-3">Stock Status</h4>
+              <h4 className="font-medium text-gray-900 mb-3">
+                {t("stockStatus")}
+              </h4>
               <Select
                 value={localFilters.stockStatus}
                 onValueChange={(value) =>
@@ -466,10 +472,10 @@ export function AdvancedFilters({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Items</SelectItem>
-                  <SelectItem value="in_stock">In Stock Only</SelectItem>
+                  <SelectItem value="all">{t("allItems")}</SelectItem>
+                  <SelectItem value="in_stock">{t("inStockOnly")}</SelectItem>
                   <SelectItem value="out_of_stock">
-                    Out of Stock Only
+                    {t("outOfStockOnly")}
                   </SelectItem>
                 </SelectContent>
               </Select>
@@ -478,7 +484,9 @@ export function AdvancedFilters({
             {/* Origin Filter */}
             {availableOrigins.length > 0 && (
               <div>
-                <h4 className="font-medium text-gray-900 mb-3">Origin</h4>
+                <h4 className="font-medium text-gray-900 mb-3">
+                  {t("origin")}
+                </h4>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                   {availableOrigins.map((origin) => (
                     <label

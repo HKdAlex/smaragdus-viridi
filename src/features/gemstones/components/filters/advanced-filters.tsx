@@ -32,6 +32,7 @@ import type { AdvancedGemstoneFilters } from "../../types/filter.types";
 import { FilterDropdown } from "./filter-dropdown";
 import { RangeSlider } from "./range-slider";
 import { useAdvancedFilters } from "../../hooks/use-advanced-filters";
+import { useTranslations } from "next-intl";
 
 // Import constants and utilities
 
@@ -52,6 +53,7 @@ export function AdvancedFilters({
   options,
   onFiltersChange,
 }: AdvancedFiltersProps) {
+  const t = useTranslations("filters.advanced");
   const { filters, ...filterActions } = useAdvancedFilters(undefined, true);
 
   // Track previous filters to prevent unnecessary callbacks
@@ -227,11 +229,11 @@ export function AdvancedFilters({
         <div className="flex items-center space-x-2">
           <AdjustmentsHorizontalIcon className="w-5 h-5 text-primary" />
           <h2 className="text-lg font-semibold text-card-foreground">
-            Advanced Filters
+            {t("title")}
           </h2>
           {activeFilterCount > 0 && (
             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
-              {activeFilterCount} active
+              {t("activeFilters", { count: activeFilterCount })}
             </span>
           )}
         </div>
@@ -246,7 +248,7 @@ export function AdvancedFilters({
             title="Clear all filters"
           >
             <XMarkIcon className="w-4 h-4 mr-1.5" />
-            Reset All
+            {t("resetAll")}
           </button>
         )}
       </div>
@@ -254,13 +256,13 @@ export function AdvancedFilters({
       {/* Search */}
       <div className="relative">
         <label className="block text-sm font-medium text-foreground mb-2">
-          Search
+          {t("search")}
         </label>
         <div className="relative">
           <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
             type="text"
-            placeholder="Search by serial number or code..."
+            placeholder={t("searchPlaceholder")}
             value={filters.search || ""}
             onChange={(e) => filterActions.setSearch(e.target.value)}
             className="w-full pl-10 pr-3 py-2 bg-input border border-border rounded-lg 
@@ -293,12 +295,12 @@ export function AdvancedFilters({
               }
             });
           }}
-          placeholder="Select gemstone types..."
+          placeholder={t("selectGemstoneTypes")}
         />
 
         {/* Color */}
         <FilterDropdown
-          label="Color"
+          label={t("color")}
           options={colorOptions}
           selectedValues={filters.colors || []}
           onSelectionChange={(values) => {
@@ -314,12 +316,12 @@ export function AdvancedFilters({
               }
             });
           }}
-          placeholder="Select colors..."
+          placeholder={t("selectColors")}
         />
 
         {/* Cut */}
         <FilterDropdown
-          label="Cut"
+          label={t("cut")}
           options={cutOptions}
           selectedValues={filters.cuts || []}
           onSelectionChange={(values) => {
@@ -335,12 +337,12 @@ export function AdvancedFilters({
               }
             });
           }}
-          placeholder="Select cuts..."
+          placeholder={t("selectCuts")}
         />
 
         {/* Clarity */}
         <FilterDropdown
-          label="Clarity"
+          label={t("clarity")}
           options={clarityOptions}
           selectedValues={filters.clarities || []}
           onSelectionChange={(values) => {
@@ -356,13 +358,13 @@ export function AdvancedFilters({
               }
             });
           }}
-          placeholder="Select clarities..."
+          placeholder={t("selectClarities")}
         />
 
         {/* Origin */}
         {originOptions.length > 0 && (
           <FilterDropdown
-            label="Origin"
+            label={t("origin")}
             options={originOptions}
             selectedValues={filters.origins || []}
             onSelectionChange={(values) => {
@@ -378,7 +380,7 @@ export function AdvancedFilters({
                 }
               });
             }}
-            placeholder="Select origins..."
+            placeholder={t("selectOrigins")}
           />
         )}
       </div>
@@ -387,7 +389,7 @@ export function AdvancedFilters({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Price Range */}
         <RangeSlider
-          label="Price Range"
+          label={t("priceRange")}
           min={DEFAULT_PRICE_RANGE.min}
           max={DEFAULT_PRICE_RANGE.max}
           value={[
@@ -407,7 +409,7 @@ export function AdvancedFilters({
 
         {/* Weight Range */}
         <RangeSlider
-          label="Carat Weight"
+          label={t("caratWeight")}
           min={DEFAULT_WEIGHT_RANGE.min}
           max={DEFAULT_WEIGHT_RANGE.max}
           value={[
@@ -432,7 +434,7 @@ export function AdvancedFilters({
             className="rounded border-border text-primary focus:ring-ring focus:ring-2 bg-background"
           />
           <span className="text-sm font-medium text-foreground">
-            In Stock Only
+            {t("inStockOnly")}
           </span>
         </label>
 
@@ -446,7 +448,7 @@ export function AdvancedFilters({
             className="rounded border-border text-primary focus:ring-ring focus:ring-2 bg-background"
           />
           <span className="text-sm font-medium text-foreground">
-            Has Certification
+            {t("hasCertification")}
           </span>
         </label>
 
@@ -458,7 +460,7 @@ export function AdvancedFilters({
             className="rounded border-border text-primary focus:ring-ring focus:ring-2 bg-background"
           />
           <span className="text-sm font-medium text-foreground">
-            Has Images
+            {t("hasImages")}
           </span>
         </label>
       </div>

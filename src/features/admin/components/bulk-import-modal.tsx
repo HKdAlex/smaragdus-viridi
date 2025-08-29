@@ -15,6 +15,7 @@ import {
   Upload,
   X,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useRef, useState } from "react";
 import {
   CSVParserService,
@@ -44,6 +45,7 @@ export function BulkImportModal({
   onClose,
   onSuccess,
 }: BulkImportModalProps) {
+  const t = useTranslations("admin.bulkImport");
   const [step, setStep] = useState<ImportStep>("upload");
   const [file, setFile] = useState<File | null>(null);
   const [parseResult, setParseResult] = useState<CSVParseResult | null>(null);
@@ -94,10 +96,10 @@ export function BulkImportModal({
       if (result.success) {
         setStep("preview");
       } else {
-        setError("Failed to parse CSV file. Please check the format.");
+        setError(t("errors.parseFailed"));
       }
     } catch (err) {
-      setError("Failed to read file. Please try again.");
+      setError(t("errors.readFailed"));
     }
   };
 
@@ -160,7 +162,7 @@ export function BulkImportModal({
         onSuccess(result);
       }
     } catch (err) {
-      setError("Import failed. Please try again.");
+      setError(t("errors.importFailed"));
       setStep("preview");
     } finally {
       setProcessingState(null);
@@ -187,9 +189,7 @@ export function BulkImportModal({
       <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b">
-          <h2 className="text-2xl font-bold text-gray-900">
-            Bulk Import Gemstones
-          </h2>
+          <h2 className="text-2xl font-bold text-gray-900">{t("title")}</h2>
           <button
             onClick={handleClose}
             className="text-gray-400 hover:text-gray-600"
@@ -204,7 +204,7 @@ export function BulkImportModal({
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
               <div>
-                <h3 className="font-medium text-red-900">Error</h3>
+                <h3 className="font-medium text-red-900">{t("error")}</h3>
                 <p className="text-red-700 text-sm">{error}</p>
               </div>
             </div>
@@ -215,16 +215,13 @@ export function BulkImportModal({
               <div className="text-center">
                 <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  Import Gemstones from CSV
+                  {t("importFromCSV")}
                 </h3>
-                <p className="text-gray-600 mb-6">
-                  Upload a CSV file with your gemstone data. Make sure to follow
-                  the correct format.
-                </p>
+                <p className="text-gray-600 mb-6">{t("uploadDescription")}</p>
                 <div className="flex gap-3 justify-center">
                   <Button onClick={downloadTemplate} variant="outline">
                     <Download className="w-4 h-4 mr-2" />
-                    Download Template
+                    {t("downloadTemplate")}
                   </Button>
                 </div>
               </div>
@@ -238,9 +235,9 @@ export function BulkImportModal({
               >
                 <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                 <p className="text-lg font-medium text-gray-900 mb-2">
-                  Drop your CSV file here, or click to browse
+                  {t("dropFileHere")}
                 </p>
-                <p className="text-gray-600">Supports CSV files up to 10MB</p>
+                <p className="text-gray-600">{t("fileSizeLimit")}</p>
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -258,10 +255,12 @@ export function BulkImportModal({
                 <CheckCircle className="w-6 h-6 text-green-500" />
                 <div>
                   <h3 className="text-lg font-medium text-gray-900">
-                    File Parsed Successfully
+                    {t("fileParsedSuccessfully")}
                   </h3>
                   <p className="text-gray-600">
-                    Found {parseResult.data.length} valid gemstones to import
+                    {t("foundValidGemstones", {
+                      count: parseResult.data.length,
+                    })}
                   </p>
                 </div>
               </div>
@@ -269,7 +268,7 @@ export function BulkImportModal({
               {/* Preview Data */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Import Preview</CardTitle>
+                  <CardTitle>{t("importPreview")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="overflow-x-auto">

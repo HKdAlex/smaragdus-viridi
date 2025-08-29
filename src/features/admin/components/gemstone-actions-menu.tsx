@@ -23,6 +23,7 @@ import {
 import { Button } from "@/shared/components/ui/button";
 import type { DatabaseGemstone } from "@/shared/types";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 interface GemstoneActionsMenuProps {
   gemstone: DatabaseGemstone;
@@ -47,6 +48,7 @@ export function GemstoneActionsMenu({
   onRestore,
   isArchived = false,
 }: GemstoneActionsMenuProps) {
+  const t = useTranslations("admin.gemstoneActions");
   const [isOpen, setIsOpen] = useState(false);
 
   const handleView = () => {
@@ -62,7 +64,7 @@ export function GemstoneActionsMenu({
   const handleDelete = () => {
     if (
       window.confirm(
-        `Are you sure you want to delete "${gemstone.serial_number}"? This action cannot be undone.`
+        t("deleteConfirmation", { serialNumber: gemstone.serial_number })
       )
     ) {
       onDelete?.(gemstone);
@@ -94,9 +96,9 @@ export function GemstoneActionsMenu({
     try {
       await navigator.clipboard.writeText(gemstone.serial_number);
       // You could show a toast notification here
-      console.log("Serial number copied to clipboard");
+      console.log(t("messages.serialNumberCopied"));
     } catch (error) {
-      console.error("Failed to copy serial number:", error);
+      console.error(t("errors.copyFailed"), error);
     }
     setIsOpen(false);
   };
@@ -113,21 +115,21 @@ export function GemstoneActionsMenu({
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
           <MoreHorizontal className="h-4 w-4" />
-          <span className="sr-only">Open menu</span>
+          <span className="sr-only">{t("openMenu")}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
-        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+        <DropdownMenuLabel>{t("actions")}</DropdownMenuLabel>
 
         {/* Primary Actions */}
         <DropdownMenuItem onClick={handleView}>
           <Eye className="mr-2 h-4 w-4" />
-          View Details
+          {t("viewDetails")}
         </DropdownMenuItem>
 
         <DropdownMenuItem onClick={handleEdit}>
           <Edit className="mr-2 h-4 w-4" />
-          Edit Gemstone
+          {t("editGemstone")}
         </DropdownMenuItem>
 
         <DropdownMenuSeparator />
@@ -135,12 +137,12 @@ export function GemstoneActionsMenu({
         {/* Utility Actions */}
         <DropdownMenuItem onClick={handleCopySerialNumber}>
           <Copy className="mr-2 h-4 w-4" />
-          Copy Serial Number
+          {t("copySerialNumber")}
         </DropdownMenuItem>
 
         <DropdownMenuItem onClick={handleOpenInNewTab}>
           <ExternalLink className="mr-2 h-4 w-4" />
-          Open in New Tab
+          {t("openInNewTab")}
         </DropdownMenuItem>
 
         <DropdownMenuSeparator />
@@ -148,12 +150,12 @@ export function GemstoneActionsMenu({
         {/* Data Actions */}
         <DropdownMenuItem onClick={handleDuplicate}>
           <Copy className="mr-2 h-4 w-4" />
-          Duplicate Gemstone
+          {t("duplicateGemstone")}
         </DropdownMenuItem>
 
         <DropdownMenuItem onClick={handleExportSingle}>
           <Download className="mr-2 h-4 w-4" />
-          Export to CSV
+          {t("exportToCsv")}
         </DropdownMenuItem>
 
         <DropdownMenuSeparator />
@@ -162,12 +164,12 @@ export function GemstoneActionsMenu({
         {isArchived ? (
           <DropdownMenuItem onClick={handleRestore} className="text-green-600">
             <RotateCcw className="mr-2 h-4 w-4" />
-            Restore Gemstone
+            {t("restoreGemstone")}
           </DropdownMenuItem>
         ) : (
           <DropdownMenuItem onClick={handleArchive} className="text-orange-600">
             <Archive className="mr-2 h-4 w-4" />
-            Archive Gemstone
+            {t("archiveGemstone")}
           </DropdownMenuItem>
         )}
 
@@ -179,7 +181,7 @@ export function GemstoneActionsMenu({
           className="text-red-600 focus:text-red-600 focus:bg-red-50"
         >
           <Trash2 className="mr-2 h-4 w-4" />
-          Delete Gemstone
+          {t("deleteGemstone")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

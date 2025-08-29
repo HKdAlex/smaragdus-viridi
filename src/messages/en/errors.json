@@ -60,5 +60,11 @@
     "conflict": "Request conflicts with current state.",
     "unprocessableEntity": "Unable to process request.",
     "internalServerError": "Internal server error occurred."
+  },
+  "notFound": {
+    "title": "Page Not Found",
+    "description": "The page you're looking for doesn't exist or has been moved.",
+    "goHome": "Go Home",
+    "browseCatalog": "Browse Catalog"
   }
 }

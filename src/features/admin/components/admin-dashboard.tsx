@@ -30,6 +30,7 @@ import { AdminUserManager } from "./admin-user-manager";
 import { Button } from "@/shared/components/ui/button";
 import { StatisticsService } from "../services/statistics-service";
 import { useAdmin } from "../context/admin-context";
+import { useTranslations } from "next-intl";
 
 type AdminTab =
   | "dashboard"
@@ -39,47 +40,42 @@ type AdminTab =
   | "analytics"
   | "settings";
 
-const adminTabs: Array<{
-  id: AdminTab;
-  name: string;
-  icon: React.ComponentType<{ className?: string }>;
-  description: string;
-}> = [
+const getAdminTabs = (t: any) => [
   {
-    id: "dashboard",
-    name: "Dashboard",
+    id: "dashboard" as AdminTab,
+    name: t("navigation.dashboard"),
     icon: BarChart3,
-    description: "Overview and key metrics",
+    description: t("tabs.dashboard"),
   },
   {
-    id: "gemstones",
-    name: "Gemstones",
+    id: "gemstones" as AdminTab,
+    name: t("navigation.gemstones"),
     icon: Gem,
-    description: "Manage gemstone catalog and inventory",
+    description: t("tabs.gemstones"),
   },
   {
-    id: "pricing",
-    name: "Price & Inventory",
+    id: "pricing" as AdminTab,
+    name: t("navigation.pricing"),
     icon: TrendingUp,
-    description: "Pricing analytics and inventory management",
+    description: t("tabs.pricing"),
   },
   {
-    id: "users",
-    name: "Users",
+    id: "users" as AdminTab,
+    name: t("navigation.users"),
     icon: Users,
-    description: "User management and permissions",
+    description: t("tabs.users"),
   },
   {
-    id: "analytics",
-    name: "Analytics",
+    id: "analytics" as AdminTab,
+    name: t("navigation.analytics"),
     icon: TrendingUp,
-    description: "Performance metrics and insights",
+    description: t("tabs.analytics"),
   },
   {
-    id: "settings",
-    name: "Settings",
+    id: "settings" as AdminTab,
+    name: t("navigation.settings"),
     icon: Settings,
-    description: "System configuration and preferences",
+    description: t("tabs.settings"),
   },
 ];
 
@@ -87,13 +83,14 @@ export function AdminDashboard() {
   const { user, profile, signOut, isLoading } = useAdmin();
   const [activeTab, setActiveTab] = useState<AdminTab>("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const t = useTranslations("admin");
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 flex items-center justify-center">
         <div className="text-center space-y-4">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="text-muted-foreground">Loading admin dashboard...</p>
+          <p className="text-muted-foreground">{t("dashboard.loading")}</p>
         </div>
       </div>
     );
@@ -106,15 +103,15 @@ export function AdminDashboard() {
           <CardHeader className="text-center">
             <CardTitle className="flex items-center justify-center gap-2">
               <Shield className="w-6 h-6 text-primary" />
-              Admin Access Required
+              {t("dashboard.accessRequired")}
             </CardTitle>
           </CardHeader>
           <CardContent className="text-center">
             <p className="text-muted-foreground mb-4">
-              You need administrator privileges to access this area.
+              {t("dashboard.privilegesRequired")}
             </p>
             <Button onClick={() => (window.location.href = "/admin/login")}>
-              Go to Admin Login
+              {t("dashboard.goToLogin")}
             </Button>
           </CardContent>
         </Card>
@@ -165,9 +162,9 @@ export function AdminDashboard() {
                 <Shield className="w-5 h-5 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="font-bold text-lg">Admin Dashboard</h1>
+                <h1 className="font-bold text-lg">{t("header.title")}</h1>
                 <p className="text-sm text-muted-foreground">
-                  Welcome back, {profile.name}
+                  {t("header.welcomeBack", { name: profile.name })}
                 </p>
               </div>
             </div>
@@ -181,7 +178,7 @@ export function AdminDashboard() {
               className="flex items-center gap-2"
             >
               <LogOut className="w-4 h-4" />
-              Sign Out
+              {t("header.signOut")}
             </Button>
           </div>
         </div>
@@ -200,7 +197,7 @@ export function AdminDashboard() {
         `}
         >
           <nav className="p-4 space-y-2">
-            {adminTabs.map((tab) => {
+            {getAdminTabs(t).map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
 
@@ -236,6 +233,7 @@ export function AdminDashboard() {
 
 // Dashboard Overview Component
 function AdminDashboardOverview() {
+  const t = useTranslations("admin.dashboard");
   const [stats, setStats] = useState<
     Array<{
       title: string;
@@ -246,29 +244,29 @@ function AdminDashboardOverview() {
     }>
   >([
     {
-      title: "Total Gemstones",
-      value: "Loading...",
+      title: t("stats.totalGemstones"),
+      value: t("stats.loading"),
       change: "",
       trend: "neutral",
       icon: Gem,
     },
     {
-      title: "Active Users",
-      value: "Loading...",
+      title: t("stats.activeUsers"),
+      value: t("stats.loading"),
       change: "",
       trend: "neutral",
       icon: Users,
     },
     {
-      title: "Revenue",
-      value: "Loading...",
+      title: t("stats.revenue"),
+      value: t("stats.loading"),
       change: "",
       trend: "neutral",
       icon: TrendingUp,
     },
     {
-      title: "Orders",
-      value: "Loading...",
+      title: t("stats.orders"),
+      value: t("stats.loading"),
       change: "",
       trend: "neutral",
       icon: BarChart3,
@@ -293,7 +291,7 @@ function AdminDashboardOverview() {
 
         setStats([
           {
-            title: "Total Gemstones",
+            title: t("stats.totalGemstones"),
             value: StatisticsService.formatNumber(
               dashboardStats.totalGemstones
             ),
@@ -302,14 +300,14 @@ function AdminDashboardOverview() {
             icon: Gem,
           },
           {
-            title: "Active Users",
+            title: t("stats.activeUsers"),
             value: StatisticsService.formatNumber(dashboardStats.activeUsers),
             change: `+${dashboardStats.changes.activeUsers.percentage}%`,
             trend: dashboardStats.changes.activeUsers.trend,
             icon: Users,
           },
           {
-            title: "Revenue",
+            title: t("stats.revenue"),
             value: StatisticsService.formatCurrency(
               dashboardStats.totalRevenue
             ),
@@ -318,7 +316,7 @@ function AdminDashboardOverview() {
             icon: TrendingUp,
           },
           {
-            title: "Orders",
+            title: t("stats.orders"),
             value: StatisticsService.formatNumber(dashboardStats.totalOrders),
             change: `+${dashboardStats.changes.totalOrders.percentage}%`,
             trend: dashboardStats.changes.totalOrders.trend,
@@ -330,7 +328,7 @@ function AdminDashboardOverview() {
         console.error("Failed to load dashboard stats:", result.error);
       }
     } catch (error) {
-      setError("Failed to load dashboard statistics");
+      setError(t("stats.loadError"));
       console.error("Dashboard stats error:", error);
     } finally {
       setLoading(false);
@@ -342,18 +340,16 @@ function AdminDashboardOverview() {
       <div className="space-y-6">
         <div>
           <h2 className="text-3xl font-bold text-foreground mb-2">
-            Dashboard Overview
+            {t("overview.title")}
           </h2>
-          <p className="text-muted-foreground">
-            Monitor your gemstone business performance and manage operations
-          </p>
+          <p className="text-muted-foreground">{t("overview.description")}</p>
         </div>
 
         <Card className="border-red-200 bg-red-50">
           <CardContent className="p-6">
             <div className="text-center">
               <h3 className="text-lg font-semibold text-red-800 mb-2">
-                Failed to Load Statistics
+                {t("stats.loadErrorTitle")}
               </h3>
               <p className="text-red-600 mb-4">{error}</p>
               <Button
@@ -361,7 +357,7 @@ function AdminDashboardOverview() {
                 variant="outline"
                 className="border-red-300 text-red-700 hover:bg-red-100"
               >
-                Retry
+                {t("stats.retry")}
               </Button>
             </div>
           </CardContent>
@@ -374,11 +370,9 @@ function AdminDashboardOverview() {
     <div className="space-y-6">
       <div>
         <h2 className="text-3xl font-bold text-foreground mb-2">
-          Dashboard Overview
+          {t("overview.title")}
         </h2>
-        <p className="text-muted-foreground">
-          Monitor your gemstone business performance and manage operations
-        </p>
+        <p className="text-muted-foreground">{t("overview.description")}</p>
       </div>
 
       {/* Stats Grid */}
@@ -405,7 +399,7 @@ function AdminDashboardOverview() {
                       }`}
                     >
                       <TrendingUp className="w-3 h-3" />
-                      {stat.change} from last month
+                      {stat.change} {t("stats.fromLastMonth")}
                     </p>
                   </div>
                   <div className="h-12 w-12 bg-primary/10 rounded-lg flex items-center justify-center">
@@ -421,16 +415,18 @@ function AdminDashboardOverview() {
       {/* Quick Actions */}
       <Card className="border-0 shadow-lg bg-gradient-to-br from-card to-muted/20">
         <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
+          <CardTitle>{t("quickActions.title")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Button className="flex items-center gap-3 h-auto p-4 justify-start">
               <Upload className="w-5 h-5" />
               <div className="text-left">
-                <div className="font-medium">Upload Gemstones</div>
+                <div className="font-medium">
+                  {t("quickActions.uploadGemstones")}
+                </div>
                 <div className="text-sm text-muted-foreground">
-                  Add new stones to catalog
+                  {t("quickActions.uploadGemstonesDesc")}
                 </div>
               </div>
             </Button>
@@ -441,9 +437,11 @@ function AdminDashboardOverview() {
             >
               <Edit className="w-5 h-5" />
               <div className="text-left">
-                <div className="font-medium">Edit Prices</div>
+                <div className="font-medium">
+                  {t("quickActions.editPrices")}
+                </div>
                 <div className="text-sm text-muted-foreground">
-                  Update pricing across catalog
+                  {t("quickActions.editPricesDesc")}
                 </div>
               </div>
             </Button>
@@ -454,9 +452,11 @@ function AdminDashboardOverview() {
             >
               <Users className="w-5 h-5" />
               <div className="text-left">
-                <div className="font-medium">User Management</div>
+                <div className="font-medium">
+                  {t("quickActions.userManagement")}
+                </div>
                 <div className="text-sm text-muted-foreground">
-                  Manage user roles and access
+                  {t("quickActions.userManagementDesc")}
                 </div>
               </div>
             </Button>
@@ -467,23 +467,31 @@ function AdminDashboardOverview() {
       {/* Recent Activity */}
       <Card className="border-0 shadow-lg bg-gradient-to-br from-card to-muted/20">
         <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
+          <CardTitle>{t("recentActivity.title")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <div className="flex items-center gap-4 p-3 bg-muted/30 rounded-lg">
               <div className="w-2 h-2 bg-green-500 rounded-full"></div>
               <div className="flex-1">
-                <p className="font-medium">New gemstone added to catalog</p>
-                <p className="text-sm text-muted-foreground">2 hours ago</p>
+                <p className="font-medium">
+                  {t("recentActivity.newGemstoneAdded")}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {t("recentActivity.twoHoursAgo")}
+                </p>
               </div>
             </div>
 
             <div className="flex items-center gap-4 p-3 bg-muted/30 rounded-lg">
               <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
               <div className="flex-1">
-                <p className="font-medium">User promoted to admin</p>
-                <p className="text-sm text-muted-foreground">5 hours ago</p>
+                <p className="font-medium">
+                  {t("recentActivity.userPromoted")}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {t("recentActivity.fiveHoursAgo")}
+                </p>
               </div>
             </div>
 
@@ -491,9 +499,11 @@ function AdminDashboardOverview() {
               <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
               <div className="flex-1">
                 <p className="font-medium">
-                  Price update applied to 15 gemstones
+                  {t("recentActivity.priceUpdateApplied", { count: 15 })}
                 </p>
-                <p className="text-sm text-muted-foreground">1 day ago</p>
+                <p className="text-sm text-muted-foreground">
+                  {t("recentActivity.oneDayAgo")}
+                </p>
               </div>
             </div>
           </div>

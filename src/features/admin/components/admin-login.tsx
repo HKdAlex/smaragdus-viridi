@@ -14,6 +14,7 @@ import { Input } from "@/shared/components/ui/input";
 import { useAdmin } from "../context/admin-context";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 export function AdminLogin() {
   const [email, setEmail] = useState("");
@@ -24,6 +25,7 @@ export function AdminLogin() {
 
   const { signIn } = useAdmin();
   const router = useRouter();
+  const t = useTranslations("admin");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,10 +38,10 @@ export function AdminLogin() {
       if (result.success) {
         router.push("/admin/dashboard");
       } else {
-        setError(result.error || "Login failed");
+        setError(result.error || t("login.loginFailed"));
       }
     } catch (err) {
-      setError("An unexpected error occurred");
+      setError(t("login.unexpectedError"));
     } finally {
       setIsLoading(false);
     }
@@ -53,10 +55,10 @@ export function AdminLogin() {
             <Shield className="w-8 h-8 text-primary-foreground" />
           </div>
           <div>
-            <CardTitle className="text-2xl font-bold">Admin Access</CardTitle>
-            <p className="text-muted-foreground mt-2">
-              Sign in to access the administration dashboard
-            </p>
+            <CardTitle className="text-2xl font-bold">
+              {t("login.title")}
+            </CardTitle>
+            <p className="text-muted-foreground mt-2">{t("login.subtitle")}</p>
           </div>
         </CardHeader>
 
@@ -73,14 +75,14 @@ export function AdminLogin() {
                 htmlFor="email"
                 className="text-sm font-medium text-foreground"
               >
-                Email Address
+                {t("login.emailLabel")}
               </label>
               <Input
                 id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@smaragdus-viridi.com"
+                placeholder={t("login.emailPlaceholder")}
                 required
                 disabled={isLoading}
                 className="h-11"
@@ -92,7 +94,7 @@ export function AdminLogin() {
                 htmlFor="password"
                 className="text-sm font-medium text-foreground"
               >
-                Password
+                {t("login.passwordLabel")}
               </label>
               <div className="relative">
                 <Input
@@ -100,7 +102,7 @@ export function AdminLogin() {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your admin password"
+                  placeholder={t("login.passwordPlaceholder")}
                   required
                   disabled={isLoading}
                   className="h-11 pr-12"
@@ -130,12 +132,12 @@ export function AdminLogin() {
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Signing in...
+                  {t("login.signingIn")}
                 </>
               ) : (
                 <>
                   <Shield className="w-4 h-4 mr-2" />
-                  Access Admin Dashboard
+                  {t("login.signInButton")}
                 </>
               )}
             </Button>
@@ -143,13 +145,13 @@ export function AdminLogin() {
 
           <div className="mt-6 p-4 bg-muted/30 rounded-lg">
             <h3 className="font-medium text-sm mb-2">
-              Admin Access Requirements
+              {t("login.requirements.title")}
             </h3>
             <ul className="text-xs text-muted-foreground space-y-1">
-              <li>• Administrator role required</li>
-              <li>• Secure authentication with 2FA recommended</li>
-              <li>• Session expires after 24 hours of inactivity</li>
-              <li>• All admin actions are logged and audited</li>
+              <li>{t("login.requirements.role")}</li>
+              <li>{t("login.requirements.security")}</li>
+              <li>{t("login.requirements.session")}</li>
+              <li>{t("login.requirements.audit")}</li>
             </ul>
           </div>
 
@@ -159,7 +161,7 @@ export function AdminLogin() {
               onClick={() => router.push("/")}
               className="text-sm text-muted-foreground hover:text-foreground"
             >
-              ← Return to Main Site
+              {t("login.returnToSite")}
             </Button>
           </div>
         </CardContent>

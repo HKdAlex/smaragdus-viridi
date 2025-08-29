@@ -1,41 +1,48 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { usePathname, useRouter } from "@/i18n/navigation";
 
 import { Button } from "@/shared/components/ui/button";
-import { usePathname } from "next/navigation";
-
-// Safe locale hook that falls back gracefully if next-intl is not available
-function useSafeLocale() {
-  const [locale, setLocale] = useState("en");
-
-  useEffect(() => {
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const { useLocale } = require("next-intl");
-      // We can't use hooks directly in useEffect, so we'll get it from the pathname
-      const currentPath = window.location.pathname;
-      const pathLocale = currentPath.startsWith("/ru") ? "ru" : "en";
-      setLocale(pathLocale);
-    } catch {
-      // next-intl not available, keep default
-    }
-  }, []);
-
-  return locale;
-}
-
+import { useLocale } from "next-intl";
 
 export function LanguageSwitcher() {
-  const locale = useSafeLocale();
+  const locale = useLocale();
   const pathname = usePathname();
+  const router = useRouter();
 
   const switchLocale = (newLocale: string) => {
-    // Use window.location for reliable navigation without type constraints
-    const currentPath = window.location.pathname;
-    const localeFreePath = currentPath.replace(/^\/(en|ru)/, "");
-    const newPath = `/${newLocale}${localeFreePath}`;
-    window.location.href = newPath;
+    // Handle dynamic routes properly
+    // For dynamic routes, we need to use the current URL and extract the path
+    const currentUrl = window.location.pathname;
+    const localeFreePath = currentUrl.replace(/^\/(en|ru)/, "");
+
+    // Map the path to a valid pathname for next-intl
+    if (localeFreePath.startsWith("/catalog/")) {
+      // For catalog pages, use the static pathname
+      router.replace("/catalog", { locale: newLocale });
+    } else {
+      // For static routes, validate the pathname first
+      const validPathnames = [
+        "/",
+        "/about",
+        "/contact",
+        "/cart",
+        "/catalog",
+        "/login",
+        "/signup",
+        "/admin",
+        "/admin/dashboard",
+        "/admin/login",
+      ];
+      const cleanPathname = pathname as any;
+
+      if (validPathnames.includes(cleanPathname)) {
+        router.replace(cleanPathname, { locale: newLocale });
+      } else {
+        // Fallback to home page
+        router.replace("/", { locale: newLocale });
+      }
+    }
   };
 
   return (

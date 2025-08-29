@@ -20,6 +20,7 @@ import {
 import { Textarea } from "@/shared/components/ui/textarea";
 import type { DatabaseGemstone, DatabaseOrigin } from "@/shared/types";
 import { AlertCircle, Gem, Loader2, Minus, Plus, Save, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
@@ -105,6 +106,7 @@ export function GemstoneForm({
   onSuccess,
   onCancel,
 }: GemstoneFormProps) {
+  const t = useTranslations("admin.gemstoneForm");
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [origins, setOrigins] = useState<DatabaseOrigin[]>([]);
@@ -299,7 +301,7 @@ export function GemstoneForm({
                 onChange={(e) =>
                   handleInputChange("serial_number", e.target.value)
                 }
-                placeholder="e.g., DIA-2025-001"
+                placeholder={t("serialNumberPlaceholder")}
                 className={errors.serial_number ? "border-red-500" : ""}
               />
               {errors.serial_number && (
@@ -320,7 +322,7 @@ export function GemstoneForm({
                 onChange={(e) =>
                   handleInputChange("internal_code", e.target.value)
                 }
-                placeholder="e.g., INV-001"
+                placeholder={t("internalCodePlaceholder")}
               />
             </div>
           </div>
@@ -507,10 +509,10 @@ export function GemstoneForm({
               }
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select origin (optional)" />
+                <SelectValue placeholder={t("selectOriginPlaceholder")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">No origin specified</SelectItem>
+                <SelectItem value="">{t("noOriginSpecified")}</SelectItem>
                 {origins.map((origin) => (
                   <SelectItem key={origin.id} value={origin.id}>
                     {origin.name} - {origin.country}
@@ -605,7 +607,7 @@ export function GemstoneForm({
                         : undefined
                     )
                   }
-                  placeholder="Optional"
+                  placeholder={t("optionalPlaceholder")}
                   className="flex-1"
                 />
               </div>
@@ -638,7 +640,7 @@ export function GemstoneForm({
                     e.target.value ? parseInt(e.target.value) : undefined
                   )
                 }
-                placeholder="e.g., 7"
+                placeholder={t("deliveryDaysPlaceholder")}
               />
             </div>
 
@@ -662,7 +664,7 @@ export function GemstoneForm({
               id="description"
               value={formData.description || ""}
               onChange={(e) => handleInputChange("description", e.target.value)}
-              placeholder="Detailed description of the gemstone..."
+              placeholder={t("descriptionPlaceholder")}
               rows={4}
             />
           </div>
@@ -676,7 +678,7 @@ export function GemstoneForm({
               onChange={(e) =>
                 handleInputChange("promotional_text", e.target.value)
               }
-              placeholder="Special promotional content or highlights..."
+              placeholder={t("promotionalTextPlaceholder")}
               rows={3}
             />
           </div>
@@ -690,7 +692,7 @@ export function GemstoneForm({
               <Input
                 value={currentHighlight}
                 onChange={(e) => setCurrentHighlight(e.target.value)}
-                placeholder="Add a marketing highlight..."
+                placeholder={t("marketingHighlightPlaceholder")}
                 onKeyPress={(e) =>
                   e.key === "Enter" &&
                   (e.preventDefault(), addMarketingHighlight())
