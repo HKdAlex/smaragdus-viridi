@@ -1,7 +1,6 @@
 import { Button } from "@/shared/components/ui/button";
-import Link from "next/link";
-import { getTranslations } from "next-intl/server";
 import { Link as I18nLink } from "@/i18n/navigation";
+import { getTranslations } from "next-intl/server";
 
 export default async function ContactPage() {
   const t = await getTranslations("common");

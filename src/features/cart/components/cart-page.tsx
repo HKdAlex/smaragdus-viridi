@@ -1,17 +1,17 @@
 "use client";
 
 import { ArrowLeft, Lock, ShoppingBag } from "lucide-react";
-import { useState } from "react";
-import { useTranslations } from "next-intl";
 
-import { useAuth } from "@/features/auth/context/auth-context";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { Separator } from "@/shared/components/ui/separator";
-import Link from "next/link";
-import { useCart } from "../hooks/use-cart";
 import { CartItem } from "./cart-item";
 import { EmptyCart } from "./empty-cart";
+import Link from "next/link";
+import { Separator } from "@/shared/components/ui/separator";
+import { useAuth } from "@/features/auth/context/auth-context";
+import { useCart } from "../hooks/use-cart";
+import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 export function CartPage() {
   const { user } = useAuth();
@@ -81,9 +81,7 @@ export function CartPage() {
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
             {t("authRequired.title")}
           </h1>
-          <p className="text-gray-600 mb-6">
-            {t("authRequired.message")}
-          </p>
+          <p className="text-gray-600 mb-6">{t("authRequired.message")}</p>
           <Link
             href="/login"
             className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -136,7 +134,9 @@ export function CartPage() {
         ) : error ? (
           <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
             <p className="text-red-600 mb-4">{error}</p>
-            <Button onClick={() => window.location.reload()}>{t("tryAgain")}</Button>
+            <Button onClick={() => window.location.reload()}>
+              {t("tryAgain")}
+            </Button>
           </div>
         ) : !cartSummary || cartSummary.items.length === 0 ? (
           <EmptyCart />
@@ -201,7 +201,9 @@ export function CartPage() {
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">
-                      {t("orderSummary.subtotal", { count: cartSummary.total_items })}
+                      {t("orderSummary.subtotal", {
+                        count: cartSummary.total_items,
+                      })}
                     </span>
                     <span className="text-gray-900 font-medium">
                       {cartSummary.formatted_subtotal}
@@ -209,14 +211,18 @@ export function CartPage() {
                   </div>
 
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">{t("orderSummary.shipping")}</span>
+                    <span className="text-gray-600">
+                      {t("orderSummary.shipping")}
+                    </span>
                     <span className="text-gray-900 font-medium">
                       {t("orderSummary.calculatedAtCheckout")}
                     </span>
                   </div>
 
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">{t("orderSummary.tax")}</span>
+                    <span className="text-gray-600">
+                      {t("orderSummary.tax")}
+                    </span>
                     <span className="text-gray-900 font-medium">
                       {t("orderSummary.calculatedAtCheckout")}
                     </span>
@@ -225,7 +231,9 @@ export function CartPage() {
                   <Separator />
 
                   <div className="flex justify-between text-lg font-semibold">
-                    <span className="text-gray-900">{t("orderSummary.total")}</span>
+                    <span className="text-gray-900">
+                      {t("orderSummary.total")}
+                    </span>
                     <span className="text-gray-900">
                       {selectedItemsCount === cartSummary.total_items
                         ? cartSummary.formatted_subtotal
@@ -238,7 +246,9 @@ export function CartPage() {
 
                   {selectedItemsCount !== cartSummary.total_items && (
                     <p className="text-xs text-gray-500">
-                      {t("orderSummary.selectedItemsTotal", { count: selectedItemsCount })}
+                      {t("orderSummary.selectedItemsTotal", {
+                        count: selectedItemsCount,
+                      })}
                     </p>
                   )}
                 </div>
