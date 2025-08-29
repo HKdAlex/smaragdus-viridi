@@ -57,5 +57,22 @@
   "noGemstonesFound": "No gemstones found",
   "adjustFiltersMessage": "Try adjusting your filters to see more results.",
   "resultsFound": "{count} gemstone found",
-  "resultsFound_other": "{count} gemstones found"
+  "resultsFound_other": "{count} gemstones found",
+  "gemstone": {
+    "notFound": "Gemstone Not Found",
+    "notFoundDescription": "The requested gemstone could not be found.",
+    "title": "{weight}ct {color} {name} - {price} | Smaragdus Viridi",
+    "description": "Exquisite {weight} carat {color} {name} with {cut} cut and {clarity} clarity. Serial: {serial}. Premium quality gemstone from our curated collection.",
+    "keywords": {
+      "gemstone": "gemstone",
+      "jewelry": "jewelry",
+      "preciousStones": "precious stones",
+      "natural": "natural"
+    },
+    "og": {
+      "title": "{weight}ct {color} {name}",
+      "description": "{price} - {cut} cut, {clarity} clarity"
+    },
+    "imageAlt": "{weight}ct {color} {name}"
+  }
 }

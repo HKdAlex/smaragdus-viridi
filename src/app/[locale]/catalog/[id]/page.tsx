@@ -8,6 +8,7 @@ import { GemstoneDetail } from "@/features/gemstones/components/gemstone-detail"
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { getTranslations } from "next-intl/server";
 
 // DetailGemstone interface is now imported from shared types
 
@@ -187,11 +188,12 @@ export default async function GemstoneDetailPage({ params }: PageProps) {
 export async function generateMetadata({ params }: PageProps) {
   const { id } = await params;
   const gemstone = await fetchGemstoneById(id);
+  const t = await getTranslations("catalog");
 
   if (!gemstone) {
     return {
-      title: "Gemstone Not Found | Smaragdus Viridi",
-      description: "The requested gemstone could not be found.",
+      title: `${t("gemstone.notFound")} | Smaragdus Viridi`,
+      description: t("gemstone.notFoundDescription"),
     };
   }
 
@@ -200,22 +202,48 @@ export async function generateMetadata({ params }: PageProps) {
     currency: gemstone.price_currency,
   }).format(gemstone.price_amount / 100);
 
+  const title = t("gemstone.title", {
+    weight: gemstone.weight_carats,
+    color: gemstone.color,
+    name: gemstone.name,
+    price: priceFormatted
+  });
+
+  const description = t("gemstone.description", {
+    weight: gemstone.weight_carats,
+    color: gemstone.color,
+    name: gemstone.name,
+    cut: gemstone.cut,
+    clarity: gemstone.clarity,
+    serial: gemstone.serial_number
+  });
+
+  const keywords = [
+    gemstone.name,
+    gemstone.color,
+    gemstone.cut,
+    gemstone.clarity,
+    t("gemstone.keywords.gemstone"),
+    t("gemstone.keywords.jewelry"),
+    t("gemstone.keywords.preciousStones"),
+    gemstone.origin?.country || t("gemstone.keywords.natural"),
+  ].join(", ");
+
   return {
-    title: `${gemstone.weight_carats}ct ${gemstone.color} ${gemstone.name} - ${priceFormatted} | Smaragdus Viridi`,
-    description: `Exquisite ${gemstone.weight_carats} carat ${gemstone.color} ${gemstone.name} with ${gemstone.cut} cut and ${gemstone.clarity} clarity. Serial: ${gemstone.serial_number}. Premium quality gemstone from our curated collection.`,
-    keywords: [
-      gemstone.name,
-      gemstone.color,
-      gemstone.cut,
-      gemstone.clarity,
-      "gemstone",
-      "jewelry",
-      "precious stones",
-      gemstone.origin?.country || "natural",
-    ].join(", "),
+    title,
+    description,
+    keywords,
     openGraph: {
-      title: `${gemstone.weight_carats}ct ${gemstone.color} ${gemstone.name}`,
-      description: `${priceFormatted} - ${gemstone.cut} cut, ${gemstone.clarity} clarity`,
+      title: t("gemstone.og.title", {
+        weight: gemstone.weight_carats,
+        color: gemstone.color,
+        name: gemstone.name
+      }),
+      description: t("gemstone.og.description", {
+        price: priceFormatted,
+        cut: gemstone.cut,
+        clarity: gemstone.clarity
+      }),
       images:
         gemstone.images.length > 0
           ? [
@@ -223,7 +251,11 @@ export async function generateMetadata({ params }: PageProps) {
                 url: gemstone.images[0].image_url,
                 width: 800,
                 height: 800,
-                alt: `${gemstone.weight_carats}ct ${gemstone.color} ${gemstone.name}`,
+                alt: t("gemstone.imageAlt", {
+                  weight: gemstone.weight_carats,
+                  color: gemstone.color,
+                  name: gemstone.name
+                }),
               },
             ]
           : [],

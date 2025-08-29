@@ -57,5 +57,22 @@
   "noGemstonesFound": "Камни не найдены",
   "adjustFiltersMessage": "Попробуйте изменить фильтры, чтобы увидеть больше результатов.",
   "resultsFound": "Найден {count} камень",
-  "resultsFound_other": "Найдено {count} камней"
+  "resultsFound_other": "Найдено {count} камней",
+  "gemstone": {
+    "notFound": "Камень не найден",
+    "notFoundDescription": "Запрашиваемый камень не найден.",
+    "title": "{weight}кт {color} {name} - {price} | Smaragdus Viridi",
+    "description": "Изысканный {weight} каратный {color} {name} с огранкой {cut} и чистотой {clarity}. Серийный номер: {serial}. Премиальный камень из нашей коллекции.",
+    "keywords": {
+      "gemstone": "драгоценный камень",
+      "jewelry": "ювелирные изделия",
+      "preciousStones": "драгоценные камни",
+      "natural": "натуральный"
+    },
+    "og": {
+      "title": "{weight}кт {color} {name}",
+      "description": "{price} - огранка {cut}, чистота {clarity}"
+    },
+    "imageAlt": "{weight}кт {color} {name}"
+  }
 }
