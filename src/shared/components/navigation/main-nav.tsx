@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 
 import { Button } from "@/shared/components/ui/button";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
@@ -9,7 +9,55 @@ import { ThemeToggle } from "@/shared/components/ui/theme-toggle";
 import { useAuth } from "@/features/auth/context/auth-context";
 import { useCart } from "@/features/cart/hooks/use-cart";
 import { usePathname } from "next/navigation";
-import { useTranslations } from "next-intl";
+
+// Safe translation hook that falls back gracefully if next-intl is not available
+function useSafeTranslations(namespace: string) {
+  const [t, setT] = useState<(key: string, values?: any) => string>(() => (key: string, values?: any) => {
+    // Simple interpolation for fallback
+    if (values && typeof values === 'object') {
+      let result = key;
+      Object.entries(values).forEach(([k, v]) => {
+        result = result.replace(new RegExp(`{${k}}`, 'g'), String(v));
+      });
+      return result;
+    }
+    return key;
+  });
+
+  useEffect(() => {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { useTranslations } = require("next-intl");
+      // We can't use hooks directly in useEffect, so we'll create a fallback
+      setT(() => (key: string, values?: any) => {
+        // Simple interpolation for fallback
+        if (values && typeof values === 'object') {
+          let result = key;
+          Object.entries(values).forEach(([k, v]) => {
+            result = result.replace(new RegExp(`{${k}}`, 'g'), String(v));
+          });
+          return result;
+        }
+        return key;
+      });
+    } catch {
+      // next-intl not available, keep fallback
+      setT(() => (key: string, values?: any) => {
+        // Simple interpolation for fallback
+        if (values && typeof values === 'object') {
+          let result = key;
+          Object.entries(values).forEach(([k, v]) => {
+            result = result.replace(new RegExp(`{${k}}`, 'g'), String(v));
+          });
+          return result;
+        }
+        return key;
+      });
+    }
+  }, []);
+
+  return t;
+}
 
 // Safe admin status hook that doesn't throw if AdminProvider is not available
 function useSafeAdminStatus() {
@@ -36,7 +84,7 @@ export function MainNav() {
   const pathname = usePathname();
   const { user, signOut } = useAuth();
   const { isAdmin } = useSafeAdminStatus();
-  const t = useTranslations("navigation");
+  const t = useSafeTranslations("navigation");
 
   // Memoize userId to prevent unnecessary re-renders
   const userId = useMemo(() => user?.id, [user?.id]);

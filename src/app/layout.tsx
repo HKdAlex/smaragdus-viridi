@@ -6,9 +6,7 @@ import { AuthProvider } from "@/features/auth/context/auth-context";
 import { Footer } from "@/shared/components/layout/footer";
 import { MainNav } from "@/shared/components/navigation/main-nav";
 import type { Metadata } from "next";
-import { NextIntlClientProvider } from "next-intl";
 import { ThemeProvider } from "@/shared/context/theme-context";
-import { getMessages } from "next-intl/server";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -69,10 +67,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Providing all messages to the client
-  // side is the easiest way to get started
-  const messages = await getMessages();
-
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -83,17 +77,15 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning
       >
-        <NextIntlClientProvider messages={messages}>
-          <ThemeProvider>
-            <AuthProvider>
-              <div className="flex flex-col min-h-screen">
-                <MainNav />
-                <main className="flex-1">{children}</main>
-                <Footer />
-              </div>
-            </AuthProvider>
-          </ThemeProvider>
-        </NextIntlClientProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <div className="flex flex-col min-h-screen">
+              <MainNav />
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </div>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

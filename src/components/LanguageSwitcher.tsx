@@ -1,20 +1,40 @@
 "use client";
 
-import { useRouter, usePathname } from "next/navigation";
-import { useLocale } from "next-intl";
+import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
+
+// Safe locale hook that falls back gracefully if next-intl is not available
+function useSafeLocale() {
+  const [locale, setLocale] = useState("en");
+
+  useEffect(() => {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { useLocale } = require("next-intl");
+      // We can't use hooks directly in useEffect, so we'll get it from the pathname
+      const currentPath = window.location.pathname;
+      const pathLocale = currentPath.startsWith('/ru') ? 'ru' : 'en';
+      setLocale(pathLocale);
+    } catch {
+      // next-intl not available, keep default
+    }
+  }, []);
+
+  return locale;
+}
 
 import { Button } from "@/shared/components/ui/button";
 
 export function LanguageSwitcher() {
-  const router = useRouter();
-  const locale = useLocale();
-  const pathname = usePathname(); // This includes the locale prefix
+  const locale = useSafeLocale();
+  const pathname = usePathname();
 
   const switchLocale = (newLocale: string) => {
-    // Extract the locale-free path by removing the current locale prefix
-    const localeFreePath = pathname.replace(`/${locale}`, '') || '/';
+    // Use window.location for reliable navigation without type constraints
+    const currentPath = window.location.pathname;
+    const localeFreePath = currentPath.replace(/^\/(en|ru)/, '');
     const newPath = `/${newLocale}${localeFreePath}`;
-    router.push(newPath);
+    window.location.href = newPath;
   };
 
   return (

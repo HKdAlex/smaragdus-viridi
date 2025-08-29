@@ -6,9 +6,9 @@ import type {
 
 import { GemstoneDetail } from "@/features/gemstones/components/gemstone-detail";
 import { Suspense } from "react";
+import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { getTranslations } from "next-intl/server";
 
 // DetailGemstone interface is now imported from shared types
 
@@ -206,7 +206,7 @@ export async function generateMetadata({ params }: PageProps) {
     weight: gemstone.weight_carats,
     color: gemstone.color,
     name: gemstone.name,
-    price: priceFormatted
+    price: priceFormatted,
   });
 
   const description = t("gemstone.description", {
@@ -215,7 +215,7 @@ export async function generateMetadata({ params }: PageProps) {
     name: gemstone.name,
     cut: gemstone.cut,
     clarity: gemstone.clarity,
-    serial: gemstone.serial_number
+    serial: gemstone.serial_number,
   });
 
   const keywords = [
@@ -237,12 +237,12 @@ export async function generateMetadata({ params }: PageProps) {
       title: t("gemstone.og.title", {
         weight: gemstone.weight_carats,
         color: gemstone.color,
-        name: gemstone.name
+        name: gemstone.name,
       }),
       description: t("gemstone.og.description", {
         price: priceFormatted,
         cut: gemstone.cut,
-        clarity: gemstone.clarity
+        clarity: gemstone.clarity,
       }),
       images:
         gemstone.images.length > 0
@@ -254,7 +254,7 @@ export async function generateMetadata({ params }: PageProps) {
                 alt: t("gemstone.imageAlt", {
                   weight: gemstone.weight_carats,
                   color: gemstone.color,
-                  name: gemstone.name
+                  name: gemstone.name,
                 }),
               },
             ]
