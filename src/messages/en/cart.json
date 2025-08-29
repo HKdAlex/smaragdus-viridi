@@ -23,7 +23,11 @@
     "price": "Price",
     "total": "Total",
     "remove": "Remove",
-    "update": "Update"
+    "update": "Update",
+    "gemstoneInfoNotAvailable": "Gemstone information not available",
+    "gemstoneNameNotAvailable": "Gemstone name not available",
+    "each": "each",
+    "removeFromCart": "Remove {name} from cart"
   },
   "summary": {
     "title": "Order Summary",

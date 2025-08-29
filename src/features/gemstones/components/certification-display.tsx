@@ -1,26 +1,27 @@
 "use client";
 
-import {
-  AlertCircle,
-  Calendar,
-  CheckCircle,
-  ExternalLink,
-  FileText,
-  Shield,
-} from "lucide-react";
+import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
+import { AlertCircle, CheckCircle, Download, ExternalLink, Shield } from "lucide-react";
+import { useTranslations } from "next-intl";
 
-import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
-import type { DatabaseCertification } from "@/shared/types";
+interface Certification {
+  id: string;
+  certificate_type: string;
+  certificate_number?: string;
+  certificate_url?: string;
+  issued_date?: string;
+}
 
 interface CertificationDisplayProps {
-  certifications: DatabaseCertification[];
+  certifications: Certification[];
 }
 
 // Certificate authority information
@@ -68,6 +69,8 @@ const CERTIFICATE_AUTHORITIES = {
 export function CertificationDisplay({
   certifications,
 }: CertificationDisplayProps) {
+  const t = useTranslations("gemstones.certifications");
+  
   if (certifications.length === 0) {
     return null;
   }
@@ -98,7 +101,7 @@ export function CertificationDisplay({
         ) : (
           <AlertCircle className="w-3 h-3 mr-1" />
         )}
-        {isHighTrust ? "Verified Authority" : "Recognized Authority"}
+        {isHighTrust ? t("trustLevels.verifiedAuthority") : t("trustLevels.recognizedAuthority")}
       </Badge>
     );
   };
@@ -108,7 +111,7 @@ export function CertificationDisplay({
       <CardHeader>
         <CardTitle className="flex items-center">
           <Shield className="w-5 h-5 mr-2" />
-          Certifications & Authentication
+          {t("title")}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -122,150 +125,79 @@ export function CertificationDisplay({
             return (
               <div
                 key={cert.id}
-                className={`p-4 rounded-lg border ${authority.bgColor} border-current/20`}
+                className={`p-4 rounded-lg border ${authority.bgColor}`}
               >
                 <div className="flex items-start justify-between mb-3">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <h4 className={`font-semibold ${authority.color}`}>
-                        {authority.name}
-                      </h4>
-                      {getTrustBadge(
-                        cert.certificate_type as keyof typeof CERTIFICATE_AUTHORITIES
-                      )}
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      {authority.description}
+                  <div className="flex-1">
+                    <h4 className={`font-semibold ${authority.color} mb-1`}>
+                      {t(`authorities.${cert.certificate_type}.name`, { fallback: authority.name })}
+                    </h4>
+                    <p className="text-sm text-gray-600 mb-2">
+                      {t(`authorities.${cert.certificate_type}.description`, { fallback: authority.description })}
                     </p>
+                    {getTrustBadge(
+                      cert.certificate_type as keyof typeof CERTIFICATE_AUTHORITIES
+                    )}
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  {/* Certificate Number */}
+                <div className="space-y-2 text-sm">
                   {cert.certificate_number && (
-                    <div className="space-y-1">
-                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                        Certificate Number
-                      </label>
-                      <div className="flex items-center gap-2">
-                        <FileText className="w-4 h-4 text-muted-foreground" />
-                        <span className="font-mono text-sm">
-                          {cert.certificate_number}
-                        </span>
-                      </div>
-                    </div>
+                    <p className="text-gray-700">
+                      {t("certificateNumber", { number: cert.certificate_number })}
+                    </p>
                   )}
-
-                  {/* Issue Date */}
                   {cert.issued_date && (
-                    <div className="space-y-1">
-                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                        Issue Date
-                      </label>
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4 text-muted-foreground" />
-                        <span className="text-sm">
-                          {formatDate(cert.issued_date)}
-                        </span>
-                      </div>
-                    </div>
+                    <p className="text-gray-700">
+                      {t("issuedDate", { date: formatDate(cert.issued_date) })}
+                    </p>
                   )}
                 </div>
 
-                {/* Certificate Actions */}
-                <div className="flex gap-3">
-                  {cert.certificate_url && (
+                {cert.certificate_url && (
+                  <div className="flex space-x-2 mt-4">
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() =>
-                        cert.certificate_url &&
-                        window.open(cert.certificate_url, "_blank")
-                      }
-                      className="flex items-center gap-2"
+                      onClick={() => window.open(cert.certificate_url, "_blank")}
                     >
-                      <ExternalLink className="w-4 h-4" />
-                      View Certificate
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      {t("viewCertificate")}
                     </Button>
-                  )}
 
-                  {cert.certificate_number &&
-                    cert.certificate_type === "GIA" && (
+                    {cert.certificate_type === "GIA" && (
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() =>
-                          window.open(
-                            `https://www.gia.edu/report-check?reportno=${cert.certificate_number}`,
-                            "_blank"
-                          )
-                        }
-                        className="flex items-center gap-2"
+                        onClick={() => {
+                          // Handle GIA certificate download
+                          window.open(cert.certificate_url, "_blank");
+                        }}
                       >
-                        <Shield className="w-4 h-4" />
-                        Verify Online
+                        <Download className="w-4 h-4 mr-2" />
+                        {t("downloadCertificate")}
                       </Button>
                     )}
-                </div>
 
-                {/* Certificate Features */}
-                <div className="mt-4 p-3 bg-white/50 rounded-md">
-                  <h5 className="text-sm font-medium mb-2">
-                    What this certificate validates:
-                  </h5>
-                  <ul className="text-xs space-y-1 text-muted-foreground">
-                    <li className="flex items-center gap-2">
-                      <div className="w-1 h-1 bg-current rounded-full" />
-                      Gemstone authenticity and natural origin
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <div className="w-1 h-1 bg-current rounded-full" />
-                      Accurate grading of the 4Cs (Cut, Color, Clarity, Carat)
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <div className="w-1 h-1 bg-current rounded-full" />
-                      Professional measurements and dimensions
-                    </li>
-                    {cert.certificate_type === "GIA" && (
-                      <li className="flex items-center gap-2">
-                        <div className="w-1 h-1 bg-current rounded-full" />
-                        Treatment detection and disclosure
-                      </li>
+                    {(cert.certificate_type === "SSEF" ||
+                      cert.certificate_type === "Gübelin") && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          // Handle SSEF/Gübelin certificate download
+                          window.open(cert.certificate_url, "_blank");
+                        }}
+                      >
+                        <Download className="w-4 h-4 mr-2" />
+                        {t("downloadCertificate")}
+                      </Button>
                     )}
-                    {(cert.certificate_type === "Gübelin" ||
-                      cert.certificate_type === "SSEF") && (
-                      <li className="flex items-center gap-2">
-                        <div className="w-1 h-1 bg-current rounded-full" />
-                        Geographic origin determination
-                      </li>
-                    )}
-                  </ul>
-                </div>
+                  </div>
+                )}
               </div>
             );
           })}
-
-          {/* Certification Summary */}
-          <div className="bg-muted/50 p-4 rounded-lg">
-            <div className="flex items-start gap-3">
-              <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-              <div className="space-y-2">
-                <h4 className="font-medium text-sm">Certification Guarantee</h4>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  All certificates are verified for authenticity. We guarantee
-                  that the gemstone matches the specifications detailed in the
-                  provided certificates. Our team validates each certificate
-                  against the issuing laboratory's database when possible.
-                </p>
-                {certifications.length > 1 && (
-                  <p className="text-xs text-muted-foreground">
-                    Multiple certifications provide additional confidence in the
-                    gemstone's quality and authenticity.
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
         </div>
       </CardContent>
     </Card>

@@ -450,11 +450,10 @@ export function GemstoneCatalog() {
       {/* Header */}
       <div className="text-center">
         <h1 className="text-4xl font-bold text-foreground mb-4">
-          Gemstone Catalog
+          {t("title")}
         </h1>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Discover our carefully curated collection of premium gemstones from
-          around the world
+          {t("description")}
         </p>
       </div>
 

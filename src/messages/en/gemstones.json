@@ -196,5 +196,13 @@
     "polish": "Polish",
     "symmetry": "Symmetry",
     "proportions": "Proportions"
+  },
+  "related": {
+    "title": "Similar Gemstones",
+    "noImage": "No Image",
+    "outOfStock": "Out of Stock",
+    "viewAllSimilar": "View All Similar Gemstones",
+    "cut": "Cut",
+    "clarity": "Clarity"
   }
 }

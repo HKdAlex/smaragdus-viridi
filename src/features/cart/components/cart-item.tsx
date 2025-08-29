@@ -1,56 +1,66 @@
 "use client";
 
 import { Button } from "@/shared/components/ui/button";
+import { useTranslations } from "next-intl";
 import type { CartItem as CartItemType } from "@/shared/types";
 import Image from "next/image";
-import { QuantitySelector } from "./quantity-selector";
-import { useCart } from "../hooks/use-cart";
 import { useState } from "react";
+import { updateCartItemQuantity, removeFromCart } from "../services/cart-service";
 
 interface CartItemProps {
   item: CartItemType;
-  isSelected?: boolean;
-  onSelectionChange?: (selected: boolean) => void;
+  isSelected: boolean;
+  onSelectionChange: (itemId: string, selected: boolean) => void;
+  onQuantityChange: (itemId: string, quantity: number) => void;
+  onRemove: (itemId: string) => void;
 }
 
 export function CartItem({
   item,
-  isSelected = false,
+  isSelected,
   onSelectionChange,
+  onQuantityChange,
+  onRemove,
 }: CartItemProps) {
-  const { updateQuantity, removeFromCart, isLoading } = useCart();
+  const [isLoading, setIsLoading] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isRemoving, setIsRemoving] = useState(false);
+  const t = useTranslations("cart.items");
 
   const handleSelectionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onSelectionChange?.(e.target.checked);
+    onSelectionChange(item.id, e.target.checked);
   };
 
   const handleQuantityChange = async (newQuantity: number) => {
-    if (newQuantity === item.quantity) return;
+    if (newQuantity < 1) return;
 
     setIsUpdating(true);
-    const success = await updateQuantity(item.id, newQuantity);
-    if (!success) {
-      // Could show a toast notification here
+    const success = await updateCartItemQuantity(item.id, newQuantity);
+
+    if (success) {
+      onQuantityChange(item.id, newQuantity);
     }
+    // Could show a toast notification here
     setIsUpdating(false);
   };
 
   const handleRemove = async () => {
     setIsRemoving(true);
     const success = await removeFromCart(item.id);
-    if (!success) {
-      // Could show a toast notification here
+
+    if (success) {
+      onRemove(item.id);
     }
+    // Could show a toast notification here
     setIsRemoving(false);
   };
 
+  // Handle case where gemstone data is not available
   if (!item.gemstone) {
     return (
       <div className="bg-red-50 border border-red-200 rounded-lg p-4">
         <p className="text-red-700 text-sm">
-          Gemstone information not available
+          {t("gemstoneInfoNotAvailable")}
         </p>
       </div>
     );
@@ -64,7 +74,7 @@ export function CartItem({
   if (!gemstone.name) {
     return (
       <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-        <p className="text-red-700 text-sm">Gemstone name not available</p>
+        <p className="text-red-700 text-sm">{t("gemstoneNameNotAvailable")}</p>
       </div>
     );
   }
@@ -121,7 +131,7 @@ export function CartItem({
             {gemstone.weight_carats}ct • {gemstone.serial_number}
           </p>
           <p className="text-sm font-medium text-gray-900">
-            {item.formatted_unit_price} each
+            {item.formatted_unit_price} {t("each")}
           </p>
         </div>
 
@@ -133,7 +143,7 @@ export function CartItem({
             onClick={handleRemove}
             disabled={isLoading || isRemoving || isUpdating}
             className="text-gray-400 hover:text-red-600 p-1"
-            aria-label={`Remove ${gemstone.name} from cart`}
+            aria-label={t("removeFromCart", { name: gemstone.name })}
           >
             {isRemoving ? (
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600"></div>
@@ -148,7 +158,7 @@ export function CartItem({
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
                 />
               </svg>
             )}
@@ -156,37 +166,46 @@ export function CartItem({
         </div>
       </div>
 
-      {/* Quantity and Price Row */}
+      {/* Quantity and Actions */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <span className="text-sm text-gray-600">Qty:</span>
-          <QuantitySelector
-            value={item.quantity || 1}
-            onChange={handleQuantityChange}
-            disabled={isLoading || isUpdating}
-            max={99}
-          />
+        <div className="flex items-center space-x-4">
+          <label className="text-sm font-medium text-gray-700">
+            {t("quantity")}:
+          </label>
+          <div className="flex items-center border border-gray-300 rounded-md">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleQuantityChange(item.quantity - 1)}
+              disabled={isLoading || isUpdating || item.quantity <= 1}
+              className="px-2 py-1 text-gray-600 hover:text-gray-900"
+            >
+              -
+            </Button>
+            <span className="px-3 py-1 text-sm font-medium text-gray-900 min-w-[2rem] text-center">
+              {item.quantity}
+            </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleQuantityChange(item.quantity + 1)}
+              disabled={isLoading || isUpdating}
+              className="px-2 py-1 text-gray-600 hover:text-gray-900"
+            >
+              +
+            </Button>
+          </div>
         </div>
 
         <div className="text-right">
-          <p className="text-sm font-medium text-gray-900">
-            {item.formatted_line_total}
+          <p className="text-sm text-gray-600">
+            {t("price")}: {item.formatted_unit_price}
           </p>
-          {(item.quantity || 1) > 1 && (
-            <p className="text-xs text-gray-500">
-              {item.formatted_unit_price} × {item.quantity || 1}
-            </p>
-          )}
+          <p className="text-lg font-semibold text-gray-900">
+            {t("total")}: {item.formatted_total_price}
+          </p>
         </div>
       </div>
-
-      {/* Loading State */}
-      {isUpdating && (
-        <div className="flex items-center space-x-2 text-sm text-blue-600">
-          <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600"></div>
-          <span>Updating...</span>
-        </div>
-      )}
     </div>
   );
 }
