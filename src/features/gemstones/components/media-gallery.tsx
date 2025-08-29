@@ -21,6 +21,7 @@ import { useEffect, useRef, useState } from "react";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 
 interface MediaGalleryProps {
   images: DatabaseGemstoneImage[];
@@ -38,6 +39,8 @@ type MediaItem = {
 };
 
 export function MediaGallery({ images, videos }: MediaGalleryProps) {
+  const t = useTranslations("errors.media");
+  
   // Combine and sort media items
   const mediaItems: MediaItem[] = [
     ...images.map((img) => ({
@@ -140,7 +143,7 @@ export function MediaGallery({ images, videos }: MediaGalleryProps) {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(downloadUrl);
     } catch (error) {
-      console.error("Download failed:", error);
+      console.error(t("downloadFailed"), error);
     }
   };
 

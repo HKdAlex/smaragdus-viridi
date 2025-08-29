@@ -18,6 +18,7 @@ type ViewMode = "list" | "create" | "edit";
 
 export function AdminGemstoneManager() {
   const t = useTranslations("admin.gemstoneManagement");
+  const tErrors = useTranslations("errors.admin");
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [selectedGemstone, setSelectedGemstone] =
     useState<DatabaseGemstone | null>(null);
@@ -46,10 +47,10 @@ export function AdminGemstoneManager() {
           outOfStock: gemstoneStats.outOfStock,
         });
       } else {
-        console.error("Failed to load gemstone stats:", result.error);
+        console.error(tErrors("loadGemstoneStatsFailed"), result.error);
       }
     } catch (error) {
-      console.error("Error loading gemstone stats:", error);
+      console.error(tErrors("loadGemstoneStatsFailed"), error);
     }
   };
 

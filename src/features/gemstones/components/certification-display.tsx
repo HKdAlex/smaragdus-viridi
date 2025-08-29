@@ -150,7 +150,9 @@ export function CertificationDisplay({
                 <div className="space-y-2 text-sm">
                   {cert.certificate_number && (
                     <p className="text-gray-700">
-                      {t("certificateNumber", { number: cert.certificate_number })}
+                      {t("certificateNumber", {
+                        number: cert.certificate_number,
+                      })}
                     </p>
                   )}
                   {cert.issued_date && (
@@ -173,34 +175,34 @@ export function CertificationDisplay({
                       {t("viewCertificate")}
                     </Button>
 
-                                         {cert.certificate_type === "GIA" && (
-                       <Button
-                         variant="outline"
-                         size="sm"
-                         onClick={() => {
-                           // Handle GIA certificate download
-                           window.open(cert.certificate_url, "_blank");
-                         }}
-                       >
-                         <Download className="w-4 h-4 mr-2" />
-                         {t("downloadCertificate")}
-                       </Button>
-                     )}
+                    {cert.certificate_type === "GIA" && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          // Handle GIA certificate download
+                          window.open(cert.certificate_url, "_blank");
+                        }}
+                      >
+                        <Download className="w-4 h-4 mr-2" />
+                        {t("downloadCertificate")}
+                      </Button>
+                    )}
 
-                                         {(cert.certificate_type === "SSEF" ||
-                       cert.certificate_type === "Gübelin") && (
-                       <Button
-                         variant="outline"
-                         size="sm"
-                         onClick={() => {
-                           // Handle SSEF/Gübelin certificate download
-                           window.open(cert.certificate_url, "_blank");
-                         }}
-                       >
-                         <Download className="w-4 h-4 mr-2" />
-                         {t("downloadCertificate")}
-                       </Button>
-                     )}
+                    {(cert.certificate_type === "SSEF" ||
+                      cert.certificate_type === "Gübelin") && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          // Handle SSEF/Gübelin certificate download
+                          window.open(cert.certificate_url, "_blank");
+                        }}
+                      >
+                        <Download className="w-4 h-4 mr-2" />
+                        {t("downloadCertificate")}
+                      </Button>
+                    )}
                   </div>
                 )}
               </div>

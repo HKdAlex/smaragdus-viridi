@@ -22,6 +22,9 @@
     "contextError": "useAuth должен использоваться внутри AuthProvider",
     "signOutFailed": "Не удалось выйти из системы"
   },
+  "theme": {
+    "contextError": "useThemeContext должен использоваться внутри ThemeProvider"
+  },
   "cart": {
     "itemNotAvailable": "Этот товар больше не доступен.",
     "insufficientStock": "Недостаточно товара на складе.",
@@ -68,5 +71,27 @@
     "description": "Страница, которую вы ищете, не существует или была перемещена.",
     "goHome": "На главную",
     "browseCatalog": "Просмотр каталога"
+  },
+  "preferences": {
+    "contextError": "usePreferences должен использоваться внутри PreferencesProvider",
+    "loadFailed": "Не удалось загрузить настройки",
+    "userNotAuthenticated": "Пользователь не аутентифицирован",
+    "updateThemeFailed": "Не удалось обновить тему",
+    "updateCurrencyFailed": "Не удалось обновить валюту",
+    "updateNotificationsFailed": "Не удалось обновить уведомления",
+    "updatePrivacyFailed": "Не удалось обновить настройки конфиденциальности"
+  },
+  "media": {
+    "downloadFailed": "Не удалось скачать"
+  },
+  "admin": {
+    "loadGemstoneStatsFailed": "Не удалось загрузить статистику камней",
+    "loadDashboardStatsFailed": "Не удалось загрузить статистику панели",
+    "dashboardStatsError": "Ошибка статистики панели",
+    "loadOriginsFailed": "Не удалось загрузить происхождения",
+    "bulkUpdateFailed": "Не удалось выполнить массовое обновление",
+    "addToCartError": "Ошибка добавления в корзину",
+    "gemstoneDetailError": "Ошибка деталей камня",
+    "initialSessionError": "Ошибка получения начальной сессии"
   }
 }

@@ -22,6 +22,9 @@
     "contextError": "useAuth must be used within an AuthProvider",
     "signOutFailed": "Sign out failed"
   },
+  "theme": {
+    "contextError": "useThemeContext must be used within a ThemeProvider"
+  },
   "cart": {
     "itemNotAvailable": "This item is no longer available.",
     "insufficientStock": "Insufficient stock for this item.",
@@ -68,5 +71,27 @@
     "description": "The page you're looking for doesn't exist or has been moved.",
     "goHome": "Go Home",
     "browseCatalog": "Browse Catalog"
+  },
+  "preferences": {
+    "contextError": "usePreferences must be used within a PreferencesProvider",
+    "loadFailed": "Failed to load preferences",
+    "userNotAuthenticated": "User not authenticated",
+    "updateThemeFailed": "Failed to update theme",
+    "updateCurrencyFailed": "Failed to update currency",
+    "updateNotificationsFailed": "Failed to update notifications",
+    "updatePrivacyFailed": "Failed to update privacy settings"
+  },
+  "media": {
+    "downloadFailed": "Download failed"
+  },
+  "admin": {
+    "loadGemstoneStatsFailed": "Failed to load gemstone stats",
+    "loadDashboardStatsFailed": "Failed to load dashboard stats",
+    "dashboardStatsError": "Dashboard stats error",
+    "loadOriginsFailed": "Failed to load origins",
+    "bulkUpdateFailed": "Bulk update failed",
+    "addToCartError": "Add to cart error",
+    "gemstoneDetailError": "Gemstone detail error",
+    "initialSessionError": "Error getting initial session"
   }
 }

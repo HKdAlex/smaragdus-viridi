@@ -198,7 +198,7 @@ export function MainNav() {
                       try {
                         await signOut();
                       } catch (error) {
-                        console.error("Sign out failed:", error);
+                        console.error(t("signOutFailed"), error);
                       }
                     }}
                     className="border-border text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
@@ -306,7 +306,7 @@ export function MainNav() {
                           await signOut();
                           setMobileMenuOpen(false);
                         } catch (error) {
-                          console.error("Sign out failed:", error);
+                          console.error(t("signOutFailed"), error);
                         }
                       }}
                       className="w-full border-border text-foreground hover:bg-accent hover:text-accent-foreground"

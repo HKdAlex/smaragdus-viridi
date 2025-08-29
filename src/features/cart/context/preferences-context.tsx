@@ -54,7 +54,7 @@ export function PreferencesProvider({
   const [error, setError] = useState<string | null>(null);
 
   const preferencesService = new PreferencesService();
-  const t = useTranslations("errors.admin");
+  const t = useTranslations("errors.preferences");
 
   // Load preferences when userId changes
   useEffect(() => {
@@ -81,17 +81,17 @@ export function PreferencesProvider({
       setPreferences(prefs);
     } catch (err) {
       const errorMessage =
-        err instanceof Error ? err.message : "Failed to load preferences";
+        err instanceof Error ? err.message : t("loadFailed");
       setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
-  }, [userId, preferencesService]);
+  }, [userId, preferencesService, t]);
 
   const updateTheme = useCallback(
     async (theme: "light" | "dark" | "system"): Promise<boolean> => {
       if (!userId) {
-        setError("User not authenticated");
+        setError(t("userNotAuthenticated"));
         return false;
       }
 
@@ -104,25 +104,25 @@ export function PreferencesProvider({
           // Update local state
           setPreferences((prev) => (prev ? { ...prev, theme } : null));
         } else {
-          setError("Failed to update theme");
+          setError(t("updateThemeFailed"));
         }
         return success;
       } catch (err) {
         const errorMessage =
-          err instanceof Error ? err.message : "Failed to update theme";
+          err instanceof Error ? err.message : t("updateThemeFailed");
         setError(errorMessage);
         return false;
       } finally {
         setIsLoading(false);
       }
     },
-    [userId, preferencesService]
+    [userId, preferencesService, t]
   );
 
   const updateCurrency = useCallback(
     async (currency: CurrencyCode): Promise<boolean> => {
       if (!userId) {
-        setError("User not authenticated");
+        setError(t("userNotAuthenticated"));
         return false;
       }
 
@@ -140,19 +140,19 @@ export function PreferencesProvider({
             prev ? { ...prev, preferred_currency: currency } : null
           );
         } else {
-          setError("Failed to update currency");
+          setError(t("updateCurrencyFailed"));
         }
         return success;
       } catch (err) {
         const errorMessage =
-          err instanceof Error ? err.message : "Failed to update currency";
+          err instanceof Error ? err.message : t("updateCurrencyFailed");
         setError(errorMessage);
         return false;
       } finally {
         setIsLoading(false);
       }
     },
-    [userId, preferencesService]
+    [userId, preferencesService, t]
   );
 
   const updateNotifications = useCallback(
@@ -163,7 +163,7 @@ export function PreferencesProvider({
       marketing_emails?: boolean;
     }): Promise<boolean> => {
       if (!userId) {
-        setError("User not authenticated");
+        setError(t("userNotAuthenticated"));
         return false;
       }
 
@@ -181,19 +181,19 @@ export function PreferencesProvider({
             prev ? { ...prev, ...notifications } : null
           );
         } else {
-          setError("Failed to update notifications");
+          setError(t("updateNotificationsFailed"));
         }
         return success;
       } catch (err) {
         const errorMessage =
-          err instanceof Error ? err.message : "Failed to update notifications";
+          err instanceof Error ? err.message : t("updateNotificationsFailed");
         setError(errorMessage);
         return false;
       } finally {
         setIsLoading(false);
       }
     },
-    [userId, preferencesService]
+    [userId, preferencesService, t]
   );
 
   const updatePrivacy = useCallback(
@@ -202,7 +202,7 @@ export function PreferencesProvider({
       data_sharing?: boolean;
     }): Promise<boolean> => {
       if (!userId) {
-        setError("User not authenticated");
+        setError(t("userNotAuthenticated"));
         return false;
       }
 
@@ -219,7 +219,7 @@ export function PreferencesProvider({
         }
         return success;
       } catch (error) {
-        console.error("Failed to update privacy settings:", error);
+        console.error(t("updatePrivacyFailed"), error);
         setError(t("updatePrivacyFailed"));
       } finally {
         setIsLoading(false);
@@ -258,7 +258,8 @@ export function PreferencesProvider({
 export function usePreferences(): PreferencesContextType {
   const context = useContext(PreferencesContext);
   if (context === undefined) {
-    throw new Error("usePreferences must be used within a PreferencesProvider");
+    const t = useTranslations("errors.preferences");
+    throw new Error(t("contextError"));
   }
   return context;
 }
