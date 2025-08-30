@@ -26,9 +26,9 @@ import { AdminGemstoneManager } from "./admin-gemstone-manager";
 import { AdminPriceInventoryManager } from "./admin-price-inventory-manager";
 import { AdminSettings } from "./admin-settings";
 import { AdminUserManager } from "./admin-user-manager";
-import { OrderManagement } from "./order-management";
 // Import admin components (will be created in subsequent phases)
 import { Button } from "@/shared/components/ui/button";
+import { OrderManagement } from "./order-management";
 import { StatisticsService } from "../services/statistics-service";
 import { useAdmin } from "../context/admin-context";
 import { useTranslations } from "next-intl";

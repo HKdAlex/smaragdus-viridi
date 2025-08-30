@@ -7,14 +7,9 @@ import {
   Mail,
   MapPin,
   Package,
-  Phone,
   Truck,
   User,
 } from "lucide-react";
-import { useState } from "react";
-
-import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
 import {
   Card,
   CardContent,
@@ -22,6 +17,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
+import type {
+  ORDER_STATUS_CONFIG,
+  OrderDetailProps,
+  OrderStatus,
+} from "../types/order-management.types";
 import {
   Select,
   SelectContent,
@@ -29,35 +29,38 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
+
+import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
 import { Separator } from "@/shared/components/ui/separator";
 import { Textarea } from "@/shared/components/ui/textarea";
-import type {
-  AdminOrder,
-  OrderStatus,
-  OrderDetailProps,
-  ORDER_STATUS_CONFIG,
-} from "../types/order-management.types";
 import { format } from "date-fns";
+import { useState } from "react";
 
-export function OrderDetail({ order, onStatusUpdate, onBack, loading }: OrderDetailProps) {
+export function OrderDetail({
+  order,
+  onStatusUpdate,
+  onBack,
+  loading,
+}: OrderDetailProps) {
   const [updatingStatus, setUpdatingStatus] = useState(false);
-  const [statusNotes, setStatusNotes] = useState('');
+  const [statusNotes, setStatusNotes] = useState("");
 
   const handleStatusUpdate = async (newStatus: OrderStatus) => {
     setUpdatingStatus(true);
     try {
       await onStatusUpdate(order.id, newStatus);
-      setStatusNotes('');
+      setStatusNotes("");
     } catch (error) {
-      console.error('Failed to update order status:', error);
+      console.error("Failed to update order status:", error);
     } finally {
       setUpdatingStatus(false);
     }
   };
 
   const formatCurrency = (amount: number, currency: string) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
       currency: currency,
       minimumFractionDigits: 0,
     }).format(amount / 100);
@@ -117,9 +120,11 @@ export function OrderDetail({ order, onStatusUpdate, onBack, loading }: OrderDet
             Back to Orders
           </Button>
           <div>
-            <h1 className="text-2xl font-bold">Order #{order.id.slice(0, 8)}</h1>
+            <h1 className="text-2xl font-bold">
+              Order #{order.id.slice(0, 8)}
+            </h1>
             <p className="text-muted-foreground">
-              Placed on {format(new Date(order.created_at), 'MMMM d, yyyy')}
+              Placed on {format(new Date(order.created_at), "MMMM d, yyyy")}
             </p>
           </div>
         </div>
@@ -177,7 +182,9 @@ export function OrderDetail({ order, onStatusUpdate, onBack, loading }: OrderDet
 
               <div className="flex justify-between items-center text-lg font-semibold">
                 <span>Total</span>
-                <span>{formatCurrency(order.total_amount, order.currency_code)}</span>
+                <span>
+                  {formatCurrency(order.total_amount, order.currency_code)}
+                </span>
               </div>
             </CardContent>
           </Card>
@@ -202,7 +209,9 @@ export function OrderDetail({ order, onStatusUpdate, onBack, loading }: OrderDet
                   <label className="text-sm font-medium">Update Status</label>
                   <Select
                     disabled={updatingStatus}
-                    onValueChange={(value) => handleStatusUpdate(value as OrderStatus)}
+                    onValueChange={(value) =>
+                      handleStatusUpdate(value as OrderStatus)
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select new status" />
@@ -242,16 +251,21 @@ export function OrderDetail({ order, onStatusUpdate, onBack, loading }: OrderDet
             <CardContent className="space-y-3">
               <div className="flex items-center space-x-3">
                 <User className="w-4 h-4 text-muted-foreground" />
-                <span className="font-medium">{order.user?.name || 'Unknown'}</span>
+                <span className="font-medium">
+                  {order.user?.name || "Unknown"}
+                </span>
               </div>
               <div className="flex items-center space-x-3">
                 <Mail className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm">{order.user?.email || 'No email'}</span>
+                <span className="text-sm">
+                  {order.user?.email || "No email"}
+                </span>
               </div>
               <div className="flex items-center space-x-3">
                 <Calendar className="w-4 h-4 text-muted-foreground" />
                 <span className="text-sm">
-                  Last updated: {format(new Date(order.updated_at), 'MMM d, yyyy')}
+                  Last updated:{" "}
+                  {format(new Date(order.updated_at), "MMM d, yyyy")}
                 </span>
               </div>
             </CardContent>
@@ -271,7 +285,10 @@ export function OrderDetail({ order, onStatusUpdate, onBack, loading }: OrderDet
                   <MapPin className="w-4 h-4 text-muted-foreground mt-0.5" />
                   <div className="text-sm">
                     <p>{deliveryAddress.street}</p>
-                    <p>{deliveryAddress.city}, {deliveryAddress.state} {deliveryAddress.zip_code}</p>
+                    <p>
+                      {deliveryAddress.city}, {deliveryAddress.state}{" "}
+                      {deliveryAddress.zip_code}
+                    </p>
                     <p>{deliveryAddress.country}</p>
                   </div>
                 </div>

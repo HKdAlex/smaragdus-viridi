@@ -1,34 +1,28 @@
 "use client";
 
+import type { AdminOrder } from "../types/order-management.types";
+import { OrderDetail } from "./order-detail";
+import { OrderList } from "./order-list";
+import { useAdminOrders } from "../hooks/use-admin-orders";
 import { useState } from "react";
 
-import type { AdminOrder } from "../types/order-management.types";
-import { useAdminOrders } from "../hooks/use-admin-orders";
-import { OrderList } from "./order-list";
-import { OrderDetail } from "./order-detail";
-
-type ViewMode = 'list' | 'detail';
+type ViewMode = "list" | "detail";
 
 export function OrderManagement() {
-  const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [selectedOrder, setSelectedOrder] = useState<AdminOrder | null>(null);
 
-  const {
-    orders,
-    loading,
-    error,
-    updateOrderStatus,
-    refresh
-  } = useAdminOrders();
+  const { orders, loading, error, updateOrderStatus, refresh } =
+    useAdminOrders();
 
   const handleOrderSelect = (order: AdminOrder) => {
     setSelectedOrder(order);
-    setViewMode('detail');
+    setViewMode("detail");
   };
 
   const handleBackToList = () => {
     setSelectedOrder(null);
-    setViewMode('list');
+    setViewMode("list");
     // Refresh orders when going back to list
     refresh();
   };
@@ -39,10 +33,12 @@ export function OrderManagement() {
 
       // Update selected order if it's the one being updated
       if (selectedOrder?.id === orderId) {
-        setSelectedOrder(prev => prev ? { ...prev, status: newStatus as any } : null);
+        setSelectedOrder((prev) =>
+          prev ? { ...prev, status: newStatus as any } : null
+        );
       }
     } catch (error) {
-      console.error('Failed to update order status:', error);
+      console.error("Failed to update order status:", error);
       throw error;
     }
   };
@@ -58,7 +54,7 @@ export function OrderManagement() {
     );
   }
 
-  if (viewMode === 'detail' && selectedOrder) {
+  if (viewMode === "detail" && selectedOrder) {
     return (
       <OrderDetail
         order={selectedOrder}

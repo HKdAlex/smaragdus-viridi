@@ -1,19 +1,18 @@
-import { supabase } from '@/lib/supabase'
-import { createContextLogger } from '@/shared/utils/logger'
 import type {
-  AdminOrder,
-  AdminOrderItem,
-  GetOrdersRequest,
-  GetOrdersResponse,
-  UpdateOrderStatusRequest,
-  UpdateOrderStatusResponse,
-  BulkUpdateOrdersRequest,
-  BulkUpdateOrdersResponse,
-  OrderStatus,
-  OrderFilters,
-  OrderManagementError,
-  OrderAnalytics,
+    AdminOrder,
+    BulkUpdateOrdersRequest,
+    BulkUpdateOrdersResponse,
+    GetOrdersRequest,
+    GetOrdersResponse,
+    OrderAnalytics,
+    OrderManagementError,
+    OrderStatus,
+    UpdateOrderStatusRequest,
+    UpdateOrderStatusResponse
 } from '../types/order-management.types'
+
+import { createContextLogger } from '@/shared/utils/logger'
+import { supabase } from '@/lib/supabase'
 
 export class OrderManagementService {
   private supabase = supabase

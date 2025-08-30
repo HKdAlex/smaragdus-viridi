@@ -2,26 +2,23 @@
 
 import {
   ArrowUpDown,
-  ChevronLeft,
-  ChevronRight,
   Eye,
-  Filter,
   MoreHorizontal,
   Package,
   Search,
   X,
 } from "lucide-react";
-import { useState } from "react";
-
-import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
-import { Input } from "@/shared/components/ui/input";
+import type {
+  ORDER_STATUS_CONFIG,
+  OrderListProps,
+  OrderStatus,
+} from "../types/order-management.types";
 import {
   Select,
   SelectContent,
@@ -37,14 +34,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/shared/components/ui/table";
-import type {
-  AdminOrder,
-  OrderFilters,
-  OrderStatus,
-  OrderListProps,
-  ORDER_STATUS_CONFIG,
-} from "../types/order-management.types";
+
+import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
+import { Input } from "@/shared/components/ui/input";
 import { format } from "date-fns";
+import { useState } from "react";
 
 export function OrderList({
   orders,
@@ -53,20 +48,24 @@ export function OrderList({
   onStatusUpdate,
   selectedOrderId,
 }: OrderListProps) {
-  const [sortField, setSortField] = useState<'created_at' | 'total_amount'>('created_at');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<OrderStatus | 'all'>('all');
+  const [sortField, setSortField] = useState<"created_at" | "total_amount">(
+    "created_at"
+  );
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all");
 
   // Filter and sort orders
   const filteredOrders = orders
-    .filter(order => {
-      const matchesSearch = !searchQuery ||
+    .filter((order) => {
+      const matchesSearch =
+        !searchQuery ||
         order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
         order.user?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         order.user?.email?.toLowerCase().includes(searchQuery.toLowerCase());
 
-      const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
+      const matchesStatus =
+        statusFilter === "all" || order.status === statusFilter;
 
       return matchesSearch && matchesStatus;
     })
@@ -74,38 +73,41 @@ export function OrderList({
       let aValue: any = a[sortField];
       let bValue: any = b[sortField];
 
-      if (sortField === 'created_at') {
+      if (sortField === "created_at") {
         aValue = new Date(aValue).getTime();
         bValue = new Date(bValue).getTime();
       }
 
-      if (sortOrder === 'asc') {
+      if (sortOrder === "asc") {
         return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
       } else {
         return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
       }
     });
 
-  const handleSort = (field: 'created_at' | 'total_amount') => {
+  const handleSort = (field: "created_at" | "total_amount") => {
     if (sortField === field) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
     } else {
       setSortField(field);
-      setSortOrder('desc');
+      setSortOrder("desc");
     }
   };
 
-  const handleStatusUpdate = async (orderId: string, newStatus: OrderStatus) => {
+  const handleStatusUpdate = async (
+    orderId: string,
+    newStatus: OrderStatus
+  ) => {
     try {
       await onStatusUpdate(orderId, newStatus);
     } catch (error) {
-      console.error('Failed to update order status:', error);
+      console.error("Failed to update order status:", error);
     }
   };
 
   const formatCurrency = (amount: number, currency: string) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
       currency: currency,
       minimumFractionDigits: 0,
     }).format(amount / 100);
@@ -150,7 +152,12 @@ export function OrderList({
               className="pl-9 w-64"
             />
           </div>
-          <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as OrderStatus | 'all')}>
+          <Select
+            value={statusFilter}
+            onValueChange={(value) =>
+              setStatusFilter(value as OrderStatus | "all")
+            }
+          >
             <SelectTrigger className="w-32">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
@@ -177,7 +184,7 @@ export function OrderList({
               <TableHead>
                 <Button
                   variant="ghost"
-                  onClick={() => handleSort('created_at')}
+                  onClick={() => handleSort("created_at")}
                   className="h-auto p-0 font-semibold"
                 >
                   Date
@@ -189,7 +196,7 @@ export function OrderList({
               <TableHead>
                 <Button
                   variant="ghost"
-                  onClick={() => handleSort('total_amount')}
+                  onClick={() => handleSort("total_amount")}
                   className="h-auto p-0 font-semibold"
                 >
                   Total
@@ -212,7 +219,7 @@ export function OrderList({
                 <TableRow
                   key={order.id}
                   className={`cursor-pointer hover:bg-muted/50 ${
-                    selectedOrderId === order.id ? 'bg-muted' : ''
+                    selectedOrderId === order.id ? "bg-muted" : ""
                   }`}
                   onClick={() => onOrderSelect(order)}
                 >
@@ -221,21 +228,19 @@ export function OrderList({
                   </TableCell>
                   <TableCell>
                     <div>
-                      <p className="font-medium">{order.user?.name || 'Unknown'}</p>
+                      <p className="font-medium">
+                        {order.user?.name || "Unknown"}
+                      </p>
                       <p className="text-sm text-muted-foreground">
-                        {order.user?.email || 'No email'}
+                        {order.user?.email || "No email"}
                       </p>
                     </div>
                   </TableCell>
                   <TableCell>
-                    {format(new Date(order.created_at), 'MMM d, yyyy')}
+                    {format(new Date(order.created_at), "MMM d, yyyy")}
                   </TableCell>
-                  <TableCell>
-                    {getStatusBadge(order.status)}
-                  </TableCell>
-                  <TableCell>
-                    {order.items?.length || 0} items
-                  </TableCell>
+                  <TableCell>{getStatusBadge(order.status)}</TableCell>
+                  <TableCell>{order.items?.length || 0} items</TableCell>
                   <TableCell className="font-medium">
                     {formatCurrency(order.total_amount, order.currency_code)}
                   </TableCell>
@@ -251,42 +256,53 @@ export function OrderList({
                           <Eye className="mr-2 h-4 w-4" />
                           View Details
                         </DropdownMenuItem>
-                        {order.status === 'pending' && (
+                        {order.status === "pending" && (
                           <DropdownMenuItem
-                            onClick={() => handleStatusUpdate(order.id, 'confirmed')}
+                            onClick={() =>
+                              handleStatusUpdate(order.id, "confirmed")
+                            }
                           >
                             Confirm Order
                           </DropdownMenuItem>
                         )}
-                        {order.status === 'confirmed' && (
+                        {order.status === "confirmed" && (
                           <DropdownMenuItem
-                            onClick={() => handleStatusUpdate(order.id, 'processing')}
+                            onClick={() =>
+                              handleStatusUpdate(order.id, "processing")
+                            }
                           >
                             Start Processing
                           </DropdownMenuItem>
                         )}
-                        {order.status === 'processing' && (
+                        {order.status === "processing" && (
                           <DropdownMenuItem
-                            onClick={() => handleStatusUpdate(order.id, 'shipped')}
+                            onClick={() =>
+                              handleStatusUpdate(order.id, "shipped")
+                            }
                           >
                             Mark as Shipped
                           </DropdownMenuItem>
                         )}
-                        {order.status === 'shipped' && (
+                        {order.status === "shipped" && (
                           <DropdownMenuItem
-                            onClick={() => handleStatusUpdate(order.id, 'delivered')}
+                            onClick={() =>
+                              handleStatusUpdate(order.id, "delivered")
+                            }
                           >
                             Mark as Delivered
                           </DropdownMenuItem>
                         )}
-                        {order.status !== 'cancelled' && order.status !== 'delivered' && (
-                          <DropdownMenuItem
-                            onClick={() => handleStatusUpdate(order.id, 'cancelled')}
-                            className="text-destructive"
-                          >
-                            Cancel Order
-                          </DropdownMenuItem>
-                        )}
+                        {order.status !== "cancelled" &&
+                          order.status !== "delivered" && (
+                            <DropdownMenuItem
+                              onClick={() =>
+                                handleStatusUpdate(order.id, "cancelled")
+                              }
+                              className="text-destructive"
+                            >
+                              Cancel Order
+                            </DropdownMenuItem>
+                          )}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -306,7 +322,7 @@ export function OrderList({
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setSearchQuery('')}
+            onClick={() => setSearchQuery("")}
             className="h-auto p-1"
           >
             <X className="w-4 h-4 mr-1" />
