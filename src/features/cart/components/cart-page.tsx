@@ -179,6 +179,14 @@ export function CartPage() {
                             ? toggleItemSelection(item.id)
                             : toggleItemSelection(item.id)
                         }
+                        onQuantityChange={(itemId, quantity) => {
+                          // Handle quantity change
+                          console.log('Quantity changed:', itemId, quantity)
+                        }}
+                        onRemove={(itemId) => {
+                          // Handle item removal
+                          console.log('Item removed:', itemId)
+                        }}
                       />
                     </div>
                   ))}

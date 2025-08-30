@@ -513,3 +513,38 @@ export class CartService {
     return { ...this.VALIDATION_RULES }
   }
 }
+
+// Create singleton instance
+const cartService = new CartService()
+
+// Export individual functions for components
+export async function updateCartItemQuantity(
+  cartItemId: string,
+  quantity: number
+): Promise<boolean> {
+  try {
+    // Get current user ID from auth context
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return false
+
+    const result = await cartService.updateCartItem(cartItemId, quantity, user.id)
+    return result.success
+  } catch (error) {
+    console.error('Failed to update cart item quantity:', error)
+    return false
+  }
+}
+
+export async function removeFromCart(cartItemId: string): Promise<boolean> {
+  try {
+    // Get current user ID from auth context
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return false
+
+    const result = await cartService.removeFromCart(cartItemId, user.id)
+    return result.success
+  } catch (error) {
+    console.error('Failed to remove from cart:', error)
+    return false
+  }
+}

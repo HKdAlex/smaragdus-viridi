@@ -78,7 +78,7 @@ export function AdminGemstoneManager() {
         // Refresh the list
         window.location.reload();
       } else {
-        alert(t("deleteFailed", { error: result.error }));
+        alert(t("deleteFailed", { error: result.error || "Unknown error" }));
       }
     }
   };

@@ -160,6 +160,14 @@ export function CartDrawer({ isOpen, onClose, onCheckout }: CartDrawerProps) {
                     onSelectionChange={(selected) =>
                       toggleItemSelection(item.id)
                     }
+                    onQuantityChange={(itemId, quantity) => {
+                      // Handle quantity change
+                      console.log('Quantity changed:', itemId, quantity)
+                    }}
+                    onRemove={(itemId) => {
+                      // Handle item removal
+                      console.log('Item removed:', itemId)
+                    }}
                   />
                 ))}
               </div>

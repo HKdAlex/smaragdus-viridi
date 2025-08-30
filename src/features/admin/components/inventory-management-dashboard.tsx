@@ -109,7 +109,7 @@ export function InventoryManagementDashboard() {
         setBulkUpdate({ inStock: true, deliveryDays: "", reason: "" });
         loadInventoryData(); // Refresh data
       } else {
-        alert(tInventory("bulkUpdateFailed", { error: result.error }));
+        alert(tInventory("bulkUpdateFailed", { error: result.error || "Unknown error" }));
       }
     } catch (err) {
       alert(tInventory("unexpectedError"));

@@ -89,9 +89,11 @@ const CutShapeSelector = ({
 const ColorPicker = ({
   selectedColors,
   onColorChange,
+  t,
 }: {
   selectedColors: string[];
   onColorChange: (colors: string[]) => void;
+  t: any;
 }) => {
   const colorOptions = [
     {
@@ -686,6 +688,7 @@ export function AdvancedFiltersV2({
               (filters.colors || []).forEach((color) => toggleColor(color));
               colors.forEach((color) => toggleColor(color as any));
             }}
+            t={t}
           />
 
           {/* Clarity Selector */}

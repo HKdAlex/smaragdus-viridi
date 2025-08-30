@@ -595,7 +595,14 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
 
           {/* Certifications */}
           {gemstone.certifications.length > 0 && (
-            <CertificationDisplay certifications={gemstone.certifications} />
+            <CertificationDisplay 
+              certifications={gemstone.certifications.map(cert => ({
+                ...cert,
+                certificate_number: cert.certificate_number || undefined,
+                certificate_url: cert.certificate_url || undefined,
+                issued_date: cert.issued_date || undefined
+              }))} 
+            />
           )}
 
           {/* Related Gemstones */}

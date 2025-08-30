@@ -220,6 +220,7 @@ export function PreferencesProvider({
       } catch (error) {
         console.error(t("updatePrivacyFailed"), error);
         setError(t("updatePrivacyFailed"));
+        return false;
       } finally {
         setIsLoading(false);
       }

@@ -204,7 +204,7 @@ export function CartItem({
             {t("price")}: {item.formatted_unit_price}
           </p>
           <p className="text-lg font-semibold text-gray-900">
-            {t("total")}: {item.formatted_total_price}
+            {t("total")}: {item.formatted_line_total}
           </p>
         </div>
       </div>
