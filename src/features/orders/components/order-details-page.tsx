@@ -1,6 +1,12 @@
 "use client";
 
 import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
+import {
   AlertCircle,
   ArrowLeft,
   CheckCircle,
@@ -8,21 +14,14 @@ import {
   Package,
   Truck,
 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui/card";
-import { ORDER_STATUS_COLORS, ORDER_STATUS_LABELS } from "../types/order.types";
 import { useEffect, useState } from "react";
+import { ORDER_STATUS_COLORS, ORDER_STATUS_LABELS } from "../types/order.types";
 
+import { useRouter } from "@/i18n/navigation";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import type { Order } from "@/shared/types";
 import { Separator } from "@/shared/components/ui/separator";
-import { orderService } from "../services/order-service";
-import { useRouter } from "@/i18n/navigation";
+import type { Order } from "@/shared/types";
 import { useTranslations } from "next-intl";
 
 interface OrderDetailsPageProps {
@@ -48,7 +47,12 @@ export function OrderDetailsPage({ orderId, locale }: OrderDetailsPageProps) {
       setIsLoading(true);
       setError(null);
 
-      const result = await orderService.getOrder(orderId);
+      // TODO: Implement actual order retrieval
+      const result = {
+        success: false,
+        error: "Order retrieval not yet implemented",
+        order: null,
+      };
 
       if (result.success && result.order) {
         setOrder(result.order);
@@ -81,7 +85,7 @@ export function OrderDetailsPage({ orderId, locale }: OrderDetailsPageProps) {
     }).format(new Date(dateString));
   };
 
-  const getStatusIcon = (status: string) => {
+  const getStatusIcon = (status: string | null) => {
     switch (status) {
       case "pending":
         return <Clock className="w-5 h-5 text-yellow-500" />;
@@ -98,6 +102,22 @@ export function OrderDetailsPage({ orderId, locale }: OrderDetailsPageProps) {
       default:
         return <Clock className="w-5 h-5 text-gray-500" />;
     }
+  };
+
+  const getStatusColor = (status: string | null) => {
+    if (!status) return "secondary";
+    const colors = ORDER_STATUS_COLORS as any;
+    return colors[status] === "green"
+      ? "default"
+      : colors[status] === "red"
+      ? "destructive"
+      : "secondary";
+  };
+
+  const getStatusLabel = (status: string | null) => {
+    if (!status) return "Unknown";
+    const labels = ORDER_STATUS_LABELS as any;
+    return labels[status] || "Unknown";
   };
 
   if (isLoading) {
@@ -122,7 +142,10 @@ export function OrderDetailsPage({ orderId, locale }: OrderDetailsPageProps) {
               {error || t("error.notFound")}
             </p>
             <div className="space-y-3">
-              <Button onClick={() => router.push("/orders")} className="w-full">
+              <Button
+                onClick={() => router.push("/catalog")}
+                className="w-full"
+              >
                 {t("error.viewAllOrders")}
               </Button>
               <Button
@@ -161,17 +184,11 @@ export function OrderDetailsPage({ orderId, locale }: OrderDetailsPageProps) {
                 {t("orderDetails")}
               </h1>
               <Badge
-                variant={
-                  ORDER_STATUS_COLORS[order.status] === "green"
-                    ? "default"
-                    : ORDER_STATUS_COLORS[order.status] === "red"
-                    ? "destructive"
-                    : "secondary"
-                }
+                variant={getStatusColor(order.status)}
                 className="flex items-center gap-1"
               >
                 {getStatusIcon(order.status)}
-                {ORDER_STATUS_LABELS[order.status]}
+                {getStatusLabel(order.status)}
               </Badge>
             </div>
           </div>
@@ -268,13 +285,17 @@ export function OrderDetailsPage({ orderId, locale }: OrderDetailsPageProps) {
                     <span className="text-muted-foreground">
                       {t("orderDate")}
                     </span>
-                    <span>{formatDate(order.created_at)}</span>
+                    <span>
+                      {order.created_at ? formatDate(order.created_at) : "N/A"}
+                    </span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">
                       {t("lastUpdated")}
                     </span>
-                    <span>{formatDate(order.updated_at)}</span>
+                    <span>
+                      {order.updated_at ? formatDate(order.updated_at) : "N/A"}
+                    </span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">
@@ -341,10 +362,8 @@ export function OrderDetailsPage({ orderId, locale }: OrderDetailsPageProps) {
                   onClick={async () => {
                     // TODO: Implement order cancellation
                     if (confirm(t("confirmCancel"))) {
-                      const result = await orderService.cancelOrder(order.id);
-                      if (result.success) {
-                        loadOrderDetails(); // Refresh order data
-                      }
+                      // Order cancellation not yet implemented
+                      alert(t("orderCancellationNotImplemented"));
                     }
                   }}
                   className="w-full border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"

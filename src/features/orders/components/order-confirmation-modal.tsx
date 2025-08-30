@@ -1,17 +1,17 @@
 "use client";
 
-import { CheckCircle, Loader2, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/shared/components/ui/dialog";
+import { CheckCircle, Loader2, X } from "lucide-react";
 
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import type { CartItem } from "@/shared/types";
 import { Separator } from "@/shared/components/ui/separator";
+import type { CartItem } from "@/shared/types";
 import { useTranslations } from "next-intl";
 
 interface OrderConfirmationModalProps {
@@ -24,9 +24,21 @@ interface OrderConfirmationModalProps {
     success: boolean;
     order?: {
       id: string;
+      status: string;
       total_amount: number;
       currency_code: string;
-      payment_reference: string;
+      created_at: string;
+      items: Array<{
+        gemstone_id: string;
+        quantity: number;
+        unit_price: number;
+        line_total: number;
+      }>;
+      payment: {
+        reference: string;
+        processed_at: string;
+        simulated: boolean;
+      };
     };
     error?: string;
   };
@@ -44,7 +56,7 @@ export function OrderConfirmationModal({
   const tOrders = useTranslations("orders");
 
   const totalAmount = selectedItems.reduce(
-    (sum, item) => sum + item.line_total,
+    (sum, item) => sum + item.line_total.amount,
     0
   );
   const totalItems = selectedItems.reduce(
@@ -94,19 +106,20 @@ export function OrderConfirmationModal({
                     >
                       <div className="flex-1 min-w-0">
                         <div className="font-medium truncate">
-                          {item.gemstones?.name} {item.gemstones?.color}
+                          {item.gemstone?.name} {item.gemstone?.color}
                         </div>
                         <div className="text-muted-foreground">
-                          {item.gemstones?.cut} •{" "}
-                          {item.gemstones?.weight_carats}ct
+                          {item.gemstone?.cut} • {item.gemstone?.weight_carats}
+                          ct
                         </div>
                       </div>
                       <div className="text-right ml-4">
                         <div className="font-medium">
-                          {formatPrice(item.line_total)}
+                          {formatPrice(item.line_total.amount)}
                         </div>
                         <div className="text-muted-foreground text-xs">
-                          {item.quantity} × {formatPrice(item.unit_price)}
+                          {item.quantity} ×{" "}
+                          {formatPrice(item.unit_price.amount)}
                         </div>
                       </div>
                     </div>
@@ -171,7 +184,7 @@ export function OrderConfirmationModal({
                       <div className="flex justify-between">
                         <span>{tOrders("confirmation.paymentRef")}:</span>
                         <Badge variant="outline" className="font-mono text-xs">
-                          {orderResult.order.payment_reference}
+                          {orderResult.order.payment.reference}
                         </Badge>
                       </div>
                     </div>

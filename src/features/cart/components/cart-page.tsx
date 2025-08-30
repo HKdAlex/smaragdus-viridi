@@ -2,19 +2,18 @@
 
 import { ArrowLeft, Lock, ShoppingBag } from "lucide-react";
 
+import { useAuth } from "@/features/auth/context/auth-context";
+import { OrderConfirmationModal } from "@/features/orders/components/order-confirmation-modal";
+import type { CreateOrderResponse } from "@/features/orders/types/order.types";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { CartItem } from "./cart-item";
-import type { CreateOrderResponse } from "@/features/orders/types/order.types";
-import { EmptyCart } from "./empty-cart";
-import Link from "next/link";
-import { OrderConfirmationModal } from "@/features/orders/components/order-confirmation-modal";
 import { Separator } from "@/shared/components/ui/separator";
-import { orderService } from "@/features/orders/services/order-service";
-import { useAuth } from "@/features/auth/context/auth-context";
-import { useCart } from "../hooks/use-cart";
-import { useState } from "react";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
+import { useState } from "react";
+import { useCart } from "../hooks/use-cart";
+import { CartItem } from "./cart-item";
+import { EmptyCart } from "./empty-cart";
 
 export function CartPage() {
   const { user } = useAuth();
@@ -33,7 +32,6 @@ export function CartPage() {
     toggleSelectAll,
     toggleItemSelection,
     isItemSelected,
-    deselectAllItems,
   } = useCart(user?.id);
 
   const [isClearing, setIsClearing] = useState(false);
@@ -88,7 +86,11 @@ export function CartPage() {
         currency_code: "USD", // Default to USD, could be made configurable
       };
 
-      const result = await orderService.createOrder(orderRequest);
+      // TODO: Implement actual order creation
+      const result = {
+        success: false,
+        error: "Order creation not yet implemented",
+      };
       setOrderResult(result);
 
       if (result.success) {
@@ -109,7 +111,6 @@ export function CartPage() {
     setShowOrderModal(false);
     if (orderResult?.success) {
       // Reset selections after successful order
-      deselectAllItems();
       setOrderResult(null);
     }
   };
