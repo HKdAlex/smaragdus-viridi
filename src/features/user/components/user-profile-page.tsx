@@ -5,16 +5,11 @@ import {
   CreditCard,
   Heart,
   Mail,
-  MapPin,
   Package,
   Phone,
-  Settings,
   ShoppingCart,
   User,
 } from "lucide-react";
-
-import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
 import {
   Card,
   CardContent,
@@ -22,19 +17,27 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
-import { Separator } from "@/shared/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
-import type { UserProfile, ProfileStats } from "../types/user-profile.types";
+import type { ProfileStats, UserProfile } from "../types/user-profile.types";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/shared/components/ui/tabs";
+
 import { ActivityFeed } from "./activity-feed";
+import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
 import { OrderHistory } from "./order-history";
 import { ProfileSettings } from "./profile-settings";
+import { Separator } from "@/shared/components/ui/separator";
 
 interface UserProfilePageProps {
-  user: UserProfile
-  stats: ProfileStats
-  onUpdateProfile: (updates: any) => Promise<void>
-  onUpdatePreferences: (preferences: any) => Promise<void>
-  onChangePassword: (request: any) => Promise<void>
+  user: UserProfile;
+  stats: ProfileStats;
+  onUpdateProfile: (updates: any) => Promise<void>;
+  onUpdatePreferences: (preferences: any) => Promise<void>;
+  onChangePassword: (request: any) => Promise<void>;
 }
 
 export function UserProfilePage({
@@ -99,14 +102,19 @@ export function UserProfilePage({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Total Orders
+              </CardTitle>
               <Package className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.totalOrders}</div>
               <p className="text-xs text-muted-foreground">
                 {stats.averageOrderValue > 0
-                  ? `Avg: ${formatCurrency(stats.averageOrderValue, user.preferred_currency)}`
+                  ? `Avg: ${formatCurrency(
+                      stats.averageOrderValue,
+                      user.preferred_currency
+                    )}`
                   : "No orders yet"}
               </p>
             </CardContent>
@@ -133,10 +141,10 @@ export function UserProfilePage({
               <Heart className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.favoriteGemstones}</div>
-              <p className="text-xs text-muted-foreground">
-                Saved gemstones
-              </p>
+              <div className="text-2xl font-bold">
+                {stats.favoriteGemstones}
+              </div>
+              <p className="text-xs text-muted-foreground">Saved gemstones</p>
             </CardContent>
           </Card>
 
@@ -147,9 +155,7 @@ export function UserProfilePage({
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.cartItems}</div>
-              <p className="text-xs text-muted-foreground">
-                Items in cart
-              </p>
+              <p className="text-xs text-muted-foreground">Items in cart</p>
             </CardContent>
           </Card>
         </div>
@@ -190,7 +196,9 @@ export function UserProfilePage({
                     <Mail className="w-4 h-4 text-muted-foreground" />
                     <div>
                       <p className="font-medium">{user.email}</p>
-                      <p className="text-sm text-muted-foreground">Email Address</p>
+                      <p className="text-sm text-muted-foreground">
+                        Email Address
+                      </p>
                     </div>
                   </div>
 
@@ -199,7 +207,9 @@ export function UserProfilePage({
                       <Phone className="w-4 h-4 text-muted-foreground" />
                       <div>
                         <p className="font-medium">{user.phone}</p>
-                        <p className="text-sm text-muted-foreground">Phone Number</p>
+                        <p className="text-sm text-muted-foreground">
+                          Phone Number
+                        </p>
                       </div>
                     </div>
                   )}
@@ -208,9 +218,12 @@ export function UserProfilePage({
                     <Calendar className="w-4 h-4 text-muted-foreground" />
                     <div>
                       <p className="font-medium">
-                        Member since {new Date(user.created_at).toLocaleDateString()}
+                        Member since{" "}
+                        {new Date(user.created_at).toLocaleDateString()}
                       </p>
-                      <p className="text-sm text-muted-foreground">Account Created</p>
+                      <p className="text-sm text-muted-foreground">
+                        Account Created
+                      </p>
                     </div>
                   </div>
 
@@ -221,12 +234,16 @@ export function UserProfilePage({
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
                         <span className="text-muted-foreground">Currency:</span>
-                        <span className="ml-2 font-medium">{user.preferred_currency}</span>
+                        <span className="ml-2 font-medium">
+                          {user.preferred_currency}
+                        </span>
                       </div>
                       <div>
                         <span className="text-muted-foreground">Language:</span>
                         <span className="ml-2 font-medium">
-                          {user.language_preference === "en" ? "English" : "Русский"}
+                          {user.language_preference === "en"
+                            ? "English"
+                            : "Русский"}
                         </span>
                       </div>
                     </div>
@@ -241,14 +258,14 @@ export function UserProfilePage({
                     <Package className="w-5 h-5 mr-2" />
                     Recent Orders
                   </CardTitle>
-                  <CardDescription>
-                    Your latest order activity
-                  </CardDescription>
+                  <CardDescription>Your latest order activity</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="text-center py-8">
                     <Package className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                    <p className="text-muted-foreground">Order history will appear here</p>
+                    <p className="text-muted-foreground">
+                      Order history will appear here
+                    </p>
                     <Button variant="outline" className="mt-4" asChild>
                       <a href="#orders">View All Orders</a>
                     </Button>

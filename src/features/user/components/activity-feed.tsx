@@ -9,9 +9,6 @@ import {
   ShoppingCart,
   User,
 } from "lucide-react";
-
-import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
 import {
   Card,
   CardContent,
@@ -19,15 +16,18 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
+
+import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
 import { Separator } from "@/shared/components/ui/separator";
 import type { UserActivity } from "../types/user-profile.types";
 import { format } from "date-fns";
 
 interface ActivityFeedProps {
-  activities?: UserActivity[]
-  loading?: boolean
-  onLoadMore?: () => void
-  hasMore?: boolean
+  activities?: UserActivity[];
+  loading?: boolean;
+  onLoadMore?: () => void;
+  hasMore?: boolean;
 }
 
 export function ActivityFeed({
@@ -102,19 +102,27 @@ export function ActivityFeed({
   const formatActivityDescription = (activity: UserActivity) => {
     switch (activity.type) {
       case "order_placed":
-        return `You placed an order for ${activity.metadata?.total || 'an item'}`;
+        return `You placed an order for ${
+          activity.metadata?.total || "an item"
+        }`;
       case "order_status_changed":
-        return `Order status changed to ${activity.metadata?.new_status || 'updated'}`;
+        return `Order status changed to ${
+          activity.metadata?.new_status || "updated"
+        }`;
       case "profile_updated":
         return "Your profile information was updated";
       case "password_changed":
         return "Your password was changed successfully";
       case "favorite_added":
-        return `Added ${activity.metadata?.gemstone_name || 'an item'} to favorites`;
+        return `Added ${
+          activity.metadata?.gemstone_name || "an item"
+        } to favorites`;
       case "favorite_removed":
-        return `Removed ${activity.metadata?.gemstone_name || 'an item'} from favorites`;
+        return `Removed ${
+          activity.metadata?.gemstone_name || "an item"
+        } from favorites`;
       case "cart_updated":
-        return `Updated cart with ${activity.metadata?.action || 'changes'}`;
+        return `Updated cart with ${activity.metadata?.action || "changes"}`;
       default:
         return activity.description || "Activity occurred";
     }
@@ -165,7 +173,11 @@ export function ActivityFeed({
               <CardContent className="pt-6">
                 <div className="flex items-start space-x-4">
                   {/* Activity Icon */}
-                  <div className={`p-2 rounded-full border ${getActivityColor(activity.type)}`}>
+                  <div
+                    className={`p-2 rounded-full border ${getActivityColor(
+                      activity.type
+                    )}`}
+                  >
                     {getActivityIcon(activity.type)}
                   </div>
 
@@ -201,11 +213,7 @@ export function ActivityFeed({
           {/* Load More Button */}
           {hasMore && (
             <div className="flex justify-center pt-4">
-              <Button
-                variant="outline"
-                onClick={onLoadMore}
-                disabled={loading}
-              >
+              <Button variant="outline" onClick={onLoadMore} disabled={loading}>
                 {loading ? "Loading..." : "Load More Activity"}
               </Button>
             </div>
@@ -218,38 +226,47 @@ export function ActivityFeed({
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Activity Summary</CardTitle>
-            <CardDescription>
-              Your account activity overview
-            </CardDescription>
+            <CardDescription>Your account activity overview</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="text-center">
                 <div className="text-2xl font-bold text-green-600">
-                  {activities.filter(a => a.type === "order_placed").length}
+                  {activities.filter((a) => a.type === "order_placed").length}
                 </div>
-                <div className="text-sm text-muted-foreground">Orders Placed</div>
+                <div className="text-sm text-muted-foreground">
+                  Orders Placed
+                </div>
               </div>
 
               <div className="text-center">
                 <div className="text-2xl font-bold text-purple-600">
-                  {activities.filter(a => a.type === "profile_updated").length}
+                  {
+                    activities.filter((a) => a.type === "profile_updated")
+                      .length
+                  }
                 </div>
-                <div className="text-sm text-muted-foreground">Profile Updates</div>
+                <div className="text-sm text-muted-foreground">
+                  Profile Updates
+                </div>
               </div>
 
               <div className="text-center">
                 <div className="text-2xl font-bold text-pink-600">
-                  {activities.filter(a => a.type.includes("favorite")).length}
+                  {activities.filter((a) => a.type.includes("favorite")).length}
                 </div>
-                <div className="text-sm text-muted-foreground">Favorites Changed</div>
+                <div className="text-sm text-muted-foreground">
+                  Favorites Changed
+                </div>
               </div>
 
               <div className="text-center">
                 <div className="text-2xl font-bold text-indigo-600">
-                  {activities.filter(a => a.type === "cart_updated").length}
+                  {activities.filter((a) => a.type === "cart_updated").length}
                 </div>
-                <div className="text-sm text-muted-foreground">Cart Updates</div>
+                <div className="text-sm text-muted-foreground">
+                  Cart Updates
+                </div>
               </div>
             </div>
           </CardContent>

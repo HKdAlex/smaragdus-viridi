@@ -61,6 +61,11 @@ export function MainNav() {
     { name: t("contact"), href: "/contact" },
   ];
 
+  // User navigation (shown when logged in)
+  const userNavigation: NavItem[] = [
+    { name: t("profile"), href: "/profile" },
+  ];
+
   // Admin navigation (conditionally shown)
   const adminNavigation: NavItem[] = [{ name: t("admin"), href: "/admin" }];
 
@@ -96,6 +101,22 @@ export function MainNav() {
                   {item.name}
                 </Link>
               ))}
+
+              {/* User Navigation - only show when logged in */}
+              {user &&
+                userNavigation.map((item) => (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={`text-sm font-medium transition-colors hover:text-primary ${
+                      isCurrentPage(item.href)
+                        ? "text-primary border-b-2 border-primary pb-1"
+                        : "text-muted-foreground"
+                    }`}
+                  >
+                    {item.name}
+                  </Link>
+                ))}
 
               {/* Admin Navigation - only show for admin users */}
               {isAdmin &&
@@ -262,6 +283,23 @@ export function MainNav() {
                   {item.name}
                 </Link>
               ))}
+
+              {/* Mobile User Navigation - only show when logged in */}
+              {user &&
+                userNavigation.map((item) => (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={`block px-3 py-2 text-base font-medium transition-colors ${
+                      isCurrentPage(item.href)
+                        ? "text-primary bg-accent"
+                        : "text-muted-foreground hover:text-primary hover:bg-accent"
+                    }`}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {item.name}
+                  </Link>
+                ))}
 
               {/* Mobile Admin Navigation - only show for admin users */}
               {isAdmin &&

@@ -1,21 +1,21 @@
-import { supabase } from '@/lib/supabase'
-import { createContextLogger } from '@/shared/utils/logger'
 import type {
-  UserProfile,
-  UserPreferences,
-  UserOrder,
-  UserActivity,
-  UpdateProfileRequest,
-  UpdateProfileResponse,
-  ChangePasswordRequest,
-  ChangePasswordResponse,
-  GetOrderHistoryRequest,
-  GetOrderHistoryResponse,
-  GetActivityHistoryRequest,
-  GetActivityHistoryResponse,
-  ProfileStats,
-  UserProfileError,
+    ChangePasswordRequest,
+    ChangePasswordResponse,
+    GetActivityHistoryRequest,
+    GetActivityHistoryResponse,
+    GetOrderHistoryRequest,
+    GetOrderHistoryResponse,
+    ProfileStats,
+    UpdateProfileRequest,
+    UpdateProfileResponse,
+    UserActivity,
+    UserOrder,
+    UserProfile,
+    UserProfileError
 } from '../types/user-profile.types'
+
+import { createContextLogger } from '@/shared/utils/logger'
+import { supabase } from '@/lib/supabase'
 
 export class UserProfileService {
   private supabase = supabase

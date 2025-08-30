@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useCallback, useEffect } from 'react'
 import type {
-  UserActivity,
-  GetActivityHistoryRequest,
-  GetActivityHistoryResponse,
-  UseActivityHistoryReturn,
-} from '../types/user-profile.types'
-import { userProfileService } from '../services/user-profile-service'
+    GetActivityHistoryRequest,
+    GetActivityHistoryResponse,
+    UseActivityHistoryReturn,
+    UserActivity,
+} from '../types/user-profile.types';
+import { useCallback, useEffect, useState } from 'react';
+
+import { userProfileService } from '../services/user-profile-service';
 
 export function useActivityHistory(userId?: string): UseActivityHistoryReturn {
   const [activities, setActivities] = useState<UserActivity[]>([])

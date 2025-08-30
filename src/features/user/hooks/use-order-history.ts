@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useCallback, useEffect } from 'react'
 import type {
-  UserOrder,
-  GetOrderHistoryRequest,
-  GetOrderHistoryResponse,
-  UseOrderHistoryReturn,
-} from '../types/user-profile.types'
-import { userProfileService } from '../services/user-profile-service'
+    GetOrderHistoryRequest,
+    GetOrderHistoryResponse,
+    UseOrderHistoryReturn,
+    UserOrder,
+} from '../types/user-profile.types';
+import { useCallback, useEffect, useState } from 'react';
+
+import { userProfileService } from '../services/user-profile-service';
 
 export function useOrderHistory(userId?: string): UseOrderHistoryReturn {
   const [orders, setOrders] = useState<UserOrder[]>([])

@@ -1,10 +1,5 @@
 "use client";
 
-import { Eye, EyeOff, Lock, Save, User } from "lucide-react";
-import { useState } from "react";
-
-import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
 import {
   Card,
   CardContent,
@@ -12,9 +7,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
-import { Checkbox } from "@/shared/components/ui/checkbox";
-import { Input } from "@/shared/components/ui/input";
-import { Label } from "@/shared/components/ui/label";
+import type {
+  ChangePasswordRequest,
+  CurrencyCode,
+  UpdateProfileRequest,
+  UserProfile,
+} from "../types/user-profile.types";
+import { Eye, EyeOff, Lock, Save, User } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -22,19 +21,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
+
+import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
+import { Checkbox } from "@/shared/components/ui/checkbox";
+import { Input } from "@/shared/components/ui/input";
+import { Label } from "@/shared/components/ui/label";
 import { Separator } from "@/shared/components/ui/separator";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
-import type {
-  UserProfile,
-  CurrencyCode,
-  UpdateProfileRequest,
-  ChangePasswordRequest,
-} from "../types/user-profile.types";
 
 interface ProfileSettingsProps {
-  user: UserProfile
-  onUpdateProfile: (updates: UpdateProfileRequest) => Promise<void>
-  onChangePassword: (request: ChangePasswordRequest) => Promise<void>
+  user: UserProfile;
+  onUpdateProfile: (updates: UpdateProfileRequest) => Promise<void>;
+  onChangePassword: (request: ChangePasswordRequest) => Promise<void>;
 }
 
 export function ProfileSettings({
@@ -70,8 +70,14 @@ export function ProfileSettings({
     new: false,
     confirm: false,
   });
-  const [profileMessage, setProfileMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
-  const [passwordMessage, setPasswordMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [profileMessage, setProfileMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
+  const [passwordMessage, setPasswordMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
 
   const handleProfileUpdate = async () => {
     setUpdatingProfile(true);
@@ -79,11 +85,15 @@ export function ProfileSettings({
 
     try {
       await onUpdateProfile(profileForm);
-      setProfileMessage({ type: "success", text: "Profile updated successfully!" });
+      setProfileMessage({
+        type: "success",
+        text: "Profile updated successfully!",
+      });
     } catch (error) {
       setProfileMessage({
         type: "error",
-        text: error instanceof Error ? error.message : "Failed to update profile"
+        text:
+          error instanceof Error ? error.message : "Failed to update profile",
       });
     } finally {
       setUpdatingProfile(false);
@@ -98,7 +108,10 @@ export function ProfileSettings({
     }
 
     if (passwordForm.new_password.length < 8) {
-      setPasswordMessage({ type: "error", text: "Password must be at least 8 characters long" });
+      setPasswordMessage({
+        type: "error",
+        text: "Password must be at least 8 characters long",
+      });
       return;
     }
 
@@ -107,7 +120,10 @@ export function ProfileSettings({
 
     try {
       await onChangePassword(passwordForm);
-      setPasswordMessage({ type: "success", text: "Password changed successfully!" });
+      setPasswordMessage({
+        type: "success",
+        text: "Password changed successfully!",
+      });
       setPasswordForm({
         current_password: "",
         new_password: "",
@@ -116,7 +132,8 @@ export function ProfileSettings({
     } catch (error) {
       setPasswordMessage({
         type: "error",
-        text: error instanceof Error ? error.message : "Failed to change password"
+        text:
+          error instanceof Error ? error.message : "Failed to change password",
       });
     } finally {
       setChangingPassword(false);
@@ -157,7 +174,9 @@ export function ProfileSettings({
               <Input
                 id="name"
                 value={profileForm.name}
-                onChange={(e) => setProfileForm(prev => ({ ...prev, name: e.target.value }))}
+                onChange={(e) =>
+                  setProfileForm((prev) => ({ ...prev, name: e.target.value }))
+                }
                 placeholder="Enter your full name"
               />
             </div>
@@ -167,7 +186,9 @@ export function ProfileSettings({
               <Input
                 id="phone"
                 value={profileForm.phone}
-                onChange={(e) => setProfileForm(prev => ({ ...prev, phone: e.target.value }))}
+                onChange={(e) =>
+                  setProfileForm((prev) => ({ ...prev, phone: e.target.value }))
+                }
                 placeholder="Enter your phone number"
               />
             </div>
@@ -176,10 +197,12 @@ export function ProfileSettings({
               <Label htmlFor="currency">Preferred Currency</Label>
               <Select
                 value={profileForm.preferred_currency}
-                onValueChange={(value) => setProfileForm(prev => ({
-                  ...prev,
-                  preferred_currency: value as CurrencyCode
-                }))}
+                onValueChange={(value) =>
+                  setProfileForm((prev) => ({
+                    ...prev,
+                    preferred_currency: value as CurrencyCode,
+                  }))
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select currency" />
@@ -198,10 +221,12 @@ export function ProfileSettings({
               <Label htmlFor="language">Language</Label>
               <Select
                 value={profileForm.language_preference}
-                onValueChange={(value) => setProfileForm(prev => ({
-                  ...prev,
-                  language_preference: value as "en" | "ru"
-                }))}
+                onValueChange={(value) =>
+                  setProfileForm((prev) => ({
+                    ...prev,
+                    language_preference: value as "en" | "ru",
+                  }))
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select language" />
@@ -227,10 +252,12 @@ export function ProfileSettings({
                 <Checkbox
                   id="email-notifications"
                   checked={profileForm.email_notifications}
-                  onCheckedChange={(checked) => setProfileForm(prev => ({
-                    ...prev,
-                    email_notifications: checked as boolean
-                  }))}
+                  onCheckedChange={(checked) =>
+                    setProfileForm((prev) => ({
+                      ...prev,
+                      email_notifications: checked as boolean,
+                    }))
+                  }
                 />
                 <Label htmlFor="email-notifications" className="text-sm">
                   Email notifications for important updates
@@ -241,10 +268,12 @@ export function ProfileSettings({
                 <Checkbox
                   id="order-updates"
                   checked={profileForm.order_updates}
-                  onCheckedChange={(checked) => setProfileForm(prev => ({
-                    ...prev,
-                    order_updates: checked as boolean
-                  }))}
+                  onCheckedChange={(checked) =>
+                    setProfileForm((prev) => ({
+                      ...prev,
+                      order_updates: checked as boolean,
+                    }))
+                  }
                 />
                 <Label htmlFor="order-updates" className="text-sm">
                   Order status updates and tracking information
@@ -255,10 +284,12 @@ export function ProfileSettings({
                 <Checkbox
                   id="marketing-emails"
                   checked={profileForm.marketing_emails}
-                  onCheckedChange={(checked) => setProfileForm(prev => ({
-                    ...prev,
-                    marketing_emails: checked as boolean
-                  }))}
+                  onCheckedChange={(checked) =>
+                    setProfileForm((prev) => ({
+                      ...prev,
+                      marketing_emails: checked as boolean,
+                    }))
+                  }
                 />
                 <Label htmlFor="marketing-emails" className="text-sm">
                   Marketing emails and special offers
@@ -268,20 +299,19 @@ export function ProfileSettings({
           </div>
 
           {profileMessage && (
-            <div className={`p-4 rounded-lg ${
-              profileMessage.type === "success"
-                ? "bg-green-50 text-green-800 border border-green-200"
-                : "bg-red-50 text-red-800 border border-red-200"
-            }`}>
+            <div
+              className={`p-4 rounded-lg ${
+                profileMessage.type === "success"
+                  ? "bg-green-50 text-green-800 border border-green-200"
+                  : "bg-red-50 text-red-800 border border-red-200"
+              }`}
+            >
               {profileMessage.text}
             </div>
           )}
 
           <div className="flex justify-end">
-            <Button
-              onClick={handleProfileUpdate}
-              disabled={updatingProfile}
-            >
+            <Button onClick={handleProfileUpdate} disabled={updatingProfile}>
               {updatingProfile ? (
                 "Updating..."
               ) : (
@@ -315,10 +345,12 @@ export function ProfileSettings({
                   id="current-password"
                   type={showPasswords.current ? "text" : "password"}
                   value={passwordForm.current_password}
-                  onChange={(e) => setPasswordForm(prev => ({
-                    ...prev,
-                    current_password: e.target.value
-                  }))}
+                  onChange={(e) =>
+                    setPasswordForm((prev) => ({
+                      ...prev,
+                      current_password: e.target.value,
+                    }))
+                  }
                   placeholder="Enter current password"
                 />
                 <Button
@@ -326,10 +358,12 @@ export function ProfileSettings({
                   variant="ghost"
                   size="sm"
                   className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                  onClick={() => setShowPasswords(prev => ({
-                    ...prev,
-                    current: !prev.current
-                  }))}
+                  onClick={() =>
+                    setShowPasswords((prev) => ({
+                      ...prev,
+                      current: !prev.current,
+                    }))
+                  }
                 >
                   {showPasswords.current ? (
                     <EyeOff className="h-4 w-4" />
@@ -347,10 +381,12 @@ export function ProfileSettings({
                   id="new-password"
                   type={showPasswords.new ? "text" : "password"}
                   value={passwordForm.new_password}
-                  onChange={(e) => setPasswordForm(prev => ({
-                    ...prev,
-                    new_password: e.target.value
-                  }))}
+                  onChange={(e) =>
+                    setPasswordForm((prev) => ({
+                      ...prev,
+                      new_password: e.target.value,
+                    }))
+                  }
                   placeholder="Enter new password"
                 />
                 <Button
@@ -358,10 +394,12 @@ export function ProfileSettings({
                   variant="ghost"
                   size="sm"
                   className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                  onClick={() => setShowPasswords(prev => ({
-                    ...prev,
-                    new: !prev.new
-                  }))}
+                  onClick={() =>
+                    setShowPasswords((prev) => ({
+                      ...prev,
+                      new: !prev.new,
+                    }))
+                  }
                 >
                   {showPasswords.new ? (
                     <EyeOff className="h-4 w-4" />
@@ -379,10 +417,12 @@ export function ProfileSettings({
                   id="confirm-password"
                   type={showPasswords.confirm ? "text" : "password"}
                   value={passwordForm.confirm_password}
-                  onChange={(e) => setPasswordForm(prev => ({
-                    ...prev,
-                    confirm_password: e.target.value
-                  }))}
+                  onChange={(e) =>
+                    setPasswordForm((prev) => ({
+                      ...prev,
+                      confirm_password: e.target.value,
+                    }))
+                  }
                   placeholder="Confirm new password"
                 />
                 <Button
@@ -390,10 +430,12 @@ export function ProfileSettings({
                   variant="ghost"
                   size="sm"
                   className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                  onClick={() => setShowPasswords(prev => ({
-                    ...prev,
-                    confirm: !prev.confirm
-                  }))}
+                  onClick={() =>
+                    setShowPasswords((prev) => ({
+                      ...prev,
+                      confirm: !prev.confirm,
+                    }))
+                  }
                 >
                   {showPasswords.confirm ? (
                     <EyeOff className="h-4 w-4" />
@@ -406,11 +448,13 @@ export function ProfileSettings({
           </div>
 
           {passwordMessage && (
-            <div className={`p-4 rounded-lg ${
-              passwordMessage.type === "success"
-                ? "bg-green-50 text-green-800 border border-green-200"
-                : "bg-red-50 text-red-800 border border-red-200"
-            }`}>
+            <div
+              className={`p-4 rounded-lg ${
+                passwordMessage.type === "success"
+                  ? "bg-green-50 text-green-800 border border-green-200"
+                  : "bg-red-50 text-red-800 border border-red-200"
+              }`}
+            >
               {passwordMessage.text}
             </div>
           )}
@@ -456,7 +500,9 @@ export function ProfileSettings({
               <Label>Account Role</Label>
               <div className="flex items-center space-x-2">
                 <Input
-                  value={user.role.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                  value={user.role
+                    .replace("_", " ")
+                    .replace(/\b\w/g, (l) => l.toUpperCase())}
                   readOnly
                   className="bg-muted"
                 />

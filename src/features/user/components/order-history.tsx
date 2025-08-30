@@ -1,23 +1,18 @@
 "use client";
 
 import {
-  ChevronRight,
-  Package,
-  Plus,
-  Search,
-} from "lucide-react";
-import { useState } from "react";
-
-import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
-import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
-import { Input } from "@/shared/components/ui/input";
+import { ChevronRight, Package, Plus, Search } from "lucide-react";
+import type {
+  ORDER_STATUS_CONFIG,
+  OrderStatus,
+  UserOrder,
+} from "../types/user-profile.types";
 import {
   Select,
   SelectContent,
@@ -25,20 +20,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
+
+import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
+import { Input } from "@/shared/components/ui/input";
 import { Separator } from "@/shared/components/ui/separator";
-import type {
-  UserOrder,
-  OrderStatus,
-  ORDER_STATUS_CONFIG,
-} from "../types/user-profile.types";
 import { format } from "date-fns";
+import { useState } from "react";
 
 interface OrderHistoryProps {
-  orders?: UserOrder[]
-  loading?: boolean
-  onOrderSelect?: (order: UserOrder) => void
-  onLoadMore?: () => void
-  hasMore?: boolean
+  orders?: UserOrder[];
+  loading?: boolean;
+  onOrderSelect?: (order: UserOrder) => void;
+  onLoadMore?: () => void;
+  hasMore?: boolean;
 }
 
 export function OrderHistory({
@@ -60,7 +55,8 @@ export function OrderHistory({
         item.gemstone.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
 
-    const matchesStatus = statusFilter === "all" || order.status === statusFilter;
+    const matchesStatus =
+      statusFilter === "all" || order.status === statusFilter;
 
     return matchesSearch && matchesStatus;
   });
@@ -83,14 +79,20 @@ export function OrderHistory({
   };
 
   const getOrderSummary = (order: UserOrder) => {
-    const totalItems = order.items.reduce((sum, item) => sum + item.quantity, 0);
+    const totalItems = order.items.reduce(
+      (sum, item) => sum + item.quantity,
+      0
+    );
     const gemstoneNames = order.items
       .map((item) => item.gemstone.name)
       .slice(0, 2)
       .join(", ");
-    const moreItems = order.items.length > 2 ? ` +${order.items.length - 2} more` : "";
+    const moreItems =
+      order.items.length > 2 ? ` +${order.items.length - 2} more` : "";
 
-    return `${totalItems} item${totalItems !== 1 ? "s" : ""}: ${gemstoneNames}${moreItems}`;
+    return `${totalItems} item${
+      totalItems !== 1 ? "s" : ""
+    }: ${gemstoneNames}${moreItems}`;
   };
 
   if (loading && orders.length === 0) {
@@ -130,7 +132,9 @@ export function OrderHistory({
           </div>
           <Select
             value={statusFilter}
-            onValueChange={(value) => setStatusFilter(value as OrderStatus | "all")}
+            onValueChange={(value) =>
+              setStatusFilter(value as OrderStatus | "all")
+            }
           >
             <SelectTrigger className="w-40">
               <SelectValue placeholder="Filter by status" />
@@ -187,7 +191,10 @@ export function OrderHistory({
                         Order #{order.id.slice(0, 8)}
                       </CardTitle>
                       <CardDescription>
-                        {format(new Date(order.created_at), "MMMM d, yyyy 'at' h:mm a")}
+                        {format(
+                          new Date(order.created_at),
+                          "MMMM d, yyyy 'at' h:mm a"
+                        )}
                       </CardDescription>
                     </div>
                   </div>
@@ -195,7 +202,10 @@ export function OrderHistory({
                     {getStatusBadge(order.status)}
                     <div className="text-right">
                       <div className="font-semibold">
-                        {formatCurrency(order.total_amount, order.currency_code)}
+                        {formatCurrency(
+                          order.total_amount,
+                          order.currency_code
+                        )}
                       </div>
                       <div className="text-sm text-muted-foreground">
                         {order.currency_code}
@@ -219,17 +229,20 @@ export function OrderHistory({
                   <div className="flex items-center justify-between text-sm">
                     <div className="flex items-center space-x-4">
                       <span className="text-muted-foreground">
-                        {order.items.length} item{order.items.length !== 1 ? "s" : ""}
+                        {order.items.length} item
+                        {order.items.length !== 1 ? "s" : ""}
                       </span>
                       {order.delivery_address && (
                         <div className="flex items-center text-muted-foreground">
                           <MapPin className="w-3 h-3 mr-1" />
-                          {order.delivery_address.city}, {order.delivery_address.country}
+                          {order.delivery_address.city},{" "}
+                          {order.delivery_address.country}
                         </div>
                       )}
                     </div>
                     <div className="text-muted-foreground">
-                      Last updated: {format(new Date(order.updated_at), "MMM d, h:mm a")}
+                      Last updated:{" "}
+                      {format(new Date(order.updated_at), "MMM d, h:mm a")}
                     </div>
                   </div>
                 </div>
@@ -240,11 +253,7 @@ export function OrderHistory({
           {/* Load More Button */}
           {hasMore && (
             <div className="flex justify-center pt-4">
-              <Button
-                variant="outline"
-                onClick={onLoadMore}
-                disabled={loading}
-              >
+              <Button variant="outline" onClick={onLoadMore} disabled={loading}>
                 {loading ? "Loading..." : "Load More Orders"}
               </Button>
             </div>

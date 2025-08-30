@@ -1,16 +1,17 @@
 "use client";
 
-import { useState, useCallback, useEffect } from 'react'
 import type {
-  UserProfile,
-  UserPreferences,
-  UpdateProfileRequest,
-  UpdateProfileResponse,
-  ChangePasswordRequest,
-  ChangePasswordResponse,
-  UseUserProfileReturn,
-} from '../types/user-profile.types'
-import { userProfileService } from '../services/user-profile-service'
+    ChangePasswordRequest,
+    ChangePasswordResponse,
+    UpdateProfileRequest,
+    UpdateProfileResponse,
+    UseUserProfileReturn,
+    UserPreferences,
+    UserProfile,
+} from '../types/user-profile.types';
+import { useCallback, useEffect, useState } from 'react';
+
+import { userProfileService } from '../services/user-profile-service';
 
 export function useUserProfile(userId?: string): UseUserProfileReturn {
   const [profile, setProfile] = useState<UserProfile | null>(null)
