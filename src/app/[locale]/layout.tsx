@@ -2,6 +2,7 @@ import { getMessages, setRequestLocale } from "next-intl/server";
 
 import { Footer } from "@/shared/components/layout/footer";
 import { MainNav } from "@/shared/components/navigation/main-nav";
+import { ChatWidget } from "@/features/chat";
 import { NextIntlClientProvider } from "next-intl";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
@@ -33,6 +34,7 @@ export default async function LocaleLayout({
         <MainNav />
         <main className="flex-1">{children}</main>
         <Footer />
+        <ChatWidget />
       </div>
     </NextIntlClientProvider>
   );
