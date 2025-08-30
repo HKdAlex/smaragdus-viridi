@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase'
-import { chatService } from '@/features/chat'
+
 import { createContextLogger } from '@/shared/utils/logger'
+import { createServerClient } from '@/lib/supabase'
 import { z } from 'zod'
 
 const logger = createContextLogger('admin-chat-send-api')
@@ -39,7 +39,6 @@ export async function POST(request: NextRequest) {
     const messageSchema = z.object({
       user_id: z.string().uuid(),
       content: z.string().min(1).max(2000),
-      attachments: z.array(z.instanceof(File)).optional(),
     })
 
     const validationResult = messageSchema.safeParse(body)
@@ -54,7 +53,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { user_id, content, attachments } = validationResult.data
+    const { user_id, content } = validationResult.data
 
     // Insert admin message
     const { data: message, error: insertError } = await supabase
@@ -63,7 +62,6 @@ export async function POST(request: NextRequest) {
         user_id,
         admin_id: user.id,
         content,
-        attachments,
         sender_type: 'admin',
         is_read: false,
       })

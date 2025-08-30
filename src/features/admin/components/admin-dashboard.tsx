@@ -26,6 +26,7 @@ import { AdminGemstoneManager } from "./admin-gemstone-manager";
 import { AdminPriceInventoryManager } from "./admin-price-inventory-manager";
 import { AdminSettings } from "./admin-settings";
 import { AdminUserManager } from "./admin-user-manager";
+import { OrderManagement } from "./order-management";
 // Import admin components (will be created in subsequent phases)
 import { Button } from "@/shared/components/ui/button";
 import { StatisticsService } from "../services/statistics-service";
@@ -34,6 +35,7 @@ import { useTranslations } from "next-intl";
 
 type AdminTab =
   | "dashboard"
+  | "orders"
   | "gemstones"
   | "pricing"
   | "users"
@@ -46,6 +48,12 @@ const getAdminTabs = (t: any) => [
     name: t("navigation.dashboard"),
     icon: BarChart3,
     description: t("tabs.dashboard"),
+  },
+  {
+    id: "orders" as AdminTab,
+    name: "Orders",
+    icon: Package,
+    description: "Manage customer orders and fulfillment",
   },
   {
     id: "gemstones" as AdminTab,
@@ -126,6 +134,8 @@ export function AdminDashboard() {
     switch (activeTab) {
       case "dashboard":
         return <AdminDashboardOverview />;
+      case "orders":
+        return <OrderManagement />;
       case "gemstones":
         return <AdminGemstoneManager />;
       case "pricing":

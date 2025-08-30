@@ -1,34 +1,35 @@
-"use client"
+"use client";
 
-import { useState } from 'react'
-import { MessageCircle, X, Minus } from 'lucide-react'
-import { ChatInterface } from './chat-interface'
-import { Button } from '@/shared/components/ui/button'
-import { useAuth } from '@/features/auth/context/auth-context'
-import { useTranslations } from 'next-intl'
+import { MessageCircle, X } from "lucide-react";
+
+import { Button } from "@/shared/components/ui/button";
+import { ChatInterface } from "./chat-interface";
+import { useAuth } from "@/features/auth/context/auth-context";
+import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 export function ChatWidget() {
-  const [isOpen, setIsOpen] = useState(false)
-  const [isMinimized, setIsMinimized] = useState(false)
-  const { user } = useAuth()
-  const t = useTranslations('chat')
+  const [isOpen, setIsOpen] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
+  const { user } = useAuth();
+  const t = useTranslations("chat");
 
   // Don't show widget if user is not logged in
-  if (!user) return null
+  if (!user) return null;
 
   const handleOpen = () => {
-    setIsOpen(true)
-    setIsMinimized(false)
-  }
+    setIsOpen(true);
+    setIsMinimized(false);
+  };
 
   const handleClose = () => {
-    setIsOpen(false)
-    setIsMinimized(false)
-  }
+    setIsOpen(false);
+    setIsMinimized(false);
+  };
 
   const handleMinimize = () => {
-    setIsMinimized(true)
-  }
+    setIsMinimized(true);
+  };
 
   if (!isOpen) {
     return (
@@ -46,7 +47,7 @@ export function ChatWidget() {
           0
         </div>
       </div>
-    )
+    );
   }
 
   if (isMinimized) {
@@ -54,8 +55,8 @@ export function ChatWidget() {
       <div className="fixed bottom-6 right-6 z-50">
         <div className="bg-white border rounded-lg shadow-lg p-3 flex items-center space-x-3 min-w-64">
           <div className="flex-1">
-            <p className="text-sm font-medium">{t('supportChat')}</p>
-            <p className="text-xs text-muted-foreground">{t('online')}</p>
+            <p className="text-sm font-medium">{t("supportChat")}</p>
+            <p className="text-xs text-muted-foreground">{t("online")}</p>
           </div>
           <div className="flex space-x-1">
             <Button
@@ -77,7 +78,7 @@ export function ChatWidget() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -88,5 +89,5 @@ export function ChatWidget() {
         className="shadow-2xl"
       />
     </div>
-  )
+  );
 }

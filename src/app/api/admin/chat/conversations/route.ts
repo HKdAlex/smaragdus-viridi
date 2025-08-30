@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase'
+
 import { chatService } from '@/features/chat'
 import { createContextLogger } from '@/shared/utils/logger'
+import { createServerClient } from '@/lib/supabase'
 
 const logger = createContextLogger('admin-chat-api')
 

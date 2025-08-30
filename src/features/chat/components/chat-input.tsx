@@ -1,70 +1,72 @@
-"use client"
+"use client";
 
-import { useState, useRef } from 'react'
-import { Send, Paperclip, X } from 'lucide-react'
-import { Button } from '@/shared/components/ui/button'
-import { Textarea } from '@/shared/components/ui/textarea'
-import { FileUpload } from './file-upload'
-import type { ChatInputProps } from '../types/chat.types'
+import { Send, X } from "lucide-react";
+import { useRef, useState } from "react";
+
+import { Button } from "@/shared/components/ui/button";
+import type { ChatInputProps } from "../types/chat.types";
+import { FileUpload } from "./file-upload";
+import { Textarea } from "@/shared/components/ui/textarea";
 
 export function ChatInput({
   onSendMessage,
   isTyping = false,
   disabled = false,
-  placeholder = 'Type a message...'
+  placeholder = "Type a message...",
 }: ChatInputProps) {
-  const [message, setMessage] = useState('')
-  const [attachments, setAttachments] = useState<File[]>([])
-  const [isSending, setIsSending] = useState(false)
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const [message, setMessage] = useState("");
+  const [attachments, setAttachments] = useState<File[]>([]);
+  const [isSending, setIsSending] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleSend = async () => {
-    if (!message.trim() && attachments.length === 0) return
-    if (isSending) return
+    if (!message.trim() && attachments.length === 0) return;
+    if (isSending) return;
 
-    setIsSending(true)
+    setIsSending(true);
     try {
-      await onSendMessage(message, attachments)
-      setMessage('')
-      setAttachments([])
+      await onSendMessage(message, attachments);
+      setMessage("");
+      setAttachments([]);
 
       // Reset textarea height
       if (textareaRef.current) {
-        textareaRef.current.style.height = 'auto'
+        textareaRef.current.style.height = "auto";
       }
     } catch (error) {
-      console.error('Failed to send message:', error)
+      console.error("Failed to send message:", error);
     } finally {
-      setIsSending(false)
+      setIsSending(false);
     }
-  }
+  };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      handleSend()
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
     }
-  }
+  };
 
   const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setMessage(e.target.value)
+    setMessage(e.target.value);
 
     // Auto-resize textarea
     if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto'
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
     }
-  }
+  };
 
   const handleFilesSelected = (files: File[]) => {
-    setAttachments(prev => [...prev, ...files])
-  }
+    setAttachments((prev) => [...prev, ...files]);
+  };
 
   const removeAttachment = (index: number) => {
-    setAttachments(prev => prev.filter((_, i) => i !== index))
-  }
+    setAttachments((prev) => prev.filter((_, i) => i !== index));
+  };
 
-  const canSend = (message.trim() || attachments.length > 0) && !isSending && !disabled
+  const canSend =
+    (message.trim() || attachments.length > 0) && !isSending && !disabled;
 
   return (
     <div className="space-y-2">
@@ -105,7 +107,7 @@ export function ChatInput({
             value={message}
             onChange={handleTextareaChange}
             onKeyPress={handleKeyPress}
-            placeholder={disabled ? 'Chat unavailable...' : placeholder}
+            placeholder={disabled ? "Chat unavailable..." : placeholder}
             disabled={disabled || isSending}
             className="min-h-[40px] max-h-32 resize-none pr-12"
             rows={1}
@@ -139,12 +141,18 @@ export function ChatInput({
         <div className="text-xs text-muted-foreground flex items-center space-x-1">
           <div className="flex space-x-1">
             <div className="w-1 h-1 bg-current rounded-full animate-bounce" />
-            <div className="w-1 h-1 bg-current rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
-            <div className="w-1 h-1 bg-current rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+            <div
+              className="w-1 h-1 bg-current rounded-full animate-bounce"
+              style={{ animationDelay: "0.1s" }}
+            />
+            <div
+              className="w-1 h-1 bg-current rounded-full animate-bounce"
+              style={{ animationDelay: "0.2s" }}
+            />
           </div>
           <span>Someone is typing...</span>
         </div>
       )}
     </div>
-  )
+  );
 }

@@ -1,8 +1,8 @@
 import { getMessages, setRequestLocale } from "next-intl/server";
 
+import { ChatWidget } from "@/features/chat";
 import { Footer } from "@/shared/components/layout/footer";
 import { MainNav } from "@/shared/components/navigation/main-nav";
-import { ChatWidget } from "@/features/chat";
 import { NextIntlClientProvider } from "next-intl";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";

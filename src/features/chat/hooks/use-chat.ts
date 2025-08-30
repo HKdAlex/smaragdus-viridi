@@ -1,16 +1,17 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef } from 'react'
-import { supabase } from '@/lib/supabase'
+import type {
+    ChatMessage,
+    GetMessagesResponse,
+    SendMessageRequest,
+    UseChatReturn,
+    UseChatTypingReturn,
+} from '../types/chat.types'
+import { useCallback, useEffect, useRef, useState } from 'react'
+
 import { chatService } from '../services/chat-service'
 import { createContextLogger } from '@/shared/utils/logger'
-import type {
-  ChatMessage,
-  SendMessageRequest,
-  GetMessagesResponse,
-  UseChatReturn,
-  UseChatTypingReturn,
-} from '../types/chat.types'
+import { supabase } from '@/lib/supabase'
 
 export function useChat(userId?: string): UseChatReturn {
   const [messages, setMessages] = useState<ChatMessage[]>([])

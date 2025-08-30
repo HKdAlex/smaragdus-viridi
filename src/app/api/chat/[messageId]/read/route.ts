@@ -1,16 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase'
+
 import { chatService } from '@/features/chat'
 import { createContextLogger } from '@/shared/utils/logger'
+import { createServerClient } from '@/lib/supabase'
 
 const logger = createContextLogger('chat-read-api')
 
 // POST /api/chat/[messageId]/read - Mark a message as read
 export async function POST(
   request: NextRequest,
-  { params }: { params: { messageId: string } }
+  { params }: { params: Promise<{ messageId: string }> }
 ) {
   try {
+    const { messageId } = await params
+
     const supabase = createServerClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
@@ -20,8 +23,6 @@ export async function POST(
         { status: 401 }
       )
     }
-
-    const { messageId } = params
 
     if (!messageId) {
       return NextResponse.json(
@@ -43,7 +44,7 @@ export async function POST(
 
   } catch (error) {
     logger.error('Failed to mark message as read', error as Error, {
-      messageId: params.messageId
+      messageId: (await params).messageId
     })
     return NextResponse.json(
       { error: 'Internal server error' },
