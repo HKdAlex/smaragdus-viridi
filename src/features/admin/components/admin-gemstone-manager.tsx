@@ -71,9 +71,7 @@ export function AdminGemstoneManager() {
 
   const handleDelete = async (gemstone: DatabaseGemstone) => {
     if (
-      confirm(
-        t("deleteConfirmation", { serialNumber: gemstone.serial_number })
-      )
+      confirm(t("deleteConfirmation", { serialNumber: gemstone.serial_number }))
     ) {
       const result = await GemstoneAdminService.deleteGemstone(gemstone.id);
       if (result.success) {

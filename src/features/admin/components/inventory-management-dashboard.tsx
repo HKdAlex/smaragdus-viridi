@@ -99,7 +99,12 @@ export function InventoryManagementDashboard() {
       });
 
       if (result.success) {
-        alert(tInventory("bulkUpdateSuccess", { updated: result.updated, failed: result.failed }));
+        alert(
+          tInventory("bulkUpdateSuccess", {
+            updated: result.updated,
+            failed: result.failed,
+          })
+        );
         setSelectedGemstones(new Set());
         setBulkUpdate({ inStock: true, deliveryDays: "", reason: "" });
         loadInventoryData(); // Refresh data
