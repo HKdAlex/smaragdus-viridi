@@ -42,10 +42,10 @@ const DialogContent = React.forwardRef<
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+        className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm"
         onClick={() => onOpenChange(false)}
       />
 
@@ -53,9 +53,11 @@ const DialogContent = React.forwardRef<
       <div
         ref={ref}
         className={cn(
-          "relative z-50 grid w-full gap-4 border bg-background p-6 shadow-lg duration-200 sm:rounded-lg",
+          "relative z-50 grid w-full max-w-lg gap-4 border border-border bg-background p-4 sm:p-6 shadow-lg duration-200 rounded-lg max-h-[90vh] overflow-y-auto",
           className
         )}
+        role="dialog"
+        aria-modal="true"
         {...props}
       >
         {children}
@@ -72,7 +74,7 @@ const DialogHeader = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "flex flex-col space-y-1.5 text-center sm:text-left",
+      "flex flex-col space-y-2 text-center sm:text-left",
       className
     )}
     {...props}
@@ -87,7 +89,7 @@ const DialogTitle = React.forwardRef<
   <h2
     ref={ref}
     className={cn(
-      "text-lg font-semibold leading-none tracking-tight",
+      "text-lg sm:text-xl font-semibold leading-none tracking-tight text-foreground",
       className
     )}
     {...props}
@@ -107,4 +109,63 @@ const DialogDescription = React.forwardRef<
 ));
 DialogDescription.displayName = "DialogDescription";
 
-export { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle };
+const DialogFooter = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 space-y-2 space-y-reverse sm:space-y-0",
+      className
+    )}
+    {...props}
+  />
+));
+DialogFooter.displayName = "DialogFooter";
+
+interface DialogCloseProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {}
+
+const DialogClose = React.forwardRef<HTMLButtonElement, DialogCloseProps>(
+  ({ className, ...props }, ref) => {
+    const { onOpenChange } = useDialog();
+
+    return (
+      <button
+        ref={ref}
+        className={cn(
+          "absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground",
+          className
+        )}
+        onClick={() => onOpenChange(false)}
+        {...props}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-4 w-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M18 6L6 18M6 6l12 12" />
+        </svg>
+        <span className="sr-only">Close</span>
+      </button>
+    );
+  }
+);
+DialogClose.displayName = "DialogClose";
+
+export {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+};

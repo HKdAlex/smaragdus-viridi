@@ -1,12 +1,6 @@
 "use client";
 
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui/card";
-import {
   ArrowLeft,
   Heart,
   Info,
@@ -16,19 +10,25 @@ import {
   Star,
   Truck,
 } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
 
-import { useAuth } from "@/features/auth/context/auth-context";
-import { useCart } from "@/features/cart/hooks/use-cart";
+import { AIAnalysisDisplay } from "./ai-analysis-display";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
+import { CertificationDisplay } from "./certification-display";
 import type { DetailGemstone } from "@/shared/types";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { AIAnalysisDisplay } from "./ai-analysis-display";
-import { CertificationDisplay } from "./certification-display";
 import { MediaGallery } from "./media-gallery";
 import { RelatedGemstones } from "./related-gemstones";
+import { useAuth } from "@/features/auth/context/auth-context";
+import { useCart } from "@/features/cart/hooks/use-cart";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 // DetailGemstone interface is now imported from shared types
 
@@ -79,10 +79,16 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
       "I1",
     ];
     const index = clarityOrder.indexOf(gemstone.clarity);
-    if (index <= 1) return { grade: "Excellent", color: "text-green-600" };
-    if (index <= 4) return { grade: "Very Good", color: "text-blue-600" };
-    if (index <= 6) return { grade: "Good", color: "text-yellow-600" };
-    return { grade: "Fair", color: "text-orange-600" };
+    if (index <= 1)
+      return {
+        grade: "Excellent",
+        color: "text-green-600 dark:text-green-400",
+      };
+    if (index <= 4)
+      return { grade: "Very Good", color: "text-blue-600 dark:text-blue-400" };
+    if (index <= 6)
+      return { grade: "Good", color: "text-yellow-600 dark:text-yellow-400" };
+    return { grade: "Fair", color: "text-orange-600 dark:text-orange-400" };
   };
 
   const qualityGrade = getQualityGrade();
@@ -209,22 +215,22 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 xl:grid-cols-5 gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div className="grid grid-cols-1 xl:grid-cols-5 gap-6 sm:gap-8">
           {/* Media Gallery - Takes up more space on larger screens */}
-          <div className="xl:col-span-3 space-y-6">
+          <div className="xl:col-span-3 space-y-4 sm:space-y-6">
             <MediaGallery images={gemstone.images} videos={gemstone.videos} />
           </div>
 
           {/* Gemstone Details - Optimized for luxury presentation */}
-          <div className="xl:col-span-2 space-y-8">
+          <div className="xl:col-span-2 space-y-6 sm:space-y-8">
             {/* Luxury Header Card */}
             <Card className="border-0 shadow-lg bg-gradient-to-br from-card to-muted/30 backdrop-blur-sm">
               <CardContent className="p-6">
                 <div className="space-y-4">
                   <div className="flex items-start justify-between">
                     <div className="space-y-2">
-                      <h1 className="text-2xl lg:text-3xl font-bold text-foreground capitalize leading-tight">
+                      <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground capitalize leading-tight">
                         {formatWeight(gemstone.weight_carats)}ct{" "}
                         {gemstone.color} {gemstone.name}
                       </h1>
@@ -249,7 +255,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                         onClick={handleToggleFavorite}
                         className={`h-10 w-10 border-2 transition-all duration-200 ${
                           isFavorite
-                            ? "text-red-500 border-red-200 bg-red-50 hover:bg-red-100 dark:border-red-800 dark:bg-red-950 dark:hover:bg-red-900"
+                            ? "text-destructive border-destructive/50 bg-destructive/10 hover:bg-destructive/20 dark:border-destructive/70 dark:bg-destructive/20 dark:hover:bg-destructive/30"
                             : "hover:border-primary/50"
                         }`}
                       >
@@ -393,10 +399,10 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
               <div
                 className={`p-3 rounded-lg text-center text-sm font-medium ${
                   cartMessage.includes("✅")
-                    ? "bg-green-50 text-green-800 border border-green-200"
+                    ? "bg-green-50 text-green-800 border border-green-200 dark:bg-green-950 dark:text-green-200 dark:border-green-800"
                     : cartMessage.includes("❌")
-                    ? "bg-red-50 text-red-800 border border-red-200"
-                    : "bg-blue-50 text-blue-800 border border-blue-200"
+                    ? "bg-destructive/10 text-destructive border border-destructive/20 dark:bg-destructive/20 dark:text-destructive/80 dark:border-destructive/40"
+                    : "bg-blue-50 text-blue-800 border border-blue-200 dark:bg-blue-950 dark:text-blue-200 dark:border-blue-800"
                 }`}
               >
                 {cartMessage}
@@ -404,12 +410,12 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
             )}
 
             {/* Action Buttons */}
-            <div className="flex gap-4 pt-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4">
               <Button
                 size="lg"
                 onClick={handleAddToCart}
                 disabled={!gemstone.in_stock || isAddingToCart || !user}
-                className="flex-1 h-12 text-base font-medium shadow-lg hover:shadow-xl transition-all duration-200"
+                className="flex-1 h-12 sm:h-12 text-base font-medium shadow-lg hover:shadow-xl transition-all duration-200 min-h-[48px]"
               >
                 <ShoppingCart className="w-5 h-5 mr-2" />
                 {isAddingToCart
@@ -423,7 +429,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
               <Button
                 variant="outline"
                 size="lg"
-                className="flex-1 h-12 text-base font-medium border-2 hover:border-primary/50 transition-all duration-200"
+                className="flex-1 h-12 sm:h-12 text-base font-medium border-2 hover:border-primary/50 transition-all duration-200 min-h-[48px]"
               >
                 <Info className="w-5 h-5 mr-2" />
                 Request Info
@@ -595,13 +601,13 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
 
           {/* Certifications */}
           {gemstone.certifications.length > 0 && (
-            <CertificationDisplay 
-              certifications={gemstone.certifications.map(cert => ({
+            <CertificationDisplay
+              certifications={gemstone.certifications.map((cert) => ({
                 ...cert,
                 certificate_number: cert.certificate_number || undefined,
                 certificate_url: cert.certificate_url || undefined,
-                issued_date: cert.issued_date || undefined
-              }))} 
+                issued_date: cert.issued_date || undefined,
+              }))}
             />
           )}
 

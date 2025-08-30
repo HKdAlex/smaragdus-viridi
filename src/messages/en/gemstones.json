@@ -235,7 +235,14 @@
   },
   "media": {
     "noMediaAvailable": "No media available",
-    "noImage": "No Image"
+    "noImage": "No Image",
+    "video": "Video",
+    "image": "Image",
+    "primary": "Primary",
+    "downloadFailed": "Download failed",
+    "thumbnail": "Thumbnail",
+    "videoThumbnail": "Video thumbnail",
+    "gemstone": "Gemstone"
   },
   "related": {
     "title": "Similar Gemstones",

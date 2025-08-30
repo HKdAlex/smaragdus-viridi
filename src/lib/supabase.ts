@@ -27,4 +27,20 @@ export const supabaseAdmin = (() => {
       persistSession: false
     }
   })
-})() 
+})()
+
+// Server-side Supabase client for API routes and Server Components
+export function createServerClient() {
+  const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  if (!supabaseServiceRoleKey) {
+    throw new Error("Missing SUPABASE_SERVICE_ROLE_KEY environment variable")
+  }
+
+  return createClient<Database>(supabaseUrl, supabaseServiceRoleKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  })
+} 

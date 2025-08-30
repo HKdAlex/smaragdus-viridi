@@ -6,11 +6,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
-// Using basic HTML elements for Label and Alert until shared components are available
 import { Eye, EyeOff, Loader2, Shield } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
+// Using basic HTML elements for Label and Alert until shared components are available
+import { Logo } from "@/shared/components/ui/logo";
 import { useAdmin } from "../context/admin-context";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -51,6 +52,11 @@ export function AdminLogin() {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30 flex items-center justify-center p-4">
       <Card className="w-full max-w-md border-0 shadow-2xl bg-gradient-to-br from-card via-card to-muted/20">
         <CardHeader className="text-center space-y-4">
+          {/* Logo */}
+          <div className="flex justify-center mb-4">
+            <Logo variant="block" size="xl" showText={false} />
+          </div>
+
           <div className="mx-auto w-16 h-16 bg-primary rounded-full flex items-center justify-center">
             <Shield className="w-8 h-8 text-primary-foreground" />
           </div>
@@ -65,7 +71,7 @@ export function AdminLogin() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
-              <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-800">
+              <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive">
                 {error}
               </div>
             )}

@@ -203,3 +203,214 @@ body {
 .scrollbar-hide::-webkit-scrollbar {
   display: none; /* Chrome, Safari and Opera */
 }
+
+/* Crisp logo rendering for small sizes */
+.logo-crisp {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+  image-rendering: pixelated;
+}
+
+/* Additional optimization for very small logos */
+.h-8.logo-crisp {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+/* Mobile-first utilities and improvements */
+
+/* Touch targets - minimum 44px for accessibility */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Mobile spacing utilities */
+.mobile-px {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .mobile-px {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+/* Mobile text sizing */
+.mobile-text {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .mobile-text {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+}
+
+/* Mobile container with responsive padding */
+.mobile-container {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .mobile-container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .mobile-container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* Safe area utilities for mobile devices */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Improved mobile buttons */
+.mobile-button {
+  min-height: 48px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Mobile form inputs */
+.mobile-input {
+  min-height: 48px;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border);
+  background: var(--input);
+  color: var(--foreground);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mobile-input:focus {
+  outline: none;
+  border-color: var(--ring);
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+/* Mobile card styling */
+.mobile-card {
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--card);
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+/* Improved mobile navigation */
+.mobile-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: var(--background);
+  border-top: 1px solid var(--border);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Mobile-first responsive utilities */
+.responsive-text-xs {
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+@media (min-width: 640px) {
+  .responsive-text-xs {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+}
+
+.responsive-text-sm {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .responsive-text-sm {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+}
+
+.responsive-text-base {
+  font-size: 1rem;
+  line-height: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .responsive-text-base {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+  }
+}
+
+/* Mobile-optimized grid gaps */
+.mobile-gap-4 {
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .mobile-gap-4 {
+    gap: 1.5rem;
+  }
+}
+
+.mobile-gap-6 {
+  gap: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .mobile-gap-6 {
+    gap: 2rem;
+  }
+}
+
+/* Improved mobile focus states */
+.mobile-focus:focus {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* Mobile scroll behavior */
+.mobile-scroll {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* Prevent zoom on input focus on iOS */
+@media screen and (max-width: 767px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="url"],
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}

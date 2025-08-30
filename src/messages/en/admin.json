@@ -373,7 +373,15 @@
     "allItems": "All Items",
     "inStockOnly": "In Stock Only",
     "outOfStockOnly": "Out of Stock Only",
-    "origin": "Origin"
+    "origin": "Origin",
+    "priceRangeTitle": "Price Range (USD)",
+    "weightRangeTitle": "Weight Range (carats)",
+    "filterLabels": {
+      "minPrice": "Min Price",
+      "maxPrice": "Max Price",
+      "minWeight": "Min Weight",
+      "maxWeight": "Max Weight"
+    }
   },
   "priceAnalytics": {
     "title": "Price Analytics",
@@ -406,7 +414,26 @@
       "parseFailed": "Failed to parse CSV file. Please check the format.",
       "readFailed": "Failed to read file. Please try again.",
       "importFailed": "Import failed. Please try again."
-    }
+    },
+    "tableHeaders": {
+      "serialNumber": "Serial #",
+      "type": "Type",
+      "color": "Color",
+      "weight": "Weight",
+      "price": "Price",
+      "status": "Status"
+    },
+    "results": {
+      "imported": "Imported",
+      "failed": "Failed",
+      "duplicates": "Duplicates",
+      "importErrors": "Import Errors",
+      "duplicatesFound": "Duplicates Found",
+      "row": "Row",
+      "moreErrors": "... and {count} more errors"
+    },
+    "close": "Close",
+    "viewUpdatedList": "View Updated List"
   },
   "search": {
     "placeholder": "Search gemstones by serial number, type, color, or description...",

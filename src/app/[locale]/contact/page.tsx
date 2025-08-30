@@ -1,69 +1,76 @@
 import { Button } from "@/shared/components/ui/button";
 import { Link as I18nLink } from "@/i18n/navigation";
+import { Logo } from "@/shared/components/ui/logo";
 import { getTranslations } from "next-intl/server";
 
 export default async function ContactPage() {
   const t = await getTranslations("common");
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
-      <div className="container mx-auto px-4 py-24">
-        <div className="text-center mb-16">
-          <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-gray-100 mb-6">
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-12 sm:py-16 lg:py-24">
+        <div className="text-center mb-12 sm:mb-16">
+          {/* Logo Element */}
+          <div className="flex justify-center mb-6 sm:mb-8">
+            <Logo
+              variant="block"
+              size="xl"
+              showText={false}
+              className="sm:w-auto w-24"
+            />
+          </div>
+
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground mb-4 sm:mb-6">
             {t("contact.title")}
           </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-muted-foreground mb-8 max-w-2xl mx-auto px-2">
             {t("contact.subtitle")}
           </p>
         </div>
 
-        <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-12">
+        <div className="max-w-4xl mx-auto grid gap-6 sm:gap-8 lg:grid-cols-2">
           {/* Contact Info */}
-          <div className="space-y-8">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-              <div className="text-emerald-600 dark:text-emerald-400 text-3xl mb-4">
-                📧
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+          <div className="space-y-6">
+            <div className="bg-card border border-border rounded-lg shadow-sm p-6">
+              <div className="text-primary text-3xl mb-4">📧</div>
+              <h3 className="text-lg font-semibold text-foreground mb-3">
                 {t("contact.email.title")}
               </h3>
-              <p className="text-gray-600 dark:text-gray-300">
-                info@smaragdus-viridi.com
-              </p>
-              <p className="text-gray-600 dark:text-gray-300">
-                sales@smaragdus-viridi.com
-              </p>
+              <div className="space-y-1 text-muted-foreground">
+                <p>info@smaragdus-viridi.com</p>
+                <p>sales@smaragdus-viridi.com</p>
+              </div>
             </div>
 
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-              <div className="text-emerald-600 dark:text-emerald-400 text-3xl mb-4">
-                📱
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+            <div className="bg-card border border-border rounded-lg shadow-sm p-6">
+              <div className="text-primary text-3xl mb-4">📱</div>
+              <h3 className="text-lg font-semibold text-foreground mb-3">
                 {t("contact.phone.title")}
               </h3>
-              <p className="text-gray-600 dark:text-gray-300">
-                +1 (555) 123-4567
-              </p>
-              <p className="text-gray-600 dark:text-gray-300">
-                Monday - Friday, 9AM - 6PM EST
-              </p>
+              <div className="space-y-1 text-muted-foreground">
+                <p>+1 (555) 123-4567</p>
+                <p className="text-sm">Monday - Friday, 9AM - 6PM EST</p>
+              </div>
             </div>
           </div>
 
           {/* Contact Form Placeholder */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">
+          <div className="bg-card border border-border rounded-lg shadow-sm p-6 sm:p-8">
+            <h3 className="text-xl sm:text-2xl font-semibold text-foreground mb-6">
               {t("contact.form.title")}
             </h3>
             <div className="space-y-4">
-              <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-              <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-              <div className="h-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-              <div className="text-center">
-                <p className="text-gray-600 dark:text-gray-300 mb-4">
+              <div className="h-10 bg-muted rounded animate-pulse"></div>
+              <div className="h-10 bg-muted rounded animate-pulse"></div>
+              <div className="h-32 bg-muted rounded animate-pulse"></div>
+              <div className="text-center pt-4">
+                <p className="text-muted-foreground mb-4 text-sm sm:text-base">
                   {t("contact.form.placeholder")}
                 </p>
-                <Button asChild className="bg-emerald-600 hover:bg-emerald-700">
+                <Button
+                  asChild
+                  size="lg"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 sm:px-8 py-3 min-h-[48px]"
+                >
                   <I18nLink href="/">{t("contact.backToHome")}</I18nLink>
                 </Button>
               </div>

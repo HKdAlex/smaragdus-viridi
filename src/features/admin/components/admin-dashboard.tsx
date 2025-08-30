@@ -87,7 +87,7 @@ export function AdminDashboard() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 flex items-center justify-center px-4">
         <div className="text-center space-y-4">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
           <p className="text-muted-foreground">{t("dashboard.loading")}</p>
@@ -98,19 +98,22 @@ export function AdminDashboard() {
 
   if (!user || !profile) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 flex items-center justify-center px-4 py-8">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
-            <CardTitle className="flex items-center justify-center gap-2">
+            <CardTitle className="flex items-center justify-center gap-2 text-lg sm:text-xl">
               <Shield className="w-6 h-6 text-primary" />
               {t("dashboard.accessRequired")}
             </CardTitle>
           </CardHeader>
           <CardContent className="text-center">
-            <p className="text-muted-foreground mb-4">
+            <p className="text-muted-foreground mb-6 text-sm sm:text-base">
               {t("dashboard.privilegesRequired")}
             </p>
-            <Button onClick={() => (window.location.href = "/admin/login")}>
+            <Button
+              onClick={() => (window.location.href = "/admin/login")}
+              className="min-h-[48px] w-full"
+            >
               {t("dashboard.goToLogin")}
             </Button>
           </CardContent>
@@ -142,13 +145,13 @@ export function AdminDashboard() {
     <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
       {/* Header */}
       <header className="bg-background/95 backdrop-blur-sm border-b border-border sticky top-0 z-50">
-        <div className="flex items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-4">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4">
+          <div className="flex items-center gap-3 sm:gap-4">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="md:hidden"
+              className="md:hidden min-h-[44px] min-w-[44px]"
             >
               {sidebarOpen ? (
                 <X className="w-5 h-5" />
@@ -158,12 +161,14 @@ export function AdminDashboard() {
             </Button>
 
             <div className="flex items-center gap-3">
-              <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
+              <div className="h-8 w-8 sm:h-10 sm:w-10 bg-primary rounded-lg flex items-center justify-center">
                 <Shield className="w-5 h-5 text-primary-foreground" />
               </div>
-              <div>
-                <h1 className="font-bold text-lg">{t("header.title")}</h1>
-                <p className="text-sm text-muted-foreground">
+              <div className="min-w-0">
+                <h1 className="font-bold text-lg sm:text-xl truncate">
+                  {t("header.title")}
+                </h1>
+                <p className="text-sm text-muted-foreground truncate max-w-[200px] sm:max-w-none">
                   {t("header.welcomeBack", { name: profile.name })}
                 </p>
               </div>
@@ -175,10 +180,19 @@ export function AdminDashboard() {
               variant="outline"
               size="sm"
               onClick={signOut}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 min-h-[44px] hidden sm:flex"
             >
               <LogOut className="w-4 h-4" />
               {t("header.signOut")}
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={signOut}
+              className="sm:hidden min-h-[44px] min-w-[44px]"
+              title={t("header.signOut")}
+            >
+              <LogOut className="w-5 h-5" />
             </Button>
           </div>
         </div>
@@ -189,11 +203,11 @@ export function AdminDashboard() {
         <aside
           className={`
           ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
-          md:translate-x-0 transition-transform duration-200 ease-in-out
+          md:translate-x-0 transition-transform duration-300 ease-in-out
           fixed md:static top-16 md:top-0 left-0 z-40
-          w-64 h-[calc(100vh-4rem)] md:h-screen
+          w-64 sm:w-72 h-[calc(100vh-4rem)] md:h-screen
           bg-background/95 backdrop-blur-sm border-r border-border
-          overflow-y-auto
+          overflow-y-auto shadow-lg md:shadow-none
         `}
         >
           <nav className="p-4 space-y-2">
@@ -205,16 +219,18 @@ export function AdminDashboard() {
                 <Button
                   key={tab.id}
                   variant={isActive ? "default" : "ghost"}
-                  className="w-full justify-start gap-3 h-auto p-3"
+                  className="w-full justify-start gap-3 h-auto p-3 sm:p-4 min-h-[48px] text-left"
                   onClick={() => {
                     setActiveTab(tab.id);
                     setSidebarOpen(false); // Close mobile sidebar
                   }}
                 >
                   <Icon className="w-5 h-5 flex-shrink-0" />
-                  <div className="text-left">
-                    <div className="font-medium">{tab.name}</div>
-                    <div className="text-xs text-muted-foreground">
+                  <div className="text-left min-w-0 flex-1">
+                    <div className="font-medium text-sm sm:text-base truncate">
+                      {tab.name}
+                    </div>
+                    <div className="text-xs text-muted-foreground truncate">
                       {tab.description}
                     </div>
                   </div>
@@ -225,7 +241,9 @@ export function AdminDashboard() {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-6 overflow-x-auto">{renderTabContent()}</main>
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-auto min-h-0">
+          {renderTabContent()}
+        </main>
       </div>
     </div>
   );
@@ -345,17 +363,17 @@ function AdminDashboardOverview() {
           <p className="text-muted-foreground">{t("overview.description")}</p>
         </div>
 
-        <Card className="border-red-200 bg-red-50">
+        <Card className="border-destructive/20 bg-destructive/5">
           <CardContent className="p-6">
             <div className="text-center">
-              <h3 className="text-lg font-semibold text-red-800 mb-2">
+              <h3 className="text-lg font-semibold text-destructive mb-2">
                 {t("stats.loadErrorTitle")}
               </h3>
-              <p className="text-red-600 mb-4">{error}</p>
+              <p className="text-destructive mb-4 text-sm">{error}</p>
               <Button
                 onClick={loadDashboardStats}
                 variant="outline"
-                className="border-red-300 text-red-700 hover:bg-red-100"
+                className="border-destructive/50 text-destructive hover:bg-destructive/10 min-h-[44px]"
               >
                 {t("stats.retry")}
               </Button>
@@ -367,16 +385,18 @@ function AdminDashboardOverview() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 sm:space-y-8">
       <div>
-        <h2 className="text-3xl font-bold text-foreground mb-2">
+        <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
           {t("overview.title")}
         </h2>
-        <p className="text-muted-foreground">{t("overview.description")}</p>
+        <p className="text-muted-foreground text-sm sm:text-base">
+          {t("overview.description")}
+        </p>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {stats.map((stat) => {
           const Icon = stat.icon;
           return (
@@ -384,26 +404,30 @@ function AdminDashboardOverview() {
               key={stat.title}
               className="border-0 shadow-lg bg-gradient-to-br from-card to-muted/20"
             >
-              <CardContent className="p-6">
+              <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs sm:text-sm text-muted-foreground mb-1 truncate">
                       {stat.title}
                     </p>
-                    <p className="text-2xl font-bold text-foreground">
+                    <p className="text-xl sm:text-2xl font-bold text-foreground truncate">
                       {stat.value}
                     </p>
                     <p
-                      className={`text-sm flex items-center gap-1 ${
-                        stat.trend === "up" ? "text-green-600" : "text-red-600"
+                      className={`text-xs sm:text-sm flex items-center gap-1 ${
+                        stat.trend === "up"
+                          ? "text-green-600 dark:text-green-400"
+                          : "text-red-600 dark:text-red-400"
                       }`}
                     >
-                      <TrendingUp className="w-3 h-3" />
-                      {stat.change} {t("stats.fromLastMonth")}
+                      <TrendingUp className="w-3 h-3 flex-shrink-0" />
+                      <span className="truncate">
+                        {stat.change} {t("stats.fromLastMonth")}
+                      </span>
                     </p>
                   </div>
-                  <div className="h-12 w-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                    <Icon className="w-6 h-6 text-primary" />
+                  <div className="h-10 w-10 sm:h-12 sm:w-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0 ml-3">
+                    <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                   </div>
                 </div>
               </CardContent>
@@ -415,17 +439,19 @@ function AdminDashboardOverview() {
       {/* Quick Actions */}
       <Card className="border-0 shadow-lg bg-gradient-to-br from-card to-muted/20">
         <CardHeader>
-          <CardTitle>{t("quickActions.title")}</CardTitle>
+          <CardTitle className="text-lg sm:text-xl">
+            {t("quickActions.title")}
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button className="flex items-center gap-3 h-auto p-4 justify-start">
-              <Upload className="w-5 h-5" />
-              <div className="text-left">
-                <div className="font-medium">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <Button className="flex items-center gap-3 h-auto p-4 justify-start min-h-[60px] text-left">
+              <Upload className="w-5 h-5 flex-shrink-0" />
+              <div className="text-left min-w-0 flex-1">
+                <div className="font-medium text-sm sm:text-base truncate">
                   {t("quickActions.uploadGemstones")}
                 </div>
-                <div className="text-sm text-muted-foreground">
+                <div className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
                   {t("quickActions.uploadGemstonesDesc")}
                 </div>
               </div>
@@ -433,14 +459,14 @@ function AdminDashboardOverview() {
 
             <Button
               variant="outline"
-              className="flex items-center gap-3 h-auto p-4 justify-start"
+              className="flex items-center gap-3 h-auto p-4 justify-start min-h-[60px] text-left"
             >
-              <Edit className="w-5 h-5" />
-              <div className="text-left">
-                <div className="font-medium">
+              <Edit className="w-5 h-5 flex-shrink-0" />
+              <div className="text-left min-w-0 flex-1">
+                <div className="font-medium text-sm sm:text-base truncate">
                   {t("quickActions.editPrices")}
                 </div>
-                <div className="text-sm text-muted-foreground">
+                <div className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
                   {t("quickActions.editPricesDesc")}
                 </div>
               </div>
@@ -448,14 +474,14 @@ function AdminDashboardOverview() {
 
             <Button
               variant="outline"
-              className="flex items-center gap-3 h-auto p-4 justify-start"
+              className="flex items-center gap-3 h-auto p-4 justify-start min-h-[60px] text-left"
             >
-              <Users className="w-5 h-5" />
-              <div className="text-left">
-                <div className="font-medium">
+              <Users className="w-5 h-5 flex-shrink-0" />
+              <div className="text-left min-w-0 flex-1">
+                <div className="font-medium text-sm sm:text-base truncate">
                   {t("quickActions.userManagement")}
                 </div>
-                <div className="text-sm text-muted-foreground">
+                <div className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
                   {t("quickActions.userManagementDesc")}
                 </div>
               </div>
@@ -467,41 +493,43 @@ function AdminDashboardOverview() {
       {/* Recent Activity */}
       <Card className="border-0 shadow-lg bg-gradient-to-br from-card to-muted/20">
         <CardHeader>
-          <CardTitle>{t("recentActivity.title")}</CardTitle>
+          <CardTitle className="text-lg sm:text-xl">
+            {t("recentActivity.title")}
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            <div className="flex items-center gap-4 p-3 bg-muted/30 rounded-lg">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <div className="flex-1">
-                <p className="font-medium">
+          <div className="space-y-3 sm:space-y-4">
+            <div className="flex items-center gap-3 sm:gap-4 p-3 bg-muted/30 rounded-lg">
+              <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-sm sm:text-base truncate">
                   {t("recentActivity.newGemstoneAdded")}
                 </p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs sm:text-sm text-muted-foreground">
                   {t("recentActivity.twoHoursAgo")}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-4 p-3 bg-muted/30 rounded-lg">
-              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-              <div className="flex-1">
-                <p className="font-medium">
+            <div className="flex items-center gap-3 sm:gap-4 p-3 bg-muted/30 rounded-lg">
+              <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-sm sm:text-base truncate">
                   {t("recentActivity.userPromoted")}
                 </p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs sm:text-sm text-muted-foreground">
                   {t("recentActivity.fiveHoursAgo")}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-4 p-3 bg-muted/30 rounded-lg">
-              <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-              <div className="flex-1">
-                <p className="font-medium">
+            <div className="flex items-center gap-3 sm:gap-4 p-3 bg-muted/30 rounded-lg">
+              <div className="w-2 h-2 bg-orange-500 rounded-full flex-shrink-0"></div>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-sm sm:text-base truncate">
                   {t("recentActivity.priceUpdateApplied", { count: 15 })}
                 </p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs sm:text-sm text-muted-foreground">
                   {t("recentActivity.oneDayAgo")}
                 </p>
               </div>

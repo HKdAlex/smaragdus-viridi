@@ -265,112 +265,143 @@ export function EnhancedSearch({
   ];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 sm:space-y-6">
       {/* Main Search Bar */}
-      <div className="flex items-center gap-3">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
           <Input
             placeholder={t("searchPlaceholder")}
             value={filters.query}
             onChange={(e) => handleQueryChange(e.target.value)}
-            className="pl-10"
+            className="pl-10 min-h-[48px] text-base"
           />
         </div>
 
-        <Select value={filters.sortBy} onValueChange={handleSortChange}>
-          <SelectTrigger className="w-48">
-            <SelectValue placeholder={t("sortBy")} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="created_at">
-              {t("sortLabels.dateAdded")}
-            </SelectItem>
-            <SelectItem value="price_amount">
-              {t("sortLabels.price")}
-            </SelectItem>
-            <SelectItem value="weight_carats">
-              {t("sortLabels.weight")}
-            </SelectItem>
-            <SelectItem value="serial_number">
-              {t("sortLabels.serialNumber")}
-            </SelectItem>
-            <SelectItem value="name">{t("sortLabels.gemstoneType")}</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
+          <Select value={filters.sortBy} onValueChange={handleSortChange}>
+            <SelectTrigger className="w-full sm:w-48 min-h-[44px]">
+              <SelectValue placeholder={t("sortBy")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="created_at">
+                {t("sortLabels.dateAdded")}
+              </SelectItem>
+              <SelectItem value="price_amount">
+                {t("sortLabels.price")}
+              </SelectItem>
+              <SelectItem value="weight_carats">
+                {t("sortLabels.weight")}
+              </SelectItem>
+              <SelectItem value="serial_number">
+                {t("sortLabels.serialNumber")}
+              </SelectItem>
+              <SelectItem value="name">
+                {t("sortLabels.gemstoneType")}
+              </SelectItem>
+            </SelectContent>
+          </Select>
 
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleSortOrderToggle}
-          className="px-3"
-        >
-          {filters.sortOrder === "asc" ? (
-            <SortAsc className="w-4 h-4" />
-          ) : (
-            <SortDesc className="w-4 h-4" />
-          )}
-        </Button>
-
-        <Button
-          variant="outline"
-          onClick={() => setShowAdvanced(!showAdvanced)}
-          className="flex items-center gap-2"
-        >
-          <Filter className="w-4 h-4" />
-          {t("filters")}
-          {activeFiltersCount > 0 && (
-            <Badge variant="secondary" className="ml-1">
-              {activeFiltersCount}
-            </Badge>
-          )}
-        </Button>
-
-        {activeFiltersCount > 0 && (
-          <Button variant="ghost" size="sm" onClick={clearAllFilters}>
-            <X className="w-4 h-4" />
-            {t("clearFilters")}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleSortOrderToggle}
+            className="px-3 min-h-[44px] min-w-[44px]"
+          >
+            {filters.sortOrder === "asc" ? (
+              <SortAsc className="w-4 h-4" />
+            ) : (
+              <SortDesc className="w-4 h-4" />
+            )}
           </Button>
-        )}
+
+          <Button
+            variant="outline"
+            onClick={() => setShowAdvanced(!showAdvanced)}
+            className="flex items-center justify-center gap-2 min-h-[44px]"
+          >
+            <Filter className="w-4 h-4" />
+            <span className="hidden sm:inline">{t("filters")}</span>
+            <span className="sm:hidden">Filter</span>
+            {activeFiltersCount > 0 && (
+              <Badge variant="secondary" className="ml-1">
+                {activeFiltersCount}
+              </Badge>
+            )}
+          </Button>
+
+          {activeFiltersCount > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearAllFilters}
+              className="min-h-[44px] whitespace-nowrap"
+            >
+              <X className="w-4 h-4 mr-1" />
+              <span className="hidden sm:inline">{t("clearFilters")}</span>
+              <span className="sm:hidden">Clear</span>
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Active Filters Summary */}
       {activeFiltersCount > 0 && (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 p-3 bg-muted/30 rounded-lg border border-border">
           {filters.priceMin && (
-            <Badge variant="secondary" className="flex items-center gap-1">
-              {t("filterLabels.minPrice")}: $
-              {(filters.priceMin / 100).toLocaleString()}
+            <Badge
+              variant="secondary"
+              className="flex items-center gap-1 min-h-[32px] px-2"
+            >
+              <span className="text-xs sm:text-sm">
+                {t("filterLabels.minPrice")}: $
+                {(filters.priceMin / 100).toLocaleString()}
+              </span>
               <X
-                className="w-3 h-3 cursor-pointer"
+                className="w-3 h-3 cursor-pointer flex-shrink-0"
                 onClick={() => setFilters({ ...filters, priceMin: undefined })}
               />
             </Badge>
           )}
           {filters.priceMax && (
-            <Badge variant="secondary" className="flex items-center gap-1">
-              {t("filterLabels.maxPrice")}: $
-              {(filters.priceMax / 100).toLocaleString()}
+            <Badge
+              variant="secondary"
+              className="flex items-center gap-1 min-h-[32px] px-2"
+            >
+              <span className="text-xs sm:text-sm">
+                {t("filterLabels.maxPrice")}: $
+                {(filters.priceMax / 100).toLocaleString()}
+              </span>
               <X
-                className="w-3 h-3 cursor-pointer"
+                className="w-3 h-3 cursor-pointer flex-shrink-0"
                 onClick={() => setFilters({ ...filters, priceMax: undefined })}
               />
             </Badge>
           )}
           {filters.weightMin && (
-            <Badge variant="secondary" className="flex items-center gap-1">
-              {t("filterLabels.minWeight")}: {filters.weightMin}ct
+            <Badge
+              variant="secondary"
+              className="flex items-center gap-1 min-h-[32px] px-2"
+            >
+              <span className="text-xs sm:text-sm">
+                {t("filterLabels.minWeight")}: {filters.weightMin}ct
+              </span>
               <X
-                className="w-3 h-3 cursor-pointer"
+                className="w-3 h-3 cursor-pointer flex-shrink-0"
                 onClick={() => setFilters({ ...filters, weightMin: undefined })}
               />
             </Badge>
           )}
           {filters.weightMax && (
-            <Badge variant="secondary" className="flex items-center gap-1">
-              {t("filterLabels.maxWeight")}: {filters.weightMax}ct
+            <Badge
+              variant="secondary"
+              className="flex items-center gap-1 min-h-[32px] px-2"
+            >
+              <span className="text-xs sm:text-sm">
+                {t("filterLabels.maxWeight")}: {filters.weightMax}ct
+              </span>
               <X
-                className="w-3 h-3 cursor-pointer"
+                className="w-3 h-3 cursor-pointer flex-shrink-0"
                 onClick={() => setFilters({ ...filters, weightMax: undefined })}
               />
             </Badge>
@@ -379,11 +410,13 @@ export function EnhancedSearch({
             <Badge
               key={type}
               variant="secondary"
-              className="flex items-center gap-1 capitalize"
+              className="flex items-center gap-1 capitalize min-h-[32px] px-2"
             >
-              {t("filterLabels.type")}: {type}
+              <span className="text-xs sm:text-sm">
+                {t("filterLabels.type")}: {type}
+              </span>
               <X
-                className="w-3 h-3 cursor-pointer"
+                className="w-3 h-3 cursor-pointer flex-shrink-0"
                 onClick={() => handleMultiSelectChange("types", type, false)}
               />
             </Badge>
@@ -392,11 +425,13 @@ export function EnhancedSearch({
             <Badge
               key={color}
               variant="secondary"
-              className="flex items-center gap-1 capitalize"
+              className="flex items-center gap-1 capitalize min-h-[32px] px-2"
             >
-              {t("filterLabels.color")}: {color}
+              <span className="text-xs sm:text-sm">
+                {t("filterLabels.color")}: {color}
+              </span>
               <X
-                className="w-3 h-3 cursor-pointer"
+                className="w-3 h-3 cursor-pointer flex-shrink-0"
                 onClick={() => handleMultiSelectChange("colors", color, false)}
               />
             </Badge>
@@ -405,11 +440,13 @@ export function EnhancedSearch({
             <Badge
               key={cut}
               variant="secondary"
-              className="flex items-center gap-1 capitalize"
+              className="flex items-center gap-1 capitalize min-h-[32px] px-2"
             >
-              {t("filterLabels.cut")}: {cut}
+              <span className="text-xs sm:text-sm">
+                {t("filterLabels.cut")}: {cut}
+              </span>
               <X
-                className="w-3 h-3 cursor-pointer"
+                className="w-3 h-3 cursor-pointer flex-shrink-0"
                 onClick={() => handleMultiSelectChange("cuts", cut, false)}
               />
             </Badge>
@@ -418,11 +455,13 @@ export function EnhancedSearch({
             <Badge
               key={clarity}
               variant="secondary"
-              className="flex items-center gap-1"
+              className="flex items-center gap-1 min-h-[32px] px-2"
             >
-              {t("filterLabels.clarity")}: {clarity}
+              <span className="text-xs sm:text-sm">
+                {t("filterLabels.clarity")}: {clarity}
+              </span>
               <X
-                className="w-3 h-3 cursor-pointer"
+                className="w-3 h-3 cursor-pointer flex-shrink-0"
                 onClick={() =>
                   handleMultiSelectChange("clarities", clarity, false)
                 }
@@ -433,11 +472,13 @@ export function EnhancedSearch({
             <Badge
               key={origin}
               variant="secondary"
-              className="flex items-center gap-1 capitalize"
+              className="flex items-center gap-1 capitalize min-h-[32px] px-2"
             >
-              {t("filterLabels.origin")}: {origin}
+              <span className="text-xs sm:text-sm">
+                {t("filterLabels.origin")}: {origin}
+              </span>
               <X
-                className="w-3 h-3 cursor-pointer"
+                className="w-3 h-3 cursor-pointer flex-shrink-0"
                 onClick={() =>
                   handleMultiSelectChange("origins", origin, false)
                 }
@@ -445,11 +486,16 @@ export function EnhancedSearch({
             </Badge>
           ))}
           {filters.inStock !== undefined && (
-            <Badge variant="secondary" className="flex items-center gap-1">
-              {t("filterLabels.stockStatus")}:{" "}
-              {filters.inStock ? t("inStock") : t("outOfStock")}
+            <Badge
+              variant="secondary"
+              className="flex items-center gap-1 min-h-[32px] px-2"
+            >
+              <span className="text-xs sm:text-sm">
+                {t("filterLabels.stockStatus")}:{" "}
+                {filters.inStock ? t("inStock") : t("outOfStock")}
+              </span>
               <X
-                className="w-3 h-3 cursor-pointer"
+                className="w-3 h-3 cursor-pointer flex-shrink-0"
                 onClick={() => setFilters({ ...filters, inStock: undefined })}
               />
             </Badge>
@@ -460,18 +506,22 @@ export function EnhancedSearch({
       {/* Advanced Filters Panel */}
       {showAdvanced && (
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-lg">{t("advancedFilters")}</CardTitle>
-            <div className="flex items-center gap-2">
+          <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <CardTitle className="text-lg sm:text-xl">
+              {t("advancedFilters")}
+            </CardTitle>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
               {onSaveSearch && (
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setShowSaveDialog(true)}
                   disabled={activeFiltersCount === 0}
+                  className="min-h-[44px] w-full sm:w-auto"
                 >
                   <Save className="w-4 h-4 mr-2" />
-                  {t("saveSearch")}
+                  <span className="hidden sm:inline">{t("saveSearch")}</span>
+                  <span className="sm:hidden">Save</span>
                 </Button>
               )}
               {savedSearches.length > 0 && (
@@ -481,7 +531,7 @@ export function EnhancedSearch({
                     if (search) loadSavedSearch(search);
                   }}
                 >
-                  <SelectTrigger className="w-48">
+                  <SelectTrigger className="w-full sm:w-48 min-h-[44px]">
                     <History className="w-4 h-4 mr-2" />
                     <SelectValue placeholder={t("loadSearch")} />
                   </SelectTrigger>
@@ -498,13 +548,15 @@ export function EnhancedSearch({
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Price and Weight Range */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               <div>
-                <h4 className="font-medium mb-3">Price Range (USD)</h4>
+                <h4 className="font-medium mb-3 text-sm sm:text-base">
+                  {t("priceRangeTitle")}
+                </h4>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-sm text-muted-foreground">
-                      Min Price
+                    <label className="text-xs sm:text-sm text-muted-foreground block mb-1">
+                      {t("filterLabels.minPrice")}
                     </label>
                     <Input
                       type="number"
@@ -513,11 +565,12 @@ export function EnhancedSearch({
                       onChange={(e) =>
                         handleRangeChange("priceMin", e.target.value)
                       }
+                      className="min-h-[44px] text-base"
                     />
                   </div>
                   <div>
-                    <label className="text-sm text-muted-foreground">
-                      Max Price
+                    <label className="text-xs sm:text-sm text-muted-foreground block mb-1">
+                      {t("filterLabels.maxPrice")}
                     </label>
                     <Input
                       type="number"
@@ -526,17 +579,20 @@ export function EnhancedSearch({
                       onChange={(e) =>
                         handleRangeChange("priceMax", e.target.value)
                       }
+                      className="min-h-[44px] text-base"
                     />
                   </div>
                 </div>
               </div>
 
               <div>
-                <h4 className="font-medium mb-3">Weight Range (carats)</h4>
+                <h4 className="font-medium mb-3 text-sm sm:text-base">
+                  {t("weightRangeTitle")}
+                </h4>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-sm text-muted-foreground">
-                      Min Weight
+                    <label className="text-xs sm:text-sm text-muted-foreground block mb-1">
+                      {t("filterLabels.minWeight")}
                     </label>
                     <Input
                       type="number"
@@ -546,11 +602,12 @@ export function EnhancedSearch({
                       onChange={(e) =>
                         handleRangeChange("weightMin", e.target.value)
                       }
+                      className="min-h-[44px] text-base"
                     />
                   </div>
                   <div>
-                    <label className="text-sm text-muted-foreground">
-                      Max Weight
+                    <label className="text-xs sm:text-sm text-muted-foreground block mb-1">
+                      {t("filterLabels.maxWeight")}
                     </label>
                     <Input
                       type="number"
@@ -560,6 +617,7 @@ export function EnhancedSearch({
                       onChange={(e) =>
                         handleRangeChange("weightMax", e.target.value)
                       }
+                      className="min-h-[44px] text-base"
                     />
                   </div>
                 </div>
@@ -568,7 +626,9 @@ export function EnhancedSearch({
 
             {/* Stock Status */}
             <div>
-              <h4 className="font-medium mb-3">{t("stockStatus")}</h4>
+              <h4 className="font-medium mb-3 text-sm sm:text-base">
+                {t("stockStatus")}
+              </h4>
               <Select
                 value={
                   filters.inStock === undefined
@@ -579,7 +639,7 @@ export function EnhancedSearch({
                 }
                 onValueChange={handleStockFilterChange}
               >
-                <SelectTrigger className="w-48">
+                <SelectTrigger className="w-full sm:w-48 min-h-[44px]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -595,12 +655,14 @@ export function EnhancedSearch({
             {/* Origins */}
             {availableOrigins.length > 0 && (
               <div>
-                <h4 className="font-medium mb-3">{t("origin")}</h4>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                <h4 className="font-medium mb-3 text-sm sm:text-base">
+                  {t("origin")}
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
                   {availableOrigins.map((origin) => (
                     <label
                       key={origin}
-                      className="flex items-center space-x-2 cursor-pointer"
+                      className="flex items-center space-x-2 cursor-pointer p-2 rounded hover:bg-accent min-h-[44px]"
                     >
                       <input
                         type="checkbox"
@@ -612,7 +674,7 @@ export function EnhancedSearch({
                             e.target.checked
                           )
                         }
-                        className="rounded border-gray-300"
+                        className="rounded border-border text-primary focus:ring-ring focus:ring-2 bg-background"
                       />
                       <span className="text-sm capitalize">{origin}</span>
                     </label>
@@ -622,15 +684,17 @@ export function EnhancedSearch({
             )}
 
             {/* Gemstone Properties */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               {/* Types */}
               <div>
-                <h4 className="font-medium mb-3">{t("gemstoneType")}</h4>
+                <h4 className="font-medium mb-3 text-sm sm:text-base">
+                  {t("gemstoneType")}
+                </h4>
                 <div className="space-y-2 max-h-48 overflow-y-auto">
                   {gemstoneTypes.map((type) => (
                     <label
                       key={type}
-                      className="flex items-center space-x-2 cursor-pointer"
+                      className="flex items-center space-x-2 cursor-pointer p-2 rounded hover:bg-accent min-h-[44px]"
                     >
                       <input
                         type="checkbox"
@@ -642,7 +706,7 @@ export function EnhancedSearch({
                             e.target.checked
                           )
                         }
-                        className="rounded border-gray-300"
+                        className="rounded border-border text-primary focus:ring-ring focus:ring-2 bg-background"
                       />
                       <span className="text-sm capitalize">{type}</span>
                     </label>
@@ -652,12 +716,14 @@ export function EnhancedSearch({
 
               {/* Colors */}
               <div>
-                <h4 className="font-medium mb-3">{t("color")}</h4>
+                <h4 className="font-medium mb-3 text-sm sm:text-base">
+                  {t("color")}
+                </h4>
                 <div className="space-y-2 max-h-48 overflow-y-auto">
                   {gemColors.map((color) => (
                     <label
                       key={color}
-                      className="flex items-center space-x-2 cursor-pointer"
+                      className="flex items-center space-x-2 cursor-pointer p-2 rounded hover:bg-accent min-h-[44px]"
                     >
                       <input
                         type="checkbox"
@@ -669,7 +735,7 @@ export function EnhancedSearch({
                             e.target.checked
                           )
                         }
-                        className="rounded border-gray-300"
+                        className="rounded border-border text-primary focus:ring-ring focus:ring-2 bg-background"
                       />
                       <span className="text-sm capitalize">{color}</span>
                     </label>
@@ -679,12 +745,14 @@ export function EnhancedSearch({
 
               {/* Cuts */}
               <div>
-                <h4 className="font-medium mb-3">{t("cut")}</h4>
+                <h4 className="font-medium mb-3 text-sm sm:text-base">
+                  {t("cut")}
+                </h4>
                 <div className="space-y-2 max-h-48 overflow-y-auto">
                   {gemCuts.map((cut) => (
                     <label
                       key={cut}
-                      className="flex items-center space-x-2 cursor-pointer"
+                      className="flex items-center space-x-2 cursor-pointer p-2 rounded hover:bg-accent min-h-[44px]"
                     >
                       <input
                         type="checkbox"
@@ -692,7 +760,7 @@ export function EnhancedSearch({
                         onChange={(e) =>
                           handleMultiSelectChange("cuts", cut, e.target.checked)
                         }
-                        className="rounded border-gray-300"
+                        className="rounded border-border text-primary focus:ring-ring focus:ring-2 bg-background"
                       />
                       <span className="text-sm capitalize">{cut}</span>
                     </label>
@@ -702,12 +770,14 @@ export function EnhancedSearch({
 
               {/* Clarities */}
               <div>
-                <h4 className="font-medium mb-3">{t("clarity")}</h4>
+                <h4 className="font-medium mb-3 text-sm sm:text-base">
+                  {t("clarity")}
+                </h4>
                 <div className="space-y-2 max-h-48 overflow-y-auto">
                   {gemClarities.map((clarity) => (
                     <label
                       key={clarity}
-                      className="flex items-center space-x-2 cursor-pointer"
+                      className="flex items-center space-x-2 cursor-pointer p-2 rounded hover:bg-accent min-h-[44px]"
                     >
                       <input
                         type="checkbox"
@@ -719,7 +789,7 @@ export function EnhancedSearch({
                             e.target.checked
                           )
                         }
-                        className="rounded border-gray-300"
+                        className="rounded border-border text-primary focus:ring-ring focus:ring-2 bg-background"
                       />
                       <span className="text-sm capitalize">{clarity}</span>
                     </label>
@@ -733,14 +803,18 @@ export function EnhancedSearch({
 
       {/* Save Search Dialog */}
       {showSaveDialog && (
-        <Card className="border-2 border-blue-200">
+        <Card className="border-2 border-primary/20 bg-card">
           <CardHeader>
-            <CardTitle>{t("saveSearch")}</CardTitle>
+            <CardTitle className="text-lg sm:text-xl">
+              {t("saveSearch")}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium">{t("searchName")}</label>
+                <label className="text-sm font-medium text-foreground block mb-2">
+                  {t("searchName")}
+                </label>
                 <Input
                   placeholder={t("searchNamePlaceholder")}
                   value={saveSearchName}
@@ -748,18 +822,21 @@ export function EnhancedSearch({
                   onKeyPress={(e) => {
                     if (e.key === "Enter") saveCurrentSearch();
                   }}
+                  className="min-h-[44px] text-base"
                 />
               </div>
-              <div className="flex justify-end gap-3">
+              <div className="flex flex-col sm:flex-row justify-end gap-3">
                 <Button
                   variant="outline"
                   onClick={() => setShowSaveDialog(false)}
+                  className="min-h-[44px] w-full sm:w-auto"
                 >
                   {t("cancel")}
                 </Button>
                 <Button
                   onClick={saveCurrentSearch}
                   disabled={!saveSearchName.trim()}
+                  className="min-h-[48px] w-full sm:w-auto bg-primary hover:bg-primary/90"
                 >
                   {t("saveSearch")}
                 </Button>

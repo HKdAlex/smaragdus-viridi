@@ -62,8 +62,10 @@ export function CartItem({
   // Handle case where gemstone data is not available
   if (!item.gemstone) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-        <p className="text-red-700 text-sm">{t("gemstoneInfoNotAvailable")}</p>
+      <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
+        <p className="text-destructive text-sm">
+          {t("gemstoneInfoNotAvailable")}
+        </p>
       </div>
     );
   }
@@ -75,23 +77,25 @@ export function CartItem({
   // Type guard to ensure gemstone has required properties
   if (!gemstone.name) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-        <p className="text-red-700 text-sm">{t("gemstoneNameNotAvailable")}</p>
+      <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
+        <p className="text-destructive text-sm">
+          {t("gemstoneNameNotAvailable")}
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="border border-gray-200 rounded-lg p-4 space-y-4">
+    <div className="border border-border rounded-lg p-4 space-y-4 bg-card">
       {/* Selection checkbox and item content */}
       <div className="flex space-x-4">
         {/* Selection checkbox */}
-        <div className="flex items-center">
+        <div className="flex items-center min-h-[44px]">
           <input
             type="checkbox"
             checked={isSelected}
             onChange={handleSelectionChange}
-            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+            className="w-4 h-4 text-primary bg-background border-border rounded focus:ring-primary focus:ring-2"
             disabled={isLoading}
           />
         </div>
@@ -106,9 +110,9 @@ export function CartItem({
               sizes="64px"
             />
           ) : (
-            <div className="w-full h-full bg-gray-200 rounded-md flex items-center justify-center">
+            <div className="w-full h-full bg-muted rounded-md flex items-center justify-center">
               <svg
-                className="h-6 w-6 text-gray-400"
+                className="h-6 w-6 text-muted-foreground"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -126,13 +130,13 @@ export function CartItem({
 
         {/* Gemstone Details */}
         <div className="flex-1 min-w-0">
-          <h3 className="font-medium text-gray-900 truncate">
+          <h3 className="font-medium text-foreground truncate text-sm sm:text-base">
             {gemstone.name} {gemstone.color} {gemstone.cut}
           </h3>
-          <p className="text-sm text-gray-600">
+          <p className="text-xs sm:text-sm text-muted-foreground">
             {gemstone.weight_carats}ct • {gemstone.serial_number}
           </p>
-          <p className="text-sm font-medium text-gray-900">
+          <p className="text-xs sm:text-sm font-medium text-foreground">
             {item.formatted_unit_price} {t("each")}
           </p>
         </div>
@@ -144,11 +148,11 @@ export function CartItem({
             size="sm"
             onClick={handleRemove}
             disabled={isLoading || isRemoving || isUpdating}
-            className="text-gray-400 hover:text-red-600 p-1"
+            className="text-muted-foreground hover:text-destructive p-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
             aria-label={t("removeFromCart", { name: gemstone.name })}
           >
             {isRemoving ? (
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600"></div>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-border"></div>
             ) : (
               <svg
                 className="h-4 w-4"
@@ -169,22 +173,22 @@ export function CartItem({
       </div>
 
       {/* Quantity and Actions */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <label className="text-sm font-medium text-gray-700">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center space-x-3">
+          <label className="text-sm font-medium text-foreground min-w-[60px]">
             {t("quantity")}:
           </label>
-          <div className="flex items-center border border-gray-300 rounded-md">
+          <div className="flex items-center border border-border rounded-md bg-background">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => handleQuantityChange(item.quantity - 1)}
               disabled={isLoading || isUpdating || item.quantity <= 1}
-              className="px-2 py-1 text-gray-600 hover:text-gray-900"
+              className="px-3 py-2 text-muted-foreground hover:text-foreground min-h-[44px] min-w-[44px] flex items-center justify-center"
             >
               -
             </Button>
-            <span className="px-3 py-1 text-sm font-medium text-gray-900 min-w-[2rem] text-center">
+            <span className="px-4 py-2 text-sm font-medium text-foreground min-w-[3rem] text-center">
               {item.quantity}
             </span>
             <Button
@@ -192,18 +196,18 @@ export function CartItem({
               size="sm"
               onClick={() => handleQuantityChange(item.quantity + 1)}
               disabled={isLoading || isUpdating}
-              className="px-2 py-1 text-gray-600 hover:text-gray-900"
+              className="px-3 py-2 text-muted-foreground hover:text-foreground min-h-[44px] min-w-[44px] flex items-center justify-center"
             >
               +
             </Button>
           </div>
         </div>
 
-        <div className="text-right">
-          <p className="text-sm text-gray-600">
+        <div className="text-left sm:text-right">
+          <p className="text-xs sm:text-sm text-muted-foreground">
             {t("price")}: {item.formatted_unit_price}
           </p>
-          <p className="text-lg font-semibold text-gray-900">
+          <p className="text-base sm:text-lg font-semibold text-foreground">
             {t("total")}: {item.formatted_line_total}
           </p>
         </div>

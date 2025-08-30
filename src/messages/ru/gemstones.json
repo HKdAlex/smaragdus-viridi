@@ -235,7 +235,14 @@
   },
   "media": {
     "noMediaAvailable": "Медиа недоступны",
-    "noImage": "Нет изображения"
+    "noImage": "Нет изображения",
+    "video": "Видео",
+    "image": "Изображение",
+    "primary": "Основное",
+    "downloadFailed": "Ошибка загрузки",
+    "thumbnail": "Миниатюра",
+    "videoThumbnail": "Миниатюра видео",
+    "gemstone": "Драгоценный камень"
   },
   "related": {
     "title": "Похожие драгоценные камни",

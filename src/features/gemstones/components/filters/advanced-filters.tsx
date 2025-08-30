@@ -242,13 +242,15 @@ export function AdvancedFilters({
         {hasFilters && (
           <button
             onClick={filterActions.resetFilters}
-            className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground
+            className="inline-flex items-center px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground
                        bg-muted/50 hover:bg-muted rounded-lg transition-colors duration-200
-                       border border-border/50 hover:border-border"
+                       border border-border/50 hover:border-border min-h-[44px] min-w-[44px]
+                       flex items-center justify-center"
             title="Clear all filters"
           >
             <XMarkIcon className="w-4 h-4 mr-1.5" />
-            {t("resetAll")}
+            <span className="hidden sm:inline">{t("resetAll")}</span>
+            <span className="sm:hidden">Reset</span>
           </button>
         )}
       </div>
@@ -265,16 +267,16 @@ export function AdvancedFilters({
             placeholder={t("searchPlaceholder")}
             value={filters.search || ""}
             onChange={(e) => filterActions.setSearch(e.target.value)}
-            className="w-full pl-10 pr-3 py-2 bg-input border border-border rounded-lg 
+            className="w-full pl-10 pr-3 py-3 bg-input border border-border rounded-lg
                        text-foreground placeholder:text-muted-foreground
-                       focus:ring-2 focus:ring-ring focus:border-ring 
-                       transition-colors duration-200"
+                       focus:ring-2 focus:ring-ring focus:border-ring
+                       transition-colors duration-200 min-h-[48px] text-base"
           />
         </div>
       </div>
 
       {/* Filter Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Gemstone Type */}
         <FilterDropdown
           label="Gemstone Type"
@@ -386,7 +388,7 @@ export function AdvancedFilters({
       </div>
 
       {/* Range Filters */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
         {/* Price Range */}
         <RangeSlider
           label={t("priceRange")}
@@ -425,39 +427,39 @@ export function AdvancedFilters({
       </div>
 
       {/* Boolean Filters */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <label className="flex items-center space-x-2 cursor-pointer">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <label className="flex items-center space-x-3 cursor-pointer p-2 rounded hover:bg-accent min-h-[48px]">
           <input
             type="checkbox"
             checked={filters.inStockOnly || false}
             onChange={(e) => filterActions.toggleInStockOnly(e.target.checked)}
-            className="rounded border-border text-primary focus:ring-ring focus:ring-2 bg-background"
+            className="w-4 h-4 rounded border-border text-primary focus:ring-ring focus:ring-2 bg-background"
           />
           <span className="text-sm font-medium text-foreground">
             {t("inStockOnly")}
           </span>
         </label>
 
-        <label className="flex items-center space-x-2 cursor-pointer">
+        <label className="flex items-center space-x-3 cursor-pointer p-2 rounded hover:bg-accent min-h-[48px]">
           <input
             type="checkbox"
             checked={filters.hasCertification || false}
             onChange={(e) =>
               filterActions.toggleHasCertification(e.target.checked)
             }
-            className="rounded border-border text-primary focus:ring-ring focus:ring-2 bg-background"
+            className="w-4 h-4 rounded border-border text-primary focus:ring-ring focus:ring-2 bg-background"
           />
           <span className="text-sm font-medium text-foreground">
             {t("hasCertification")}
           </span>
         </label>
 
-        <label className="flex items-center space-x-2 cursor-pointer">
+        <label className="flex items-center space-x-3 cursor-pointer p-2 rounded hover:bg-accent min-h-[48px]">
           <input
             type="checkbox"
             checked={filters.hasImages || false}
             onChange={(e) => filterActions.toggleHasImages(e.target.checked)}
-            className="rounded border-border text-primary focus:ring-ring focus:ring-2 bg-background"
+            className="w-4 h-4 rounded border-border text-primary focus:ring-ring focus:ring-2 bg-background"
           />
           <span className="text-sm font-medium text-foreground">
             {t("hasImages")}

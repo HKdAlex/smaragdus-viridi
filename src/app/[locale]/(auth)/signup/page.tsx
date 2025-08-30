@@ -5,24 +5,29 @@ import { getTranslations } from "next-intl/server";
 export default async function SignupPage() {
   const t = await getTranslations("auth");
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8 p-8">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold text-gray-900">
-            {t("signup.title")}
-          </h2>
-          <p className="mt-2 text-sm text-gray-600">{t("signup.subtitle")}</p>
-        </div>
+    <div className="min-h-screen flex items-center justify-center bg-background px-4 py-8">
+      <div className="w-full max-w-md space-y-8">
+        {/* Mobile-friendly container with better spacing */}
+        <div className="bg-card border border-border rounded-lg shadow-lg p-6 sm:p-8">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">
+              {t("signup.title")}
+            </h2>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {t("signup.subtitle")}
+            </p>
+          </div>
 
-        <SignupForm />
+          <SignupForm />
 
-        <div className="text-center">
-          <I18nLink
-            href="/login"
-            className="text-primary hover:text-primary/80"
-          >
-            {t("signup.hasAccount")}
-          </I18nLink>
+          <div className="text-center mt-6 pt-6 border-t border-border">
+            <I18nLink
+              href="/login"
+              className="text-primary hover:text-primary/80 transition-colors text-sm font-medium"
+            >
+              {t("signup.hasAccount")}
+            </I18nLink>
+          </div>
         </div>
       </div>
     </div>

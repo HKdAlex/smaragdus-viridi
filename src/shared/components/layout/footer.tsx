@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Logo } from "@/shared/components/ui/logo";
 import { useTranslations } from "next-intl";
 
 export function Footer() {
@@ -33,30 +34,28 @@ export function Footer() {
   ];
 
   return (
-    <footer className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 transition-colors duration-300">
+    <footer className="bg-card border-t border-border transition-colors duration-300">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Main Footer Content */}
-        <div className="py-16">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+        <div className="py-12 sm:py-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 sm:gap-8">
             {/* Company Info */}
             <div className="lg:col-span-2">
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="h-8 w-8 bg-emerald-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">S</span>
-                </div>
-                <span className="font-bold text-xl text-gray-900 dark:text-gray-100">
+              <div className="flex items-center space-x-3 mb-4">
+                <Logo variant="inline" size="lg" showText={false} />
+                {/* <span className="font-bold text-xl text-foreground">
                   {t("company.name")}
-                </span>
+                </span> */}
               </div>
-              <p className="text-gray-600 dark:text-gray-300 mb-6 max-w-md">
+              <p className="text-muted-foreground mb-6 max-w-md">
                 {t("company.description")}
               </p>
 
               {/* Contact Info */}
               <div className="space-y-2">
-                <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-300">
+                <div className="flex items-center space-x-2 text-muted-foreground">
                   <svg
-                    className="h-4 w-4"
+                    className="h-4 w-4 flex-shrink-0"
                     fill="none"
                     viewBox="0 0 24 24"
                     strokeWidth="1.5"
@@ -68,11 +67,11 @@ export function Footer() {
                       d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"
                     />
                   </svg>
-                  <span>{t("company.contact.email")}</span>
+                  <span className="text-sm">{t("company.contact.email")}</span>
                 </div>
-                <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-300">
+                <div className="flex items-center space-x-2 text-muted-foreground">
                   <svg
-                    className="h-4 w-4"
+                    className="h-4 w-4 flex-shrink-0"
                     fill="none"
                     viewBox="0 0 24 24"
                     strokeWidth="1.5"
@@ -84,14 +83,14 @@ export function Footer() {
                       d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"
                     />
                   </svg>
-                  <span>{t("company.contact.phone")}</span>
+                  <span className="text-sm">{t("company.contact.phone")}</span>
                 </div>
               </div>
             </div>
 
             {/* Company Links */}
             <div>
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 tracking-wider uppercase mb-4">
+              <h3 className="text-sm font-semibold text-foreground tracking-wider uppercase mb-4">
                 {t("sections.company")}
               </h3>
               <ul className="space-y-3">
@@ -99,7 +98,7 @@ export function Footer() {
                   <li key={link.name}>
                     <Link
                       href={link.href}
-                      className="text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors duration-200"
+                      className="text-muted-foreground hover:text-primary transition-colors duration-200 text-sm"
                     >
                       {link.name}
                     </Link>
@@ -110,7 +109,7 @@ export function Footer() {
 
             {/* Product Links */}
             <div>
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 tracking-wider uppercase mb-4">
+              <h3 className="text-sm font-semibold text-foreground tracking-wider uppercase mb-4">
                 {t("sections.products")}
               </h3>
               <ul className="space-y-3">
@@ -118,7 +117,7 @@ export function Footer() {
                   <li key={link.name}>
                     <Link
                       href={link.href}
-                      className="text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors duration-200"
+                      className="text-muted-foreground hover:text-primary transition-colors duration-200 text-sm"
                     >
                       {link.name}
                     </Link>
@@ -129,7 +128,7 @@ export function Footer() {
 
             {/* Support Links */}
             <div>
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 tracking-wider uppercase mb-4">
+              <h3 className="text-sm font-semibold text-foreground tracking-wider uppercase mb-4">
                 {t("sections.support")}
               </h3>
               <ul className="space-y-3">
@@ -137,7 +136,7 @@ export function Footer() {
                   <li key={link.name}>
                     <Link
                       href={link.href}
-                      className="text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors duration-200"
+                      className="text-muted-foreground hover:text-primary transition-colors duration-200 text-sm"
                     >
                       {link.name}
                     </Link>
@@ -149,20 +148,20 @@ export function Footer() {
         </div>
 
         {/* Bottom Section */}
-        <div className="border-t border-gray-200 dark:border-gray-700 py-8">
+        <div className="border-t border-border py-6 sm:py-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             {/* Copyright */}
-            <div className="text-gray-600 dark:text-gray-300 text-sm">
+            <div className="text-muted-foreground text-sm text-center md:text-left">
               {t("copyright", { year: currentYear })}
             </div>
 
             {/* Legal Links */}
-            <div className="flex flex-wrap space-x-6">
+            <div className="flex flex-wrap justify-center md:justify-start space-x-4 sm:space-x-6">
               {legalLinks.map((link) => (
                 <Link
                   key={link.name}
                   href={link.href}
-                  className="text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 text-sm transition-colors duration-200"
+                  className="text-muted-foreground hover:text-primary text-sm transition-colors duration-200"
                 >
                   {link.name}
                 </Link>
@@ -173,9 +172,9 @@ export function Footer() {
             <div className="flex space-x-4">
               <a
                 href="#"
-                className="text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors duration-200"
+                className="text-muted-foreground hover:text-primary transition-colors duration-200 p-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                aria-label="Twitter"
               >
-                <span className="sr-only">Twitter</span>
                 <svg
                   className="h-5 w-5"
                   fill="currentColor"
@@ -186,9 +185,9 @@ export function Footer() {
               </a>
               <a
                 href="#"
-                className="text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors duration-200"
+                className="text-muted-foreground hover:text-primary transition-colors duration-200 p-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                aria-label="LinkedIn"
               >
-                <span className="sr-only">LinkedIn</span>
                 <svg
                   className="h-5 w-5"
                   fill="currentColor"
@@ -203,9 +202,9 @@ export function Footer() {
               </a>
               <a
                 href="#"
-                className="text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors duration-200"
+                className="text-muted-foreground hover:text-primary transition-colors duration-200 p-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                aria-label="Instagram"
               >
-                <span className="sr-only">Instagram</span>
                 <svg
                   className="h-5 w-5"
                   fill="currentColor"

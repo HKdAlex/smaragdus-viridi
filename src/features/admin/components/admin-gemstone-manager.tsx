@@ -1,8 +1,6 @@
 "use client";
 
-import { AlertCircle, Gem, Plus, Upload } from "lucide-react";
-import { Card, CardContent } from "@/shared/components/ui/card";
-import { useEffect, useState } from "react";
+import { Plus, Upload } from "lucide-react";
 
 import { BulkImportModal } from "./bulk-import-modal";
 import type { BulkImportResult } from "../services/gemstone-admin-service";
@@ -10,8 +8,8 @@ import { Button } from "@/shared/components/ui/button";
 import type { DatabaseGemstone } from "@/shared/types";
 import { GemstoneAdminService } from "../services/gemstone-admin-service";
 import { GemstoneForm } from "./gemstone-form";
-import { GemstoneList } from "./gemstone-list";
-import { StatisticsService } from "../services/statistics-service";
+import { GemstoneListOptimized } from "./gemstone-list-optimized";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 
 type ViewMode = "list" | "create" | "edit";
@@ -23,36 +21,6 @@ export function AdminGemstoneManager() {
   const [selectedGemstone, setSelectedGemstone] =
     useState<DatabaseGemstone | null>(null);
   const [isBulkImportOpen, setIsBulkImportOpen] = useState(false);
-  const [stats, setStats] = useState({
-    total: 0,
-    inStock: 0,
-    lowStock: 0,
-    outOfStock: 0,
-  });
-
-  useEffect(() => {
-    loadGemstoneStats();
-  }, []);
-
-  const loadGemstoneStats = async () => {
-    try {
-      const result = await StatisticsService.getGemstoneStats();
-
-      if (result.success) {
-        const gemstoneStats = result.data;
-        setStats({
-          total: gemstoneStats.total,
-          inStock: gemstoneStats.inStock,
-          lowStock: 0, // TODO: Implement low stock logic
-          outOfStock: gemstoneStats.outOfStock,
-        });
-      } else {
-        console.error(tErrors("loadGemstoneStatsFailed"), result.error);
-      }
-    } catch (error) {
-      console.error(tErrors("loadGemstoneStatsFailed"), error);
-    }
-  };
 
   const handleCreateNew = () => {
     setSelectedGemstone(null);
@@ -75,8 +43,8 @@ export function AdminGemstoneManager() {
     ) {
       const result = await GemstoneAdminService.deleteGemstone(gemstone.id);
       if (result.success) {
-        // Refresh the list
-        window.location.reload();
+        // The optimized list component will handle refreshing automatically
+        console.log(t("deleteSuccess"));
       } else {
         alert(t("deleteFailed", { error: result.error || "Unknown error" }));
       }
@@ -86,8 +54,8 @@ export function AdminGemstoneManager() {
   const handleFormSuccess = (gemstone: DatabaseGemstone) => {
     setViewMode("list");
     setSelectedGemstone(null);
-    // Refresh the list
-    window.location.reload();
+    // The optimized list component will handle refreshing automatically
+    console.log(t("formSuccess"));
   };
 
   const handleFormCancel = () => {
@@ -101,10 +69,8 @@ export function AdminGemstoneManager() {
 
   const handleBulkImportSuccess = (result: BulkImportResult) => {
     setIsBulkImportOpen(false);
-    // Refresh the stats and gemstone list
-    loadGemstoneStats();
-    // The GemstoneList component will refresh automatically due to the reload
-    window.location.reload();
+    // The optimized list component will handle refreshing automatically
+    console.log(t("bulkImportSuccess"), result);
   };
 
   const handleBulkImportClose = () => {
@@ -114,11 +80,15 @@ export function AdminGemstoneManager() {
   if (viewMode === "create") {
     return (
       <div className="space-y-6">
-        <div className="flex items-center gap-4">
-          <Button variant="outline" onClick={() => setViewMode("list")}>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          <Button
+            variant="outline"
+            onClick={() => setViewMode("list")}
+            className="min-h-[44px] self-start"
+          >
             ← Back to List
           </Button>
-          <h2 className="text-3xl font-bold text-foreground">
+          <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
             Create New Gemstone
           </h2>
         </div>
@@ -133,11 +103,15 @@ export function AdminGemstoneManager() {
   if (viewMode === "edit" && selectedGemstone) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center gap-4">
-          <Button variant="outline" onClick={() => setViewMode("list")}>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          <Button
+            variant="outline"
+            onClick={() => setViewMode("list")}
+            className="min-h-[44px] self-start"
+          >
             ← Back to List
           </Button>
-          <h2 className="text-3xl font-bold text-foreground">
+          <h2 className="text-2xl sm:text-3xl font-bold text-foreground truncate">
             Edit Gemstone: {selectedGemstone.serial_number}
           </h2>
         </div>
@@ -152,122 +126,39 @@ export function AdminGemstoneManager() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-bold text-foreground">{t("title")}</h2>
-          <p className="text-muted-foreground">{t("description")}</p>
+          <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
+            {t("title")}
+          </h2>
+          <p className="text-muted-foreground text-sm sm:text-base">
+            {t("description")}
+          </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <Button
             variant="outline"
             onClick={handleBulkImport}
-            className="flex items-center gap-2"
+            className="flex items-center justify-center gap-2 min-h-[44px]"
           >
             <Upload className="w-4 h-4" />
-            {t("bulkImport")}
+            <span className="hidden sm:inline">{t("bulkImport")}</span>
+            <span className="sm:hidden">Import</span>
           </Button>
-          <Button onClick={handleCreateNew} className="flex items-center gap-2">
+          <Button
+            onClick={handleCreateNew}
+            className="flex items-center justify-center gap-2 min-h-[48px] bg-primary hover:bg-primary/90 text-primary-foreground"
+          >
             <Plus className="w-4 h-4" />
-            {t("addGemstone")}
+            <span className="hidden sm:inline">{t("addGemstone")}</span>
+            <span className="sm:hidden">Add</span>
           </Button>
         </div>
       </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-card to-muted/20">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                <Gem className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">
-                  {stats.total.toLocaleString()}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {t("stats.totalGemstones")}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-card to-muted/20">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
-                <div className="w-6 h-6 bg-green-600 dark:bg-green-400 rounded-full"></div>
-              </div>
-              <div>
-                <p className="text-2xl font-bold">
-                  {stats.inStock.toLocaleString()}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {t("stats.inStock")}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-card to-muted/20">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg flex items-center justify-center">
-                <div className="w-6 h-6 bg-yellow-600 dark:bg-yellow-400 rounded-full"></div>
-              </div>
-              <div>
-                <p className="text-2xl font-bold">
-                  {stats.lowStock.toLocaleString()}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {t("stats.lowStock")}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-card to-muted/20">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center">
-                <div className="w-6 h-6 bg-red-600 dark:bg-red-400 rounded-full"></div>
-              </div>
-              <div>
-                <p className="text-2xl font-bold">
-                  {stats.outOfStock.toLocaleString()}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {t("stats.outOfStock")}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Notice for development */}
-      <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/30 border-blue-200 dark:border-blue-800">
-        <CardContent className="p-6">
-          <div className="flex items-start gap-3">
-            <AlertCircle className="w-6 h-6 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-            <div>
-              <h3 className="font-medium text-blue-900 dark:text-blue-100 mb-2">
-                {t("notice.title")}
-              </h3>
-              <p className="text-blue-800 dark:text-blue-200 text-sm">
-                {t("notice.description")}
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Gemstone List */}
-      <GemstoneList
+      {/* Gemstone List Optimized */}
+      <GemstoneListOptimized
         onCreateNew={handleCreateNew}
         onEdit={handleEdit}
         onView={handleView}

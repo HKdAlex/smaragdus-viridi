@@ -1,49 +1,60 @@
 import { Button } from "@/shared/components/ui/button";
 import { Link as I18nLink } from "@/i18n/navigation";
+import { Logo } from "@/shared/components/ui/logo";
 import { getTranslations } from "next-intl/server";
 
 export default async function AboutPage() {
   const t = await getTranslations("common");
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
-      <div className="container mx-auto px-4 py-24">
-        <div className="text-center mb-16">
-          <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-gray-100 mb-6">
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-12 sm:py-16 lg:py-24">
+        <div className="text-center mb-12 sm:mb-16">
+          {/* Logo Element */}
+          <div className="flex justify-center mb-6 sm:mb-8">
+            <Logo
+              variant="block"
+              size="xl"
+              showText={false}
+              className="sm:w-auto w-24"
+            />
+          </div>
+
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground mb-4 sm:mb-6">
             {t("about.title")}
           </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
+          <p className="text-base sm:text-lg text-muted-foreground mb-8 max-w-3xl mx-auto px-2">
             {t("about.subtitle")}
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
-            <div className="text-emerald-600 dark:text-emerald-400 text-4xl mb-4">
-              🌟
-            </div>
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
+        <div className="grid gap-6 sm:gap-8 max-w-6xl mx-auto lg:grid-cols-2">
+          <div className="bg-card border border-border rounded-lg shadow-sm p-6 sm:p-8">
+            <div className="text-primary text-3xl sm:text-4xl mb-4">🌟</div>
+            <h2 className="text-xl sm:text-2xl font-semibold text-foreground mb-4">
               {t("about.mission.title")}
             </h2>
-            <p className="text-gray-600 dark:text-gray-300">
+            <p className="text-muted-foreground leading-relaxed">
               {t("about.mission.description")}
             </p>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
-            <div className="text-emerald-600 dark:text-emerald-400 text-4xl mb-4">
-              💎
-            </div>
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
+          <div className="bg-card border border-border rounded-lg shadow-sm p-6 sm:p-8">
+            <div className="text-primary text-3xl sm:text-4xl mb-4">💎</div>
+            <h2 className="text-xl sm:text-2xl font-semibold text-foreground mb-4">
               {t("about.quality.title")}
             </h2>
-            <p className="text-gray-600 dark:text-gray-300">
+            <p className="text-muted-foreground leading-relaxed">
               {t("about.quality.description")}
             </p>
           </div>
         </div>
 
-        <div className="text-center mt-12">
-          <Button asChild className="bg-emerald-600 hover:bg-emerald-700">
+        <div className="text-center mt-8 sm:mt-12">
+          <Button
+            asChild
+            size="lg"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 sm:px-8 py-3 min-h-[48px]"
+          >
             <I18nLink href="/catalog">{t("about.exploreCollection")}</I18nLink>
           </Button>
         </div>

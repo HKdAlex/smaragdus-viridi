@@ -35,6 +35,7 @@ export interface AdvancedGemstoneFilters {
   readonly inStockOnly?: boolean
   readonly hasCertification?: boolean
   readonly hasImages?: boolean
+  readonly hasAIAnalysis?: boolean
   
   // Sorting
   readonly sortBy?: GemstoneSort
@@ -61,6 +62,7 @@ export interface MutableAdvancedGemstoneFilters {
   inStockOnly?: boolean
   hasCertification?: boolean
   hasImages?: boolean
+  hasAIAnalysis?: boolean
   
   // Sorting
   sortBy?: GemstoneSort
@@ -138,6 +140,7 @@ export type FilterAction =
   | { type: 'TOGGLE_IN_STOCK_ONLY'; payload: boolean }
   | { type: 'TOGGLE_HAS_CERTIFICATION'; payload: boolean }
   | { type: 'TOGGLE_HAS_IMAGES'; payload: boolean }
+  | { type: 'TOGGLE_HAS_AI_ANALYSIS'; payload: boolean }
   | { type: 'SET_SORT'; payload: { sortBy: GemstoneSort; sortDirection: 'asc' | 'desc' } }
   | { type: 'RESET_FILTERS' }
   | { type: 'SET_LOADING'; payload: boolean }
@@ -287,7 +290,8 @@ export const hasActiveFilters = (filters: AdvancedGemstoneFilters): boolean => {
     filters.priceRange ||
     filters.weightRange ||
     filters.hasCertification ||
-    filters.hasImages
+    filters.hasImages ||
+    filters.hasAIAnalysis
   )
 }
 
@@ -303,6 +307,7 @@ export const getActiveFilterCount = (filters: AdvancedGemstoneFilters): number =
   if (filters.weightRange) count++
   if (filters.hasCertification) count++
   if (filters.hasImages) count++
+  if (filters.hasAIAnalysis) count++
   return count
 }
 

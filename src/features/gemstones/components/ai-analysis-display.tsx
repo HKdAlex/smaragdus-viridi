@@ -1,12 +1,6 @@
 "use client";
 
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui/card";
-import {
   Activity,
   Award,
   Brain,
@@ -25,11 +19,17 @@ import {
   Star,
   Target,
 } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
 
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { Progress } from "@/shared/components/ui/progress";
 import type { DatabaseAIAnalysisResult } from "@/shared/types";
+import { Progress } from "@/shared/components/ui/progress";
 import { useState } from "react";
 
 interface AIAnalysisDisplayProps {
@@ -183,24 +183,24 @@ export function AIAnalysisDisplay({
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Enhanced Header */}
       <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 shadow-lg">
         <CardHeader className="pb-4">
-          <CardTitle className="flex items-center justify-between">
+          <CardTitle className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-2 h-8 bg-gradient-to-b from-primary via-primary/80 to-primary/60 rounded-full" />
-              <div className="flex items-center gap-2">
-                <Brain className="w-6 h-6 text-primary" />
-                <div>
-                  <span className="text-xl font-bold">
+              <div className="w-2 h-6 sm:h-8 bg-gradient-to-b from-primary via-primary/80 to-primary/60 rounded-full flex-shrink-0" />
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                <Brain className="w-5 h-5 sm:w-6 sm:h-6 text-primary flex-shrink-0" />
+                <div className="min-w-0">
+                  <span className="text-lg sm:text-xl font-bold text-foreground truncate">
                     Enhanced AI Analysis
                   </span>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Badge variant="secondary" className="text-xs">
+                  <div className="flex flex-wrap items-center gap-2 mt-1">
+                    <Badge variant="secondary" className="text-xs min-h-[20px]">
                       v2.1 • {primaryAnalysis?.ai_model_version || "GPT-4o"}
                     </Badge>
-                    <Badge variant="outline" className="text-xs">
+                    <Badge variant="outline" className="text-xs min-h-[20px]">
                       {analysisData.length} analysis
                       {analysisData.length !== 1 ? "es" : ""}
                     </Badge>
@@ -209,9 +209,9 @@ export function AIAnalysisDisplay({
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
               {/* Confidence Score */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <div className="text-right">
                   <div className="text-xs text-muted-foreground">
                     AI Confidence
@@ -222,7 +222,7 @@ export function AIAnalysisDisplay({
                 </div>
                 <Progress
                   value={overallConfidence * 100}
-                  className="w-16 h-2"
+                  className="w-12 sm:w-16 h-2"
                 />
               </div>
 
@@ -230,7 +230,7 @@ export function AIAnalysisDisplay({
               {aiAnalysisDate && (
                 <div className="text-right">
                   <div className="text-xs text-muted-foreground">Analyzed</div>
-                  <div className="text-sm font-medium">
+                  <div className="text-sm font-medium text-foreground">
                     {new Date(aiAnalysisDate).toLocaleDateString()}
                   </div>
                 </div>
@@ -241,40 +241,42 @@ export function AIAnalysisDisplay({
 
         {/* Quick Stats */}
         <CardContent className="pt-0">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {data?.gemstone_code && (
-              <div className="bg-white/50 rounded-lg p-3 text-center">
+              <div className="bg-card/80 border border-border rounded-lg p-3 sm:p-4 text-center">
                 <div className="text-xs text-muted-foreground">
                   Gemstone Code
                 </div>
-                <div className="font-bold text-sm">{data.gemstone_code}</div>
+                <div className="font-bold text-sm text-foreground truncate">
+                  {data.gemstone_code}
+                </div>
               </div>
             )}
 
             {data?.weight && (
-              <div className="bg-white/50 rounded-lg p-3 text-center">
+              <div className="bg-card/80 border border-border rounded-lg p-3 sm:p-4 text-center">
                 <div className="text-xs text-muted-foreground">AI Weight</div>
-                <div className="font-bold text-sm">
+                <div className="font-bold text-sm text-foreground">
                   {data.weight.value} {data.weight.unit}
                 </div>
               </div>
             )}
 
             {data?.shape_cut && (
-              <div className="bg-white/50 rounded-lg p-3 text-center">
+              <div className="bg-card/80 border border-border rounded-lg p-3 sm:p-4 text-center">
                 <div className="text-xs text-muted-foreground">AI Shape</div>
-                <div className="font-bold text-sm capitalize">
+                <div className="font-bold text-sm text-foreground capitalize">
                   {data.shape_cut.value}
                 </div>
               </div>
             )}
 
             {data?.visual_assessment?.visual_appeal && (
-              <div className="bg-white/50 rounded-lg p-3 text-center">
+              <div className="bg-card/80 border border-border rounded-lg p-3 sm:p-4 text-center">
                 <div className="text-xs text-muted-foreground">
                   Visual Appeal
                 </div>
-                <div className="font-bold text-sm">
+                <div className="font-bold text-sm text-foreground">
                   {Math.round(data.visual_assessment.visual_appeal * 100)}%
                 </div>
               </div>
@@ -285,21 +287,22 @@ export function AIAnalysisDisplay({
 
       {/* Tab Navigation */}
       <div className="border-b border-border">
-        <nav className="flex space-x-8 overflow-x-auto">
+        <nav className="flex overflow-x-auto scrollbar-hide">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-3 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+                className={`flex items-center gap-2 px-3 py-3 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap min-h-[44px] flex-shrink-0 ${
                   activeTab === tab.id
                     ? "border-primary text-primary"
                     : "border-transparent text-muted-foreground hover:text-foreground hover:border-muted-foreground/50"
                 }`}
               >
                 <Icon className="w-4 h-4" />
-                {tab.label}
+                <span className="hidden sm:inline">{tab.label}</span>
+                <span className="sm:hidden">{tab.label.split(" ")[0]}</span>
               </button>
             );
           })}
@@ -307,10 +310,10 @@ export function AIAnalysisDisplay({
       </div>
 
       {/* Tab Content */}
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Overview Tab */}
         {activeTab === "overview" && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
             {/* Gemstone Identification */}
             <Card>
               <CardHeader className="pb-4">
@@ -555,7 +558,7 @@ export function AIAnalysisDisplay({
                           <Languages className="w-4 h-4" />
                           English Translation
                         </h4>
-                        <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg text-sm">
+                        <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 p-3 rounded-lg text-sm text-foreground">
                           {extractedText.translated}
                         </div>
                       </div>

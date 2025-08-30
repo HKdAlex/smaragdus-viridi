@@ -23,17 +23,22 @@
     "price": "Price",
     "total": "Total",
     "remove": "Remove",
-    "update": "Update"
+    "update": "Update",
+    "each": "each",
+    "removeFromCart": "Remove {name} from cart",
+    "gemstoneInfoNotAvailable": "Gemstone information not available",
+    "gemstoneNameNotAvailable": "Gemstone name not available"
   },
-  "itemCount": {
-    "singular": "item",
-    "plural": "items"
-  },
+  "itemCount": "{count, plural, =1 {item} other {items}}",
   "summary": {
+    "title": "Order Summary",
+    "subtotal": "Subtotal ({count} items)",
     "selectedItems": "Selected items ({count})",
     "shipping": "Shipping",
     "tax": "Tax",
+    "total": "Total",
     "calculatedAtCheckout": "Calculated at checkout",
+    "selectedItemsTotal": "Showing total for {count} selected item(s)",
     "selectedTotal": "Selected Total"
   },
   "actions": {
@@ -42,11 +47,34 @@
     "deselectAll": "Deselect All",
     "clearCart": "Clear Cart",
     "clearing": "Clearing...",
-    "continueShopping": "Continue Shopping"
+    "continueShopping": "Continue Shopping",
+    "checkout": "Order {count} Item(s)",
+    "processing": "Processing Order...",
+    "tryAgain": "Try Again"
   },
   "loading": "Loading your cart...",
   "error": "Error loading cart",
+  "authRequired": {
+    "title": "Sign In Required",
+    "message": "Please sign in to view and manage your shopping cart",
+    "signIn": "Sign In"
+  },
+  "orderSummary": {
+    "title": "Order Summary",
+    "subtotal": "Subtotal ({count} items)",
+    "shipping": "Shipping",
+    "tax": "Tax",
+    "total": "Total",
+    "calculatedAtCheckout": "Calculated at checkout",
+    "selectedItemsTotal": "Showing total for {count} selected item(s)"
+  },
+  "processingOrder": "Processing Order...",
+  "orderItems": "Order {count} Item(s)",
+  "secureCheckout": "Secure checkout powered by industry-leading encryption",
   "accessibility": {
-    "closeCart": "Close cart"
+    "closeCart": "Close cart",
+    "decreaseQuantity": "Decrease quantity",
+    "increaseQuantity": "Increase quantity",
+    "quantity": "Quantity"
   }
 }

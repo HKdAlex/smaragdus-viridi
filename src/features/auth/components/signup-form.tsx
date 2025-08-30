@@ -52,14 +52,14 @@ export function SignupForm() {
 
   if (success) {
     return (
-      <div className="w-full max-w-md space-y-4">
-        <div className="text-green-600 text-sm bg-green-50 p-3 rounded-md">
+      <div className="w-full max-w-md space-y-4 px-4">
+        <div className="text-green-700 dark:text-green-300 text-sm bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 p-3 rounded-md">
           {t("signup.successMessage")}
         </div>
         <Button
           variant="outline"
           onClick={() => router.push("/login")}
-          className="w-full"
+          className="w-full min-h-[48px]"
         >
           {t("signup.goToLogin")}
         </Button>
@@ -68,9 +68,12 @@ export function SignupForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-md">
-      <div>
-        <label htmlFor="name" className="block text-sm font-medium mb-1">
+    <form onSubmit={handleSubmit} className="space-y-6 w-full max-w-md px-4">
+      <div className="space-y-2">
+        <label
+          htmlFor="name"
+          className="block text-sm font-medium text-foreground"
+        >
           {t("signup.name")}
         </label>
         <Input
@@ -82,11 +85,15 @@ export function SignupForm() {
           disabled={isLoading}
           placeholder={t("signup.namePlaceholder")}
           autoComplete="name"
+          className="min-h-[48px] text-base"
         />
       </div>
 
-      <div>
-        <label htmlFor="email" className="block text-sm font-medium mb-1">
+      <div className="space-y-2">
+        <label
+          htmlFor="email"
+          className="block text-sm font-medium text-foreground"
+        >
           {t("signup.email")}
         </label>
         <Input
@@ -98,11 +105,15 @@ export function SignupForm() {
           disabled={isLoading}
           placeholder={t("signup.emailPlaceholder")}
           autoComplete="email"
+          className="min-h-[48px] text-base"
         />
       </div>
 
-      <div>
-        <label htmlFor="password" className="block text-sm font-medium mb-1">
+      <div className="space-y-2">
+        <label
+          htmlFor="password"
+          className="block text-sm font-medium text-foreground"
+        >
           {t("signup.password")}
         </label>
         <Input
@@ -114,13 +125,14 @@ export function SignupForm() {
           disabled={isLoading}
           placeholder={t("signup.passwordPlaceholder")}
           autoComplete="new-password"
+          className="min-h-[48px] text-base"
         />
       </div>
 
-      <div>
+      <div className="space-y-2">
         <label
           htmlFor="confirmPassword"
-          className="block text-sm font-medium mb-1"
+          className="block text-sm font-medium text-foreground"
         >
           {t("signup.confirmPassword")}
         </label>
@@ -133,16 +145,21 @@ export function SignupForm() {
           disabled={isLoading}
           placeholder={t("signup.confirmPasswordPlaceholder")}
           autoComplete="new-password"
+          className="min-h-[48px] text-base"
         />
       </div>
 
       {error && (
-        <div className="text-destructive text-sm bg-destructive/10 p-3 rounded-md">
+        <div className="text-destructive text-sm bg-destructive/10 border border-destructive/20 p-3 rounded-md">
           {error}
         </div>
       )}
 
-      <Button type="submit" disabled={isLoading} className="w-full">
+      <Button
+        type="submit"
+        disabled={isLoading}
+        className="w-full min-h-[48px] bg-primary hover:bg-primary/90 text-primary-foreground text-base font-medium"
+      >
         {isLoading ? t("signup.creatingAccount") : t("signup.signUp")}
       </Button>
     </form>

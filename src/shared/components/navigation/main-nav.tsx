@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 
 import { Button } from "@/shared/components/ui/button";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { Logo } from "@/shared/components/ui/logo";
 import { ThemeToggle } from "@/shared/components/ui/theme-toggle";
 import { useAuth } from "@/features/auth/context/auth-context";
 import { useCart } from "@/features/cart/hooks/use-cart";
@@ -76,16 +77,7 @@ export function MainNav() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <div className="flex items-center">
-            <Link href="/" className="flex items-center space-x-2">
-              <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-lg">
-                  S
-                </span>
-              </div>
-              <span className="font-bold text-xl text-foreground transition-colors duration-300">
-                Smaragdus Viridi
-              </span>
-            </Link>
+            <Logo variant="inline" size="md" href="/" showText={false} />
           </div>
 
           {/* Desktop Navigation */}
@@ -128,7 +120,7 @@ export function MainNav() {
             {/* Search button */}
             <button
               type="button"
-              className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+              className="p-2 text-muted-foreground hover:text-primary transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
               aria-label={tAccessibility("search")}
             >
               <svg
@@ -231,7 +223,7 @@ export function MainNav() {
             {/* Mobile menu button */}
             <button
               type="button"
-              className="md:hidden p-2 text-gray-400 hover:text-gray-600 transition-colors"
+              className="md:hidden p-2 text-muted-foreground hover:text-primary transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label={tAccessibility("toggleMenu")}
             >

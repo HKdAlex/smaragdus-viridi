@@ -35,3 +35,6 @@ export class Logger {
 export function createContextLogger(context: string): Logger {
   return new Logger(context);
 }
+
+// Singleton logger instance for general use
+export const logger = new Logger('app');

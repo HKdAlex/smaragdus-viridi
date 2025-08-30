@@ -373,7 +373,15 @@
     "allItems": "Все товары",
     "inStockOnly": "Только в наличии",
     "outOfStockOnly": "Только отсутствующие",
-    "origin": "Происхождение"
+    "origin": "Происхождение",
+    "priceRangeTitle": "Диапазон цен (USD)",
+    "weightRangeTitle": "Диапазон веса (караты)",
+    "filterLabels": {
+      "minPrice": "Мин. цена",
+      "maxPrice": "Макс. цена",
+      "minWeight": "Мин. вес",
+      "maxWeight": "Макс. вес"
+    }
   },
   "priceAnalytics": {
     "title": "Аналитика цен",
@@ -406,7 +414,26 @@
       "parseFailed": "Не удалось обработать CSV файл. Проверьте формат.",
       "readFailed": "Не удалось прочитать файл. Попробуйте снова.",
       "importFailed": "Импорт не удался. Попробуйте снова."
-    }
+    },
+    "tableHeaders": {
+      "serialNumber": "Серийный №",
+      "type": "Тип",
+      "color": "Цвет",
+      "weight": "Вес",
+      "price": "Цена",
+      "status": "Статус"
+    },
+    "results": {
+      "imported": "Импортировано",
+      "failed": "Не удалось",
+      "duplicates": "Дубликаты",
+      "importErrors": "Ошибки импорта",
+      "duplicatesFound": "Найдены дубликаты",
+      "row": "Строка",
+      "moreErrors": "... и еще {count} ошибок"
+    },
+    "close": "Закрыть",
+    "viewUpdatedList": "Просмотреть обновленный список"
   },
   "search": {
     "placeholder": "Поиск камней по серийному номеру, типу, цвету или описанию...",

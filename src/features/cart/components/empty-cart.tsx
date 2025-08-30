@@ -16,7 +16,7 @@ export function EmptyCart({ onClose }: EmptyCartProps) {
       {/* Empty Cart Icon */}
       <div className="mb-6">
         <svg
-          className="mx-auto h-24 w-24 text-gray-300"
+          className="mx-auto h-20 sm:h-24 w-20 sm:w-24 text-muted-foreground"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -32,49 +32,60 @@ export function EmptyCart({ onClose }: EmptyCartProps) {
       </div>
 
       {/* Empty Cart Message */}
-      <h3 className="text-lg font-medium text-gray-900 mb-2">
+      <h3 className="text-lg sm:text-xl font-medium text-foreground mb-2">
         {t("empty.title")}
       </h3>
 
-      <p className="text-gray-600 mb-8 max-w-sm">{t("empty.subtitle")}</p>
+      <p className="text-muted-foreground mb-8 max-w-sm text-sm sm:text-base">
+        {t("empty.subtitle")}
+      </p>
 
       {/* Action Buttons */}
-      <div className="space-y-3 w-full max-w-xs">
-        <Button asChild className="w-full" onClick={onClose}>
+      <div className="space-y-3 w-full max-w-xs px-4">
+        <Button asChild className="w-full min-h-[48px]" onClick={onClose}>
           <Link href="/catalog">{t("empty.browseGemstones")}</Link>
         </Button>
 
-        <Button variant="outline" asChild className="w-full" onClick={onClose}>
+        <Button
+          variant="outline"
+          asChild
+          className="w-full min-h-[48px]"
+          onClick={onClose}
+        >
           <Link href="/about">{t("empty.learnAboutGemstones")}</Link>
         </Button>
 
         {onClose && (
-          <Button variant="ghost" onClick={onClose} className="w-full">
+          <Button
+            variant="ghost"
+            onClick={onClose}
+            className="w-full min-h-[44px]"
+          >
             {t("empty.continueShopping")}
           </Button>
         )}
       </div>
 
       {/* Helpful Tips */}
-      <div className="mt-8 text-left w-full max-w-xs">
-        <h4 className="text-sm font-medium text-gray-900 mb-3">
+      <div className="mt-8 text-left w-full max-w-xs px-4">
+        <h4 className="text-sm font-medium text-foreground mb-3">
           {t("empty.shoppingTips")}
         </h4>
-        <ul className="text-sm text-gray-600 space-y-2">
+        <ul className="text-sm text-muted-foreground space-y-2">
           <li className="flex items-start">
-            <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+            <span className="w-2 h-2 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></span>
             <span>{t("empty.tips.filters")}</span>
           </li>
           <li className="flex items-start">
-            <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+            <span className="w-2 h-2 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></span>
             <span>{t("empty.tips.certificates")}</span>
           </li>
           <li className="flex items-start">
-            <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+            <span className="w-2 h-2 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></span>
             <span>{t("empty.tips.freeShipping")}</span>
           </li>
           <li className="flex items-start">
-            <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+            <span className="w-2 h-2 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></span>
             <span>{t("empty.tips.returns")}</span>
           </li>
         </ul>

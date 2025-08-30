@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { Button } from "@/shared/components/ui/button";
+import { useTranslations } from "next-intl";
 
 interface QuantitySelectorProps {
   value: number;
@@ -19,6 +20,7 @@ export function QuantitySelector({
   min = 1,
   max = 99,
 }: QuantitySelectorProps) {
+  const t = useTranslations("cart");
   const [inputValue, setInputValue] = useState(value.toString());
 
   // Sync input value when prop changes
@@ -92,15 +94,15 @@ export function QuantitySelector({
   };
 
   return (
-    <div className="flex items-center border border-gray-300 rounded-md">
+    <div className="flex items-center border border-border rounded-md bg-background">
       <Button
         type="button"
         variant="ghost"
         size="sm"
         onClick={handleDecrement}
         disabled={disabled || value <= min}
-        className="px-2 py-1 h-8 w-8 rounded-none border-r border-gray-300 hover:bg-gray-50 disabled:opacity-50"
-        aria-label="Decrease quantity"
+        className="px-3 py-2 h-10 w-10 min-h-[44px] min-w-[44px] rounded-none border-r border-border hover:bg-accent disabled:opacity-50 flex items-center justify-center"
+        aria-label={t("accessibility.decreaseQuantity")}
       >
         <svg
           className="h-3 w-3"
@@ -126,8 +128,8 @@ export function QuantitySelector({
         onBlur={handleInputBlur}
         onKeyDown={handleKeyDown}
         disabled={disabled}
-        className="w-12 text-center text-sm border-0 focus:ring-0 focus:outline-none disabled:opacity-50"
-        aria-label="Quantity"
+        className="w-12 sm:w-14 text-center text-sm border-0 focus:ring-0 focus:outline-none disabled:opacity-50 bg-transparent min-h-[44px] flex items-center justify-center"
+        aria-label={t("accessibility.quantity")}
         min={min}
         max={max}
       />
@@ -138,8 +140,8 @@ export function QuantitySelector({
         size="sm"
         onClick={handleIncrement}
         disabled={disabled || value >= max}
-        className="px-2 py-1 h-8 w-8 rounded-none border-l border-gray-300 hover:bg-gray-50 disabled:opacity-50"
-        aria-label="Increase quantity"
+        className="px-3 py-2 h-10 w-10 min-h-[44px] min-w-[44px] rounded-none border-l border-border hover:bg-accent disabled:opacity-50 flex items-center justify-center"
+        aria-label={t("accessibility.increaseQuantity")}
       >
         <svg
           className="h-3 w-3"

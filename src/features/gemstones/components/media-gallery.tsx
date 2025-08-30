@@ -178,7 +178,7 @@ export function MediaGallery({ images, videos }: MediaGalleryProps) {
         {currentMedia.type === "image" ? (
           <Image
             src={currentMedia.url}
-            alt="Gemstone"
+            alt={t("media.gemstone")}
             fill
             className="object-contain transition-all duration-500 group-hover:scale-[1.02] p-2"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 60vw, 50vw"
@@ -199,7 +199,7 @@ export function MediaGallery({ images, videos }: MediaGalleryProps) {
             />
 
             {/* Video Controls Overlay */}
-            <div className="absolute inset-2 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg">
+            <div className="absolute inset-2 bg-black/20 dark:bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg">
               <div className="absolute inset-0 flex items-center justify-center">
                 <Button
                   variant="secondary"
@@ -219,7 +219,7 @@ export function MediaGallery({ images, videos }: MediaGalleryProps) {
               <div className="absolute bottom-4 left-4 right-4 space-y-2">
                 {videoDuration > 0 && (
                   <div className="flex items-center space-x-2">
-                    <span className="text-white text-sm">
+                    <span className="text-white dark:text-foreground text-sm">
                       {formatTime(videoCurrentTime)}
                     </span>
                     <input
@@ -228,9 +228,9 @@ export function MediaGallery({ images, videos }: MediaGalleryProps) {
                       max={videoDuration}
                       value={videoCurrentTime}
                       onChange={handleVideoSeek}
-                      className="flex-1 h-1 bg-white/30 rounded-lg appearance-none slider"
+                      className="flex-1 h-1 bg-white/30 dark:bg-white/20 rounded-lg appearance-none slider"
                     />
-                    <span className="text-white text-sm">
+                    <span className="text-white dark:text-foreground text-sm">
                       {formatTime(videoDuration)}
                     </span>
                   </div>
@@ -241,19 +241,19 @@ export function MediaGallery({ images, videos }: MediaGalleryProps) {
                     variant="secondary"
                     size="icon"
                     onClick={handleVideoMute}
-                    className="w-8 h-8 bg-white/20 hover:bg-white/30"
+                    className="w-8 h-8 bg-white/20 hover:bg-white/30 dark:bg-white/10 dark:hover:bg-white/20"
                   >
                     {isVideoMuted ? (
-                      <VolumeX className="w-4 h-4 text-white" />
+                      <VolumeX className="w-4 h-4 text-white dark:text-foreground" />
                     ) : (
-                      <Volume2 className="w-4 h-4 text-white" />
+                      <Volume2 className="w-4 h-4 text-white dark:text-foreground" />
                     )}
                   </Button>
 
                   {currentMedia.duration && (
                     <Badge
                       variant="secondary"
-                      className="bg-white/20 text-white"
+                      className="bg-white/20 text-white dark:bg-white/10 dark:text-foreground"
                     >
                       {formatTime(currentMedia.duration)}
                     </Badge>
@@ -269,8 +269,10 @@ export function MediaGallery({ images, videos }: MediaGalleryProps) {
           <Badge
             variant={currentMedia.type === "video" ? "destructive" : "default"}
           >
-            {currentMedia.type === "video" ? "Video" : "Image"}
-            {currentMedia.isPrimary && " • Primary"}
+            {currentMedia.type === "video"
+              ? t("media.video")
+              : t("media.image")}
+            {currentMedia.isPrimary && ` • ${t("media.primary")}`}
           </Badge>
         </div>
 
@@ -326,7 +328,7 @@ export function MediaGallery({ images, videos }: MediaGalleryProps) {
           <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
             <Badge
               variant="secondary"
-              className="bg-black/50 text-white backdrop-blur-sm"
+              className="bg-black/50 text-white dark:bg-black/70 dark:text-foreground backdrop-blur-sm"
             >
               {currentIndex + 1} / {mediaItems.length}
             </Badge>
@@ -350,7 +352,7 @@ export function MediaGallery({ images, videos }: MediaGalleryProps) {
               {media.type === "image" ? (
                 <Image
                   src={media.url}
-                  alt="Thumbnail"
+                  alt={t("media.thumbnail")}
                   fill
                   className="object-contain p-1"
                   sizes="80px"
@@ -360,7 +362,7 @@ export function MediaGallery({ images, videos }: MediaGalleryProps) {
                   {media.thumbnailUrl ? (
                     <Image
                       src={media.thumbnailUrl}
-                      alt="Video thumbnail"
+                      alt={t("media.videoThumbnail")}
                       fill
                       className="object-cover"
                       sizes="80px"
@@ -370,8 +372,8 @@ export function MediaGallery({ images, videos }: MediaGalleryProps) {
                       <Play className="w-6 h-6 text-muted-foreground" />
                     </div>
                   )}
-                  <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-                    <Play className="w-4 h-4 text-white" />
+                  <div className="absolute inset-0 bg-black/20 dark:bg-black/30 flex items-center justify-center">
+                    <Play className="w-4 h-4 text-white dark:text-foreground" />
                   </div>
                 </div>
               )}
@@ -388,14 +390,14 @@ export function MediaGallery({ images, videos }: MediaGalleryProps) {
 
       {/* Lightbox Dialog */}
       <Dialog open={isLightboxOpen} onOpenChange={setIsLightboxOpen}>
-        <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 bg-black/95">
+        <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 bg-black/95 dark:bg-black/98">
           <div className="relative w-full h-[90vh] flex items-center justify-center">
             {/* Close Button */}
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setIsLightboxOpen(false)}
-              className="absolute top-6 right-6 z-10 text-white hover:bg-white/20 transition-all duration-200 backdrop-blur-sm bg-black/20 border border-white/10 h-10 w-10 rounded-full hover:scale-110"
+              className="absolute top-6 right-6 z-10 text-white dark:text-foreground hover:bg-white/20 dark:hover:bg-white/10 transition-all duration-200 backdrop-blur-sm bg-black/20 dark:bg-black/30 border border-white/10 dark:border-white/20 h-10 w-10 rounded-full hover:scale-110"
             >
               <X className="w-5 h-5" />
             </Button>
@@ -405,7 +407,7 @@ export function MediaGallery({ images, videos }: MediaGalleryProps) {
               <div className="relative w-full h-full">
                 <Image
                   src={currentMedia.url}
-                  alt="Gemstone"
+                  alt={t("media.gemstone")}
                   fill
                   className="object-contain"
                   sizes="95vw"
@@ -428,7 +430,7 @@ export function MediaGallery({ images, videos }: MediaGalleryProps) {
                   variant="ghost"
                   size="icon"
                   onClick={goToPrevious}
-                  className="absolute left-6 top-1/2 transform -translate-y-1/2 text-white hover:bg-white/20 transition-all duration-200 backdrop-blur-sm bg-black/20 border border-white/10 h-12 w-12 rounded-full hover:scale-110"
+                  className="absolute left-6 top-1/2 transform -translate-y-1/2 text-white dark:text-foreground hover:bg-white/20 dark:hover:bg-white/10 transition-all duration-200 backdrop-blur-sm bg-black/20 dark:bg-black/30 border border-white/10 dark:border-white/20 h-12 w-12 rounded-full hover:scale-110 min-h-[48px] min-w-[48px]"
                 >
                   <ChevronLeft className="w-6 h-6" />
                 </Button>
@@ -436,7 +438,7 @@ export function MediaGallery({ images, videos }: MediaGalleryProps) {
                   variant="ghost"
                   size="icon"
                   onClick={goToNext}
-                  className="absolute right-6 top-1/2 transform -translate-y-1/2 text-white hover:bg-white/20 transition-all duration-200 backdrop-blur-sm bg-black/20 border border-white/10 h-12 w-12 rounded-full hover:scale-110"
+                  className="absolute right-6 top-1/2 transform -translate-y-1/2 text-white dark:text-foreground hover:bg-white/20 dark:hover:bg-white/10 transition-all duration-200 backdrop-blur-sm bg-black/20 dark:bg-black/30 border border-white/10 dark:border-white/20 h-12 w-12 rounded-full hover:scale-110 min-h-[48px] min-w-[48px]"
                 >
                   <ChevronRight className="w-6 h-6" />
                 </Button>
@@ -445,7 +447,10 @@ export function MediaGallery({ images, videos }: MediaGalleryProps) {
 
             {/* Lightbox Counter */}
             <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
-              <Badge variant="secondary" className="bg-black/50 text-white">
+              <Badge
+                variant="secondary"
+                className="bg-black/50 text-white dark:bg-black/70 dark:text-foreground"
+              >
                 {currentIndex + 1} / {mediaItems.length}
               </Badge>
             </div>

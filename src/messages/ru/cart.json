@@ -23,17 +23,22 @@
     "price": "Цена",
     "total": "Итого",
     "remove": "Удалить",
-    "update": "Обновить"
+    "update": "Обновить",
+    "each": "за шт.",
+    "removeFromCart": "Удалить {name} из корзины",
+    "gemstoneInfoNotAvailable": "Информация о камне недоступна",
+    "gemstoneNameNotAvailable": "Название камня недоступно"
   },
-  "itemCount": {
-    "singular": "товар",
-    "plural": "товаров"
-  },
+  "itemCount": "{count, plural, =1 {товар} few {товара} other {товаров}}",
   "summary": {
+    "title": "Сводка заказа",
+    "subtotal": "Промежуточный итог ({count} товаров)",
     "selectedItems": "Выбранные товары ({count})",
     "shipping": "Доставка",
     "tax": "Налог",
+    "total": "Итого",
     "calculatedAtCheckout": "Рассчитывается при оформлении",
+    "selectedItemsTotal": "Показан итог для {count} выбранных товаров",
     "selectedTotal": "Итого выбранных"
   },
   "actions": {
@@ -42,11 +47,34 @@
     "deselectAll": "Снять выбор",
     "clearCart": "Очистить корзину",
     "clearing": "Очистка...",
-    "continueShopping": "Продолжить покупки"
+    "continueShopping": "Продолжить покупки",
+    "checkout": "Заказать {count} товаров",
+    "processing": "Обработка заказа...",
+    "tryAgain": "Попробовать снова"
   },
   "loading": "Загрузка корзины...",
   "error": "Ошибка загрузки корзины",
+  "authRequired": {
+    "title": "Требуется вход",
+    "message": "Пожалуйста, войдите в систему, чтобы просмотреть и управлять корзиной",
+    "signIn": "Войти"
+  },
+  "orderSummary": {
+    "title": "Сводка заказа",
+    "subtotal": "Промежуточный итог ({count} товаров)",
+    "shipping": "Доставка",
+    "tax": "Налог",
+    "total": "Итого",
+    "calculatedAtCheckout": "Рассчитывается при оформлении",
+    "selectedItemsTotal": "Показан итог для {count} выбранных товаров"
+  },
+  "processingOrder": "Обработка заказа...",
+  "orderItems": "Заказать {count} товаров",
+  "secureCheckout": "Безопасная оплата с использованием ведущих технологий шифрования",
   "accessibility": {
-    "closeCart": "Закрыть корзину"
+    "closeCart": "Закрыть корзину",
+    "decreaseQuantity": "Уменьшить количество",
+    "increaseQuantity": "Увеличить количество",
+    "quantity": "Количество"
   }
 }

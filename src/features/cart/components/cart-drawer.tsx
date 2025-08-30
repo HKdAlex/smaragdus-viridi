@@ -77,29 +77,28 @@ export function CartDrawer({ isOpen, onClose, onCheckout }: CartDrawerProps) {
     <div className="fixed inset-0 z-[100] flex">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
+        className="fixed inset-0 bg-black/50 dark:bg-black/70 transition-opacity"
         onClick={onClose}
       />
 
       {/* Drawer */}
-      <div className="relative ml-auto h-full w-full max-w-md bg-white shadow-xl">
+      <div className="relative ml-auto h-full w-full max-w-md bg-card shadow-xl border-l border-border">
         <div className="flex h-full flex-col">
           {/* Header */}
-          <div className="flex items-center justify-between border-b px-4 py-3">
+          <div className="flex items-center justify-between border-b border-border px-4 py-3">
             <div className="flex items-center space-x-2">
-              <h2 className="text-lg font-semibold">{t("title")}</h2>
+              <h2 className="text-lg font-semibold text-foreground">
+                {t("title")}
+              </h2>
               {cartSummary && cartSummary.total_items > 0 && (
-                <Badge variant="secondary">
-                  {cartSummary.total_items}{" "}
-                  {cartSummary.total_items === 1
-                    ? t("itemCount.singular")
-                    : t("itemCount.plural")}
+                <Badge variant="secondary" className="ml-2">
+                  {t("itemCount", { count: cartSummary.total_items })}
                 </Badge>
               )}
             </div>
             <button
               onClick={onClose}
-              className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+              className="p-2 text-muted-foreground hover:text-foreground transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center rounded"
               aria-label={t("accessibility.closeCart")}
             >
               <svg
@@ -120,11 +119,11 @@ export function CartDrawer({ isOpen, onClose, onCheckout }: CartDrawerProps) {
 
           {/* Error Message */}
           {error && (
-            <div className="bg-red-50 border-l-4 border-red-400 p-4 mx-4 mt-4">
+            <div className="bg-destructive/10 border-l-4 border-destructive p-4 mx-4 mt-4 rounded">
               <div className="flex">
                 <div className="flex-shrink-0">
                   <svg
-                    className="h-5 w-5 text-red-400"
+                    className="h-5 w-5 text-destructive"
                     viewBox="0 0 20 20"
                     fill="currentColor"
                   >
@@ -136,7 +135,7 @@ export function CartDrawer({ isOpen, onClose, onCheckout }: CartDrawerProps) {
                   </svg>
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm text-red-700">{error}</p>
+                  <p className="text-sm text-destructive">{error}</p>
                 </div>
               </div>
             </div>
@@ -146,7 +145,12 @@ export function CartDrawer({ isOpen, onClose, onCheckout }: CartDrawerProps) {
           <div className="flex-1 overflow-y-auto">
             {isLoading && !cartSummary ? (
               <div className="flex items-center justify-center h-64">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <div className="flex flex-col items-center space-y-4">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                  <p className="text-sm text-muted-foreground">
+                    Loading cart...
+                  </p>
+                </div>
               </div>
             ) : !cartSummary || cartSummary.items.length === 0 ? (
               <EmptyCart onClose={onClose} />
@@ -162,11 +166,11 @@ export function CartDrawer({ isOpen, onClose, onCheckout }: CartDrawerProps) {
                     }
                     onQuantityChange={(itemId, quantity) => {
                       // Handle quantity change
-                      console.log('Quantity changed:', itemId, quantity)
+                      console.log("Quantity changed:", itemId, quantity);
                     }}
                     onRemove={(itemId) => {
                       // Handle item removal
-                      console.log('Item removed:', itemId)
+                      console.log("Item removed:", itemId);
                     }}
                   />
                 ))}
@@ -176,29 +180,31 @@ export function CartDrawer({ isOpen, onClose, onCheckout }: CartDrawerProps) {
 
           {/* Footer */}
           {cartSummary && cartSummary.items.length > 0 && (
-            <div className="border-t bg-gray-50 p-4 space-y-4">
+            <div className="border-t border-border bg-muted/30 p-4 space-y-4">
               {/* Selected Items Summary */}
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span>
+                  <span className="text-muted-foreground">
                     {t("summary.selectedItems", { count: selectedItemsCount })}
                   </span>
-                  <span className="font-medium">
+                  <span className="font-medium text-foreground">
                     {formatPrice(selectedTotal.amount, selectedTotal.currency)}
                   </span>
                 </div>
-                <div className="flex justify-between text-sm text-gray-600">
+                <div className="flex justify-between text-sm text-muted-foreground">
                   <span>{t("summary.shipping")}</span>
                   <span>{t("summary.calculatedAtCheckout")}</span>
                 </div>
-                <div className="flex justify-between text-sm text-gray-600">
+                <div className="flex justify-between text-sm text-muted-foreground">
                   <span>{t("summary.tax")}</span>
                   <span>{t("summary.calculatedAtCheckout")}</span>
                 </div>
                 <Separator />
                 <div className="flex justify-between text-lg font-semibold">
-                  <span>{t("summary.selectedTotal")}</span>
-                  <span>
+                  <span className="text-foreground">
+                    {t("summary.selectedTotal")}
+                  </span>
+                  <span className="text-foreground">
                     {formatPrice(selectedTotal.amount, selectedTotal.currency)}
                   </span>
                 </div>
@@ -208,7 +214,7 @@ export function CartDrawer({ isOpen, onClose, onCheckout }: CartDrawerProps) {
               <div className="space-y-2">
                 <Button
                   onClick={handleOrderSelected}
-                  className="w-full"
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground min-h-[48px]"
                   size="lg"
                   disabled={isLoading || selectedItemsCount === 0}
                 >
@@ -217,12 +223,12 @@ export function CartDrawer({ isOpen, onClose, onCheckout }: CartDrawerProps) {
                   })}
                 </Button>
 
-                <div className="flex space-x-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <Button
                     variant="outline"
                     onClick={handleSelectAll}
                     disabled={isLoading}
-                    className="flex-1"
+                    className="flex-1 min-h-[44px]"
                   >
                     {allSelected
                       ? t("actions.deselectAll")
@@ -233,11 +239,11 @@ export function CartDrawer({ isOpen, onClose, onCheckout }: CartDrawerProps) {
                     variant="outline"
                     onClick={handleClearCart}
                     disabled={isLoading || isClearing}
-                    className="flex-1"
+                    className="flex-1 min-h-[44px]"
                   >
                     {isClearing ? (
                       <div className="flex items-center space-x-2">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600"></div>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-border"></div>
                         <span>{t("actions.clearing")}</span>
                       </div>
                     ) : (
@@ -246,7 +252,11 @@ export function CartDrawer({ isOpen, onClose, onCheckout }: CartDrawerProps) {
                   </Button>
                 </div>
 
-                <Button variant="ghost" onClick={onClose} className="w-full">
+                <Button
+                  variant="ghost"
+                  onClick={onClose}
+                  className="w-full min-h-[44px]"
+                >
                   {t("actions.continueShopping")}
                 </Button>
               </div>
