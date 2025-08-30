@@ -18,7 +18,6 @@ import {
   CardTitle,
 } from "@/shared/components/ui/card";
 import type {
-  ORDER_STATUS_CONFIG,
   OrderDetailProps,
   OrderStatus,
 } from "../types/order-management.types";
@@ -32,6 +31,7 @@ import {
 
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
+import { ORDER_STATUS_CONFIG } from "../types/order-management.types";
 import { Separator } from "@/shared/components/ui/separator";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { format } from "date-fns";
@@ -79,7 +79,7 @@ export function OrderDetail({
     return ORDER_STATUS_CONFIG[currentStatus].nextStatuses || [];
   };
 
-  const parseDeliveryAddress = (addressJson: string | null) => {
+  const parseDeliveryAddress = (addressJson: string | null | undefined) => {
     if (!addressJson) return null;
     try {
       return JSON.parse(addressJson);
@@ -208,12 +208,11 @@ export function OrderDetail({
                 <div className="space-y-3">
                   <label className="text-sm font-medium">Update Status</label>
                   <Select
-                    disabled={updatingStatus}
                     onValueChange={(value) =>
                       handleStatusUpdate(value as OrderStatus)
                     }
                   >
-                    <SelectTrigger>
+                    <SelectTrigger disabled={updatingStatus}>
                       <SelectValue placeholder="Select new status" />
                     </SelectTrigger>
                     <SelectContent>

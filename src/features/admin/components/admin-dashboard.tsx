@@ -6,6 +6,7 @@ import {
   Gem,
   LogOut,
   Menu,
+  Package,
   Settings,
   Shield,
   TrendingUp,
