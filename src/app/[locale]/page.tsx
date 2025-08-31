@@ -1,8 +1,8 @@
 import { Button } from "@/shared/components/ui/button";
-import Image from "next/image";
-import Link from "next/link";
 import { Logo } from "@/shared/components/ui/logo";
 import { getTranslations } from "next-intl/server";
+import Image from "next/image";
+import Link from "next/link";
 
 export default async function HomePage() {
   const t = await getTranslations("home");
@@ -15,7 +15,7 @@ export default async function HomePage() {
           <div className="flex justify-center mb-6 sm:mb-8">
             <Logo
               variant="block"
-              size="xxl"
+              size="xxxl"
               showText={false}
               className="sm:w-auto w-32"
             />

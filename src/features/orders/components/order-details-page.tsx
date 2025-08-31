@@ -214,7 +214,7 @@ export function OrderDetailsPage({ orderId, locale }: OrderDetailsPageProps) {
                     className="flex gap-4 p-4 border rounded-lg"
                   >
                     {/* Gemstone Image */}
-                    <div className="w-20 h-20 bg-muted rounded-lg flex items-center justify-center flex-shrink-0">
+                    <div className="w-20 h-20 bg-muted rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
                       {item.gemstone?.images?.find((img) => img.is_primary)
                         ?.image_url ? (
                         <img
@@ -222,6 +222,12 @@ export function OrderDetailsPage({ orderId, locale }: OrderDetailsPageProps) {
                             item.gemstone.images.find((img) => img.is_primary)
                               ?.image_url
                           }
+                          alt={item.gemstone.name}
+                          className="w-full h-full object-cover rounded-lg"
+                        />
+                      ) : item.gemstone?.images?.[0]?.image_url ? (
+                        <img
+                          src={item.gemstone.images[0].image_url}
                           alt={item.gemstone.name}
                           className="w-full h-full object-cover rounded-lg"
                         />

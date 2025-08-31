@@ -9,7 +9,40 @@
     "totalGemstones": "Всего камней",
     "activeUsers": "Активные пользователи",
     "totalOrders": "Всего заказов",
-    "revenue": "Доход"
+        "revenue": "Доход",
+    "overview": {
+      "title": "Обзор панели управления",
+      "description": "Отслеживайте производительность вашего бизнеса по камням и управляйте операциями"
+    },
+    "stats": {
+      "totalGemstones": "Всего камней",
+      "activeUsers": "Активные пользователи",
+      "revenue": "Доход",
+      "orders": "Заказы",
+      "loading": "Загрузка...",
+      "fromLastMonth": "с прошлого месяца",
+      "loadError": "Не удалось загрузить статистику панели управления",
+      "loadErrorTitle": "Не удалось загрузить статистику",
+      "retry": "Повторить"
+    },
+    "quickActions": {
+      "title": "Быстрые действия",
+      "uploadGemstones": "Загрузить камни",
+      "uploadGemstonesDesc": "Добавить новые камни в каталог",
+      "editPrices": "Редактировать цены",
+      "editPricesDesc": "Обновить цены по всему каталогу",
+      "userManagement": "Управление пользователями",
+      "userManagementDesc": "Управление ролями и доступом пользователей"
+    },
+    "recentActivity": {
+      "title": "Недавняя активность",
+      "newGemstoneAdded": "Новый камень добавлен в каталог",
+      "twoHoursAgo": "2 часа назад",
+      "userPromoted": "Пользователь повышен до администратора",
+      "fiveHoursAgo": "5 часов назад",
+      "priceUpdateApplied": "Обновление цен применено к {count} камням",
+      "oneDayAgo": "1 день назад"
+    }
   },
   "orders": {
     "title": "Управление заказами",
@@ -61,41 +94,17 @@
     "orderDate": "Дата заказа",
     "lastUpdated": "Последнее обновление",
     "showingOrders": "Показано {count} заказов",
-    "clearSearch": "Очистить поиск"
+    "clearSearch": "Очистить поиск",
+    "currentStatus": "Текущий статус",
+    "updateStatusDescription": "Обновить прогресс заказа для {status}",
+    "selectNewStatus": "Выбрать новый статус",
+    "addNotes": "Добавить заметки (необязательно)",
+    "lastUpdated": "Последнее обновление",
+    "amount": "Сумма",
+    "method": "Метод",
+    "simulatedPayment": "Симулированный платеж",
+    "inThisOrder": "в этом заказе"
   },
-    "overview": {
-      "title": "Обзор панели управления",
-      "description": "Отслеживайте производительность вашего бизнеса по камням и управляйте операциями"
-    },
-    "stats": {
-      "totalGemstones": "Всего камней",
-      "activeUsers": "Активные пользователи",
-      "revenue": "Доход",
-      "orders": "Заказы",
-      "loading": "Загрузка...",
-      "fromLastMonth": "с прошлого месяца",
-      "loadError": "Не удалось загрузить статистику панели управления",
-      "loadErrorTitle": "Не удалось загрузить статистику",
-      "retry": "Повторить"
-    },
-    "quickActions": {
-      "title": "Быстрые действия",
-      "uploadGemstones": "Загрузить камни",
-      "uploadGemstonesDesc": "Добавить новые камни в каталог",
-      "editPrices": "Редактировать цены",
-      "editPricesDesc": "Обновить цены по всему каталогу",
-      "userManagement": "Управление пользователями",
-      "userManagementDesc": "Управление ролями и доступом пользователей"
-    },
-    "recentActivity": {
-      "title": "Недавняя активность",
-      "newGemstoneAdded": "Новый камень добавлен в каталог",
-      "twoHoursAgo": "2 часа назад",
-      "userPromoted": "Пользователь повышен до администратора",
-      "fiveHoursAgo": "5 часов назад",
-      "priceUpdateApplied": "Обновление цен применено к {count} камням",
-      "oneDayAgo": "1 день назад"
-    },
   "header": {
     "title": "Панель администратора",
     "welcomeBack": "Добро пожаловать, {name}",
@@ -103,6 +112,7 @@
   },
   "tabs": {
     "dashboard": "Обзор и ключевые показатели",
+    "orders": "Управление заказами и их выполнением",
     "gemstones": "Управление каталогом камней и складом",
     "pricing": "Аналитика цен и управление складом",
     "users": "Управление пользователями и разрешениями",
@@ -318,8 +328,6 @@
       "origin": "Происхождение",
       "stockStatus": "Наличие"
     },
-    "inStock": "В наличии",
-    "outOfStock": "Нет в наличии",
     "searchNamePlaceholder": "Введите название для этого поиска",
     "cancel": "Отмена",
     "confirm": "Подтвердить",
@@ -358,7 +366,17 @@
     "update": "Обновить",
     "bulkInventoryUpdate": "Массовое обновление инвентаря ({count} выбрано)",
     "stockUpdatePlaceholder": "Обновление наличия",
-    "clearSelection": "Очистить выбор"
+    "clearSelection": "Очистить выбор",
+    "priceRangeTitle": "Диапазон цен",
+    "noLimit": "Без ограничений",
+    "weightRangeTitle": "Диапазон веса",
+    "allItems": "Все товары",
+    "inStockOnly": "Только в наличии",
+    "outOfStockOnly": "Только отсутствующие",
+    "gemstoneType": "Тип камня",
+    "color": "Цвет",
+    "cut": "Огранка",
+    "clarity": "Чистота"
   },
   "priceInventoryManager": {
     "title": "Управление ценами и складом",
@@ -449,7 +467,12 @@
     "averagePrice": "Средняя цена",
     "highestPrice": "Максимальная цена",
     "currencies": "Валюты",
-    "recentChanges": "Последние изменения"
+    "recentChanges": "Последние изменения",
+    "enterPercentageOrAmount": "Пожалуйста, введите процент или фиксированную сумму",
+    "provideReasonForUpdate": "Пожалуйста, укажите причину обновления цены",
+    "bulkUpdateSuccess": "Обновлено {updated} камней, {failed} не удалось",
+    "bulkUpdateFailed": "Массовое обновление не удалось: {error}",
+    "unexpectedError": "Произошла неожиданная ошибка во время массового обновления"
   },
   "bulkImport": {
     "title": "Массовый импорт камней",
@@ -597,6 +620,9 @@
     "configure": "Настроить"
   },
   "gemstoneForm": {
+    "title": "Форма камня",
+    "editTitle": "Редактировать камень",
+    "createTitle": "Создать новый камень",
     "serialNumberPlaceholder": "например, DIA-2025-001",
     "internalCodePlaceholder": "например, INV-001",
     "selectOriginPlaceholder": "Выберите происхождение (необязательно)",
@@ -605,7 +631,55 @@
     "deliveryDaysPlaceholder": "например, 7",
     "descriptionPlaceholder": "Подробное описание камня...",
     "promotionalTextPlaceholder": "Специальный рекламный контент или особенности...",
-    "marketingHighlightPlaceholder": "Добавить маркетинговую особенность..."
+    "marketingHighlightPlaceholder": "Добавить маркетинговую особенность...",
+    "labels": {
+      "serialNumber": "Серийный номер *",
+      "internalCode": "Внутренний код",
+      "type": "Тип *",
+      "color": "Цвет *",
+      "cut": "Огранка *",
+      "clarity": "Чистота *",
+      "weight": "Вес (караты) *",
+      "length": "Длина (мм)",
+      "width": "Ширина (мм)",
+      "depth": "Глубина (мм)",
+      "origin": "Происхождение",
+      "regularPrice": "Обычная цена *",
+      "premiumPrice": "Премиум цена",
+      "inStock": "В наличии",
+      "deliveryDays": "Дни доставки",
+      "totalPrice": "Общая цена",
+      "description": "Описание",
+      "promotionalText": "Рекламный текст",
+      "marketingHighlights": "Маркетинговые особенности"
+    },
+    "actions": {
+      "cancel": "Отмена",
+      "create": "Создать камень",
+      "update": "Обновить камень",
+      "addHighlight": "Добавить"
+    },
+    "errors": {
+      "serialNumberExists": "Серийный номер уже существует",
+      "unexpectedError": "Произошла неожиданная ошибка",
+      "generalError": "Произошла ошибка"
+    }
+  },
+  "gemstoneDetail": {
+    "title": "Детали камня",
+    "backToList": "Назад к списку",
+    "editGemstone": "Редактировать камень",
+    "gemstoneImage": "Изображение камня",
+    "gemstoneDetails": "Детали камня",
+    "statusAndPricing": "Статус и цены",
+    "additionalInfo": "Дополнительная информация",
+    "status": "Статус",
+    "inStock": "В наличии",
+    "outOfStock": "Нет в наличии",
+    "dimensions": "Размеры",
+    "createdAt": "Создан",
+    "updatedAt": "Обновлен",
+    "notAvailable": "Недоступно"
   },
   "gemstoneManagement": {
     "title": "Управление драгоценными камнями",
@@ -641,15 +715,6 @@
     "outOfStock": "Нет в наличии ({count})",
     "selectGemstonesToUpdate": "Пожалуйста, выберите камни для обновления",
     "provideReasonForUpdate": "Пожалуйста, укажите причину обновления инвентаря",
-    "bulkUpdateSuccess": "Обновлено {updated} камней, {failed} не удалось",
-    "bulkUpdateFailed": "Массовое обновление не удалось: {error}",
-    "unexpectedError": "Произошла неожиданная ошибка во время массового обновления"
-  },
-  "priceAnalytics": {
-    "title": "Анализ цен",
-    "description": "Анализируйте и обновляйте цены на драгоценные камни",
-    "enterPercentageOrAmount": "Пожалуйста, введите процент или фиксированную сумму",
-    "provideReasonForUpdate": "Пожалуйста, укажите причину обновления цены",
     "bulkUpdateSuccess": "Обновлено {updated} камней, {failed} не удалось",
     "bulkUpdateFailed": "Массовое обновление не удалось: {error}",
     "unexpectedError": "Произошла неожиданная ошибка во время массового обновления"

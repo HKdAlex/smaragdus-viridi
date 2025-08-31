@@ -36,6 +36,7 @@ import { Separator } from "@/shared/components/ui/separator";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { format } from "date-fns";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 export function OrderDetail({
   order,
@@ -43,6 +44,7 @@ export function OrderDetail({
   onBack,
   loading,
 }: OrderDetailProps) {
+  const t = useTranslations("admin.orders");
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [statusNotes, setStatusNotes] = useState("");
 
@@ -96,7 +98,7 @@ export function OrderDetail({
         <div className="flex items-center space-x-4">
           <Button variant="ghost" onClick={onBack}>
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Orders
+            {t("backToOrders")}
           </Button>
         </div>
         <div className="animate-pulse space-y-6">
@@ -117,14 +119,15 @@ export function OrderDetail({
         <div className="flex items-center space-x-4">
           <Button variant="ghost" onClick={onBack}>
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Orders
+            {t("backToOrders")}
           </Button>
           <div>
             <h1 className="text-2xl font-bold">
-              Order #{order.id.slice(0, 8)}
+              {t("orderDetails")} #{order.id.slice(0, 8)}
             </h1>
             <p className="text-muted-foreground">
-              Placed on {format(new Date(order.created_at), "MMMM d, yyyy")}
+              {t("orderDate")}:{" "}
+              {format(new Date(order.created_at), "MMMM d, yyyy")}
             </p>
           </div>
         </div>
@@ -138,10 +141,11 @@ export function OrderDetail({
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Package className="w-5 h-5 mr-2" />
-                Order Items
+                {t("orderDetails")}
               </CardTitle>
               <CardDescription>
-                {order.items?.length || 0} items in this order
+                {order.items?.length || 0} {t("items")}{" "}
+                {t("inThisOrder", { count: order.items?.length || 0 })}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -150,8 +154,22 @@ export function OrderDetail({
                   key={item.id}
                   className="flex items-center space-x-4 p-4 border rounded-lg"
                 >
-                  <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center">
-                    💎
+                  <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center overflow-hidden">
+                    {item.gemstone?.images?.find((img) => img.is_primary)?.image_url ? (
+                      <img
+                        src={item.gemstone.images.find((img) => img.is_primary)?.image_url}
+                        alt={item.gemstone.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : item.gemstone?.images?.[0]?.image_url ? (
+                      <img
+                        src={item.gemstone.images[0].image_url}
+                        alt={item.gemstone.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <Package className="w-8 h-8 text-muted-foreground" />
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <h4 className="font-medium truncate">
@@ -181,7 +199,7 @@ export function OrderDetail({
               <Separator />
 
               <div className="flex justify-between items-center text-lg font-semibold">
-                <span>Total</span>
+                <span>{t("total")}</span>
                 <span>
                   {formatCurrency(order.total_amount, order.currency_code)}
                 </span>
@@ -195,25 +213,33 @@ export function OrderDetail({
           {/* Status Management */}
           <Card>
             <CardHeader>
-              <CardTitle>Order Status</CardTitle>
-              <CardDescription>Update order progress</CardDescription>
+              <CardTitle>{t("updateStatus")}</CardTitle>
+              <CardDescription>
+                {t("updateStatusDescription", {
+                  status: t(`statuses.${order.status}`),
+                })}
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Current Status</span>
+                <span className="text-sm font-medium">
+                  {t("currentStatus")}
+                </span>
                 {getStatusBadge(order.status)}
               </div>
 
               {getNextStatuses(order.status).length > 0 && (
                 <div className="space-y-3">
-                  <label className="text-sm font-medium">Update Status</label>
+                  <label className="text-sm font-medium">
+                    {t("updateStatus")}
+                  </label>
                   <Select
                     onValueChange={(value) =>
                       handleStatusUpdate(value as OrderStatus)
                     }
                   >
                     <SelectTrigger disabled={updatingStatus}>
-                      <SelectValue placeholder="Select new status" />
+                      <SelectValue placeholder={t("selectNewStatus")} />
                     </SelectTrigger>
                     <SelectContent>
                       {getNextStatuses(order.status).map((status) => (
@@ -225,7 +251,7 @@ export function OrderDetail({
                   </Select>
 
                   <Textarea
-                    placeholder="Add notes (optional)"
+                    placeholder={t("addNotes")}
                     value={statusNotes}
                     onChange={(e) => setStatusNotes(e.target.value)}
                     rows={2}
@@ -244,7 +270,7 @@ export function OrderDetail({
             <CardHeader>
               <CardTitle className="flex items-center">
                 <User className="w-5 h-5 mr-2" />
-                Customer Information
+                {t("customerInfo")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -263,7 +289,7 @@ export function OrderDetail({
               <div className="flex items-center space-x-3">
                 <Calendar className="w-4 h-4 text-muted-foreground" />
                 <span className="text-sm">
-                  Last updated:{" "}
+                  {t("lastUpdated")}:{" "}
                   {format(new Date(order.updated_at), "MMM d, yyyy")}
                 </span>
               </div>
@@ -276,7 +302,7 @@ export function OrderDetail({
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <Truck className="w-5 h-5 mr-2" />
-                  Delivery Address
+                  {t("deliveryAddress")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
@@ -299,7 +325,7 @@ export function OrderDetail({
           {order.notes && (
             <Card>
               <CardHeader>
-                <CardTitle>Order Notes</CardTitle>
+                <CardTitle>{t("orderNotes")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">{order.notes}</p>
@@ -312,23 +338,29 @@ export function OrderDetail({
             <CardHeader>
               <CardTitle className="flex items-center">
                 <CreditCard className="w-5 h-5 mr-2" />
-                Payment Information
+                {t("paymentInfo")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Amount</span>
+                <span className="text-sm text-muted-foreground">
+                  {t("amount")}
+                </span>
                 <span className="font-medium">
                   {formatCurrency(order.total_amount, order.currency_code)}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Currency</span>
+                <span className="text-sm text-muted-foreground">
+                  {t("currency")}
+                </span>
                 <span>{order.currency_code}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Method</span>
-                <span>Simulated Payment</span>
+                <span className="text-sm text-muted-foreground">
+                  {t("method")}
+                </span>
+                <span>{t("simulatedPayment")}</span>
               </div>
             </CardContent>
           </Card>

@@ -2,18 +2,18 @@
 
 import { ArrowLeft, Lock, ShoppingBag } from "lucide-react";
 
-import { useAuth } from "@/features/auth/context/auth-context";
-import { OrderConfirmationModal } from "@/features/orders/components/order-confirmation-modal";
-import type { CreateOrderResponse } from "@/features/orders/types/order.types";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { Separator } from "@/shared/components/ui/separator";
-import { useTranslations } from "next-intl";
-import Link from "next/link";
-import { useState } from "react";
-import { useCart } from "../hooks/use-cart";
 import { CartItem } from "./cart-item";
+import type { CreateOrderResponse } from "@/features/orders/types/order.types";
 import { EmptyCart } from "./empty-cart";
+import Link from "next/link";
+import { OrderConfirmationModal } from "@/features/orders/components/order-confirmation-modal";
+import { Separator } from "@/shared/components/ui/separator";
+import { useAuth } from "@/features/auth/context/auth-context";
+import { useCart } from "../hooks/use-cart";
+import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 export function CartPage() {
   const { user } = useAuth();
@@ -82,15 +82,20 @@ export function CartPage() {
           })) || [];
 
       const orderRequest = {
-        items: orderItems,
+        user_id: userId,
+        items: orderItems.map((item) => ({
+          gemstone_id: item.gemstone_id,
+          quantity: item.quantity,
+          unit_price: item.unit_price.amount, // Extract amount from Money object
+        })),
         currency_code: "USD", // Default to USD, could be made configurable
       };
 
-      // TODO: Implement actual order creation
-      const result = {
-        success: false,
-        error: "Order creation not yet implemented",
-      };
+      // Create order using the order service
+      const orderService = new (
+        await import("@/features/orders/services/order-service")
+      ).OrderService();
+      const result = await orderService.createOrder(orderRequest);
       setOrderResult(result);
 
       if (result.success) {
@@ -254,10 +259,6 @@ export function CartPage() {
                             ? toggleItemSelection(item.id)
                             : toggleItemSelection(item.id)
                         }
-                        onQuantityChange={(itemId, quantity) => {
-                          // Handle quantity change
-                          console.log("Quantity changed:", itemId, quantity);
-                        }}
                         onRemove={(itemId) => {
                           // Handle item removal
                           console.log("Item removed:", itemId);

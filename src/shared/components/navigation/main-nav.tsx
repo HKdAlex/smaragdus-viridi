@@ -3,21 +3,22 @@
 import { Link, usePathname } from "@/i18n/navigation";
 import { useMemo, useState } from "react";
 
-import { Button } from "@/shared/components/ui/button";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import { Logo } from "@/shared/components/ui/logo";
-import { ThemeToggle } from "@/shared/components/ui/theme-toggle";
 import { useAuth } from "@/features/auth/context/auth-context";
 import { useCart } from "@/features/cart/hooks/use-cart";
+import { Button } from "@/shared/components/ui/button";
+import { Logo } from "@/shared/components/ui/logo";
+import { ThemeToggle } from "@/shared/components/ui/theme-toggle";
 import { useTranslations } from "next-intl";
 
 // Safe admin status hook that doesn't throw if AdminProvider is not available
 function useSafeAdminStatus() {
+  // @ts-ignore
+  const {
+    useAdminStatus,
+  } = require("@/features/admin/context/admin-context");
+  
   try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const {
-      useAdminStatus,
-    } = require("@/features/admin/context/admin-context");
     return useAdminStatus();
   } catch {
     // AdminProvider not available, return safe defaults
@@ -70,7 +71,7 @@ export function MainNav() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <div className="flex items-center">
-            <Logo variant="inline" size="md" href="/" showText={false} />
+            <Logo variant="inline" size="lg" href="/" showText={false} />
           </div>
 
           {/* Desktop Navigation */}

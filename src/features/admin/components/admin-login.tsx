@@ -12,10 +12,10 @@ import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 // Using basic HTML elements for Label and Alert until shared components are available
 import { Logo } from "@/shared/components/ui/logo";
-import { useAdmin } from "../context/admin-context";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useAdmin } from "../context/admin-context";
 
 export function AdminLogin() {
   const [email, setEmail] = useState("");
@@ -54,12 +54,12 @@ export function AdminLogin() {
         <CardHeader className="text-center space-y-4">
           {/* Logo */}
           <div className="flex justify-center mb-4">
-            <Logo variant="block" size="xl" showText={false} />
+            <Logo variant="block" size="xxl" showText={false} />
           </div>
 
-          <div className="mx-auto w-16 h-16 bg-primary rounded-full flex items-center justify-center">
+          {/* <div className="mx-auto w-16 h-16 bg-primary rounded-full flex items-center justify-center">
             <Shield className="w-8 h-8 text-primary-foreground" />
-          </div>
+          </div> */}
           <div>
             <CardTitle className="text-2xl font-bold">
               {t("login.title")}
@@ -112,6 +112,7 @@ export function AdminLogin() {
                   required
                   disabled={isLoading}
                   className="h-11 pr-12"
+                  autoComplete="current-password"
                 />
                 <Button
                   type="button"

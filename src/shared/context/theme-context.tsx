@@ -1,7 +1,6 @@
 "use client";
 
 import { useTheme, type Theme } from "@/shared/hooks/use-theme";
-import { useTranslations } from "next-intl";
 import { createContext, useContext, type ReactNode } from "react";
 
 interface ThemeContextType {
@@ -24,8 +23,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 export function useThemeContext() {
   const context = useContext(ThemeContext);
   if (context === undefined) {
-    const t = useTranslations("errors.theme");
-    throw new Error(t("contextError"));
+    throw new Error("useThemeContext must be used within a ThemeProvider");
   }
   return context;
 }

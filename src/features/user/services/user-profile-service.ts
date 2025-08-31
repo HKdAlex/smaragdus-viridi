@@ -8,12 +8,11 @@ import type {
     ProfileStats,
     UpdateProfileRequest,
     UpdateProfileResponse,
-    UserActivity,
     UserOrder,
     UserProfile
 } from '../types/user-profile.types'
-import { UserProfileError } from '../types/user-profile.types'
 
+import { UserProfileError } from '../types/user-profile.types'
 import { createContextLogger } from '@/shared/utils/logger'
 import { supabase } from '@/lib/supabase'
 

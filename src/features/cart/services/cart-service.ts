@@ -1,16 +1,16 @@
 import type {
-  CartItem,
-  CartOperationResult,
-  CartSummary,
-  CartValidationResult,
-  CartValidationRules,
-  CurrencyCode,
-  Gemstone,
-  Money
+    CartItem,
+    CartOperationResult,
+    CartSummary,
+    CartValidationResult,
+    CartValidationRules,
+    CurrencyCode,
+    Gemstone,
+    Money
 } from '@/shared/types'
 
-import { supabase } from '@/lib/supabase'
 import { Logger } from '@/shared/utils/logger'
+import { supabase } from '@/lib/supabase'
 
 export class CartService {
   private supabase = supabase
@@ -31,25 +31,22 @@ export class CartService {
    */
   async addToCart(
     gemstoneId: string,
-    quantity: number = 1,
     userId: string
   ): Promise<CartOperationResult> {
     try {
       console.log("🔧 CartService.addToCart called with:", {
         gemstoneId,
-        quantity,
         userId
       });
 
       this.logger.info('Adding item to cart', {
         gemstoneId,
-        quantity,
         userId
       })
 
       // Validate the operation
       console.log("🔍 Validating add to cart operation...");
-      const validation = await this.validateAddToCart(gemstoneId, quantity, userId)
+      const validation = await this.validateAddToCart(gemstoneId, 1, userId)
       console.log("✅ Validation result:", validation);
 
       if (!validation.valid) {
@@ -78,32 +75,45 @@ export class CartService {
       let result: any
 
       if (existingItem) {
-        // Update existing item quantity
-        const newQuantity = Math.min(
-          (existingItem.quantity || 1) + quantity,
-          this.VALIDATION_RULES.max_quantity_per_item
-        )
-
-        console.log("🔄 Updating existing cart item:", {
+        // Item already exists in cart - return existing item
+        console.log("ℹ️ Item already exists in cart:", {
           itemId: existingItem.id,
-          oldQuantity: existingItem.quantity,
-          newQuantity
+          gemstoneId
         });
 
+        // Fetch the existing item with gemstone data
         const { data, error } = await this.supabase
           .from('cart_items')
-          .update({
-            quantity: newQuantity,
-            updated_at: new Date().toISOString()
-          })
+          .select(`
+            *,
+            gemstones (
+              id,
+              name,
+              color,
+              cut,
+              weight_carats,
+              price_amount,
+              price_currency,
+              premium_price_amount,
+              premium_price_currency,
+              in_stock,
+              internal_code,
+              serial_number,
+              gemstone_images (
+                id,
+                image_url,
+                image_order,
+                is_primary
+              )
+            )
+          `)
           .eq('id', existingItem.id)
-          .select()
           .single()
 
-        console.log("📦 Update result:", { data, error });
+        console.log("📦 Existing item result:", { data, error });
 
         if (error) {
-          console.error("❌ Update failed:", error);
+          console.error("❌ Fetch existing item failed:", error);
           throw error;
         }
         result = data
@@ -116,11 +126,33 @@ export class CartService {
           .insert({
             gemstone_id: gemstoneId,
             user_id: userId,
-            quantity,
+            quantity: 1,
             added_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
           })
-          .select()
+          .select(`
+            *,
+            gemstones (
+              id,
+              name,
+              color,
+              cut,
+              weight_carats,
+              price_amount,
+              price_currency,
+              premium_price_amount,
+              premium_price_currency,
+              in_stock,
+              internal_code,
+              serial_number,
+              gemstone_images (
+                id,
+                image_url,
+                image_order,
+                is_primary
+              )
+            )
+          `)
           .single()
 
         console.log("📦 Insert result:", { data, error });
@@ -153,7 +185,6 @@ export class CartService {
     } catch (error) {
       this.logger.error('Failed to add item to cart', error as Error, {
         gemstoneId,
-        quantity,
         userId
       })
 
@@ -210,7 +241,29 @@ export class CartService {
           updated_at: new Date().toISOString()
         })
         .eq('id', cartItemId)
-        .select()
+        .select(`
+          *,
+          gemstones (
+            id,
+            name,
+            color,
+            cut,
+            weight_carats,
+            price_amount,
+            price_currency,
+            premium_price_amount,
+            premium_price_currency,
+            in_stock,
+            internal_code,
+            serial_number,
+            gemstone_images (
+              id,
+              image_url,
+              image_order,
+              is_primary
+            )
+          )
+        `)
         .single()
 
       if (error) throw error
@@ -233,7 +286,6 @@ export class CartService {
     } catch (error) {
       this.logger.error('Failed to update cart item', error as Error, {
         cartItemId,
-        quantity,
         userId
       })
 
@@ -356,7 +408,13 @@ export class CartService {
             premium_price_currency,
             in_stock,
             internal_code,
-            serial_number
+            serial_number,
+            gemstone_images (
+              id,
+              image_url,
+              image_order,
+              is_primary
+            )
           )
         `)
         .eq('user_id', userId)

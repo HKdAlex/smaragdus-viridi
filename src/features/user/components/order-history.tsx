@@ -7,12 +7,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
-import { ChevronRight, MapPin, Package, Plus, Search } from "lucide-react";
-import {
-  ORDER_STATUS_CONFIG,
-  type OrderStatus,
-  type UserOrder,
-} from "../types/user-profile.types";
 import {
   Select,
   SelectContent,
@@ -20,6 +14,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
+import { ChevronRight, MapPin, Package, Plus, Search } from "lucide-react";
+import Link from "next/link";
+import {
+  ORDER_STATUS_CONFIG,
+  type OrderStatus,
+  type UserOrder,
+} from "../types/user-profile.types";
 
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
@@ -165,10 +166,10 @@ export function OrderHistory({
             </p>
             {!searchQuery && statusFilter === "all" && (
               <Button asChild>
-                <a href="/catalog">
+                <Link href="/catalog">
                   <Plus className="w-4 h-4 mr-2" />
                   Start Shopping
-                </a>
+                </Link>
               </Button>
             )}
           </CardContent>

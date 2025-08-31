@@ -39,12 +39,11 @@ interface GemstoneDetailProps {
 export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
   const router = useRouter();
   const { user } = useAuth();
-  const { addToCart, isInCart, getCartItemQuantity } = useCart(user?.id);
+  const { addToCart, isInCart } = useCart(user?.id);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [cartMessage, setCartMessage] = useState<string | null>(null);
 
-  const cartItemQuantity = getCartItemQuantity(gemstone.id);
   const isAlreadyInCart = isInCart(gemstone.id);
 
   // Format price with currency
@@ -128,15 +127,14 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
     try {
       console.log("🛒 Calling addToCart with:", {
         gemstoneId: gemstone.id,
-        quantity: 1,
         userId: user.id,
       });
 
-      const success = await addToCart(gemstone.id, 1);
+      const success = await addToCart(gemstone.id);
       console.log("✅ Add to cart result:", success);
 
       if (success) {
-        setCartMessage(`✅ Added to cart! (${cartItemQuantity + 1})`);
+        setCartMessage("✅ Added to cart!");
         setTimeout(() => setCartMessage(null), 3000);
       } else {
         setCartMessage("❌ Failed to add item to cart");
@@ -421,7 +419,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                 {isAddingToCart
                   ? "Adding..."
                   : isAlreadyInCart
-                  ? `In Cart (${cartItemQuantity})`
+                  ? "In Cart"
                   : user
                   ? "Add to Cart"
                   : "Sign In to Add"}

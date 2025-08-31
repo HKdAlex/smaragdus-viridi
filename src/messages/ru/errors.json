@@ -82,7 +82,15 @@
     "updatePrivacyFailed": "Не удалось обновить настройки конфиденциальности"
   },
   "media": {
-    "downloadFailed": "Не удалось скачать"
+    "downloadFailed": "Не удалось скачать",
+    "media": {
+      "gemstone": "драгоценный камень",
+      "thumbnail": "миниатюра",
+      "videoThumbnail": "миниатюра видео",
+      "video": "видео",
+      "image": "изображение",
+      "primary": "основное"
+    }
   },
   "admin": {
     "loadGemstoneStatsFailed": "Не удалось загрузить статистику камней",

@@ -1,3 +1,6 @@
+"use client";
+
+import { useThemeContext } from "@/shared/context/theme-context";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -7,11 +10,12 @@ interface LogoProps {
   showText?: boolean;
   href?: string;
   className?: string;
+  enhancedContrast?: boolean; // New prop to enable enhanced contrast
 }
 
 const sizeMap = {
   sm: { width: 32, height: 32, textSize: "text-sm", heightClass: "h-8" },
-  md: { width: 40, height: 32, textSize: "text-lg", heightClass: "h-8" },
+  md: { width: 48, height: 48, textSize: "text-lg", heightClass: "h-10" },
   lg: { width: 80, height: 64, textSize: "text-xl", heightClass: "h-16" },
   xl: { width: 120, height: 120, textSize: "text-2xl", heightClass: "h-24" },
   xxl: { width: 160, height: 160, textSize: "text-3xl", heightClass: "h-32" },
@@ -24,10 +28,35 @@ export function Logo({
   showText = true,
   href,
   className = "",
+  enhancedContrast = true, // Default to enhanced contrast
 }: LogoProps) {
+  const { resolvedTheme } = useThemeContext();
   const { width, height, textSize, heightClass } = sizeMap[size];
-  const logoSrc =
-    variant === "inline" ? "/sv-logo-inline.png" : "/sv-logo-block.png";
+
+  // Choose logo source based on variant
+  const getLogoSrc = () => {
+    return variant === "inline" ? "/sv-logo-inline.png" : "/sv-logo-block.png";
+  };
+
+  const logoSrc = getLogoSrc();
+
+  // Enhanced contrast styles for light mode
+  const getLogoStyles = () => {
+    const baseStyles = {
+      objectFit: "contain" as const,
+      objectPosition: "center" as const,
+    };
+
+    // Apply filters only in light mode and when enhanced contrast is enabled
+    if (enhancedContrast && resolvedTheme === "light") {
+      return {
+        ...baseStyles,
+        filter: "contrast(1.5) brightness(0.1) saturate(1.5)",
+      };
+    }
+
+    return baseStyles;
+  };
 
   const logoElement = (
     <div className={`flex items-center space-x-3 ${className}`}>
@@ -36,13 +65,18 @@ export function Logo({
         alt="Smaragdus Viridi"
         width={width}
         height={height}
-        className={`${heightClass} w-auto logo-crisp`}
+        className={`logo-crisp transition-all duration-300 ${
+          enhancedContrast && resolvedTheme === "light"
+            ? "logo-enhanced-contrast"
+            : ""
+        }`}
         priority
         quality={100}
         unoptimized={size === "sm" || size === "md"}
         style={{
-          objectFit: "contain",
-          objectPosition: "center",
+          ...getLogoStyles(),
+          width: `${width}px`,
+          height: `${height}px`,
         }}
       />
       {showText && (

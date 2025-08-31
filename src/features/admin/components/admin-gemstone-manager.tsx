@@ -5,21 +5,22 @@ import { Plus, Upload } from "lucide-react";
 import { BulkImportModal } from "./bulk-import-modal";
 import type { BulkImportResult } from "../services/gemstone-admin-service";
 import { Button } from "@/shared/components/ui/button";
-import type { DatabaseGemstone } from "@/shared/types";
+import type { GemstoneWithRelations } from "../services/gemstone-admin-service";
 import { GemstoneAdminService } from "../services/gemstone-admin-service";
 import { GemstoneForm } from "./gemstone-form";
 import { GemstoneListOptimized } from "./gemstone-list-optimized";
+import { GemstoneDetailPage } from "./gemstone-detail-page";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
-type ViewMode = "list" | "create" | "edit";
+type ViewMode = "list" | "create" | "edit" | "view";
 
 export function AdminGemstoneManager() {
   const t = useTranslations("admin.gemstoneManagement");
   const tErrors = useTranslations("errors.admin");
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [selectedGemstone, setSelectedGemstone] =
-    useState<DatabaseGemstone | null>(null);
+    useState<GemstoneWithRelations | null>(null);
   const [isBulkImportOpen, setIsBulkImportOpen] = useState(false);
 
   const handleCreateNew = () => {
@@ -27,17 +28,17 @@ export function AdminGemstoneManager() {
     setViewMode("create");
   };
 
-  const handleEdit = (gemstone: DatabaseGemstone) => {
+  const handleEdit = (gemstone: GemstoneWithRelations) => {
     setSelectedGemstone(gemstone);
     setViewMode("edit");
   };
 
-  const handleView = (gemstone: DatabaseGemstone) => {
-    // TODO: Implement view mode
-    console.log(t("viewGemstone", { gemstone: gemstone.serial_number }));
+  const handleView = (gemstone: GemstoneWithRelations) => {
+    setSelectedGemstone(gemstone);
+    setViewMode("view");
   };
 
-  const handleDelete = async (gemstone: DatabaseGemstone) => {
+  const handleDelete = async (gemstone: GemstoneWithRelations) => {
     if (
       confirm(t("deleteConfirmation", { serialNumber: gemstone.serial_number }))
     ) {
@@ -51,7 +52,7 @@ export function AdminGemstoneManager() {
     }
   };
 
-  const handleFormSuccess = (gemstone: DatabaseGemstone) => {
+  const handleFormSuccess = (gemstone: GemstoneWithRelations) => {
     setViewMode("list");
     setSelectedGemstone(null);
     // The optimized list component will handle refreshing automatically
@@ -86,10 +87,10 @@ export function AdminGemstoneManager() {
             onClick={() => setViewMode("list")}
             className="min-h-[44px] self-start"
           >
-            ← Back to List
+            {t("backToList")}
           </Button>
           <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
-            Create New Gemstone
+            {t("createNew")}
           </h2>
         </div>
         <GemstoneForm
@@ -109,10 +110,12 @@ export function AdminGemstoneManager() {
             onClick={() => setViewMode("list")}
             className="min-h-[44px] self-start"
           >
-            ← Back to List
+            {t("backToList")}
           </Button>
           <h2 className="text-2xl sm:text-3xl font-bold text-foreground truncate">
-            Edit Gemstone: {selectedGemstone.serial_number}
+            {t("editGemstone", {
+              serialNumber: selectedGemstone.serial_number,
+            })}
           </h2>
         </div>
         <GemstoneForm
@@ -121,6 +124,16 @@ export function AdminGemstoneManager() {
           onCancel={handleFormCancel}
         />
       </div>
+    );
+  }
+
+  if (viewMode === "view" && selectedGemstone) {
+    return (
+      <GemstoneDetailPage
+        gemstone={selectedGemstone}
+        onBack={() => setViewMode("list")}
+        onEdit={() => setViewMode("edit")}
+      />
     );
   }
 

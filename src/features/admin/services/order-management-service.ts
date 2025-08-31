@@ -10,9 +10,9 @@ import type {
     UpdateOrderStatusResponse
 } from '../types/order-management.types'
 
-import { OrderManagementError } from '../types/order-management.types'
-import { createContextLogger } from '@/shared/utils/logger'
 import { supabase } from '@/lib/supabase'
+import { createContextLogger } from '@/shared/utils/logger'
+import { OrderManagementError } from '../types/order-management.types'
 
 export class OrderManagementService {
   private supabase = supabase
@@ -33,29 +33,10 @@ export class OrderManagementService {
 
       const offset = (page - 1) * limit
 
-      // Build the query
+      // Build the query using the orders_with_details view
       let query = this.supabase
-        .from('orders')
-        .select(`
-          *,
-          user:user_profiles!user_id (
-            id,
-            name,
-            email
-          ),
-          order_items (
-            *,
-            gemstones (
-              id,
-              name,
-              color,
-              cut,
-              weight_carats,
-              serial_number,
-              in_stock
-            )
-          )
-        `, { count: 'exact' })
+        .from('orders_with_details')
+        .select('*', { count: 'exact' })
 
       // Apply filters
       if (filters.status && filters.status.length > 0) {
@@ -87,8 +68,8 @@ export class OrderManagementService {
       }
 
       if (filters.search) {
-        // Search in order ID or user name
-        query = query.or(`id.ilike.%${filters.search}%,user.name.ilike.%${filters.search}%`)
+        // Search in order ID only since we removed user join
+        query = query.ilike('id', `%${filters.search}%`)
       }
 
       // Apply sorting
@@ -98,7 +79,7 @@ export class OrderManagementService {
       // Apply pagination
       query = query.range(offset, offset + limit - 1)
 
-      const { data: orders, error, count } = await query
+      const { data: rawOrders, error, count } = await query
 
       if (error) {
         this.logger.error('Failed to fetch orders', error, { request })
@@ -107,6 +88,101 @@ export class OrderManagementService {
 
       const total = count || 0
       const hasMore = total > offset + limit
+
+      // Group the flattened data back into orders with items
+      const orderMap = new Map<string, AdminOrder>()
+      
+      for (const row of rawOrders || []) {
+        const orderId = row.order_id
+        
+        if (!orderId) continue // Skip rows without order_id
+        
+        if (!orderMap.has(orderId)) {
+          // Create new order
+          orderMap.set(orderId, {
+            id: orderId,
+            user_id: row.user_id || '',
+            status: row.status || 'pending',
+            total_amount: row.total_amount || 0,
+            currency_code: row.currency_code || 'USD',
+            notes: row.notes || '',
+            created_at: row.created_at || new Date().toISOString(),
+            updated_at: row.updated_at || new Date().toISOString(),
+            user: {
+              id: row.user_id || '',
+              name: row.user_name || '',
+              email: row.user_phone || '' // Using phone as email since view doesn't have email
+            },
+            items: []
+          })
+        }
+        
+        const order = orderMap.get(orderId)!
+        
+        // Add order item if it exists
+        if (row.order_item_id && row.gemstone_id) {
+          order.items.push({
+            id: row.order_item_id,
+            order_id: orderId,
+            gemstone_id: row.gemstone_id,
+            quantity: row.quantity || 1,
+            unit_price: row.unit_price || 0,
+            line_total: row.line_total || 0,
+            gemstone: {
+              id: row.gemstone_id,
+              name: row.gemstone_name || '',
+              color: row.gemstone_color || '',
+              cut: row.gemstone_cut || '',
+              weight_carats: row.weight_carats || 0,
+              serial_number: row.serial_number || '',
+              in_stock: row.in_stock || false,
+              images: [] // Will be populated later
+            }
+          })
+        }
+      }
+
+      const orders = Array.from(orderMap.values())
+
+      // Fetch images for all gemstones in the orders
+      const gemstoneIds = orders.flatMap(order => 
+        order.items.map(item => item.gemstone?.id).filter((id): id is string => Boolean(id))
+      )
+      
+      if (gemstoneIds.length > 0) {
+        const { data: imagesData, error: imagesError } = await this.supabase
+          .from('gemstone_images')
+          .select('id, gemstone_id, image_url, image_order, is_primary')
+          .in('gemstone_id', gemstoneIds)
+          .order('image_order')
+        
+        if (imagesError) {
+          this.logger.error('Failed to fetch gemstone images', imagesError)
+        } else if (imagesData) {
+          // Group images by gemstone_id
+          const imagesByGemstone = imagesData.reduce((acc, img) => {
+            if (!acc[img.gemstone_id]) {
+              acc[img.gemstone_id] = []
+            }
+            acc[img.gemstone_id].push({
+              id: img.id,
+              image_url: img.image_url,
+              image_order: img.image_order,
+              is_primary: img.is_primary || false
+            })
+            return acc
+          }, {} as Record<string, Array<{ id: string; image_url: string; image_order: number; is_primary: boolean }>>)
+          
+          // Attach images to gemstones
+          orders.forEach(order => {
+            order.items.forEach(item => {
+              if (item.gemstone && item.gemstone.id in imagesByGemstone) {
+                item.gemstone.images = imagesByGemstone[item.gemstone.id]
+              }
+            })
+          })
+        }
+      }
 
       this.logger.info('Orders fetched successfully', {
         total,
@@ -118,7 +194,7 @@ export class OrderManagementService {
 
       return {
         success: true,
-        orders: (orders as unknown as AdminOrder[]) || [],
+        orders,
         total,
         page,
         limit,
@@ -188,7 +264,7 @@ export class OrderManagementService {
         .eq('id', order_id)
         .select(`
           *,
-          user:user_profiles!user_id (
+          user:user_profiles (
             id,
             name,
             email

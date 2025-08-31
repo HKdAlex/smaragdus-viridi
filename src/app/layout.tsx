@@ -5,7 +5,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { AuthProvider } from "@/features/auth/context/auth-context";
 import type { Metadata } from "next";
 import { ThemeProvider } from "@/shared/context/theme-context";
-import { getTranslations } from "next-intl/server";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,15 +16,13 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("common.metadata");
-
-  return {
-    title: t("title"),
-    description: t("description"),
-    keywords: t("keywords"),
-  };
-}
+export const metadata: Metadata = {
+  title: "Smaragdus Viridi - Premium Gemstones",
+  description:
+    "Discover and purchase premium gemstones including diamonds, rubies, sapphires, and emeralds. Professional gemstone marketplace with expert certification.",
+  keywords:
+    "gemstones, diamonds, rubies, sapphires, emeralds, jewelry, precious stones, certified gemstones",
+};
 
 // Theme initialization script to prevent flash
 // Alternative approaches considered:

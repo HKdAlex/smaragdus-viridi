@@ -1,12 +1,10 @@
 // ===== TYPES =====
 export type {
-    DatabaseChatMessage,
     ChatConfig,
     ChatConversation,
     ChatError,
     ChatInputProps,
-    ChatInterfaceProps, ChatMessage, ChatMessageProps,
-    DEFAULT_CHAT_CONFIG,
+    ChatInterfaceProps, ChatMessage, ChatMessageProps, DatabaseChatMessage, DEFAULT_CHAT_CONFIG,
     FileUploadProps,
     GetConversationsResponse,
     GetMessagesResponse,

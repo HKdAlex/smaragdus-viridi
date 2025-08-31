@@ -3,7 +3,6 @@
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
-import type { DatabaseGemstone } from "@/shared/types";
 import { Edit, FileText, Gem, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
@@ -21,9 +20,9 @@ import { GemstoneDetailView } from "./gemstone-detail-view";
 
 interface GemstoneListOptimizedProps {
   onCreateNew?: () => void;
-  onEdit?: (gemstone: DatabaseGemstone) => void;
-  onView?: (gemstone: DatabaseGemstone) => void;
-  onDelete?: (gemstone: DatabaseGemstone) => void;
+  onEdit?: (gemstone: GemstoneWithRelations) => void;
+  onView?: (gemstone: GemstoneWithRelations) => void;
+  onDelete?: (gemstone: GemstoneWithRelations) => void;
 }
 
 interface PaginatedGemstones {
@@ -72,7 +71,7 @@ export function GemstoneListOptimized({
   const [exporting, setExporting] = useState(false);
   const [detailViewOpen, setDetailViewOpen] = useState(false);
   const [selectedGemstoneForView, setSelectedGemstoneForView] =
-    useState<DatabaseGemstone | null>(null);
+    useState<GemstoneWithRelations | null>(null);
   const [searchFilters, setSearchFilters] = useState<SearchFilters>({
     query: "",
     sortBy: "created_at",
@@ -262,7 +261,7 @@ export function GemstoneListOptimized({
   }, []);
 
   // Detail view
-  const handleViewDetail = useCallback((gemstone: DatabaseGemstone) => {
+  const handleViewDetail = useCallback((gemstone: GemstoneWithRelations) => {
     setSelectedGemstoneForView(gemstone);
     setDetailViewOpen(true);
   }, []);
@@ -274,7 +273,7 @@ export function GemstoneListOptimized({
 
   // Individual operations
   const handleDuplicate = useCallback(
-    async (gemstone: DatabaseGemstone) => {
+    async (gemstone: GemstoneWithRelations) => {
       try {
         const formData = {
           serial_number: `${gemstone.serial_number}_copy_${Date.now()}`,
@@ -321,7 +320,7 @@ export function GemstoneListOptimized({
   );
 
   const handleArchive = useCallback(
-    async (gemstone: DatabaseGemstone) => {
+    async (gemstone: GemstoneWithRelations) => {
       try {
         const result = await GemstoneAdminService.updateGemstone(gemstone.id, {
           in_stock: false,
@@ -347,7 +346,7 @@ export function GemstoneListOptimized({
   );
 
   const handleRestore = useCallback(
-    async (gemstone: DatabaseGemstone) => {
+    async (gemstone: GemstoneWithRelations) => {
       try {
         const result = await GemstoneAdminService.updateGemstone(gemstone.id, {
           in_stock: true,
@@ -373,7 +372,7 @@ export function GemstoneListOptimized({
   );
 
   // Export operations
-  const handleExportSingle = useCallback(async (gemstone: DatabaseGemstone) => {
+  const handleExportSingle = useCallback(async (gemstone: GemstoneWithRelations) => {
     await handleExport("csv", false, [gemstone.id]);
   }, []);
 
@@ -510,15 +509,6 @@ export function GemstoneListOptimized({
         </div>
       )}
 
-      {/* Create New Button */}
-      <div className="flex justify-between items-center">
-        <div></div>
-        <Button onClick={onCreateNew} className="flex items-center gap-2">
-          <Plus className="w-4 h-4" />
-          {t("addGemstone")}
-        </Button>
-      </div>
-
       {/* Results Summary */}
       <div className="flex items-center justify-between text-sm text-muted-foreground">
         <span>
@@ -528,6 +518,7 @@ export function GemstoneListOptimized({
                 total: pagination.totalItems,
                 currentPage: pagination.page,
                 totalPages: pagination.totalPages,
+                searchTerm: searchFilters.query || "",
               })
             : t("loading")}
         </span>
@@ -600,9 +591,10 @@ export function GemstoneListOptimized({
                   {gemstones.map((gemstone) => (
                     <tr
                       key={gemstone.id}
-                      className="hover:bg-muted/30 transition-colors"
+                      className="hover:bg-muted/30 transition-colors cursor-pointer"
+                      onClick={() => onView?.(gemstone)}
                     >
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
                         <input
                           type="checkbox"
                           checked={selectedGemstones.has(gemstone.id)}
@@ -713,7 +705,7 @@ export function GemstoneListOptimized({
                           )}
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-right">
+                      <td className="px-6 py-4 text-right" onClick={(e) => e.stopPropagation()}>
                         <GemstoneActionsMenu
                           gemstone={gemstone}
                           onView={handleViewDetail}

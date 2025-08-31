@@ -257,8 +257,9 @@ export function PreferencesProvider({
 
 export function usePreferences(): PreferencesContextType {
   const context = useContext(PreferencesContext);
+  const t = useTranslations("errors.preferences");
+  
   if (context === undefined) {
-    const t = useTranslations("errors.preferences");
     throw new Error(t("contextError"));
   }
   return context;

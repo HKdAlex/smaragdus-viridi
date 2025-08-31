@@ -1,13 +1,11 @@
 "use client";
 
-import {
-  removeFromCart,
-  updateCartItemQuantity,
-} from "../services/cart-service";
-
 import { Button } from "@/shared/components/ui/button";
 import type { CartItem as CartItemType } from "@/shared/types";
 import Image from "next/image";
+import {
+  removeFromCart,
+} from "../services/cart-service";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
@@ -15,7 +13,6 @@ interface CartItemProps {
   item: CartItemType;
   isSelected: boolean;
   onSelectionChange: (itemId: string, selected: boolean) => void;
-  onQuantityChange: (itemId: string, quantity: number) => void;
   onRemove: (itemId: string) => void;
 }
 
@@ -23,11 +20,9 @@ export function CartItem({
   item,
   isSelected,
   onSelectionChange,
-  onQuantityChange,
   onRemove,
 }: CartItemProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
   const [isRemoving, setIsRemoving] = useState(false);
   const t = useTranslations("cart.items");
 
@@ -35,18 +30,7 @@ export function CartItem({
     onSelectionChange(item.id, e.target.checked);
   };
 
-  const handleQuantityChange = async (newQuantity: number) => {
-    if (newQuantity < 1) return;
 
-    setIsUpdating(true);
-    const success = await updateCartItemQuantity(item.id, newQuantity);
-
-    if (success) {
-      onQuantityChange(item.id, newQuantity);
-    }
-    // Could show a toast notification here
-    setIsUpdating(false);
-  };
 
   const handleRemove = async () => {
     setIsRemoving(true);
@@ -72,7 +56,8 @@ export function CartItem({
 
   const gemstone = item.gemstone as any; // Temporary type assertion
   const primaryImage =
-    gemstone.images?.find((img: any) => img.is_primary) || gemstone.images?.[0];
+    gemstone.gemstone_images?.find((img: any) => img.is_primary) ||
+    gemstone.gemstone_images?.[0];
 
   // Type guard to ensure gemstone has required properties
   if (!gemstone.name) {
@@ -147,7 +132,7 @@ export function CartItem({
             variant="ghost"
             size="sm"
             onClick={handleRemove}
-            disabled={isLoading || isRemoving || isUpdating}
+            disabled={isLoading || isRemoving}
             className="text-muted-foreground hover:text-destructive p-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
             aria-label={t("removeFromCart", { name: gemstone.name })}
           >
@@ -172,43 +157,11 @@ export function CartItem({
         </div>
       </div>
 
-      {/* Quantity and Actions */}
+      {/* Price Display */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center space-x-3">
-          <label className="text-sm font-medium text-foreground min-w-[60px]">
-            {t("quantity")}:
-          </label>
-          <div className="flex items-center border border-border rounded-md bg-background">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => handleQuantityChange(item.quantity - 1)}
-              disabled={isLoading || isUpdating || item.quantity <= 1}
-              className="px-3 py-2 text-muted-foreground hover:text-foreground min-h-[44px] min-w-[44px] flex items-center justify-center"
-            >
-              -
-            </Button>
-            <span className="px-4 py-2 text-sm font-medium text-foreground min-w-[3rem] text-center">
-              {item.quantity}
-            </span>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => handleQuantityChange(item.quantity + 1)}
-              disabled={isLoading || isUpdating}
-              className="px-3 py-2 text-muted-foreground hover:text-foreground min-h-[44px] min-w-[44px] flex items-center justify-center"
-            >
-              +
-            </Button>
-          </div>
-        </div>
-
         <div className="text-left sm:text-right">
-          <p className="text-xs sm:text-sm text-muted-foreground">
-            {t("price")}: {item.formatted_unit_price}
-          </p>
           <p className="text-base sm:text-lg font-semibold text-foreground">
-            {t("total")}: {item.formatted_line_total}
+            {t("price")}: {item.formatted_unit_price}
           </p>
         </div>
       </div>

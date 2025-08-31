@@ -206,7 +206,7 @@ export function GemstoneForm({
         gemstone?.id // Exclude current gemstone when editing
       );
       if (exists) {
-        setErrors({ serial_number: "Serial number already exists" });
+        setErrors({ serial_number: t("errors.serialNumberExists") });
         return false;
       }
     }
@@ -251,10 +251,10 @@ export function GemstoneForm({
           router.push(`/admin/gemstones/${result.data.id}/edit`);
         }
       } else {
-        setErrors({ submit: result.error || "An error occurred" });
+        setErrors({ submit: result.error || t("errors.generalError") });
       }
     } catch (error) {
-      setErrors({ submit: "An unexpected error occurred" });
+      setErrors({ submit: t("errors.unexpectedError") });
     } finally {
       setIsLoading(false);
     }
@@ -273,7 +273,7 @@ export function GemstoneForm({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Gem className="w-5 h-5" />
-          {gemstone ? "Edit Gemstone" : "Create New Gemstone"}
+          {gemstone ? t("editTitle") : t("createTitle")}
         </CardTitle>
       </CardHeader>
 
@@ -293,7 +293,7 @@ export function GemstoneForm({
                 htmlFor="serial_number"
                 className="text-sm font-medium text-foreground"
               >
-                Serial Number *
+                {t("labels.serialNumber")}
               </label>
               <Input
                 id="serial_number"
@@ -314,7 +314,7 @@ export function GemstoneForm({
                 htmlFor="internal_code"
                 className="text-sm font-medium text-foreground"
               >
-                Internal Code
+                {t("labels.internalCode")}
               </label>
               <Input
                 id="internal_code"
@@ -331,7 +331,7 @@ export function GemstoneForm({
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground">
-                Type *
+                {t("labels.type")}
               </label>
               <Select
                 value={formData.name}
@@ -355,7 +355,7 @@ export function GemstoneForm({
 
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground">
-                Color *
+                {t("labels.color")}
               </label>
               <Select
                 value={formData.color}
@@ -379,7 +379,7 @@ export function GemstoneForm({
 
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground">
-                Cut *
+                {t("labels.cut")}
               </label>
               <Select
                 value={formData.cut}
@@ -403,7 +403,7 @@ export function GemstoneForm({
 
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground">
-                Clarity *
+                {t("labels.clarity")}
               </label>
               <Select
                 value={formData.clarity}
@@ -431,7 +431,7 @@ export function GemstoneForm({
           {/* Dimensions and Weight */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="space-y-2">
-              <label htmlFor="weight">Weight (carats) *</label>
+              <label htmlFor="weight">{t("labels.weight")}</label>
               <Input
                 id="weight"
                 type="number"
@@ -452,7 +452,7 @@ export function GemstoneForm({
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="length">Length (mm)</label>
+              <label htmlFor="length">{t("labels.length")}</label>
               <Input
                 id="length"
                 type="number"
@@ -469,7 +469,7 @@ export function GemstoneForm({
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="width">Width (mm)</label>
+              <label htmlFor="width">{t("labels.width")}</label>
               <Input
                 id="width"
                 type="number"
@@ -483,7 +483,7 @@ export function GemstoneForm({
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="depth">Depth (mm)</label>
+              <label htmlFor="depth">{t("labels.depth")}</label>
               <Input
                 id="depth"
                 type="number"
@@ -500,7 +500,7 @@ export function GemstoneForm({
           {/* Origin */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">
-              Origin
+              {t("labels.origin")}
             </label>
             <Select
               value={formData.origin_id || ""}
@@ -525,7 +525,7 @@ export function GemstoneForm({
           {/* Pricing */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label htmlFor="price">Regular Price *</label>
+              <label htmlFor="price">{t("labels.regularPrice")}</label>
               <div className="flex gap-2">
                 <Select
                   value={formData.price_currency}
@@ -568,7 +568,7 @@ export function GemstoneForm({
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="premium_price">Premium Price</label>
+              <label htmlFor="premium_price">{t("labels.premiumPrice")}</label>
               <div className="flex gap-2">
                 <Select
                   value={
@@ -624,11 +624,11 @@ export function GemstoneForm({
                   handleInputChange("in_stock", checked)
                 }
               />
-              <label htmlFor="in_stock">In Stock</label>
+              <label htmlFor="in_stock">{t("labels.inStock")}</label>
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="delivery_days">Delivery Days</label>
+              <label htmlFor="delivery_days">{t("labels.deliveryDays")}</label>
               <Input
                 id="delivery_days"
                 type="number"
@@ -645,7 +645,7 @@ export function GemstoneForm({
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="total_price">Total Price</label>
+              <label htmlFor="total_price">{t("labels.totalPrice")}</label>
               <div className="text-lg font-semibold text-green-600">
                 {formData.price_amount
                   ? new Intl.NumberFormat("en-US", {
@@ -659,7 +659,7 @@ export function GemstoneForm({
 
           {/* Description */}
           <div className="space-y-2">
-            <label htmlFor="description">Description</label>
+            <label htmlFor="description">{t("labels.description")}</label>
             <Textarea
               id="description"
               value={formData.description || ""}
@@ -671,7 +671,7 @@ export function GemstoneForm({
 
           {/* Promotional Text */}
           <div className="space-y-2">
-            <label htmlFor="promotional_text">Promotional Text</label>
+            <label htmlFor="promotional_text">{t("labels.promotionalText")}</label>
             <Textarea
               id="promotional_text"
               value={formData.promotional_text || ""}
@@ -686,7 +686,7 @@ export function GemstoneForm({
           {/* Marketing Highlights */}
           <div className="space-y-4">
             <label className="text-sm font-medium text-foreground">
-              Marketing Highlights
+              {t("labels.marketingHighlights")}
             </label>
             <div className="flex gap-2">
               <Input
@@ -698,13 +698,14 @@ export function GemstoneForm({
                   (e.preventDefault(), addMarketingHighlight())
                 }
               />
-              <Button
-                type="button"
-                onClick={addMarketingHighlight}
-                variant="outline"
-              >
-                <Plus className="w-4 h-4" />
-              </Button>
+                              <Button
+                  type="button"
+                  onClick={addMarketingHighlight}
+                  variant="outline"
+                >
+                  <Plus className="w-4 h-4" />
+                  {t("actions.addHighlight")}
+                </Button>
             </div>
 
             {marketingHighlights.length > 0 && (
@@ -738,7 +739,7 @@ export function GemstoneForm({
               disabled={isLoading}
             >
               <X className="w-4 h-4 mr-2" />
-              Cancel
+              {t("actions.cancel")}
             </Button>
             <Button type="submit" disabled={isLoading}>
               {isLoading ? (
@@ -746,7 +747,7 @@ export function GemstoneForm({
               ) : (
                 <Save className="w-4 h-4 mr-2" />
               )}
-              {gemstone ? "Update Gemstone" : "Create Gemstone"}
+              {gemstone ? t("actions.update") : t("actions.create")}
             </Button>
           </div>
         </form>

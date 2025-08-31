@@ -10,6 +10,40 @@
     "activeUsers": "Active Users",
     "totalOrders": "Total Orders",
     "revenue": "Revenue",
+    "overview": {
+      "title": "Dashboard Overview",
+      "description": "Monitor your gemstone business performance and manage operations"
+    },
+    "stats": {
+      "totalGemstones": "Total Gemstones",
+      "activeUsers": "Active Users",
+      "revenue": "Revenue",
+      "orders": "Orders",
+      "loading": "Loading...",
+      "fromLastMonth": "from last month",
+      "loadError": "Failed to load dashboard statistics",
+      "loadErrorTitle": "Failed to Load Statistics",
+      "retry": "Retry"
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "uploadGemstones": "Upload Gemstones",
+      "uploadGemstonesDesc": "Add new stones to catalog",
+      "editPrices": "Edit Prices",
+      "editPricesDesc": "Update pricing across catalog",
+      "userManagement": "User Management",
+      "userManagementDesc": "Manage user roles and access"
+    },
+    "recentActivity": {
+      "title": "Recent Activity",
+      "newGemstoneAdded": "New gemstone added to catalog",
+      "twoHoursAgo": "2 hours ago",
+      "userPromoted": "User promoted to admin",
+      "fiveHoursAgo": "5 hours ago",
+      "priceUpdateApplied": "Price update applied to {count} gemstones",
+      "oneDayAgo": "1 day ago"
+    }
+  },
   "orders": {
     "title": "Order Management",
     "search": "Search orders...",
@@ -60,41 +94,16 @@
     "orderDate": "Order Date",
     "lastUpdated": "Last Updated",
     "showingOrders": "Showing {count} orders",
-    "clearSearch": "Clear search"
-  },
-    "overview": {
-      "title": "Dashboard Overview",
-      "description": "Monitor your gemstone business performance and manage operations"
-    },
-    "stats": {
-      "totalGemstones": "Total Gemstones",
-      "activeUsers": "Active Users",
-      "revenue": "Revenue",
-      "orders": "Orders",
-      "loading": "Loading...",
-      "fromLastMonth": "from last month",
-      "loadError": "Failed to load dashboard statistics",
-      "loadErrorTitle": "Failed to Load Statistics",
-      "retry": "Retry"
-    },
-    "quickActions": {
-      "title": "Quick Actions",
-      "uploadGemstones": "Upload Gemstones",
-      "uploadGemstonesDesc": "Add new stones to catalog",
-      "editPrices": "Edit Prices",
-      "editPricesDesc": "Update pricing across catalog",
-      "userManagement": "User Management",
-      "userManagementDesc": "Manage user roles and access"
-    },
-    "recentActivity": {
-      "title": "Recent Activity",
-      "newGemstoneAdded": "New gemstone added to catalog",
-      "twoHoursAgo": "2 hours ago",
-      "userPromoted": "User promoted to admin",
-      "fiveHoursAgo": "5 hours ago",
-      "priceUpdateApplied": "Price update applied to {count} gemstones",
-      "oneDayAgo": "1 day ago"
-    }
+    "clearSearch": "Clear search",
+    "currentStatus": "Current Status",
+    "updateStatusDescription": "Update order progress for {status}",
+    "selectNewStatus": "Select new status",
+    "addNotes": "Add notes (optional)",
+    "lastUpdated": "Last updated",
+    "amount": "Amount",
+    "method": "Method",
+    "simulatedPayment": "Simulated Payment",
+    "inThisOrder": "in this order"
   },
   "header": {
     "title": "Admin Dashboard",
@@ -103,6 +112,7 @@
   },
   "tabs": {
     "dashboard": "Overview and key metrics",
+    "orders": "Manage customer orders and fulfillment",
     "gemstones": "Manage gemstone catalog and inventory",
     "pricing": "Pricing analytics and inventory management",
     "users": "User management and permissions",
@@ -318,8 +328,6 @@
       "origin": "Origin",
       "stockStatus": "Stock Status"
     },
-    "inStock": "In Stock",
-    "outOfStock": "Out of Stock",
     "searchNamePlaceholder": "Enter a name for this search",
     "cancel": "Cancel",
     "confirm": "Confirm",
@@ -449,7 +457,12 @@
     "averagePrice": "Average Price",
     "highestPrice": "Highest Price",
     "currencies": "Currencies",
-    "recentChanges": "Recent Changes"
+    "recentChanges": "Recent Changes",
+    "enterPercentageOrAmount": "Please enter either a percentage or fixed amount",
+    "provideReasonForUpdate": "Please provide a reason for the price update",
+    "bulkUpdateSuccess": "Updated {updated} gemstones, {failed} failed",
+    "bulkUpdateFailed": "Bulk update failed: {error}",
+    "unexpectedError": "An unexpected error occurred during bulk update"
   },
   "bulkImport": {
     "title": "Bulk Import Gemstones",
@@ -597,6 +610,9 @@
     "configure": "Configure"
   },
   "gemstoneForm": {
+    "title": "Gemstone Form",
+    "editTitle": "Edit Gemstone",
+    "createTitle": "Create New Gemstone",
     "serialNumberPlaceholder": "e.g., DIA-2025-001",
     "internalCodePlaceholder": "e.g., INV-001",
     "selectOriginPlaceholder": "Select origin (optional)",
@@ -605,7 +621,55 @@
     "deliveryDaysPlaceholder": "e.g., 7",
     "descriptionPlaceholder": "Detailed description of the gemstone...",
     "promotionalTextPlaceholder": "Special promotional content or highlights...",
-    "marketingHighlightPlaceholder": "Add a marketing highlight..."
+    "marketingHighlightPlaceholder": "Add a marketing highlight...",
+    "labels": {
+      "serialNumber": "Serial Number *",
+      "internalCode": "Internal Code",
+      "type": "Type *",
+      "color": "Color *",
+      "cut": "Cut *",
+      "clarity": "Clarity *",
+      "weight": "Weight (carats) *",
+      "length": "Length (mm)",
+      "width": "Width (mm)",
+      "depth": "Depth (mm)",
+      "origin": "Origin",
+      "regularPrice": "Regular Price *",
+      "premiumPrice": "Premium Price",
+      "inStock": "In Stock",
+      "deliveryDays": "Delivery Days",
+      "totalPrice": "Total Price",
+      "description": "Description",
+      "promotionalText": "Promotional Text",
+      "marketingHighlights": "Marketing Highlights"
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "create": "Create Gemstone",
+      "update": "Update Gemstone",
+      "addHighlight": "Add"
+    },
+    "errors": {
+      "serialNumberExists": "Serial number already exists",
+      "unexpectedError": "An unexpected error occurred",
+      "generalError": "An error occurred"
+    }
+  },
+  "gemstoneDetail": {
+    "title": "Gemstone Details",
+    "backToList": "Back to List",
+    "editGemstone": "Edit Gemstone",
+    "gemstoneImage": "Gemstone Image",
+    "gemstoneDetails": "Gemstone Details",
+    "statusAndPricing": "Status & Pricing",
+    "additionalInfo": "Additional Information",
+    "status": "Status",
+    "inStock": "In Stock",
+    "outOfStock": "Out of Stock",
+    "dimensions": "Dimensions",
+    "createdAt": "Created At",
+    "updatedAt": "Updated At",
+    "notAvailable": "Not Available"
   },
   "gemstoneManagement": {
     "title": "Gemstone Management",
@@ -641,15 +705,6 @@
     "outOfStock": "Out of Stock ({count})",
     "selectGemstonesToUpdate": "Please select gemstones to update",
     "provideReasonForUpdate": "Please provide a reason for the inventory update",
-    "bulkUpdateSuccess": "Updated {updated} gemstones, {failed} failed",
-    "bulkUpdateFailed": "Bulk update failed: {error}",
-    "unexpectedError": "An unexpected error occurred during bulk update"
-  },
-  "priceAnalytics": {
-    "title": "Price Analytics",
-    "description": "Analyze and update gemstone pricing",
-    "enterPercentageOrAmount": "Please enter either a percentage or fixed amount",
-    "provideReasonForUpdate": "Please provide a reason for the price update",
     "bulkUpdateSuccess": "Updated {updated} gemstones, {failed} failed",
     "bulkUpdateFailed": "Bulk update failed: {error}",
     "unexpectedError": "An unexpected error occurred during bulk update"

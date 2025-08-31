@@ -41,6 +41,12 @@ export interface AdminOrderItem extends DatabaseOrderItem {
     weight_carats: number
     serial_number: string
     in_stock: boolean
+    images?: Array<{
+      id: string
+      image_url: string
+      image_order: number
+      is_primary: boolean
+    }>
   }
 }
 

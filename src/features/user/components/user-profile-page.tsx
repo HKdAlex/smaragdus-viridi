@@ -162,139 +162,147 @@ export function UserProfilePage({
 
         {/* Main Content Tabs */}
         <div className="space-y-6">
-        <Tabs defaultValue="overview">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="orders">Order History</TabsTrigger>
-            <TabsTrigger value="activity">Activity</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
-          </TabsList>
+          <Tabs defaultValue="overview">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="orders">Order History</TabsTrigger>
+              <TabsTrigger value="activity">Activity</TabsTrigger>
+              <TabsTrigger value="settings">Settings</TabsTrigger>
+            </TabsList>
 
-          {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Profile Information */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <User className="w-5 h-5 mr-2" />
-                    Profile Information
-                  </CardTitle>
-                  <CardDescription>
-                    Your personal information and preferences
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center space-x-3">
-                    <User className="w-4 h-4 text-muted-foreground" />
-                    <div>
-                      <p className="font-medium">{user.name}</p>
-                      <p className="text-sm text-muted-foreground">Full Name</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center space-x-3">
-                    <Mail className="w-4 h-4 text-muted-foreground" />
-                    <div>
-                      <p className="font-medium">{user.email}</p>
-                      <p className="text-sm text-muted-foreground">
-                        Email Address
-                      </p>
-                    </div>
-                  </div>
-
-                  {user.phone && (
+            {/* Overview Tab */}
+            <TabsContent value="overview" className="space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Profile Information */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <User className="w-5 h-5 mr-2" />
+                      Profile Information
+                    </CardTitle>
+                    <CardDescription>
+                      Your personal information and preferences
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
                     <div className="flex items-center space-x-3">
-                      <Phone className="w-4 h-4 text-muted-foreground" />
+                      <User className="w-4 h-4 text-muted-foreground" />
                       <div>
-                        <p className="font-medium">{user.phone}</p>
+                        <p className="font-medium">{user.name}</p>
                         <p className="text-sm text-muted-foreground">
-                          Phone Number
+                          Full Name
                         </p>
                       </div>
                     </div>
-                  )}
 
-                  <div className="flex items-center space-x-3">
-                    <Calendar className="w-4 h-4 text-muted-foreground" />
-                    <div>
-                      <p className="font-medium">
-                        Member since{" "}
-                        {new Date(user.created_at).toLocaleDateString()}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Account Created
-                      </p>
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium">Preferences</p>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="flex items-center space-x-3">
+                      <Mail className="w-4 h-4 text-muted-foreground" />
                       <div>
-                        <span className="text-muted-foreground">Currency:</span>
-                        <span className="ml-2 font-medium">
-                          {user.preferred_currency}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Language:</span>
-                        <span className="ml-2 font-medium">
-                          {user.language_preference === "en"
-                            ? "English"
-                            : "Русский"}
-                        </span>
+                        <p className="font-medium">{user.email}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Email Address
+                        </p>
                       </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
 
-              {/* Recent Orders */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Package className="w-5 h-5 mr-2" />
-                    Recent Orders
-                  </CardTitle>
-                  <CardDescription>Your latest order activity</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center py-8">
-                    <Package className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                    <p className="text-muted-foreground">
-                      Order history will appear here
-                    </p>
-                    <Button variant="outline" className="mt-4" asChild>
-                      <a href="#orders">View All Orders</a>
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
+                    {user.phone && (
+                      <div className="flex items-center space-x-3">
+                        <Phone className="w-4 h-4 text-muted-foreground" />
+                        <div>
+                          <p className="font-medium">{user.phone}</p>
+                          <p className="text-sm text-muted-foreground">
+                            Phone Number
+                          </p>
+                        </div>
+                      </div>
+                    )}
 
-          {/* Order History Tab */}
-          <TabsContent value="orders">
-            <OrderHistory />
-          </TabsContent>
+                    <div className="flex items-center space-x-3">
+                      <Calendar className="w-4 h-4 text-muted-foreground" />
+                      <div>
+                        <p className="font-medium">
+                          Member since{" "}
+                          {new Date(user.created_at).toLocaleDateString()}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Account Created
+                        </p>
+                      </div>
+                    </div>
 
-          {/* Activity Tab */}
-          <TabsContent value="activity">
-            <ActivityFeed />
-          </TabsContent>
+                    <Separator />
 
-          {/* Settings Tab */}
-          <TabsContent value="settings">
-            <ProfileSettings
-              user={user}
-              onUpdateProfile={onUpdateProfile}
-              onChangePassword={onChangePassword}
-            />
-          </TabsContent>
-        </Tabs>
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium">Preferences</p>
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="text-muted-foreground">
+                            Currency:
+                          </span>
+                          <span className="ml-2 font-medium">
+                            {user.preferred_currency}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">
+                            Language:
+                          </span>
+                          <span className="ml-2 font-medium">
+                            {user.language_preference === "en"
+                              ? "English"
+                              : "Русский"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Recent Orders */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <Package className="w-5 h-5 mr-2" />
+                      Recent Orders
+                    </CardTitle>
+                    <CardDescription>
+                      Your latest order activity
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center py-8">
+                      <Package className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                      <p className="text-muted-foreground">
+                        Order history will appear here
+                      </p>
+                      <Button variant="outline" className="mt-4" asChild>
+                        <a href="#orders">View All Orders</a>
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            {/* Order History Tab */}
+            <TabsContent value="orders">
+              <OrderHistory />
+            </TabsContent>
+
+            {/* Activity Tab */}
+            <TabsContent value="activity">
+              <ActivityFeed />
+            </TabsContent>
+
+            {/* Settings Tab */}
+            <TabsContent value="settings">
+              <ProfileSettings
+                user={user}
+                onUpdateProfile={onUpdateProfile}
+                onChangePassword={onChangePassword}
+              />
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </div>

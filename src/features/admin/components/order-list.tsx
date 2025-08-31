@@ -1,11 +1,23 @@
 "use client";
 
 import {
+  ArrowUpDown,
+  Eye,
+  MoreHorizontal,
+  Package,
+  Search,
+  X,
+} from "lucide-react";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
+import type {
+  OrderListProps,
+  OrderStatus,
+} from "../types/order-management.types";
 import {
   Select,
   SelectContent,
@@ -21,25 +33,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/shared/components/ui/table";
-import {
-  ArrowUpDown,
-  Eye,
-  MoreHorizontal,
-  Package,
-  Search,
-  X,
-} from "lucide-react";
-import {
-  ORDER_STATUS_CONFIG,
-  type OrderListProps,
-  type OrderStatus,
-} from "../types/order-management.types";
 
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
+import { ORDER_STATUS_CONFIG } from "../types/order-management.types";
 import { format } from "date-fns";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 export function OrderList({
   orders,
@@ -48,6 +49,7 @@ export function OrderList({
   onStatusUpdate,
   selectedOrderId,
 }: OrderListProps) {
+  const t = useTranslations("admin.orders");
   const [sortField, setSortField] = useState<"created_at" | "total_amount">(
     "created_at"
   );
@@ -126,7 +128,7 @@ export function OrderList({
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold">Order Management</h2>
+          <h2 className="text-2xl font-bold">{t("title")}</h2>
         </div>
         <div className="animate-pulse space-y-4">
           {Array.from({ length: 5 }).map((_, i) => (
@@ -141,12 +143,12 @@ export function OrderList({
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Order Management</h2>
+        <h2 className="text-2xl font-bold">{t("title")}</h2>
         <div className="flex items-center space-x-2">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
             <Input
-              placeholder="Search orders..."
+              placeholder={t("search")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9 w-64"
@@ -159,16 +161,24 @@ export function OrderList({
             }
           >
             <SelectTrigger className="w-32">
-              <SelectValue placeholder="Status" />
+              <SelectValue placeholder={t("filterByStatus")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="confirmed">Confirmed</SelectItem>
-              <SelectItem value="processing">Processing</SelectItem>
-              <SelectItem value="shipped">Shipped</SelectItem>
-              <SelectItem value="delivered">Delivered</SelectItem>
-              <SelectItem value="cancelled">Cancelled</SelectItem>
+              <SelectItem value="all">{t("allStatuses")}</SelectItem>
+              <SelectItem value="pending">{t("statuses.pending")}</SelectItem>
+              <SelectItem value="confirmed">
+                {t("statuses.confirmed")}
+              </SelectItem>
+              <SelectItem value="processing">
+                {t("statuses.processing")}
+              </SelectItem>
+              <SelectItem value="shipped">{t("statuses.shipped")}</SelectItem>
+              <SelectItem value="delivered">
+                {t("statuses.delivered")}
+              </SelectItem>
+              <SelectItem value="cancelled">
+                {t("statuses.cancelled")}
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -179,31 +189,31 @@ export function OrderList({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-20">Order ID</TableHead>
-              <TableHead>Customer</TableHead>
+              <TableHead className="w-20">{t("orderId")}</TableHead>
+              <TableHead>{t("customer")}</TableHead>
               <TableHead>
                 <Button
                   variant="ghost"
                   onClick={() => handleSort("created_at")}
                   className="h-auto p-0 font-semibold"
                 >
-                  Date
+                  {t("date")}
                   <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
               </TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Items</TableHead>
+              <TableHead>{t("status")}</TableHead>
+              <TableHead>{t("items")}</TableHead>
               <TableHead>
                 <Button
                   variant="ghost"
                   onClick={() => handleSort("total_amount")}
                   className="h-auto p-0 font-semibold"
                 >
-                  Total
+                  {t("total")}
                   <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
               </TableHead>
-              <TableHead className="w-20">Actions</TableHead>
+              <TableHead className="w-20">{t("actions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -211,7 +221,7 @@ export function OrderList({
               <TableRow>
                 <TableCell colSpan={7} className="text-center py-8">
                   <Package className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">No orders found</p>
+                  <p className="text-muted-foreground">{t("noOrdersFound")}</p>
                 </TableCell>
               </TableRow>
             ) : (
@@ -254,7 +264,7 @@ export function OrderList({
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => onOrderSelect(order)}>
                           <Eye className="mr-2 h-4 w-4" />
-                          View Details
+                          {t("viewDetails")}
                         </DropdownMenuItem>
                         {order.status === "pending" && (
                           <DropdownMenuItem
@@ -262,7 +272,7 @@ export function OrderList({
                               handleStatusUpdate(order.id, "confirmed")
                             }
                           >
-                            Confirm Order
+                            {t("confirmOrder")}
                           </DropdownMenuItem>
                         )}
                         {order.status === "confirmed" && (
@@ -271,7 +281,7 @@ export function OrderList({
                               handleStatusUpdate(order.id, "processing")
                             }
                           >
-                            Start Processing
+                            {t("startProcessing")}
                           </DropdownMenuItem>
                         )}
                         {order.status === "processing" && (
@@ -280,7 +290,7 @@ export function OrderList({
                               handleStatusUpdate(order.id, "shipped")
                             }
                           >
-                            Mark as Shipped
+                            {t("markAsShipped")}
                           </DropdownMenuItem>
                         )}
                         {order.status === "shipped" && (
@@ -289,7 +299,7 @@ export function OrderList({
                               handleStatusUpdate(order.id, "delivered")
                             }
                           >
-                            Mark as Delivered
+                            {t("markAsDelivered")}
                           </DropdownMenuItem>
                         )}
                         {order.status !== "cancelled" &&
@@ -300,7 +310,7 @@ export function OrderList({
                               }
                               className="text-destructive"
                             >
-                              Cancel Order
+                              {t("cancelOrder")}
                             </DropdownMenuItem>
                           )}
                       </DropdownMenuContent>
@@ -315,9 +325,7 @@ export function OrderList({
 
       {/* Summary */}
       <div className="flex items-center justify-between text-sm text-muted-foreground">
-        <span>
-          Showing {filteredOrders.length} of {orders.length} orders
-        </span>
+        <span>{t("showingOrders", { count: filteredOrders.length })}</span>
         {searchQuery && (
           <Button
             variant="ghost"
@@ -326,7 +334,7 @@ export function OrderList({
             className="h-auto p-1"
           >
             <X className="w-4 h-4 mr-1" />
-            Clear search
+            {t("clearSearch")}
           </Button>
         )}
       </div>

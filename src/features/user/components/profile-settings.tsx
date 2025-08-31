@@ -352,6 +352,7 @@ export function ProfileSettings({
                     }))
                   }
                   placeholder="Enter current password"
+                  autoComplete="current-password"
                 />
                 <Button
                   type="button"
@@ -388,6 +389,7 @@ export function ProfileSettings({
                     }))
                   }
                   placeholder="Enter new password"
+                  autoComplete="new-password"
                 />
                 <Button
                   type="button"
@@ -424,6 +426,7 @@ export function ProfileSettings({
                     }))
                   }
                   placeholder="Confirm new password"
+                  autoComplete="new-password"
                 />
                 <Button
                   type="button"

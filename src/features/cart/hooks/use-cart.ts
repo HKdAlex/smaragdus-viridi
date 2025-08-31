@@ -47,12 +47,10 @@ export function useCart(userId?: string) {
   }, [userId, cartService])
 
   const addToCart = useCallback(async (
-    gemstoneId: string,
-    quantity: number = 1
+    gemstoneId: string
   ): Promise<boolean> => {
     console.log("🛒 useCart.addToCart called with:", {
       gemstoneId,
-      quantity,
       userId,
       hasUserId: !!userId
     });
@@ -71,7 +69,6 @@ export function useCart(userId?: string) {
       console.log("🔧 Calling cartService.addToCart...");
       const result: CartOperationResult = await cartService.addToCart(
         gemstoneId,
-        quantity,
         userId
       )
 
@@ -97,40 +94,7 @@ export function useCart(userId?: string) {
     }
   }, [userId, cartService])
 
-  const updateQuantity = useCallback(async (
-    cartItemId: string,
-    quantity: number
-  ): Promise<boolean> => {
-    if (!userId) {
-      setError('User not authenticated')
-      return false
-    }
 
-    setIsLoading(true)
-    setError(null)
-
-    try {
-      const result: CartOperationResult = await cartService.updateCartItem(
-        cartItemId,
-        quantity,
-        userId
-      )
-
-      if (result.success && result.cart_summary) {
-        setCartSummary(result.cart_summary)
-        return true
-      } else {
-        setError(result.error || 'Failed to update item quantity')
-        return false
-      }
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to update item quantity'
-      setError(errorMessage)
-      return false
-    } finally {
-      setIsLoading(false)
-    }
-  }, [userId, cartService])
 
   const removeFromCart = useCallback(async (cartItemId: string): Promise<boolean> => {
     if (!userId) {
@@ -298,7 +262,6 @@ export function useCart(userId?: string) {
 
     // Actions
     addToCart,
-    updateQuantity,
     removeFromCart,
     clearCart,
     loadCart,

@@ -219,6 +219,24 @@ body {
   image-rendering: crisp-edges;
 }
 
+/* Enhanced contrast for logos in light mode */
+.logo-enhanced-contrast {
+  filter: contrast(1.5) brightness(0.5) saturate(1.5);
+  transition: filter 0.3s ease;
+}
+
+/* Alternative enhanced contrast for better visibility */
+.logo-enhanced-contrast-strong {
+  filter: contrast(1.5) brightness(0.7) saturate(1.4);
+  transition: filter 0.3s ease;
+}
+
+/* Dark mode logo adjustments */
+.dark .logo-enhanced-contrast,
+.dark .logo-enhanced-contrast-strong {
+  filter: none; /* Remove filters in dark mode */
+}
+
 /* Mobile-first utilities and improvements */
 
 /* Touch targets - minimum 44px for accessibility */

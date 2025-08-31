@@ -65,7 +65,101 @@ export type Database = {
             referencedRelation: "gemstones"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "ai_analysis_results_gemstone_id_fkey"
+            columns: ["gemstone_id"]
+            isOneToOne: false
+            referencedRelation: "orders_with_details"
+            referencedColumns: ["gemstone_id"]
+          },
         ]
+      }
+      audit_log: {
+        Row: {
+          created_at: string | null
+          data: Json | null
+          event_type: string
+          id: string
+          level: string
+          message: string
+          performance_data: Json | null
+          session_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          data?: Json | null
+          event_type: string
+          id?: string
+          level: string
+          message: string
+          performance_data?: Json | null
+          session_id: string
+        }
+        Update: {
+          created_at?: string | null
+          data?: Json | null
+          event_type?: string
+          id?: string
+          level?: string
+          message?: string
+          performance_data?: Json | null
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_log_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "audit_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_audit_log_session_id"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "audit_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      audit_sessions: {
+        Row: {
+          audit_log: Json | null
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          metadata: Json | null
+          session_type: string
+          started_at: string
+          status: string
+          summary: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          audit_log?: Json | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          session_type?: string
+          started_at?: string
+          status?: string
+          summary?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          audit_log?: Json | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          session_type?: string
+          started_at?: string
+          status?: string
+          summary?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       cart_items: {
         Row: {
@@ -102,6 +196,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "gemstones"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cart_items_gemstone_id_fkey"
+            columns: ["gemstone_id"]
+            isOneToOne: false
+            referencedRelation: "orders_with_details"
+            referencedColumns: ["gemstone_id"]
           },
         ]
       }
@@ -140,6 +241,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "gemstones"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "certifications_gemstone_id_fkey"
+            columns: ["gemstone_id"]
+            isOneToOne: false
+            referencedRelation: "orders_with_details"
+            referencedColumns: ["gemstone_id"]
           },
         ]
       }
@@ -230,6 +338,13 @@ export type Database = {
             referencedRelation: "gemstones"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "favorites_gemstone_id_fkey"
+            columns: ["gemstone_id"]
+            isOneToOne: false
+            referencedRelation: "orders_with_details"
+            referencedColumns: ["gemstone_id"]
+          },
         ]
       }
       gemstone_images: {
@@ -292,6 +407,13 @@ export type Database = {
             referencedRelation: "gemstones"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "gemstone_images_gemstone_id_fkey"
+            columns: ["gemstone_id"]
+            isOneToOne: false
+            referencedRelation: "orders_with_details"
+            referencedColumns: ["gemstone_id"]
+          },
         ]
       }
       gemstone_videos: {
@@ -344,6 +466,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "gemstones"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gemstone_videos_gemstone_id_fkey"
+            columns: ["gemstone_id"]
+            isOneToOne: false
+            referencedRelation: "orders_with_details"
+            referencedColumns: ["gemstone_id"]
           },
         ]
       }
@@ -452,6 +581,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "fk_gemstones_import_batch_id"
+            columns: ["import_batch_id"]
+            isOneToOne: false
+            referencedRelation: "import_batches"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "gemstones_import_batch_id_fkey"
             columns: ["import_batch_id"]
             isOneToOne: false
@@ -511,6 +647,7 @@ export type Database = {
       import_batches: {
         Row: {
           ai_analysis_enabled: boolean | null
+          batch_metadata: Json | null
           batch_name: string
           created_at: string | null
           error_message: string | null
@@ -530,6 +667,7 @@ export type Database = {
         }
         Insert: {
           ai_analysis_enabled?: boolean | null
+          batch_metadata?: Json | null
           batch_name: string
           created_at?: string | null
           error_message?: string | null
@@ -549,6 +687,7 @@ export type Database = {
         }
         Update: {
           ai_analysis_enabled?: boolean | null
+          batch_metadata?: Json | null
           batch_name?: string
           created_at?: string | null
           error_message?: string | null
@@ -602,11 +741,25 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "order_items_gemstone_id_fkey"
+            columns: ["gemstone_id"]
+            isOneToOne: false
+            referencedRelation: "orders_with_details"
+            referencedColumns: ["gemstone_id"]
+          },
+          {
             foreignKeyName: "order_items_order_id_fkey"
             columns: ["order_id"]
             isOneToOne: false
             referencedRelation: "orders"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders_with_details"
+            referencedColumns: ["order_id"]
           },
         ]
       }
@@ -771,7 +924,40 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      catalog_performance_metrics: {
+        Row: {
+          metric: string | null
+          value: string | null
+        }
+        Relationships: []
+      }
+      orders_with_details: {
+        Row: {
+          created_at: string | null
+          currency_code: Database["public"]["Enums"]["currency_code"] | null
+          gemstone_color: Database["public"]["Enums"]["gem_color"] | null
+          gemstone_cut: Database["public"]["Enums"]["gem_cut"] | null
+          gemstone_id: string | null
+          gemstone_name: Database["public"]["Enums"]["gemstone_type"] | null
+          in_stock: boolean | null
+          line_total: number | null
+          notes: string | null
+          order_id: string | null
+          order_item_id: string | null
+          quantity: number | null
+          serial_number: string | null
+          status: Database["public"]["Enums"]["order_status"] | null
+          total_amount: number | null
+          unit_price: number | null
+          updated_at: string | null
+          user_id: string | null
+          user_name: string | null
+          user_phone: string | null
+          user_role: Database["public"]["Enums"]["user_role"] | null
+          weight_carats: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       calculate_cart_total: {
@@ -782,9 +968,71 @@ export type Database = {
           total_items: number
         }[]
       }
+      cleanup_audit_data: {
+        Args: { days_old?: number }
+        Returns: number
+      }
       cleanup_expired_cart_items: {
         Args: Record<PropertyKey, never>
         Returns: number
+      }
+      get_batch_statistics: {
+        Args: { batch_uuid: string }
+        Returns: Json
+      }
+      get_catalog_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
+      get_import_statistics: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
+      search_gemstones_optimized: {
+        Args: {
+          clarities?: string[]
+          colors?: string[]
+          cuts?: string[]
+          gemstone_types?: string[]
+          has_ai_analysis?: boolean
+          has_certifications?: boolean
+          has_images?: boolean
+          in_stock_only?: boolean
+          max_price?: number
+          max_weight?: number
+          min_price?: number
+          min_weight?: number
+          origins?: string[]
+          page_limit?: number
+          page_offset?: number
+          search_term?: string
+          sort_by?: string
+          sort_direction?: string
+        }
+        Returns: {
+          ai_analysis_count: number
+          certifications_count: number
+          clarity: string
+          color: string
+          created_at: string
+          cut: string
+          delivery_days: number
+          id: string
+          in_stock: boolean
+          internal_code: string
+          name: string
+          origin_country: string
+          origin_name: string
+          premium_price_amount: number
+          premium_price_currency: string
+          price_amount: number
+          price_currency: string
+          primary_image_url: string
+          serial_number: string
+          total_count: number
+          updated_at: string
+          weight_carats: number
+        }[]
       }
       validate_cart_item: {
         Args: { p_gemstone_id: string; p_quantity: number; p_user_id: string }
