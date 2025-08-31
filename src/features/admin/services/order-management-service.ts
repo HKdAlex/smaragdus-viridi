@@ -262,31 +262,48 @@ export class OrderManagementService {
           notes: notes || currentOrder.notes
         })
         .eq('id', order_id)
-        .select(`
-          *,
-          user:user_profiles (
-            id,
-            name,
-            email
-          ),
-          order_items (
-            *,
-            gemstones (
-              id,
-              name,
-              color,
-              cut,
-              weight_carats,
-              serial_number,
-              in_stock
-            )
-          )
-        `)
+        .select('*')
         .single()
 
       if (updateError) {
         this.logger.error('Failed to update order status', updateError, { order_id, new_status })
         throw new OrderManagementError('NETWORK_ERROR', 'Failed to update order status')
+      }
+
+      // Fetch user data separately since relationships aren't defined
+      const { data: userProfile } = await this.supabase
+        .from('user_profiles')
+        .select('id, name, phone')
+        .eq('user_id', updatedOrder.user_id)
+        .single()
+
+      // Fetch order items separately
+      const { data: orderItems } = await this.supabase
+        .from('order_items')
+        .select('*')
+        .eq('order_id', order_id)
+
+      // Construct the complete order object
+      const completeOrder: AdminOrder = {
+        ...updatedOrder,
+        status: updatedOrder.status || 'pending', // Provide default value for null status
+        currency_code: updatedOrder.currency_code || 'USD', // Provide default value for null currency
+        created_at: updatedOrder.created_at || new Date().toISOString(), // Provide default value for null created_at
+        updated_at: updatedOrder.updated_at || new Date().toISOString(), // Provide default value for null updated_at
+        delivery_address: updatedOrder.delivery_address as string | null | undefined, // Cast delivery_address properly
+        user: userProfile ? {
+          id: userProfile.id,
+          name: userProfile.name,
+          email: userProfile.phone || 'No email' // Using phone as email since email isn't in user_profiles
+        } : {
+          id: updatedOrder.user_id,
+          name: 'Unknown User',
+          email: 'No email'
+        },
+        items: (orderItems || []).map(item => ({
+          ...item,
+          quantity: item.quantity || 1 // Provide default value for null quantity
+        }))
       }
 
       // Log the status change
@@ -299,7 +316,7 @@ export class OrderManagementService {
 
       return {
         success: true,
-        order: updatedOrder as unknown as AdminOrder
+        order: completeOrder
       }
 
     } catch (error) {
