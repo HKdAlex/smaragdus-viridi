@@ -55,5 +55,9 @@
   "customer": "Клиент",
   "system": "Система",
   "internal": "Внутреннее",
-  "orderCancellationNotImplemented": "Отмена заказа еще не реализована"
+  "orderCancellationNotImplemented": "Отмена заказа еще не реализована",
+  "customerInfo": "Информация о клиенте",
+  "customerName": "Имя",
+  "customerEmail": "Email",
+  "customerPhone": "Телефон"
 }

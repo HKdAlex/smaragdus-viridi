@@ -1,11 +1,12 @@
-import { createContextLogger } from '@/shared/utils/logger'
-import type { 
-  OrderEvent, 
-  CreateOrderEventRequest, 
-  OrderTimeline,
-  OrderEventType 
+import type {
+  CreateOrderEventRequest,
+  OrderEvent,
+  OrderEventType,
+  OrderTimeline
 } from '../types/order-tracking.types'
+
 import { ORDER_EVENT_TEMPLATES } from '../types/order-tracking.types'
+import { createContextLogger } from '@/shared/utils/logger'
 
 const logger = createContextLogger('order-tracking')
 

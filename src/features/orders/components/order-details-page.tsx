@@ -1,12 +1,6 @@
 "use client";
 
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui/card";
-import {
   AlertCircle,
   ArrowLeft,
   CheckCircle,
@@ -14,17 +8,23 @@ import {
   Package,
   Truck,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
 import { ORDER_STATUS_COLORS, ORDER_STATUS_LABELS } from "../types/order.types";
-import { OrderTimeline } from "./order-timeline";
-import { OrderTrackingService } from "../services/order-tracking-service";
-import type { OrderTimeline as OrderTimelineType } from "../types/order-tracking.types";
+import { useEffect, useState } from "react";
 
-import { useRouter } from "@/i18n/navigation";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { Separator } from "@/shared/components/ui/separator";
 import type { Order } from "@/shared/types";
+import { OrderTimeline } from "./order-timeline";
+import type { OrderTimeline as OrderTimelineType } from "../types/order-tracking.types";
+import { OrderTrackingService } from "../services/order-tracking-service";
+import { Separator } from "@/shared/components/ui/separator";
+import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 
 interface OrderDetailsPageProps {
@@ -51,12 +51,9 @@ export function OrderDetailsPage({ orderId, locale }: OrderDetailsPageProps) {
       setIsLoading(true);
       setError(null);
 
-      // TODO: Implement actual order retrieval
-      const result = {
-        success: false,
-        error: "Order retrieval not yet implemented",
-        order: null,
-      };
+      // Fetch order details from API
+      const response = await fetch(`/api/orders/${orderId}`);
+      const result = await response.json();
 
       if (result.success && result.order) {
         setOrder(result.order);
@@ -346,6 +343,38 @@ export function OrderDetailsPage({ orderId, locale }: OrderDetailsPageProps) {
                     <span>{order.currency_code}</span>
                   </div>
                 </div>
+
+                {/* Customer Information */}
+                {order.user && (
+                  <>
+                    <Separator />
+                    <div className="space-y-2">
+                      <h4 className="font-medium text-sm">{t("customerInfo")}</h4>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">
+                          {t("customerName")}
+                        </span>
+                        <span>{order.user.name}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">
+                          {t("customerEmail")}
+                        </span>
+                        <span className="font-mono text-xs">
+                          {order.user.email}
+                        </span>
+                      </div>
+                      {order.user.phone && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">
+                            {t("customerPhone")}
+                          </span>
+                          <span>{order.user.phone}</span>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
 
                 <Separator />
 

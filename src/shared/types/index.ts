@@ -68,6 +68,12 @@ export interface Order extends DatabaseOrder {
   readonly items?: OrderItem[]
   readonly total_items: number
   readonly formatted_total: string
+  readonly user?: {
+    readonly id: string
+    readonly name: string
+    readonly phone: string
+    readonly email: string
+  }
 }
 
 export interface OrderItem extends DatabaseOrderItem {

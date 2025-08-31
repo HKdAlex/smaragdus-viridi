@@ -49,11 +49,15 @@
     "tryAgain": "Try Again",
     "viewOrder": "View Order"
   },
-  "orderHistory": "Order History",
+    "orderHistory": "Order History",
   "noEventsYet": "No events recorded yet",
   "admin": "Admin",
-  "customer": "Customer",
+  "customer": "Customer", 
   "system": "System",
   "internal": "Internal",
-  "orderCancellationNotImplemented": "Order cancellation is not yet implemented"
+  "orderCancellationNotImplemented": "Order cancellation is not yet implemented",
+  "customerInfo": "Customer Information",
+  "customerName": "Name",
+  "customerEmail": "Email",
+  "customerPhone": "Phone"
 }
