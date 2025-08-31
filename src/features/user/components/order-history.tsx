@@ -7,11 +7,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
-import { ChevronRight, Package, Plus, Search } from "lucide-react";
-import type {
+import { ChevronRight, MapPin, Package, Plus, Search } from "lucide-react";
+import {
   ORDER_STATUS_CONFIG,
-  OrderStatus,
-  UserOrder,
+  type OrderStatus,
+  type UserOrder,
 } from "../types/user-profile.types";
 import {
   Select,

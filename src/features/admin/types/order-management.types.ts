@@ -1,18 +1,18 @@
-import type { DatabaseOrder, DatabaseOrderItem } from '@/shared/types'
-
 // ===== DATABASE LAYER =====
-export type DatabaseOrder = DatabaseOrder
-export type DatabaseOrderItem = DatabaseOrderItem
+// Database types are imported from shared types
+export type { DatabaseOrder, DatabaseOrderItem } from '@/shared/types'
 
 // ===== APPLICATION LAYER EXTENSIONS =====
 
+import type { CurrencyCode, DatabaseOrderItem } from '@/shared/types'
+
 // Extended order with full details
-export interface AdminOrder extends DatabaseOrder {
+export interface AdminOrder {
   readonly id: string
   readonly user_id: string
   readonly status: OrderStatus
   readonly total_amount: number
-  readonly currency_code: string
+  readonly currency_code: CurrencyCode
   readonly created_at: string
   readonly updated_at: string
   readonly delivery_address?: string | null

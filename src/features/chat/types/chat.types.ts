@@ -1,20 +1,21 @@
 import type { DatabaseChatMessage } from '@/shared/types'
 
 // ===== DATABASE LAYER =====
-export type DatabaseChatMessage = DatabaseChatMessage
+// Database types are imported from shared types
+export type { DatabaseChatMessage }
 
 // ===== APPLICATION LAYER EXTENSIONS =====
 
 // Extended chat message with additional UI properties
-export interface ChatMessage extends DatabaseChatMessage {
+export interface ChatMessage {
   readonly id: string
   readonly user_id: string
-  readonly admin_id?: string | null
+  readonly admin_id: string | null
   readonly content: string
-  readonly attachments?: string[] | null
+  readonly attachments: string[] | null
   readonly sender_type: 'user' | 'admin'
-  readonly is_auto_response?: boolean | null
-  readonly is_read?: boolean | null
+  readonly is_auto_response: boolean | null
+  readonly is_read: boolean | null
   readonly created_at: string | null
 }
 

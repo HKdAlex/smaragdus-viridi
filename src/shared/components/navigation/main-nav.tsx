@@ -27,17 +27,7 @@ function useSafeAdminStatus() {
 
 interface NavItem {
   name: string;
-  href:
-    | "/"
-    | "/about"
-    | "/contact"
-    | "/cart"
-    | "/catalog"
-    | "/login"
-    | "/signup"
-    | "/admin"
-    | "/admin/dashboard"
-    | "/admin/login";
+  href: string;
   current?: boolean;
 }
 
@@ -62,9 +52,7 @@ export function MainNav() {
   ];
 
   // User navigation (shown when logged in)
-  const userNavigation: NavItem[] = [
-    { name: t("profile"), href: "/profile" },
-  ];
+  const userNavigation: NavItem[] = [{ name: t("profile"), href: "/profile" }];
 
   // Admin navigation (conditionally shown)
   const adminNavigation: NavItem[] = [{ name: t("admin"), href: "/admin" }];
@@ -91,7 +79,7 @@ export function MainNav() {
               {navigation.map((item) => (
                 <Link
                   key={item.name}
-                  href={item.href}
+                  href={item.href as any}
                   className={`text-sm font-medium transition-colors hover:text-primary ${
                     isCurrentPage(item.href)
                       ? "text-primary border-b-2 border-primary pb-1"
@@ -107,7 +95,7 @@ export function MainNav() {
                 userNavigation.map((item) => (
                   <Link
                     key={item.name}
-                    href={item.href}
+                    href={item.href as any}
                     className={`text-sm font-medium transition-colors hover:text-primary ${
                       isCurrentPage(item.href)
                         ? "text-primary border-b-2 border-primary pb-1"
@@ -123,7 +111,7 @@ export function MainNav() {
                 adminNavigation.map((item) => (
                   <Link
                     key={item.name}
-                    href={item.href}
+                    href={item.href as any}
                     className={`text-sm font-medium transition-colors hover:text-primary ${
                       isCurrentPage(item.href)
                         ? "text-primary border-b-2 border-primary pb-1"
@@ -272,7 +260,7 @@ export function MainNav() {
               {navigation.map((item) => (
                 <Link
                   key={item.name}
-                  href={item.href}
+                  href={item.href as any}
                   className={`block px-3 py-2 text-base font-medium transition-colors ${
                     isCurrentPage(item.href)
                       ? "text-primary bg-accent"
@@ -289,7 +277,7 @@ export function MainNav() {
                 userNavigation.map((item) => (
                   <Link
                     key={item.name}
-                    href={item.href}
+                    href={item.href as any}
                     className={`block px-3 py-2 text-base font-medium transition-colors ${
                       isCurrentPage(item.href)
                         ? "text-primary bg-accent"
@@ -306,7 +294,7 @@ export function MainNav() {
                 adminNavigation.map((item) => (
                   <Link
                     key={item.name}
-                    href={item.href}
+                    href={item.href as any}
                     className={`block px-3 py-2 text-base font-medium transition-colors ${
                       isCurrentPage(item.href)
                         ? "text-primary bg-accent"

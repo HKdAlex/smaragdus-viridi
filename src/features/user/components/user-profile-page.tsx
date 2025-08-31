@@ -161,7 +161,8 @@ export function UserProfilePage({
         </div>
 
         {/* Main Content Tabs */}
-        <Tabs defaultValue="overview" className="space-y-6">
+        <div className="space-y-6">
+        <Tabs defaultValue="overview">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="orders">Order History</TabsTrigger>
@@ -290,11 +291,11 @@ export function UserProfilePage({
             <ProfileSettings
               user={user}
               onUpdateProfile={onUpdateProfile}
-              onUpdatePreferences={onUpdatePreferences}
               onChangePassword={onChangePassword}
             />
           </TabsContent>
         </Tabs>
+        </div>
       </div>
     </div>
   );

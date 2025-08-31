@@ -5,12 +5,12 @@ import type {
     GetOrdersRequest,
     GetOrdersResponse,
     OrderAnalytics,
-    OrderManagementError,
     OrderStatus,
     UpdateOrderStatusRequest,
     UpdateOrderStatusResponse
 } from '../types/order-management.types'
 
+import { OrderManagementError } from '../types/order-management.types'
 import { createContextLogger } from '@/shared/utils/logger'
 import { supabase } from '@/lib/supabase'
 
@@ -83,7 +83,7 @@ export class OrderManagementService {
       }
 
       if (filters.currency) {
-        query = query.eq('currency_code', filters.currency)
+        query = query.eq('currency_code', filters.currency as any)
       }
 
       if (filters.search) {
@@ -118,7 +118,7 @@ export class OrderManagementService {
 
       return {
         success: true,
-        orders: orders as AdminOrder[] || [],
+        orders: (orders as unknown as AdminOrder[]) || [],
         total,
         page,
         limit,
@@ -165,7 +165,7 @@ export class OrderManagementService {
       }
 
       // Validate status transition
-      if (!this.isValidStatusTransition(currentOrder.status, new_status)) {
+      if (currentOrder.status && !this.isValidStatusTransition(currentOrder.status, new_status)) {
         this.logger.warn('Invalid status transition attempted', {
           order_id,
           current_status: currentOrder.status,
@@ -223,7 +223,7 @@ export class OrderManagementService {
 
       return {
         success: true,
-        order: updatedOrder as AdminOrder
+        order: updatedOrder as unknown as AdminOrder
       }
 
     } catch (error) {
@@ -322,11 +322,18 @@ export class OrderManagementService {
       }
 
       // Get total orders and revenue
-      const { data: totals, error: totalsError } = await this.supabase
+      let totalsQuery = this.supabase
         .from('orders')
         .select('total_amount, currency_code, status, user_id')
         .eq('status', 'delivered') // Only count completed orders
-        .filter(dateFilter)
+
+      if (dateRange) {
+        totalsQuery = totalsQuery
+          .gte('created_at', dateRange.from)
+          .lte('created_at', dateRange.to)
+      }
+
+      const { data: totals, error: totalsError } = await totalsQuery
 
       if (totalsError) {
         this.logger.error('Failed to fetch order totals', totalsError)
@@ -339,10 +346,17 @@ export class OrderManagementService {
       const average_order_value = total_orders > 0 ? total_revenue / total_orders : 0
 
       // Get orders by status
-      const { data: statusData, error: statusError } = await this.supabase
+      let statusQuery = this.supabase
         .from('orders')
         .select('status')
-        .filter(dateFilter)
+
+      if (dateRange) {
+        statusQuery = statusQuery
+          .gte('created_at', dateRange.from)
+          .lte('created_at', dateRange.to)
+      }
+
+      const { data: statusData, error: statusError } = await statusQuery
 
       const orders_by_status: Record<OrderStatus, number> = {
         pending: 0,

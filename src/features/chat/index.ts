@@ -1,7 +1,17 @@
 // ===== TYPES =====
 export type {
-    ChatConfig, ChatConversation, ChatError, ChatInputProps, ChatInterfaceProps, ChatMessage, ChatMessageProps, DEFAULT_CHAT_CONFIG, FileUploadProps, GetConversationsResponse, GetMessagesResponse,
-    MarkAsReadResponse, SendMessageRequest,
+    DatabaseChatMessage,
+    ChatConfig,
+    ChatConversation,
+    ChatError,
+    ChatInputProps,
+    ChatInterfaceProps, ChatMessage, ChatMessageProps,
+    DEFAULT_CHAT_CONFIG,
+    FileUploadProps,
+    GetConversationsResponse,
+    GetMessagesResponse,
+    MarkAsReadResponse,
+    SendMessageRequest,
     SendMessageResponse
 } from './types/chat.types'
 
@@ -14,7 +24,7 @@ export { ChatService, chatService } from './services/chat-service'
 // ===== COMPONENTS =====
 export { ChatInput } from './components/chat-input'
 export { ChatInterface } from './components/chat-interface'
-export { ChatMessage } from './components/chat-message'
+export { ChatMessage as ChatMessageComponent } from './components/chat-message'
 export { ChatWidget } from './components/chat-widget'
 export { FileUpload } from './components/file-upload'
 

@@ -10,9 +10,9 @@ import type {
     UpdateProfileResponse,
     UserActivity,
     UserOrder,
-    UserProfile,
-    UserProfileError
+    UserProfile
 } from '../types/user-profile.types'
+import { UserProfileError } from '../types/user-profile.types'
 
 import { createContextLogger } from '@/shared/utils/logger'
 import { supabase } from '@/lib/supabase'
@@ -190,7 +190,7 @@ export class UserProfileService {
 
       return {
         success: true,
-        orders: orders as UserOrder[] || [],
+        orders: orders as unknown as UserOrder[] || [],
         total,
         page,
         limit,
@@ -215,89 +215,16 @@ export class UserProfileService {
    * Get user activity history
    */
   async getActivityHistory(userId: string, request: GetActivityHistoryRequest = {}): Promise<GetActivityHistoryResponse> {
-    try {
-      const {
-        page = 1,
-        limit = 20,
-        type,
-        date_from,
-        date_to
-      } = request
+    // TODO: Implement activity history when user_activities table is created
+    this.logger.info('Activity history requested but not yet implemented', { userId })
 
-      const offset = (page - 1) * limit
-
-      let query = this.supabase
-        .from('user_activities')
-        .select('*', { count: 'exact' })
-        .eq('user_id', userId)
-
-      // Apply filters
-      if (type && type.length > 0) {
-        query = query.in('type', type)
-      }
-
-      if (date_from) {
-        query = query.gte('timestamp', date_from)
-      }
-
-      if (date_to) {
-        query = query.lte('timestamp', date_to)
-      }
-
-      // Apply sorting and pagination
-      query = query
-        .order('timestamp', { ascending: false })
-        .range(offset, offset + limit - 1)
-
-      const { data: activities, error, count } = await query
-
-      if (error) {
-        this.logger.error('Failed to get activity history', error, { userId, request })
-        // If table doesn't exist, return empty result
-        if (error.code === '42P01') {
-          return {
-            success: true,
-            activities: [],
-            total: 0,
-            page,
-            limit,
-            hasMore: false
-          }
-        }
-        throw new UserProfileError('UPDATE_FAILED', 'Failed to load activity history')
-      }
-
-      const total = count || 0
-      const hasMore = total > offset + limit
-
-      this.logger.info('Activity history loaded successfully', {
-        userId,
-        total,
-        page,
-        limit,
-        hasMore
-      })
-
-      return {
-        success: true,
-        activities: activities as UserActivity[] || [],
-        total,
-        page,
-        limit,
-        hasMore
-      }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-      this.logger.error('Failed to get activity history', error as Error, { userId, request })
-      return {
-        success: false,
-        error: errorMessage,
-        activities: [],
-        total: 0,
-        page: 1,
-        limit: 20,
-        hasMore: false
-      }
+    return {
+      success: true,
+      activities: [],
+      total: 0,
+      page: 1,
+      limit: 20,
+      hasMore: false
     }
   }
 
@@ -381,25 +308,8 @@ export class UserProfileService {
     description: string,
     metadata?: Record<string, any>
   ): Promise<void> {
-    try {
-      // Try to insert into user_activities table (if it exists)
-      const { error } = await this.supabase
-        .from('user_activities')
-        .insert({
-          user_id: userId,
-          type,
-          description,
-          metadata,
-          timestamp: new Date().toISOString()
-        })
-
-      if (error && error.code !== '42P01') { // Ignore table doesn't exist error
-        this.logger.warn('Failed to log activity', error, { userId, type })
-      }
-    } catch (error) {
-      // Silently fail for activity logging
-      this.logger.debug('Activity logging failed', { userId, type })
-    }
+    // TODO: Implement activity logging when user_activities table is created
+    this.logger.debug('Activity logged (not persisted)', { userId, type, description })
   }
 }
 

@@ -293,3 +293,38 @@ export const DEFAULT_USER_PROFILE_CONFIG: UserProfileConfig = {
   orderHistoryPageSize: 10,
   profileUpdateTimeout: 5000,
 }
+
+// ===== ORDER STATUS CONFIGURATION =====
+
+export const ORDER_STATUS_CONFIG = {
+  pending: {
+    label: 'Pending',
+    color: 'secondary' as const,
+    description: 'Your order is being processed'
+  },
+  confirmed: {
+    label: 'Confirmed',
+    color: 'default' as const,
+    description: 'Your order has been confirmed'
+  },
+  processing: {
+    label: 'Processing',
+    color: 'default' as const,
+    description: 'Your order is being prepared'
+  },
+  shipped: {
+    label: 'Shipped',
+    color: 'default' as const,
+    description: 'Your order has been shipped'
+  },
+  delivered: {
+    label: 'Delivered',
+    color: 'default' as const,
+    description: 'Your order has been delivered'
+  },
+  cancelled: {
+    label: 'Cancelled',
+    color: 'destructive' as const,
+    description: 'Your order has been cancelled'
+  }
+} as const

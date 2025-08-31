@@ -170,7 +170,7 @@ export function useChat(userId?: string): UseChatReturn {
 
 export function useChatTyping(userId?: string): UseChatTypingReturn {
   const [isTyping, setIsTyping] = useState(false)
-  const typingTimeoutRef = useRef<NodeJS.Timeout>()
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const logger = createContextLogger('use-chat-typing')
 
   const startTyping = useCallback(() => {

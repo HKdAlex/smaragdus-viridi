@@ -1,24 +1,11 @@
 "use client";
 
 import {
-  ArrowUpDown,
-  Eye,
-  MoreHorizontal,
-  Package,
-  Search,
-  X,
-} from "lucide-react";
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
-import type {
-  ORDER_STATUS_CONFIG,
-  OrderListProps,
-  OrderStatus,
-} from "../types/order-management.types";
 import {
   Select,
   SelectContent,
@@ -34,6 +21,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/shared/components/ui/table";
+import {
+  ArrowUpDown,
+  Eye,
+  MoreHorizontal,
+  Package,
+  Search,
+  X,
+} from "lucide-react";
+import {
+  ORDER_STATUS_CONFIG,
+  type OrderListProps,
+  type OrderStatus,
+} from "../types/order-management.types";
 
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";

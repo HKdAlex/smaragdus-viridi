@@ -1,14 +1,13 @@
 import type {
     ChatConversation,
-    ChatError,
     ChatMessage,
-    DEFAULT_CHAT_CONFIG,
     GetConversationsResponse,
     GetMessagesResponse,
     MarkAsReadResponse,
     SendMessageRequest,
     SendMessageResponse,
 } from '../types/chat.types'
+import { ChatError, DEFAULT_CHAT_CONFIG } from '../types/chat.types'
 
 import { createContextLogger } from '@/shared/utils/logger'
 import { supabase } from '@/lib/supabase'
@@ -178,7 +177,15 @@ export class ChatService {
       // This would typically use a stored procedure or complex query
       // For now, we'll use a simplified approach
       const { data: conversations, error } = await this.supabase
-        .rpc('get_active_chat_sessions')
+        .from('chat_messages')
+        .select(`
+          user_id,
+          created_at,
+          content,
+          attachments
+        `)
+        .order('created_at', { ascending: false })
+        .limit(50)
 
       if (error) {
         // Fallback to manual query if RPC doesn't exist
@@ -207,19 +214,20 @@ export class ChatService {
           if (!conversationMap.has(message.user_id)) {
             conversationMap.set(message.user_id, {
               user_id: message.user_id,
+              user: { name: 'Unknown User', email: '' },
               last_message: message.content,
               last_message_at: message.created_at,
               unread_count: message.sender_type === 'user' && !message.is_read ? 1 : 0,
               has_attachments: message.attachments ? message.attachments.length > 0 : false,
               is_online: false, // Would need presence tracking
-            })
+            } as ChatConversation)
           } else {
             const existing = conversationMap.get(message.user_id)!
             if (message.sender_type === 'user' && !message.is_read) {
-              existing.unread_count++
+              (existing as any).unread_count++
             }
             if (message.attachments && message.attachments.length > 0) {
-              existing.has_attachments = true
+              (existing as any).has_attachments = true
             }
           }
         })
@@ -242,7 +250,7 @@ export class ChatService {
 
       return {
         success: true,
-        conversations: conversations as ChatConversation[] || []
+        conversations: conversations as unknown as ChatConversation[] || []
       }
 
     } catch (error) {

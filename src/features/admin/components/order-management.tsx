@@ -1,6 +1,7 @@
 "use client";
 
-import type { AdminOrder } from "../types/order-management.types";
+import type { AdminOrder, OrderStatus } from "../types/order-management.types";
+
 import { OrderDetail } from "./order-detail";
 import { OrderList } from "./order-list";
 import { useAdminOrders } from "../hooks/use-admin-orders";
@@ -29,12 +30,12 @@ export function OrderManagement() {
 
   const handleStatusUpdate = async (orderId: string, newStatus: string) => {
     try {
-      await updateOrderStatus(orderId, newStatus);
+      await updateOrderStatus(orderId, newStatus as OrderStatus);
 
       // Update selected order if it's the one being updated
       if (selectedOrder?.id === orderId) {
         setSelectedOrder((prev) =>
-          prev ? { ...prev, status: newStatus as any } : null
+          prev ? { ...prev, status: newStatus as OrderStatus } : null
         );
       }
     } catch (error) {

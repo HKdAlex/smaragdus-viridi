@@ -31,16 +31,19 @@ export default async function ProfilePage() {
   if (!profile) {
     // Create default profile if it doesn't exist
     const defaultProfile = {
-      name: user.user_metadata?.name || user.email?.split('@')[0] || 'User',
-      phone: '',
-      preferred_currency: 'USD' as const,
-      language_preference: 'en' as const,
+      name: user.user_metadata?.name || user.email?.split("@")[0] || "User",
+      phone: "",
+      preferred_currency: "USD" as const,
+      language_preference: "en" as const,
       email_notifications: true,
       order_updates: true,
       marketing_emails: false,
     };
 
-    const result = await userProfileService.updateProfile(user.id, defaultProfile);
+    const result = await userProfileService.updateProfile(
+      user.id,
+      defaultProfile
+    );
     if (result.success && result.profile) {
       profile = result.profile;
     } else {
@@ -48,14 +51,14 @@ export default async function ProfilePage() {
       profile = {
         id: user.id,
         user_id: user.id,
-        name: user.user_metadata?.name || user.email?.split('@')[0] || 'User',
-        email: user.email || '',
-        phone: '',
+        name: user.user_metadata?.name || user.email?.split("@")[0] || "User",
+        email: user.email || "",
+        phone: "",
         avatar_url: user.user_metadata?.avatar_url,
-        role: 'regular_customer' as const,
+        role: "regular_customer" as const,
         discount_percentage: 0,
-        preferred_currency: 'USD' as const,
-        language_preference: 'en' as const,
+        preferred_currency: "USD" as const,
+        language_preference: "en" as const,
         email_notifications: true,
         order_updates: true,
         marketing_emails: false,
