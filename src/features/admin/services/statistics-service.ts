@@ -58,30 +58,30 @@ export class StatisticsService {
 
       // Using the imported supabase client
 
-      // Get real gemstone statistics
-      const { data: gemstones, error: gemstonesError } = await supabase
+      // Get real gemstone statistics with count
+      const { data: gemstones, error: gemstonesError, count: totalGemstonesCount } = await supabase
         .from('gemstones')
-        .select('id, price_amount, price_currency, in_stock, created_at');
+        .select('id, price_amount, price_currency, in_stock, created_at', { count: 'exact' });
 
       if (gemstonesError) {
         logger.error('Failed to fetch gemstones', gemstonesError);
         throw gemstonesError;
       }
 
-      // Get real user statistics
-      const { data: userProfiles, error: usersError } = await supabase
+      // Get real user statistics with count
+      const { data: userProfiles, error: usersError, count: totalUsersCount } = await supabase
         .from('user_profiles')
-        .select('id, created_at');
+        .select('id, created_at', { count: 'exact' });
 
       if (usersError) {
         logger.error('Failed to fetch user profiles', usersError);
         throw usersError;
       }
 
-      // Get real order statistics
-      const { data: orders, error: ordersError } = await supabase
+      // Get real order statistics with count
+      const { data: orders, error: ordersError, count: totalOrdersCount } = await supabase
         .from('orders')
-        .select('id, total_amount, currency_code, created_at');
+        .select('id, total_amount, currency_code, created_at', { count: 'exact' });
 
       if (ordersError) {
         logger.error('Failed to fetch orders', ordersError);
@@ -89,11 +89,11 @@ export class StatisticsService {
       }
 
       // Calculate real statistics
-      const totalGemstones = gemstones?.length || 0;
+      const totalGemstones = totalGemstonesCount || 0;
       const inStockGemstones = gemstones?.filter(g => g.in_stock).length || 0;
       const outOfStockGemstones = totalGemstones - inStockGemstones;
-      const activeUsers = userProfiles?.length || 0;
-      const totalOrders = orders?.length || 0;
+      const activeUsers = totalUsersCount || 0;
+      const totalOrders = totalOrdersCount || 0;
       
       // Calculate total revenue
       const totalRevenue = orders?.reduce((sum, order) => sum + (order.total_amount || 0), 0) || 0;
@@ -180,10 +180,10 @@ export class StatisticsService {
 
       // Using the imported supabase client
 
-      // Get all gemstones with their properties
-      const { data: gemstones, error } = await supabase
+      // Get all gemstones with their properties and count
+      const { data: gemstones, error, count: totalCount } = await supabase
         .from('gemstones')
-        .select('id, name, color, cut, price_amount, in_stock');
+        .select('id, name, color, cut, price_amount, in_stock', { count: 'exact' });
 
       if (error) {
         logger.error('Failed to fetch gemstones', error);
@@ -191,7 +191,7 @@ export class StatisticsService {
       }
 
       // Calculate real statistics
-      const total = gemstones?.length || 0;
+      const total = totalCount || 0;
       const inStock = gemstones?.filter(g => g.in_stock).length || 0;
       const outOfStock = total - inStock;
 
@@ -263,20 +263,20 @@ export class StatisticsService {
 
       // Using the imported supabase client
 
-      // Get user profiles
-      const { data: userProfiles, error: usersError } = await supabase
+      // Get user profiles with count
+      const { data: userProfiles, error: usersError, count: totalUsersCount } = await supabase
         .from('user_profiles')
-        .select('id, role, created_at');
+        .select('id, role, created_at', { count: 'exact' });
 
       if (usersError) {
         logger.error('Failed to fetch user profiles', usersError);
         throw usersError;
       }
 
-      // Get orders for user activity calculation
-      const { data: orders, error: ordersError } = await supabase
+      // Get orders for user activity calculation with count
+      const { data: orders, error: ordersError, count: totalOrdersCount } = await supabase
         .from('orders')
-        .select('id, user_id, created_at');
+        .select('id, user_id, created_at', { count: 'exact' });
 
       if (ordersError) {
         logger.error('Failed to fetch orders', ordersError);
@@ -284,7 +284,7 @@ export class StatisticsService {
       }
 
       // Calculate real statistics
-      const totalUsers = userProfiles?.length || 0;
+      const totalUsers = totalUsersCount || 0;
       const activeUsers = totalUsers; // For now, consider all users as active
       const premiumUsers = userProfiles?.filter(u => u.role === 'premium_customer').length || 0;
       
@@ -297,7 +297,7 @@ export class StatisticsService {
       ).length || 0;
 
       // Calculate average orders per user
-      const totalOrders = orders?.length || 0;
+      const totalOrders = totalOrdersCount || 0;
       const averageOrdersPerUser = totalUsers > 0 ? Math.round((totalOrders / totalUsers) * 10) / 10 : 0;
 
       // Mock retention rate for now (would need historical data)
@@ -353,10 +353,10 @@ export class StatisticsService {
 
       // Using the imported supabase client
 
-      // Get orders
-      const { data: orders, error: ordersError } = await supabase
+      // Get orders with count
+      const { data: orders, error: ordersError, count: totalOrdersCount } = await supabase
         .from('orders')
-        .select('id, total_amount, currency_code, created_at, user_id');
+        .select('id, total_amount, currency_code, created_at, user_id', { count: 'exact' });
 
       if (ordersError) {
         logger.error('Failed to fetch orders', ordersError);
@@ -375,7 +375,7 @@ export class StatisticsService {
 
       // Calculate real statistics
       const totalRevenue = orders?.reduce((sum, order) => sum + (order.total_amount || 0), 0) || 0;
-      const totalOrders = orders?.length || 0;
+      const totalOrders = totalOrdersCount || 0;
       const averageOrderValue = totalOrders > 0 ? Math.round(totalRevenue / totalOrders) : 0;
 
       // Mock conversion rate for now (would need visitor data)
