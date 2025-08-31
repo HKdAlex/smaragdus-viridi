@@ -48,5 +48,12 @@
     "errorGeneric": "We couldn't process your order. Please try again.",
     "tryAgain": "Try Again",
     "viewOrder": "View Order"
-  }
+  },
+  "orderHistory": "Order History",
+  "noEventsYet": "No events recorded yet",
+  "admin": "Admin",
+  "customer": "Customer",
+  "system": "System",
+  "internal": "Internal",
+  "orderCancellationNotImplemented": "Order cancellation is not yet implemented"
 }

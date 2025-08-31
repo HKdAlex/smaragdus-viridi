@@ -16,6 +16,9 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ORDER_STATUS_COLORS, ORDER_STATUS_LABELS } from "../types/order.types";
+import { OrderTimeline } from "./order-timeline";
+import { OrderTrackingService } from "../services/order-tracking-service";
+import type { OrderTimeline as OrderTimelineType } from "../types/order-tracking.types";
 
 import { useRouter } from "@/i18n/navigation";
 import { Badge } from "@/shared/components/ui/badge";
@@ -35,6 +38,7 @@ export function OrderDetailsPage({ orderId, locale }: OrderDetailsPageProps) {
   const tCommon = useTranslations("common");
 
   const [order, setOrder] = useState<Order | null>(null);
+  const [timeline, setTimeline] = useState<OrderTimelineType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -56,6 +60,10 @@ export function OrderDetailsPage({ orderId, locale }: OrderDetailsPageProps) {
 
       if (result.success && result.order) {
         setOrder(result.order);
+        
+        // Load order timeline
+        const timelineData = await OrderTrackingService.getOrderTimeline(orderId);
+        setTimeline(timelineData);
       } else {
         setError(result.error || "Failed to load order details");
       }
@@ -112,6 +120,26 @@ export function OrderDetailsPage({ orderId, locale }: OrderDetailsPageProps) {
       : colors[status] === "red"
       ? "destructive"
       : "secondary";
+  };
+
+  const getStatusBadgeVariant = (status: string | null) => {
+    if (!status) return "secondary";
+    switch (status) {
+      case "delivered":
+        return "default";
+      case "cancelled":
+        return "destructive";
+      case "pending":
+        return "secondary";
+      case "confirmed":
+        return "secondary";
+      case "processing":
+        return "secondary";
+      case "shipped":
+        return "secondary";
+      default:
+        return "secondary";
+    }
   };
 
   const getStatusLabel = (status: string | null) => {
@@ -184,7 +212,7 @@ export function OrderDetailsPage({ orderId, locale }: OrderDetailsPageProps) {
                 {t("orderDetails")}
               </h1>
               <Badge
-                variant={getStatusColor(order.status)}
+                variant={getStatusBadgeVariant(order.status)}
                 className="flex items-center gap-1"
               >
                 {getStatusIcon(order.status)}
@@ -199,7 +227,7 @@ export function OrderDetailsPage({ orderId, locale }: OrderDetailsPageProps) {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Order Items */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 space-y-8">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -269,6 +297,14 @@ export function OrderDetailsPage({ orderId, locale }: OrderDetailsPageProps) {
                 )}
               </CardContent>
             </Card>
+
+            {/* Order Timeline */}
+            {timeline && (
+              <OrderTimeline 
+                timeline={timeline} 
+                showInternalEvents={false}
+              />
+            )}
           </div>
 
           {/* Order Summary */}
