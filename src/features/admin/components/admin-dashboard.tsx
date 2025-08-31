@@ -176,10 +176,10 @@ export function AdminDashboard() {
                 <Shield className="w-5 h-5 text-primary-foreground" />
               </div>
               <div className="min-w-0">
-                <h1 className="font-bold text-lg sm:text-xl truncate">
+                <h1 className="font-bold text-lg sm:text-xl break-words">
                   {t("header.title")}
                 </h1>
-                <p className="text-sm text-muted-foreground truncate max-w-[200px] sm:max-w-none">
+                <p className="text-sm text-muted-foreground break-words leading-relaxed">
                   {t("header.welcomeBack", { name: profile.name })}
                 </p>
               </div>
@@ -230,7 +230,7 @@ export function AdminDashboard() {
                 <Button
                   key={tab.id}
                   variant={isActive ? "default" : "ghost"}
-                  className="w-full justify-start gap-3 h-auto p-3 sm:p-4 min-h-[48px] text-left"
+                  className="w-full justify-start gap-3 h-auto p-3 sm:p-4 min-h-[48px] text-left py-4"
                   onClick={() => {
                     setActiveTab(tab.id);
                     setSidebarOpen(false); // Close mobile sidebar
@@ -238,10 +238,10 @@ export function AdminDashboard() {
                 >
                   <Icon className="w-5 h-5 flex-shrink-0" />
                   <div className="text-left min-w-0 flex-1">
-                    <div className="font-medium text-sm sm:text-base truncate">
+                    <div className="font-medium text-sm sm:text-base break-words">
                       {tab.name}
                     </div>
-                    <div className="text-xs text-muted-foreground truncate">
+                    <div className="text-xs text-muted-foreground break-words leading-relaxed">
                       {tab.description}
                     </div>
                   </div>
