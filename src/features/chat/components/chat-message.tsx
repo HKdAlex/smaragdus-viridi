@@ -27,7 +27,7 @@ export function ChatMessage({
       case "png":
       case "gif":
       case "webp":
-        return <Image className="w-4 h-4" alt="Image file" />;
+        return <Image className="w-4 h-4" />;
       default:
         return <FileText className="w-4 h-4" />;
     }

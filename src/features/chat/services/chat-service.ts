@@ -42,26 +42,31 @@ export class ChatService {
         attachmentUrls = await this.uploadAttachments(request.attachments)
       }
 
-      // Insert message into database
-      const { data: message, error } = await this.supabase
-        .from('chat_messages')
-        .insert({
-          user_id: userId,
+      // Use API route instead of direct database access
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           content: request.content.trim(),
-          attachments: attachmentUrls.length > 0 ? attachmentUrls : null,
-          sender_type: 'user',
-          is_read: false,
-        })
-        .select()
-        .single()
+          attachments: attachmentUrls.length > 0 ? attachmentUrls : undefined,
+        }),
+      })
 
-      if (error) {
-        this.logger.error('Failed to send message', error, { userId })
-        throw new ChatError('NETWORK_ERROR', 'Failed to send message')
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+        throw new ChatError('NETWORK_ERROR', errorData.error || 'Failed to send message')
+      }
+
+      const result = await response.json()
+
+      if (!result.success) {
+        throw new ChatError('NETWORK_ERROR', result.error || 'Failed to send message')
       }
 
       this.logger.info('Message sent successfully', {
-        messageId: message.id,
+        messageId: result.message.id,
         userId,
         contentLength: request.content.length,
         attachmentCount: attachmentUrls.length
@@ -69,7 +74,7 @@ export class ChatService {
 
       return {
         success: true,
-        message: message as ChatMessage
+        message: result.message as ChatMessage
       }
 
     } catch (error) {
@@ -93,31 +98,35 @@ export class ChatService {
     offset: number = 0
   ): Promise<GetMessagesResponse> {
     try {
-      const { data: messages, error, count } = await this.supabase
-        .from('chat_messages')
-        .select('*', { count: 'exact' })
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-        .range(offset, offset + limit - 1)
+      // Use API route instead of direct database access
+      const response = await fetch(`/api/chat?limit=${limit}&offset=${offset}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
 
-      if (error) {
-        this.logger.error('Failed to fetch messages', error, { userId })
-        throw new ChatError('NETWORK_ERROR', 'Failed to load messages')
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+        throw new ChatError('NETWORK_ERROR', errorData.error || 'Failed to load messages')
       }
 
-      // Reverse to get chronological order
-      const orderedMessages = messages?.reverse() || []
+      const result = await response.json()
+
+      if (!result.success) {
+        throw new ChatError('NETWORK_ERROR', result.error || 'Failed to load messages')
+      }
 
       this.logger.info('Messages fetched successfully', {
         userId,
-        messageCount: orderedMessages.length,
-        hasMore: (count || 0) > offset + limit
+        messageCount: result.messages.length,
+        hasMore: result.hasMore
       })
 
       return {
         success: true,
-        messages: orderedMessages as ChatMessage[],
-        hasMore: (count || 0) > offset + limit
+        messages: result.messages as ChatMessage[],
+        hasMore: result.hasMore
       }
 
     } catch (error) {
@@ -142,15 +151,23 @@ export class ChatService {
    */
   async markAsRead(messageId: string, userId: string): Promise<MarkAsReadResponse> {
     try {
-      const { error } = await this.supabase
-        .from('chat_messages')
-        .update({ is_read: true })
-        .eq('id', messageId)
-        .eq('user_id', userId) // Ensure user can only mark their own messages
+      // Use API route instead of direct database access
+      const response = await fetch(`/api/chat/${messageId}/read`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
 
-      if (error) {
-        this.logger.error('Failed to mark message as read', error, { messageId, userId })
-        throw new ChatError('NETWORK_ERROR', 'Failed to mark message as read')
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+        throw new ChatError('NETWORK_ERROR', errorData.error || 'Failed to mark message as read')
+      }
+
+      const result = await response.json()
+
+      if (!result.success) {
+        throw new ChatError('NETWORK_ERROR', result.error || 'Failed to mark message as read')
       }
 
       this.logger.info('Message marked as read', { messageId, userId })
