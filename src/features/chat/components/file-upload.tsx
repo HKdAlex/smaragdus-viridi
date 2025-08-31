@@ -90,7 +90,7 @@ export function FileUpload({
         size="sm"
         onClick={handleClick}
         disabled={disabled}
-        className="h-10 w-10 p-0 hover:bg-muted"
+        className="h-10 w-10 p-0 hover:bg-muted/80 dark:hover:bg-muted/60"
         title="Attach files"
       >
         <Paperclip className="w-4 h-4" />

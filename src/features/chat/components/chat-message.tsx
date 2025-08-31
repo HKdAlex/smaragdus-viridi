@@ -44,10 +44,10 @@ export function ChatMessage({
       <div
         className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
           isOwn
-            ? "bg-blue-500 text-white rounded-br-none"
+            ? "bg-primary text-primary-foreground rounded-br-none"
             : message.is_auto_response
-            ? "bg-yellow-100 text-yellow-800 border border-yellow-200 rounded-bl-none"
-            : "bg-gray-100 text-gray-900 rounded-bl-none"
+            ? "bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 border border-yellow-200 dark:border-yellow-800/30 rounded-bl-none"
+            : "bg-muted text-foreground rounded-bl-none"
         }`}
       >
         {/* Message Content */}
@@ -63,8 +63,8 @@ export function ChatMessage({
                 key={index}
                 className={`flex items-center space-x-2 p-2 rounded ${
                   isOwn
-                    ? "bg-blue-600 hover:bg-blue-700"
-                    : "bg-white hover:bg-gray-50 border"
+                    ? "bg-primary/80 hover:bg-primary/90"
+                    : "bg-background hover:bg-muted border border-border"
                 } transition-colors cursor-pointer`}
                 onClick={() => onAttachmentClick?.(attachment)}
               >
@@ -72,14 +72,14 @@ export function ChatMessage({
                 <div className="flex-1 min-w-0">
                   <p
                     className={`text-xs truncate ${
-                      isOwn ? "text-blue-100" : "text-gray-700"
+                      isOwn ? "text-primary-foreground/90" : "text-foreground"
                     }`}
                   >
                     {attachment.split("/").pop()}
                   </p>
                   <p
                     className={`text-xs ${
-                      isOwn ? "text-blue-200" : "text-gray-500"
+                      isOwn ? "text-primary-foreground/70" : "text-muted-foreground"
                     }`}
                   >
                     {getFileSize(attachment)}
@@ -87,7 +87,7 @@ export function ChatMessage({
                 </div>
                 <Download
                   className={`w-3 h-3 ${
-                    isOwn ? "text-blue-200" : "text-gray-500"
+                    isOwn ? "text-primary-foreground/70" : "text-muted-foreground"
                   }`}
                 />
               </div>
@@ -98,7 +98,7 @@ export function ChatMessage({
         {/* Message Footer */}
         <div
           className={`flex items-center justify-between mt-2 text-xs ${
-            isOwn ? "text-blue-100" : "text-gray-500"
+            isOwn ? "text-primary-foreground/70" : "text-muted-foreground"
           }`}
         >
           <span>{formatTime(message.created_at)}</span>

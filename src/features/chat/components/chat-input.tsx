@@ -72,7 +72,7 @@ export function ChatInput({
     <div className="space-y-2">
       {/* Attachments Preview */}
       {attachments.length > 0 && (
-        <div className="flex flex-wrap gap-2 p-2 bg-muted/50 rounded-lg">
+        <div className="flex flex-wrap gap-2 p-2 bg-muted/30 dark:bg-muted/50 rounded-lg">
           {attachments.map((file, index) => (
             <div
               key={index}

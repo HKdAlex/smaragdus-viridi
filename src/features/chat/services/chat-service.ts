@@ -1,16 +1,16 @@
 import type {
-    ChatConversation,
-    ChatMessage,
-    GetConversationsResponse,
-    GetMessagesResponse,
-    MarkAsReadResponse,
-    SendMessageRequest,
-    SendMessageResponse,
+  ChatConversation,
+  ChatMessage,
+  GetConversationsResponse,
+  GetMessagesResponse,
+  MarkAsReadResponse,
+  SendMessageRequest,
+  SendMessageResponse,
 } from '../types/chat.types'
 import { ChatError, DEFAULT_CHAT_CONFIG } from '../types/chat.types'
 
-import { createContextLogger } from '@/shared/utils/logger'
 import { supabase } from '@/lib/supabase'
+import { createContextLogger } from '@/shared/utils/logger'
 
 export class ChatService {
   private supabase = supabase
