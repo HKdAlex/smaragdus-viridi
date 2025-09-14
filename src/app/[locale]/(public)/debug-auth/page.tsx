@@ -77,19 +77,17 @@ export default function DebugAuthPage() {
 
   const handleSignOut = async () => {
     try {
-      const response = await fetch("/api/auth/logout", {
-        method: "POST",
-      });
+      const { error } = await supabase.auth.signOut();
 
-      if (response.ok) {
+      if (!error) {
         // Force page reload to clear auth state
         window.location.reload();
       } else {
-        alert("Sign out failed");
+        alert("Sign out failed: " + error.message);
       }
     } catch (error) {
       console.error("Sign out error:", error);
-      alert("Sign out failed");
+      alert("Sign out failed: " + (error as Error).message);
     }
   };
 
@@ -99,21 +97,16 @@ export default function DebugAuthPage() {
 
     if (email && password) {
       try {
-        const response = await fetch("/api/auth/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
         });
 
-        const result = await response.json();
-
-        if (result.success) {
+        if (!error) {
           // Force page reload to update auth state
           window.location.reload();
         } else {
-          alert("Sign in failed: " + result.error);
+          alert("Sign in failed: " + error.message);
         }
       } catch (error) {
         console.error("Sign in error:", error);

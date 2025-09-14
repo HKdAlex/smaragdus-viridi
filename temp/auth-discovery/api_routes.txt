@@ -1,0 +1,7 @@
+src/app/[locale]/(public)/debug-auth/page.tsx:80:      const response = await fetch("/api/auth/logout", {
+src/app/[locale]/(public)/debug-auth/page.tsx:102:        const response = await fetch("/api/auth/login", {
+src/features/auth/context/auth-context.tsx:39:        const response = await fetch("/api/auth/session", {
+src/features/auth/context/auth-context.tsx:66:        const response = await fetch("/api/auth/session", {
+src/features/auth/context/auth-context.tsx:93:      const response = await fetch("/api/auth/login", {
+src/features/auth/context/auth-context.tsx:142:      const response = await fetch("/api/auth/logout", {
+src/features/auth/components/login-form.tsx:26:      const response = await fetch("/api/auth/login", {

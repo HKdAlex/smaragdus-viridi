@@ -1,0 +1,2 @@
+src/app/[locale]/(public)/debug-auth/page.tsx:70:    } = supabase.auth.onAuthStateChange((event, session) => {
+src/features/auth/hooks/use-auth.ts:130:    } = supabase.auth.onAuthStateChange(async (event, session) => {

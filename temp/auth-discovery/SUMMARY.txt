@@ -1,0 +1,10 @@
+Context pattern usage:
+src/app/layout.tsx
+src/features/chat/components/chat-widget.tsx
+src/features/auth/components/signup-form.tsx
+src/features/admin/index.ts
+src/features/cart/services/cart-service.ts
+src/features/gemstones/components/gemstone-detail.tsx
+src/shared/components/navigation/main-nav.tsx
+Standalone hook usage:
+src/features/cart/components/cart-page.tsx

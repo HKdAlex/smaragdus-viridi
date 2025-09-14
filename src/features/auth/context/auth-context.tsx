@@ -1,10 +1,11 @@
 "use client";
 
+import { AuthChangeEvent, Session, User } from "@supabase/supabase-js";
 import { createContext, useContext, useEffect, useState } from "react";
 
 import type { DatabaseUserProfile } from "@/shared/types";
-import { User } from "@supabase/supabase-js";
-import { auth } from "@/lib/auth";
+import { getUserProfile } from "@/features/auth/actions/auth-actions";
+import { supabase } from "@/lib/supabase";
 
 interface AuthContextType {
   user: User | null;
@@ -25,26 +26,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refreshProfile = async () => {
     if (user) {
-      const userProfile = await auth.getUserProfile(user.id);
-      setProfile(userProfile);
+      const { profile } = await getUserProfile();
+      setProfile(profile);
     } else {
       setProfile(null);
     }
   };
 
   useEffect(() => {
-    // Get initial session from server API (syncs with SSR cookies)
+    // Get initial session
     const getInitialSession = async () => {
       try {
-        const response = await fetch("/api/auth/session", {
-          method: "GET",
-          credentials: "include", // Include cookies
-        });
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
 
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data.user);
-          setProfile(data.profile);
+        if (session?.user) {
+          setUser(session.user);
+          // Fetch profile using server action
+          const { profile } = await getUserProfile();
+          setProfile(profile);
         } else {
           setUser(null);
           setProfile(null);
@@ -60,57 +61,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     getInitialSession();
 
-    // Poll session state periodically to sync with server
-    const pollInterval = setInterval(async () => {
-      try {
-        const response = await fetch("/api/auth/session", {
-          method: "GET",
-          credentials: "include",
-        });
+    // REAL-TIME: Instant auth state changes with direct Supabase
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(
+      async (event: AuthChangeEvent, session: Session | null) => {
+        if (event === "SIGNED_IN" && session) {
+          setUser(session.user);
 
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data.user);
-          setProfile(data.profile);
-        } else {
-          // Only clear state if we currently think we're logged in
-          if (user) {
-            setUser(null);
-            setProfile(null);
-          }
+          // Fetch profile using server action
+          const { profile } = await getUserProfile();
+          setProfile(profile);
+        } else if (event === "SIGNED_OUT") {
+          setUser(null);
+          setProfile(null);
         }
-      } catch (error) {
-        // Silently handle polling errors
       }
-    }, 30000); // Poll every 30 seconds
+    );
 
-    return () => clearInterval(pollInterval);
-  }, []); // Remove user.id dependency to prevent infinite loops
+    return () => subscription.unsubscribe();
+  }, []);
 
   const signIn = async (email: string, password: string) => {
     setLoading(true);
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({ email, password }),
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
 
-      const result = await response.json();
-
-      if (!result.success) {
-        throw new Error(result.error || "Login failed");
+      if (error) {
+        throw error;
       }
 
-      // Update local state
-      setUser(result.user);
-      setProfile(result.profile);
-
+      // onAuthStateChange will handle the rest automatically
       setLoading(false);
-      return result;
+      return { success: true };
     } catch (error) {
       setLoading(false);
       throw error;
@@ -120,7 +106,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signUp = async (email: string, password: string, name: string) => {
     setLoading(true);
     try {
-      const result = await auth.signUp(email, password, name);
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            name: name,
+          },
+        },
+      });
+
+      if (error) {
+        throw error;
+      }
 
       // After successful signup, the user will need to confirm email
       // Profile will be created when they sign in after confirmation
@@ -129,7 +127,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       );
 
       setLoading(false);
-      return result;
+      return { success: true };
     } catch (error) {
       setLoading(false);
       throw error;
@@ -139,21 +137,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     setLoading(true);
     try {
-      const response = await fetch("/api/auth/logout", {
-        method: "POST",
-        credentials: "include",
-      });
+      await supabase.auth.signOut();
 
-      // Clear local state regardless of API response
-      setUser(null);
-      setProfile(null);
-
-      if (!response.ok) {
-        console.warn("Logout API call failed, but local state cleared");
-      }
+      // onAuthStateChange will handle state cleanup automatically
     } catch (error) {
       console.error("Sign out error:", error);
-      // Still clear local state even if API call fails
+      // Still clear local state even if signOut fails
       setUser(null);
       setProfile(null);
     } finally {

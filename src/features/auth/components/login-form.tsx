@@ -1,47 +1,26 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
-
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
+import { loginAction } from "@/features/auth/actions/auth-actions";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
 export function LoginForm() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const router = useRouter();
-  const searchParams = useSearchParams();
   const t = useTranslations("auth");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (formData: FormData) => {
     setIsLoading(true);
     setError("");
 
     try {
-      // Use the new server-side login API
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const result = await response.json();
-
-      if (!result.success) {
-        throw new Error(result.error || "Login failed");
+      const result = await loginAction(formData);
+      if (result?.error) {
+        setError(result.error);
       }
-
-      // Successful login - redirect
-      const redirectTo = searchParams.get("redirectTo") || "/";
-
-      // Force a page reload to ensure middleware picks up the new session
-      window.location.href = redirectTo;
+      // Success redirect happens in server action
     } catch (err) {
       setError(
         err instanceof Error ? err.message : t("errors.invalidCredentials")
@@ -52,16 +31,15 @@ export function LoginForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-md">
+    <form action={handleSubmit} className="space-y-4 w-full max-w-md">
       <div>
         <label htmlFor="email" className="block text-sm font-medium mb-1">
           {t("login.email")}
         </label>
         <Input
           id="email"
+          name="email"
           type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
           required
           disabled={isLoading}
           placeholder={t("login.emailPlaceholder")}
@@ -75,9 +53,8 @@ export function LoginForm() {
         </label>
         <Input
           id="password"
+          name="password"
           type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
           required
           disabled={isLoading}
           placeholder={t("login.passwordPlaceholder")}

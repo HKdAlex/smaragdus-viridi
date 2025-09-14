@@ -1,0 +1,25 @@
+
+> crystallique@0.1.0 build
+> next build
+
+   ▲ Next.js 15.1.3
+   - Environments: .env.local
+
+   Creating an optimized production build ...
+Failed to compile.
+
+./src/app/api/auth/callback/route.ts
+Module not found: Can't resolve '@/lib/supabase/server'
+
+https://nextjs.org/docs/messages/module-not-found
+
+./src/features/auth/actions/auth-actions.ts
+Module not found: Can't resolve '@/lib/supabase/server'
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Falex%2FWork%2FProjects%2FSites%2Fsmaragdus_viridi%2Fsrc%2Ffeatures%2Fauth%2Factions%2Fauth-actions.ts%22%2C%5B%5B%22005fda269cbe56630039e9f8ab39a2bc9cd026fbe8%22%2C%22getUserProfile%22%5D%2C%5B%2200a500d44e5249f7d049c053e6ad0ceca50aed904a%22%2C%22logoutAction%22%5D%2C%5B%22408dd8d4a96febdb9c787a1b583bc1da9b2b7ab99d%22%2C%22loginAction%22%5D%2C%5B%2240eb383288729c9521f47b36e3ec4c0dddadd32775%22%2C%22signupAction%22%5D%5D%5D%5D&__client_imported__=true!
+
+
+> Build failed because of webpack errors
