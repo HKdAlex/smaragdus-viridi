@@ -36,8 +36,8 @@ export default async function ContactPage() {
                 {t("contact.email.title")}
               </h3>
               <div className="space-y-1 text-muted-foreground">
-                <p>info@smaragdus-viridi.com</p>
-                <p>sales@smaragdus-viridi.com</p>
+                <p>info@crystallique.com</p>
+                <p>sales@crystallique.com</p>
               </div>
             </div>
 

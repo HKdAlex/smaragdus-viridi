@@ -1,4 +1,4 @@
-// Type Management for Smaragdus Viridi
+// Type Management for Crystallique
 // SINGLE SOURCE OF TRUTH: Import from Supabase generated types
 
 import type { Database } from './database'

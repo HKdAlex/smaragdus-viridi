@@ -1,9 +1,9 @@
 {
   "company": {
-    "name": "Smaragdus Viridi",
+    "name": "Crystallique",
     "description": "Your trusted partner in premium gemstone trading. We provide jewelry professionals with access to the world's finest certified gemstones, backed by transparent grading and exceptional service.",
     "contact": {
-      "email": "info@smaragdus-viridi.com",
+      "email": "info@crystallique.com",
       "phone": "+1 (555) 123-4567"
     }
   },
@@ -38,5 +38,5 @@
       "cookies": "Cookie Policy"
     }
   },
-  "copyright": "© {year} Smaragdus Viridi. All rights reserved."
+  "copyright": "© {year} Crystallique. All rights reserved."
 }

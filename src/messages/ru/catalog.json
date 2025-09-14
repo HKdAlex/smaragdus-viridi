@@ -62,7 +62,7 @@
   "gemstone": {
     "notFound": "Камень не найден",
     "notFoundDescription": "Запрашиваемый камень не найден.",
-    "title": "{weight}кт {color} {name} - {price} | Smaragdus Viridi",
+    "title": "{weight}кт {color} {name} - {price} | Crystallique",
     "description": "Изысканный {weight} каратный {color} {name} с огранкой {cut} и чистотой {clarity}. Серийный номер: {serial}. Премиальный камень из нашей коллекции.",
     "keywords": {
       "gemstone": "драгоценный камень",

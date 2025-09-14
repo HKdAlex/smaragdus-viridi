@@ -53,7 +53,10 @@ export function MainNav() {
   ];
 
   // User navigation (shown when logged in)
-  const userNavigation: NavItem[] = [{ name: t("profile"), href: "/profile" }];
+  const userNavigation: NavItem[] = [
+    { name: t("orders"), href: "/orders" },
+    { name: t("profile"), href: "/profile" },
+  ];
 
   // Admin navigation (conditionally shown)
   const adminNavigation: NavItem[] = [{ name: t("admin"), href: "/admin" }];

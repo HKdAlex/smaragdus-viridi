@@ -62,7 +62,7 @@
   "gemstone": {
     "notFound": "Gemstone Not Found",
     "notFoundDescription": "The requested gemstone could not be found.",
-    "title": "{weight}ct {color} {name} - {price} | Smaragdus Viridi",
+    "title": "{weight}ct {color} {name} - {price} | Crystallique",
     "description": "Exquisite {weight} carat {color} {name} with {cut} cut and {clarity} clarity. Serial: {serial}. Premium quality gemstone from our curated collection.",
     "keywords": {
       "gemstone": "gemstone",

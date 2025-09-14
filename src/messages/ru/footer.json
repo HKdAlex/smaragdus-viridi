@@ -1,9 +1,9 @@
 {
   "company": {
-    "name": "Smaragdus Viridi",
+    "name": "Crystallique",
     "description": "Ваш надёжный партнёр в торговле премиальными камнями. Мы предоставляем ювелирным профессионалам доступ к самым прекрасным сертифицированным камням мира, поддерживаемый прозрачной оценкой и исключительным сервисом.",
     "contact": {
-      "email": "info@smaragdus-viridi.com",
+      "email": "info@crystallique.com",
       "phone": "+1 (555) 123-4567"
     }
   },
@@ -38,5 +38,5 @@
       "cookies": "Политика cookies"
     }
   },
-  "copyright": "© {year} Smaragdus Viridi. Все права защищены."
+  "copyright": "© {year} Crystallique. Все права защищены."
 }

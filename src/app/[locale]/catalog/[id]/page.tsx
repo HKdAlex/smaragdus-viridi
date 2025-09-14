@@ -192,7 +192,7 @@ export async function generateMetadata({ params }: PageProps) {
 
   if (!gemstone) {
     return {
-      title: `${t("gemstone.notFound")} | Smaragdus Viridi`,
+      title: `${t("gemstone.notFound")} | Crystallique`,
       description: t("gemstone.notFoundDescription"),
     };
   }

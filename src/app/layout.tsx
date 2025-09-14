@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Smaragdus Viridi - Premium Gemstones",
+  title: "Crystallique - Premium Gemstones",
   description:
     "Discover and purchase premium gemstones including diamonds, rubies, sapphires, and emeralds. Professional gemstone marketplace with expert certification.",
   keywords:

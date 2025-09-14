@@ -35,7 +35,7 @@ export function Logo({
 
   // Choose logo source based on variant
   const getLogoSrc = () => {
-    return variant === "inline" ? "/sv-logo-inline.png" : "/sv-logo-block.png";
+    return variant === "inline" ? "/crystallique-logo-inline.png" : "/crystallique-logo-block.png";
   };
 
   const logoSrc = getLogoSrc();
@@ -62,7 +62,7 @@ export function Logo({
     <div className={`flex items-center space-x-3 ${className}`}>
       <Image
         src={logoSrc}
-        alt="Smaragdus Viridi"
+        alt="Crystallique"
         width={width}
         height={height}
         className={`logo-crisp transition-all duration-300 ${
@@ -83,7 +83,7 @@ export function Logo({
         <span
           className={`font-bold ${textSize} text-foreground transition-colors duration-300 hidden sm:block`}
         >
-          Smaragdus Viridi
+          Crystallique
         </span>
       )}
     </div>
