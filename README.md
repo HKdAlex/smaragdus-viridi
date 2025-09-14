@@ -1,4 +1,4 @@
-# 🔷 Smaragdus Viridi - Premium Gemstone E-commerce Platform
+# 💎 Crystallique - Premium Gemstone E-commerce Platform
 
 > Professional gemstone trading platform for jewelers, collectors, and enthusiasts
 
@@ -10,7 +10,7 @@
 
 ## 🌟 Overview
 
-Smaragdus Viridi is a sophisticated gemstone trading platform designed for professional jewelers, collectors, and gemstone enthusiasts. The platform features advanced 3D visualization, real-time chat support, multi-currency transactions, and comprehensive inventory management.
+Crystallique is a sophisticated gemstone trading platform designed for professional jewelers, collectors, and gemstone enthusiasts. The platform features advanced 3D visualization, real-time chat support, multi-currency transactions, and comprehensive inventory management.
 
 ### 🏆 Key Differentiators
 
@@ -33,8 +33,8 @@ Smaragdus Viridi is a sophisticated gemstone trading platform designed for profe
 
 ```bash
 # Clone repository
-git clone https://github.com/your-repo/smaragdus-viridi.git
-cd smaragdus-viridi
+git clone https://github.com/your-repo/crystallique.git
+cd crystallique
 
 # Install dependencies
 npm install
@@ -367,13 +367,13 @@ npm run test:performance
 
 ## 📄 License
 
-**Private Project** - Smaragdus Viridi © 2025
+**Private Project** - Crystallique © 2025
 
 ---
 
 ## 🎯 Project Vision
 
-Smaragdus Viridi aims to revolutionize the gemstone industry by providing:
+Crystallique aims to revolutionize the gemstone industry by providing:
 
 - **Transparency**: Complete technical specifications and origin tracking
 - **Accessibility**: Professional tools for jewelers and enthusiasts
