@@ -30,6 +30,8 @@ export function LanguageSwitcher() {
         "/catalog",
         "/login",
         "/signup",
+        "/profile",
+        "/orders",
         "/admin",
         "/admin/dashboard",
         "/admin/login",

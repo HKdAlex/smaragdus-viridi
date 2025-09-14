@@ -311,9 +311,9 @@ function parseCsvRow(row, lineNumber) {
     description: cleanString(address), // CSV "Адрес" → description field for storage location
     cut: mapGemCut(cleanString(cut)),
     weight_carats: parsedWeight,
-    length_mm: parseDimensions(length),
-    width_mm: parseDimensions(width),
-    depth_mm: parseDimensions(depth),
+    length_mm: parseDimensions(length) || 0, // Default to 0 if missing
+    width_mm: parseDimensions(width) || 0, // Default to 0 if missing
+    depth_mm: parseDimensions(depth) || 0, // Default to 0 if missing
     price_amount: pricingData.totalPrice, // Total price for the lot
     price_per_carat: pricingData.pricePerCarat, // Per-carat price (null for lot pricing)
     price_currency: "USD",
@@ -635,7 +635,11 @@ async function importCsvGemstones(csvPath, dryRun = false) {
                 weight_carats: gemstoneData.weight_carats,
                 price_amount: gemstoneData.price_amount,
               });
-              console.log(`✅ Updated: ${gemstoneData.serial_number}`);
+              console.log(
+                `✅ Updated: ${
+                  existing.serial_number || gemstoneData.internal_code
+                }`
+              );
             } else {
               results.skipped++;
               results.notImported.push({
@@ -645,7 +649,7 @@ async function importCsvGemstones(csvPath, dryRun = false) {
                 reason: updateResult.reason,
               });
               console.log(
-                `⏭️  Skipped: ${gemstoneData.serial_number} - ${updateResult.reason}`
+                `⏭️  Skipped: ${gemstoneData.internal_code} - ${updateResult.reason}`
               );
             }
           }
@@ -676,7 +680,11 @@ async function importCsvGemstones(csvPath, dryRun = false) {
                 weight_carats: gemstoneData.weight_carats,
                 price_amount: gemstoneData.price_amount,
               });
-              console.log(`🆕 Created: ${gemstoneData.serial_number}`);
+              console.log(
+                `🆕 Created: ${
+                  createResult.data?.serial_number || gemstoneData.internal_code
+                }`
+              );
             } else {
               results.errors.push({
                 row: index + 1,
@@ -701,11 +709,13 @@ async function importCsvGemstones(csvPath, dryRun = false) {
         }
       } catch (error) {
         results.errors.push({
-          serial: gemstoneData.serial_number,
+          row: index + 1,
+          internal_code: gemstoneData.internal_code,
+          name: gemstoneData.name,
           error: error.message,
         });
         console.error(
-          `❌ Error processing ${gemstoneData.serial_number}: ${error.message}`
+          `❌ Error processing ${gemstoneData.internal_code}: ${error.message}`
         );
       }
     }

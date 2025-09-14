@@ -4,6 +4,7 @@ import {
   setRequestLocale,
 } from "next-intl/server";
 
+import { AuthProvider } from "@/features/auth/context/auth-context";
 import { ChatWidget } from "@/features/chat";
 import { Footer } from "@/shared/components/layout/footer";
 import { MainNav } from "@/shared/components/navigation/main-nav";
@@ -50,12 +51,14 @@ export default async function LocaleLayout({
 
   return (
     <NextIntlClientProvider messages={messages}>
-      <div className="flex flex-col min-h-screen">
-        <MainNav />
-        <main className="flex-1">{children}</main>
-        <Footer />
-        <ChatWidget />
-      </div>
+      <AuthProvider>
+        <div className="flex flex-col min-h-screen">
+          <MainNav />
+          <main className="flex-1">{children}</main>
+          <Footer />
+          <ChatWidget />
+        </div>
+      </AuthProvider>
     </NextIntlClientProvider>
   );
 }

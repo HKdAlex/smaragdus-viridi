@@ -12,11 +12,11 @@ import type {
   UserProfile,
 } from "../types/user-profile.types";
 
+import type { Database } from "@/shared/types/database";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { UserProfileError } from "../types/user-profile.types";
 import { createContextLogger } from "@/shared/utils/logger";
 import { supabase } from "@/lib/supabase";
-import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Database } from "@/shared/types/database";
 
 export class UserProfileService {
   private supabase: SupabaseClient<Database>;

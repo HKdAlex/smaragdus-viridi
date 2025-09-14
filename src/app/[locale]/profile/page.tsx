@@ -1,9 +1,9 @@
 import { Metadata } from "next";
 import { UserProfilePage } from "@/features/user/components/user-profile-page";
+import { UserProfileService } from "@/features/user/services/user-profile-service";
 import { createServerSupabaseClient } from "@/lib/supabase";
 import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
-import { UserProfileService } from "@/features/user/services/user-profile-service";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("user");
