@@ -36,10 +36,10 @@
 
 ```bash
 # 1. Create Next.js 15 project
-npx create-next-app@latest smaragdus-viridi --typescript --tailwind --eslint --app --src-dir --import-alias "@/*"
+npx create-next-app@latest crystallique --typescript --tailwind --eslint --app --src-dir --import-alias "@/*"
 
 # 2. Navigate to project
-cd smaragdus-viridi
+cd crystallique
 
 # 3. Install additional dependencies
 npm install @supabase/supabase-js @supabase/ssr

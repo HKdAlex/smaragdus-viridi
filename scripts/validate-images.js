@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Image Validation Script for Smaragdus Viridi
+ * Image Validation Script for Crystallique
  * Validates external image URLs to catch 404s during build process
  */
 
@@ -186,7 +186,7 @@ async function fixBrokenImages(brokenImages) {
  * Main validation function
  */
 async function main() {
-  console.log("🖼️  Starting image validation for Smaragdus Viridi\n");
+  console.log("🖼️  Starting image validation for Crystallique\n");
 
   try {
     // Fetch all image URLs from database

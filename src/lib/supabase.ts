@@ -1,5 +1,6 @@
 import { Database } from '@/shared/types/database'
 import { createClient } from '@supabase/supabase-js'
+import { createServerClient } from '@supabase/ssr'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -27,4 +28,27 @@ export const supabaseAdmin = (() => {
       persistSession: false
     }
   })
-})() 
+})()
+
+// Server-side Supabase client for Server Components and API routes
+export const createServerSupabaseClient = async () => {
+  const { cookies } = await import('next/headers')
+  const cookieStore = await cookies()
+
+  return createServerClient<Database>(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      getAll() {
+        return cookieStore.getAll()
+      },
+      setAll(cookiesToSet) {
+        try {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            cookieStore.set(name, value, options)
+          )
+        } catch {
+          // Server Component context - can be ignored
+        }
+      },
+    },
+  })
+}

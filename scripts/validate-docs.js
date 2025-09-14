@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Documentation Validation Script for Smaragdus Viridi
+ * Documentation Validation Script for Crystallique
  * Validates LIVING_PLAN.md for consistency and quality issues
  */
 

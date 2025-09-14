@@ -18,7 +18,7 @@ These are the **original specifications** from the project's initial planning ph
 - `04_design_brief.md` - Design guidelines and branding requirements
 - `05_tech_spec.md` - Technical architecture and implementation details
 - `06_implementation_plan.md` - Original development timeline and milestones
-- `SMARAGDUS_VIRIDI_DEVELOPMENT_RULES.md` - Initial development standards
+- `CRYSTALLIQUE_DEVELOPMENT_RULES.md` - Initial development standards
 - `client-files/` - Original client assets and requirements
 
 ## ✅ For Current Information, See:

@@ -389,14 +389,14 @@ _No active development issues - project in planning phase_
 | 2025-01-26 | Auth Forms Built & Working        | High    | Login/signup with react-hook-form + zod validation                                  |
 | 2025-01-26 | Build Pipeline Established        | High    | TypeScript, Tailwind v3, PostCSS all working perfectly                              |
 | 2025-01-26 | Homepage Design for Sprint 2      | Medium  | User requested priority on homepage + navigation                                    |
-| 2025-01-19 | Supabase Project Created          | High    | Created smaragdus-viridi project (dpqapyojcdtrjwuhybky)                             |
+| 2025-01-19 | Supabase Project Created          | High    | Created crystallique project (dpqapyojcdtrjwuhybky)                             |
 | 2025-01-19 | Fixed Deprecated Packages         | High    | Updated @supabase/ssr patterns in rules & playbook                                  |
 | 2025-01    | Supabase MCP Integration          | High    | Use MCP tools for all database operations                                           |
 | 2025-01    | Living Documentation System       | High    | Real-time tracking vs static planning                                               |
 
 ### Supabase Project Details
 
-**Project Name**: smaragdus-viridi  
+**Project Name**: crystallique  
 **Project ID**: dpqapyojcdtrjwuhybky  
 **Region**: eu-central-1  
 **URL**: https://dpqapyojcdtrjwuhybky.supabase.co  

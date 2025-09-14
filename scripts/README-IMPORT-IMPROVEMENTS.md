@@ -2,7 +2,7 @@
 
 ## 📋 Overview
 
-This document outlines the comprehensive improvements made to the Smaragdus Viridi gemstone import system. All requested features have been implemented and are ready for use.
+This document outlines the comprehensive improvements made to the Crystallique gemstone import system. All requested features have been implemented and are ready for use.
 
 ## ✅ COMPLETED IMPROVEMENTS
 

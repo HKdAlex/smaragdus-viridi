@@ -74,7 +74,7 @@
 | `docs/02-requirements/legacy-specs/05_tech_spec.md`                       | 🏛️ Legacy  | ⭐⭐⭐⭐   | Original technical specs       | ✅ Archive - Keep for reference |
 | `docs/02-requirements/legacy-specs/04_design_brief.md`                    | 🏛️ Legacy  | ⭐⭐⭐⭐   | Original design brief          | ✅ Archive - Keep for reference |
 | `docs/02-requirements/legacy-specs/03_functional_spec.md`                 | 🏛️ Legacy  | ⭐⭐⭐⭐   | Original functional specs      | ✅ Archive - Keep for reference |
-| `docs/02-requirements/legacy-specs/SMARAGDUS_VIRIDI_DEVELOPMENT_RULES.md` | 🏛️ Legacy  | ⭐⭐⭐⭐   | Original development rules     | ✅ Archive - Keep for reference |
+| `docs/02-requirements/legacy-specs/CRYSTALLIQUE_DEVELOPMENT_RULES.md` | 🏛️ Legacy  | ⭐⭐⭐⭐   | Original development rules     | ✅ Archive - Keep for reference |
 
 ### ✨ Category 5: Features & User Stories (2 files)
 
@@ -196,8 +196,8 @@
 
 ```bash
 # Clone repository
-git clone https://github.com/your-repo/smaragdus-viridi.git
-cd smaragdus-viridi
+git clone https://github.com/your-repo/crystallique.git
+cd crystallique
 
 # Install dependencies
 npm install

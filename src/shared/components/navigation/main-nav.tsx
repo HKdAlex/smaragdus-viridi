@@ -3,21 +3,19 @@
 import { Link, usePathname } from "@/i18n/navigation";
 import { useMemo, useState } from "react";
 
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import { useAuth } from "@/features/auth/context/auth-context";
-import { useCart } from "@/features/cart/hooks/use-cart";
 import { Button } from "@/shared/components/ui/button";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { Logo } from "@/shared/components/ui/logo";
 import { ThemeToggle } from "@/shared/components/ui/theme-toggle";
+import { useAuth } from "@/features/auth/context/auth-context";
+import { useCart } from "@/features/cart/hooks/use-cart";
 import { useTranslations } from "next-intl";
 
 // Safe admin status hook that doesn't throw if AdminProvider is not available
 function useSafeAdminStatus() {
   // @ts-ignore
-  const {
-    useAdminStatus,
-  } = require("@/features/admin/context/admin-context");
-  
+  const { useAdminStatus } = require("@/features/admin/context/admin-context");
+
   try {
     return useAdminStatus();
   } catch {

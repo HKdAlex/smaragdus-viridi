@@ -61,21 +61,6 @@
     },
     "exploreCollection": "Explore Our Collection"
   },
-  "contact": {
-    "title": "Contact Us",
-    "subtitle": "Get in touch with our gemstone experts. We're here to help you find the perfect stones for your projects.",
-    "email": {
-      "title": "Email Us"
-    },
-    "phone": {
-      "title": "Call Us"
-    },
-    "form": {
-      "title": "Send us a message",
-      "placeholder": "Contact form coming soon"
-    },
-    "backToHome": "Back to Home"
-  },
   "cart": {
     "title": "Shopping Cart",
     "continueShopping": "Continue Shopping",

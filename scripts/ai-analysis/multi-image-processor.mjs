@@ -4,7 +4,7 @@
  * Handles analysis of all images for a gemstone in a single API request,
  * providing comprehensive data consolidation and cross-verification.
  *
- * @author Smaragdus Viridi Team
+ * @author Crystallique Team
  * @version 3.1.0 - ENHANCED VALIDATION
  * @date 2025-01-19
  */

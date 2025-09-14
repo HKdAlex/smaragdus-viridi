@@ -17,8 +17,8 @@ _Next.js 15 + Supabase + TypeScript_
 
 ```bash
 # Clone and setup
-git clone <repository-url> smaragdus-viridi
-cd smaragdus-viridi
+git clone <repository-url> crystallique
+cd crystallique
 
 # Install fnm and Node.js 20
 curl -fsSL https://fnm.vercel.app/install | bash
@@ -92,7 +92,7 @@ EXCHANGE_RATE_API_KEY=your_exchange_rate_api_key
 
 # File Storage
 NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET=gemstone-media
-AWS_S3_BUCKET_NAME=smaragdus-viridi-media
+AWS_S3_BUCKET_NAME=crystallique-media
 AWS_ACCESS_KEY_ID=your_aws_access_key
 AWS_SECRET_ACCESS_KEY=your_aws_secret_key
 

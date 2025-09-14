@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Comprehensive inventory of all pages and components in the Smaragdus Viridi gemstone e-commerce platform, with systematic optimization status for dark/light themes and mobile devices.
+Comprehensive inventory of all pages and components in the Crystallique gemstone e-commerce platform, with systematic optimization status for dark/light themes and mobile devices.
 
 ## 📊 Optimization Status Legend
 

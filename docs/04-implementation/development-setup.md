@@ -29,8 +29,8 @@
 
 ```bash
 # Clone repository
-git clone <repository-url> smaragdus-viridi
-cd smaragdus-viridi
+git clone <repository-url> crystallique
+cd crystallique
 
 # Install Node.js version manager and Node.js 20
 curl -fsSL https://fnm.vercel.app/install | bash
@@ -252,7 +252,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_test_anon_key
 ## 📁 Project Structure Overview
 
 ```
-smaragdus-viridi/
+crystallique/
 ├── src/                          # Source code
 │   ├── features/                 # Feature modules
 │   │   ├── gemstones/           # Gemstone catalog feature
@@ -362,11 +362,11 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 # Staging
 NODE_ENV=production
-NEXT_PUBLIC_APP_URL=https://staging.smaragdus-viridi.com
+NEXT_PUBLIC_APP_URL=https://staging.crystallique.com
 
 # Production
 NODE_ENV=production
-NEXT_PUBLIC_APP_URL=https://smaragdus-viridi.com
+NEXT_PUBLIC_APP_URL=https://crystallique.com
 ```
 
 ---

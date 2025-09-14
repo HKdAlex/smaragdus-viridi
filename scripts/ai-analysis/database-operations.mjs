@@ -4,7 +4,7 @@
  * Handles saving consolidated analysis results, managing primary image flags,
  * and tracking analysis metadata in Supabase.
  *
- * @author Smaragdus Viridi Team
+ * @author Crystallique Team
  * @version 3.1.0 - ENHANCED VALIDATION TRACKING
  * @date 2025-01-19
  */

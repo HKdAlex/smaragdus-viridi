@@ -4,7 +4,7 @@
  * Comprehensive prompts designed for analyzing multiple images of a single
  * gemstone in one API request, with data consolidation and cross-verification.
  *
- * @author Smaragdus Viridi Team
+ * @author Crystallique Team
  * @version 3.1.0 - ENHANCED FOR COMPLETE ANALYSIS
  * @date 2025-01-19
  */

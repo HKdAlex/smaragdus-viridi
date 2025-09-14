@@ -3,22 +3,18 @@
 import {
   Calendar,
   Download,
-  Filter,
   Package,
   RefreshCw,
-  Search,
   TrendingUp,
 } from "lucide-react";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
 import type {
   ProfileStats,
-  UserOrder,
   UserProfile,
 } from "@/features/user/types/user-profile.types";
 import {
@@ -28,13 +24,12 @@ import {
   TabsTrigger,
 } from "@/shared/components/ui/tabs";
 
-import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { OrderHistory } from "@/features/user/components/order-history";
 import { OrdersAnalytics } from "./orders-analytics";
 import { Separator } from "@/shared/components/ui/separator";
-import { useEffect, useState } from "react";
 import { useOrderHistory } from "@/features/user/hooks/use-order-history";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 
 interface OrdersDashboardProps {
@@ -53,15 +48,8 @@ export function OrdersDashboard({
   const t = useTranslations("orders");
   const [selectedTab, setSelectedTab] = useState("all-orders");
 
-  const {
-    orders,
-    loading,
-    error,
-    total,
-    hasMore,
-    loadMore,
-    refresh,
-  } = useOrderHistory(userId);
+  const { orders, loading, error, total, hasMore, loadMore, refresh } =
+    useOrderHistory(userId);
 
   const formatCurrency = (amount: number, currency: string) => {
     return new Intl.NumberFormat(locale === "ru" ? "ru-RU" : "en-US", {
@@ -119,17 +107,17 @@ export function OrdersDashboard({
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold">{t("dashboard.title")}</h1>
-          <p className="text-muted-foreground">
-            {t("dashboard.subtitle")}
-          </p>
+          <p className="text-muted-foreground">{t("dashboard.subtitle")}</p>
         </div>
 
         <div className="flex items-center space-x-3">
           <Button variant="outline" onClick={refresh} disabled={loading}>
-            <RefreshCw className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`} />
+            <RefreshCw
+              className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`}
+            />
             {t("dashboard.refresh")}
           </Button>
-          
+
           <Button variant="outline" onClick={handleExportOrders}>
             <Download className="w-4 h-4 mr-2" />
             {t("dashboard.export")}
@@ -169,10 +157,12 @@ export function OrdersDashboard({
               )}
             </div>
             <p className="text-xs text-muted-foreground">
-              {liveStats && formatCurrency(
-                liveStats.recentSpending,
-                userProfile?.preferred_currency || "USD"
-              )} {t("stats.thisMonth")}
+              {liveStats &&
+                formatCurrency(
+                  liveStats.recentSpending,
+                  userProfile?.preferred_currency || "USD"
+                )}{" "}
+              {t("stats.thisMonth")}
             </p>
           </CardContent>
         </Card>
@@ -251,9 +241,9 @@ export function OrdersDashboard({
           <TabsContent value="in-transit" className="space-y-6">
             <OrderHistory
               orders={orders.filter(
-                (order) => 
-                  order.status === "confirmed" || 
-                  order.status === "processing" || 
+                (order) =>
+                  order.status === "confirmed" ||
+                  order.status === "processing" ||
                   order.status === "shipped"
               )}
               loading={loading}
@@ -279,7 +269,7 @@ export function OrdersDashboard({
       {orders.length > 0 && (
         <div className="mt-8">
           <Separator className="mb-6" />
-          <OrdersAnalytics 
+          <OrdersAnalytics
             orders={orders}
             userProfile={userProfile}
             locale={locale}
@@ -295,11 +285,7 @@ export function OrdersDashboard({
               <Package className="w-4 h-4" />
               <span>Error loading orders: {error}</span>
             </div>
-            <Button 
-              variant="outline" 
-              onClick={refresh} 
-              className="mt-4"
-            >
+            <Button variant="outline" onClick={refresh} className="mt-4">
               Try Again
             </Button>
           </CardContent>

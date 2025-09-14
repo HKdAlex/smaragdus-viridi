@@ -4,7 +4,7 @@
  * Handles image downloading, conversion, and temporary file management
  * for multi-image AI analysis workflows.
  *
- * @author Smaragdus Viridi Team
+ * @author Crystallique Team
  * @version 3.0.0
  * @date 2025-01-19
  */

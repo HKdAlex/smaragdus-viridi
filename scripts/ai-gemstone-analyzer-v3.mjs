@@ -14,7 +14,7 @@
  * - Intelligent primary image selection
  * - Modular, maintainable codebase
  *
- * @author Smaragdus Viridi Team
+ * @author Crystallique Team
  * @version 3.0.0
  * @date 2025-01-19
  */

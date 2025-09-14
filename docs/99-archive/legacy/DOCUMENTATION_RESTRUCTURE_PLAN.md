@@ -21,7 +21,7 @@ Current Locations:
 │       ├── feature-matrix.md
 │       └── technical-specifications.md
 ├── .docs/                                  # Legacy docs (outdated)
-│   ├── SMARAGDUS_VIRIDI_DEVELOPMENT_RULES.md  # Superseded by .cursor/rules
+│   ├── CRYSTALLIQUE_DEVELOPMENT_RULES.md  # Superseded by .cursor/rules
 │   ├── 01_prd.md → 06_implementation_plan.md  # Legacy format
 │   └── client-files/                      # Original requirements
 ├── .cursor/rules/                          # Current rules (well-structured)

@@ -363,9 +363,9 @@ console.log(analysisResult.raw_ai_response);
 
 ## 📝 License
 
-Part of the Smaragdus Viridi gemstone analysis system.
+Part of the Crystallique gemstone analysis system.
 
 **Version**: 3.0.0  
 **Last Updated**: 2025-01-19  
-**Maintainer**: Smaragdus Viridi Team
+**Maintainer**: Crystallique Team
  

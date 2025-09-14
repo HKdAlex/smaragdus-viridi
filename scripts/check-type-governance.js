@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Type Governance Checker - Smaragdus Viridi
+ * Type Governance Checker - Crystallique
  *
  * This script enforces our type governance rules to prevent the type
  * duplication disaster that occurred during Sprint 3.

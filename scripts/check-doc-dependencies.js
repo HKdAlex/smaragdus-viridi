@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Cross-Document Dependency Checker for Smaragdus Viridi
+ * Cross-Document Dependency Checker for Crystallique
  * Validates consistency across related documentation files
  */
 

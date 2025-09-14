@@ -1,8 +1,8 @@
 "use client";
 
-import { useThemeContext } from "@/shared/context/theme-context";
 import Image from "next/image";
 import Link from "next/link";
+import { useThemeContext } from "@/shared/context/theme-context";
 
 interface LogoProps {
   variant?: "inline" | "block";
@@ -35,7 +35,9 @@ export function Logo({
 
   // Choose logo source based on variant
   const getLogoSrc = () => {
-    return variant === "inline" ? "/crystallique-logo-inline.png" : "/crystallique-logo-block.png";
+    return variant === "inline"
+      ? "/crystallique-logo-inline.png"
+      : "/crystallique-logo-block.png";
   };
 
   const logoSrc = getLogoSrc();

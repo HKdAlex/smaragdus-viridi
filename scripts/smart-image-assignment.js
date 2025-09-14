@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Smart Image Assignment Script for Smaragdus Viridi
+ * Smart Image Assignment Script for Crystallique
  * Assigns appropriate images based on gemstone properties and eliminates duplicates
  */
 
@@ -198,7 +198,7 @@ function getBestImage(gemstoneType, color, cut) {
  * Assign smart images to all gemstones
  */
 async function assignSmartImages() {
-  console.log("🎨 Starting smart image assignment for Smaragdus Viridi\n");
+  console.log("🎨 Starting smart image assignment for Crystallique\n");
 
   try {
     // Get all gemstones

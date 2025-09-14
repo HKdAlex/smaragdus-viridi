@@ -287,6 +287,86 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_messages: {
+        Row: {
+          admin_notes: string | null
+          company: string | null
+          created_at: string | null
+          email: string
+          id: string
+          inquiry_type: string
+          ip_address: unknown | null
+          is_spam: boolean | null
+          locale: string | null
+          message: string
+          name: string
+          phone: string | null
+          preferred_contact_method: string | null
+          referrer_url: string | null
+          responded_at: string | null
+          responded_by: string | null
+          status: string
+          subject: string
+          updated_at: string | null
+          urgency_level: string
+          user_agent: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          company?: string | null
+          created_at?: string | null
+          email: string
+          id?: string
+          inquiry_type: string
+          ip_address?: unknown | null
+          is_spam?: boolean | null
+          locale?: string | null
+          message: string
+          name: string
+          phone?: string | null
+          preferred_contact_method?: string | null
+          referrer_url?: string | null
+          responded_at?: string | null
+          responded_by?: string | null
+          status?: string
+          subject: string
+          updated_at?: string | null
+          urgency_level?: string
+          user_agent?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          company?: string | null
+          created_at?: string | null
+          email?: string
+          id?: string
+          inquiry_type?: string
+          ip_address?: unknown | null
+          is_spam?: boolean | null
+          locale?: string | null
+          message?: string
+          name?: string
+          phone?: string | null
+          preferred_contact_method?: string | null
+          referrer_url?: string | null
+          responded_at?: string | null
+          responded_by?: string | null
+          status?: string
+          subject?: string
+          updated_at?: string | null
+          urgency_level?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_messages_responded_by_fkey"
+            columns: ["responded_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       currency_rates: {
         Row: {
           base_currency: Database["public"]["Enums"]["currency_code"]

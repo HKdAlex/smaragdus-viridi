@@ -357,7 +357,7 @@
       "name": "Smaragdus Viridi",
       "description": "Your trusted partner in premium gemstone trading...",
       "contact": {
-        "email": "info@smaragdus-viridi.com",
+        "email": "info@crystallique.com",
         "phone": "+1 (555) 123-4567"
       }
     },

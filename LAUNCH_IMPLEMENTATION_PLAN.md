@@ -1,4 +1,4 @@
-# 🚀 Smaragdus Viridi E-commerce Platform - Launch Implementation Plan
+# 🚀 Crystallique E-commerce Platform - Launch Implementation Plan
 
 ## 📋 **Project Overview**
 

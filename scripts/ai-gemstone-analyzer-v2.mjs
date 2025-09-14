@@ -14,7 +14,7 @@
  * ✨ Consolidated data from multiple images per gemstone
  * ✨ Automatic primary image flag management
  *
- * @author Smaragdus Viridi Team
+ * @author Crystallique Team
  * @version 2.1.0
  * @date 2025-01-19
  */

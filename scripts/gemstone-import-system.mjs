@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Gemstone Import System - Smaragdus Viridi
+ * Gemstone Import System - Crystallique
  *
  * Processes gemstone data from organized folder structure:
  * - Photos of gems

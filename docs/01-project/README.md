@@ -1,4 +1,4 @@
-# 🔷 Smaragdus Viridi - Premium Gemstone E-commerce Platform
+# 💎 Crystallique - Premium Gemstone E-commerce Platform
 
 ## 🚨 IMPORTANT: Current vs Legacy Documentation
 
@@ -30,7 +30,7 @@
 
 ## 🎯 Project Overview
 
-Smaragdus Viridi is a sophisticated gemstone trading platform designed for professional jewelers, collectors, and gemstone enthusiasts. The platform features advanced 3D visualization, real-time chat support, multi-currency transactions, and comprehensive inventory management.
+Crystallique is a sophisticated gemstone trading platform designed for professional jewelers, collectors, and gemstone enthusiasts. The platform features advanced 3D visualization, real-time chat support, multi-currency transactions, and comprehensive inventory management.
 
 ### 🏆 Key Differentiators
 

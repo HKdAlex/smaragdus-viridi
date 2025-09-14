@@ -11,7 +11,7 @@
  * - Compliance and traceability
  * - Automated report generation
  *
- * @author Smaragdus Viridi Team
+ * @author Crystallique Team
  * @version 1.0.0
  * @date 2025-01-19
  */

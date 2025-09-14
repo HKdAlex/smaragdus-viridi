@@ -25,20 +25,22 @@ interface PageProps {
 
 export default async function OrdersPage({ params }: PageProps) {
   const { locale } = await params;
-  
+
+  // Authentication is handled by the (authenticated) layout
+  // We can safely assume the user is authenticated here
   const supabase = await createServerClient();
   const {
     data: { user },
-    error: authError,
   } = await supabase.auth.getUser();
 
-  if (authError || !user) {
+  // This should never happen due to layout protection, but keeping for safety
+  if (!user) {
     redirect("/login");
   }
 
   // Get user profile for currency and preferences
   const profile = await userProfileService.getProfile(user.id);
-  
+
   // Get profile statistics for analytics
   const stats = await userProfileService.getProfileStats(user.id);
 

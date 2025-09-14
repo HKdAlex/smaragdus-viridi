@@ -1,4 +1,4 @@
-# Types Directory - Smaragdus Viridi
+# Types Directory - Crystallique
 
 ## 🚨 CRITICAL: READ BEFORE EDITING
 
