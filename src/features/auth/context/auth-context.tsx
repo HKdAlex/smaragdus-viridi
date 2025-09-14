@@ -1,7 +1,7 @@
 "use client";
 
 import { AuthChangeEvent, Session, User } from "@supabase/supabase-js";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 
 import type { DatabaseUserProfile } from "@/shared/types";
 import { getUserProfile } from "@/features/auth/actions/auth-actions";
@@ -23,6 +23,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<DatabaseUserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const initializeAttempted = useRef(false);
 
   const refreshProfile = async () => {
     if (user) {
@@ -34,10 +35,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    // Get initial session
+    // Prevent double initialization in development mode
+    if (initializeAttempted.current) return;
+    initializeAttempted.current = true;
+
+    // Get initial session with proper SSR synchronization
     const getInitialSession = async () => {
       try {
         console.log("[AUTH PROVIDER] Getting initial session...");
+
+        // CRITICAL: Use a small delay to ensure cookies are properly synced
+        // This fixes the SSR hydration mismatch issue
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
         const {
           data: { session },
           error: sessionError,
@@ -79,15 +89,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(
       async (event: AuthChangeEvent, session: Session | null) => {
+        console.log("[AUTH PROVIDER] Auth state changed:", {
+          event,
+          hasSession: !!session,
+          hasUser: !!session?.user,
+        });
+
         if (event === "SIGNED_IN" && session) {
+          console.log("[AUTH PROVIDER] User signed in, updating state...");
           setUser(session.user);
 
           // Fetch profile using server action
-          const { profile } = await getUserProfile();
-          setProfile(profile);
+          try {
+            const { profile } = await getUserProfile();
+            setProfile(profile);
+            console.log("[AUTH PROVIDER] Profile updated on sign in");
+          } catch (error) {
+            console.error(
+              "[AUTH PROVIDER] Error fetching profile on sign in:",
+              error
+            );
+          }
         } else if (event === "SIGNED_OUT") {
+          console.log("[AUTH PROVIDER] User signed out, clearing state...");
           setUser(null);
           setProfile(null);
+        } else if (event === "TOKEN_REFRESHED" && session) {
+          console.log("[AUTH PROVIDER] Token refreshed, updating user...");
+          setUser(session.user);
         }
       }
     );

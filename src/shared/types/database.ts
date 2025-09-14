@@ -577,6 +577,7 @@ export type Database = {
           internal_code: string | null
           length_mm: number
           marketing_highlights: string[] | null
+          metadata_status: Database["public"]["Enums"]["metadata_status"] | null
           name: Database["public"]["Enums"]["gemstone_type"]
           origin_id: string | null
           premium_price_amount: number | null
@@ -585,7 +586,9 @@ export type Database = {
             | null
           price_amount: number
           price_currency: Database["public"]["Enums"]["currency_code"]
+          price_per_carat: number | null
           promotional_text: string | null
+          quantity: number
           serial_number: string
           updated_at: string | null
           weight_carats: number
@@ -611,6 +614,9 @@ export type Database = {
           internal_code?: string | null
           length_mm: number
           marketing_highlights?: string[] | null
+          metadata_status?:
+            | Database["public"]["Enums"]["metadata_status"]
+            | null
           name: Database["public"]["Enums"]["gemstone_type"]
           origin_id?: string | null
           premium_price_amount?: number | null
@@ -619,7 +625,9 @@ export type Database = {
             | null
           price_amount: number
           price_currency: Database["public"]["Enums"]["currency_code"]
+          price_per_carat?: number | null
           promotional_text?: string | null
+          quantity?: number
           serial_number: string
           updated_at?: string | null
           weight_carats: number
@@ -645,6 +653,9 @@ export type Database = {
           internal_code?: string | null
           length_mm?: number
           marketing_highlights?: string[] | null
+          metadata_status?:
+            | Database["public"]["Enums"]["metadata_status"]
+            | null
           name?: Database["public"]["Enums"]["gemstone_type"]
           origin_id?: string | null
           premium_price_amount?: number | null
@@ -653,7 +664,9 @@ export type Database = {
             | null
           price_amount?: number
           price_currency?: Database["public"]["Enums"]["currency_code"]
+          price_per_carat?: number | null
           promotional_text?: string | null
+          quantity?: number
           serial_number?: string
           updated_at?: string | null
           weight_carats?: number
@@ -1228,6 +1241,15 @@ export type Database = {
         | "cushion"
         | "radiant"
         | "fantasy"
+        | "baguette"
+        | "asscher"
+        | "rhombus"
+        | "trapezoid"
+        | "triangle"
+        | "heart"
+        | "cabochon"
+        | "pentagon"
+        | "hexagon"
       gemstone_type:
         | "diamond"
         | "emerald"
@@ -1245,6 +1267,16 @@ export type Database = {
         | "zircon"
         | "apatite"
         | "quartz"
+        | "paraiba"
+        | "spinel"
+        | "alexandrite"
+        | "agate"
+      metadata_status:
+        | "needs_review"
+        | "updated"
+        | "needs_updating"
+        | "verified"
+        | "rejected"
       order_status:
         | "pending"
         | "confirmed"
@@ -1427,6 +1459,15 @@ export const Constants = {
         "cushion",
         "radiant",
         "fantasy",
+        "baguette",
+        "asscher",
+        "rhombus",
+        "trapezoid",
+        "triangle",
+        "heart",
+        "cabochon",
+        "pentagon",
+        "hexagon",
       ],
       gemstone_type: [
         "diamond",
@@ -1445,6 +1486,17 @@ export const Constants = {
         "zircon",
         "apatite",
         "quartz",
+        "paraiba",
+        "spinel",
+        "alexandrite",
+        "agate",
+      ],
+      metadata_status: [
+        "needs_review",
+        "updated",
+        "needs_updating",
+        "verified",
+        "rejected",
       ],
       order_status: [
         "pending",

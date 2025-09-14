@@ -1,36 +1,37 @@
-"use client";
-
 import type {
-    DatabaseCertification,
-    DatabaseGemstone,
-    DatabaseGemstoneImage,
-    DatabaseGemstoneVideo,
-    DatabaseOrigin
+  DatabaseCertification,
+  DatabaseGemstone,
+  DatabaseGemstoneImage,
+  DatabaseGemstoneVideo,
+  DatabaseOrigin,
 } from "@/shared/types";
 
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase";
 
 // Simple logger for now
 const logger = {
-  info: (message: string, data?: any) => console.log(`[ADMIN-GEMSTONE] ${message}`, data),
-  error: (message: string, error?: any) => console.error(`[ADMIN-GEMSTONE ERROR] ${message}`, error),
-  warn: (message: string, data?: any) => console.warn(`[ADMIN-GEMSTONE WARN] ${message}`, data),
+  info: (message: string, data?: any) =>
+    console.log(`[ADMIN-GEMSTONE] ${message}`, data),
+  error: (message: string, error?: any) =>
+    console.error(`[ADMIN-GEMSTONE ERROR] ${message}`, error),
+  warn: (message: string, data?: any) =>
+    console.warn(`[ADMIN-GEMSTONE WARN] ${message}`, data),
 };
 
 export interface GemstoneFormData {
-  name: DatabaseGemstone['name'];
-  color: DatabaseGemstone['color'];
-  cut: DatabaseGemstone['cut'];
-  clarity: DatabaseGemstone['clarity'];
+  name: DatabaseGemstone["name"];
+  color: DatabaseGemstone["color"];
+  cut: DatabaseGemstone["cut"];
+  clarity: DatabaseGemstone["clarity"];
   weight_carats: number;
   length_mm: number;
   width_mm: number;
   depth_mm: number;
   origin_id?: string;
   price_amount: number;
-  price_currency: DatabaseGemstone['price_currency'];
+  price_currency: DatabaseGemstone["price_currency"];
   premium_price_amount?: number;
-  premium_price_currency?: DatabaseGemstone['price_currency'];
+  premium_price_currency?: DatabaseGemstone["price_currency"];
   in_stock: boolean;
   delivery_days?: number;
   internal_code?: string;
@@ -48,35 +49,35 @@ export interface GemstoneWithRelations extends DatabaseGemstone {
 }
 
 export interface BulkImportResult {
-  success: boolean
-  imported: number
-  failed: number
-  errors: Array<{ row: number; error: string; data?: any }>
-  duplicates: Array<{ serialNumber: string; reason: string }>
-  warnings: Array<{ row: number; warning: string }>
+  success: boolean;
+  imported: number;
+  failed: number;
+  errors: Array<{ row: number; error: string; data?: any }>;
+  duplicates: Array<{ serialNumber: string; reason: string }>;
+  warnings: Array<{ row: number; warning: string }>;
 }
 
 export interface BulkImportData {
-  serialNumber: string
-  name: DatabaseGemstone['name']
-  color: DatabaseGemstone['color']
-  cut: DatabaseGemstone['cut']
-  clarity: DatabaseGemstone['clarity']
-  weight_carats: number
-  length_mm?: number
-  width_mm?: number
-  depth_mm?: number
-  origin_id?: string
-  price_amount: number
-  price_currency: DatabaseGemstone['price_currency']
-  premium_price_amount?: number
-  premium_price_currency?: DatabaseGemstone['price_currency']
-  in_stock: boolean
-  delivery_days?: number
-  internal_code?: string
-  description?: string
-  promotional_text?: string
-  marketing_highlights?: string[]
+  serialNumber: string;
+  name: DatabaseGemstone["name"];
+  color: DatabaseGemstone["color"];
+  cut: DatabaseGemstone["cut"];
+  clarity: DatabaseGemstone["clarity"];
+  weight_carats: number;
+  length_mm?: number;
+  width_mm?: number;
+  depth_mm?: number;
+  origin_id?: string;
+  price_amount: number;
+  price_currency: DatabaseGemstone["price_currency"];
+  premium_price_amount?: number;
+  premium_price_currency?: DatabaseGemstone["price_currency"];
+  in_stock: boolean;
+  delivery_days?: number;
+  internal_code?: string;
+  description?: string;
+  promotional_text?: string;
+  marketing_highlights?: string[];
 }
 
 export interface GemstoneCRUDResult<T = void> {
@@ -89,16 +90,18 @@ export class GemstoneAdminService {
   /**
    * Create a new gemstone
    */
-  static async createGemstone(formData: GemstoneFormData): Promise<GemstoneCRUDResult<DatabaseGemstone>> {
+  static async createGemstone(
+    formData: GemstoneFormData
+  ): Promise<GemstoneCRUDResult<DatabaseGemstone>> {
     try {
-      logger.info('Creating new gemstone', {
+      logger.info("Creating new gemstone", {
         serialNumber: formData.serial_number,
         name: formData.name,
         weight: formData.weight_carats,
       });
 
-      const { data, error } = await supabase
-        .from('gemstones')
+      const { data, error } = await supabaseAdmin!
+        .from("gemstones")
         .insert({
           name: formData.name,
           color: formData.color,
@@ -125,19 +128,19 @@ export class GemstoneAdminService {
         .single();
 
       if (error) {
-        logger.error('Failed to create gemstone', error);
+        logger.error("Failed to create gemstone", error);
         return { success: false, error: error.message };
       }
 
-      logger.info('Gemstone created successfully', {
+      logger.info("Gemstone created successfully", {
         id: data.id,
         serialNumber: data.serial_number,
       });
 
       return { success: true, data };
     } catch (error) {
-      logger.error('Unexpected error creating gemstone', error as Error);
-      return { success: false, error: 'An unexpected error occurred' };
+      logger.error("Unexpected error creating gemstone", error as Error);
+      return { success: false, error: "An unexpected error occurred" };
     }
   }
 
@@ -149,32 +152,32 @@ export class GemstoneAdminService {
     formData: Partial<GemstoneFormData>
   ): Promise<GemstoneCRUDResult<DatabaseGemstone>> {
     try {
-      logger.info('Updating gemstone', { id, updates: Object.keys(formData) });
+      logger.info("Updating gemstone", { id, updates: Object.keys(formData) });
 
-      const { data, error } = await supabase
-        .from('gemstones')
+      const { data, error } = await supabaseAdmin!
+        .from("gemstones")
         .update({
           ...formData,
           updated_at: new Date().toISOString(),
         })
-        .eq('id', id)
+        .eq("id", id)
         .select()
         .single();
 
       if (error) {
-        logger.error('Failed to update gemstone', error);
+        logger.error("Failed to update gemstone", error);
         return { success: false, error: error.message };
       }
 
-      logger.info('Gemstone updated successfully', {
+      logger.info("Gemstone updated successfully", {
         id: data.id,
         serialNumber: data.serial_number,
       });
 
       return { success: true, data };
     } catch (error) {
-      logger.error('Unexpected error updating gemstone', error as Error);
-      return { success: false, error: 'An unexpected error occurred' };
+      logger.error("Unexpected error updating gemstone", error as Error);
+      return { success: false, error: "An unexpected error occurred" };
     }
   }
 
@@ -183,102 +186,110 @@ export class GemstoneAdminService {
    */
   static async deleteGemstone(id: string): Promise<GemstoneCRUDResult> {
     try {
-      logger.info('Deleting gemstone', { id });
+      logger.info("Deleting gemstone", { id });
 
       // First, get the gemstone details for logging
-      const { data: gemstone } = await supabase
-        .from('gemstones')
-        .select('serial_number')
-        .eq('id', id)
+      const { data: gemstone } = await supabaseAdmin!
+        .from("gemstones")
+        .select("serial_number")
+        .eq("id", id)
         .single();
 
-      const { error } = await supabase
-        .from('gemstones')
+      const { error } = await supabaseAdmin!
+        .from("gemstones")
         .delete()
-        .eq('id', id);
+        .eq("id", id);
 
       if (error) {
-        logger.error('Failed to delete gemstone', error);
+        logger.error("Failed to delete gemstone", error);
         return { success: false, error: error.message };
       }
 
-      logger.info('Gemstone deleted successfully', {
+      logger.info("Gemstone deleted successfully", {
         id,
         serialNumber: gemstone?.serial_number,
       });
 
       return { success: true };
     } catch (error) {
-      logger.error('Unexpected error deleting gemstone', error as Error);
-      return { success: false, error: 'An unexpected error occurred' };
+      logger.error("Unexpected error deleting gemstone", error as Error);
+      return { success: false, error: "An unexpected error occurred" };
     }
   }
 
   /**
    * Get all gemstones for admin management
    */
-  static async getAllGemstones(): Promise<GemstoneCRUDResult<GemstoneWithRelations[]>> {
+  static async getAllGemstones(): Promise<
+    GemstoneCRUDResult<GemstoneWithRelations[]>
+  > {
     try {
-      logger.info('Fetching all gemstones for admin');
+      logger.info("Fetching all gemstones for admin");
 
-      const { data, error } = await supabase
-        .from('gemstones')
-        .select(`
+      const { data, error } = await supabaseAdmin!
+        .from("gemstones")
+        .select(
+          `
           *,
           origin:origins(*),
           images:gemstone_images(*),
           videos:gemstone_videos(*),
           certifications:certifications(*)
-        `)
-        .order('created_at', { ascending: false });
+        `
+        )
+        .order("created_at", { ascending: false });
 
       if (error) {
-        logger.error('Failed to fetch gemstones', error);
+        logger.error("Failed to fetch gemstones", error);
         return { success: false, error: error.message };
       }
 
-      logger.info('Gemstones fetched successfully', {
+      logger.info("Gemstones fetched successfully", {
         count: data?.length || 0,
       });
 
       // Transform data to handle null vs undefined for origin
-      const transformedData = (data || []).map(gemstone => ({
+      const transformedData = (data || []).map((gemstone) => ({
         ...gemstone,
         origin: gemstone.origin || undefined,
       }));
 
       return { success: true, data: transformedData };
     } catch (error) {
-      logger.error('Unexpected error fetching gemstones', error as Error);
-      return { success: false, error: 'An unexpected error occurred' };
+      logger.error("Unexpected error fetching gemstones", error as Error);
+      return { success: false, error: "An unexpected error occurred" };
     }
   }
 
   /**
    * Get a single gemstone by ID
    */
-  static async getGemstoneById(id: string): Promise<GemstoneCRUDResult<GemstoneWithRelations>> {
+  static async getGemstoneById(
+    id: string
+  ): Promise<GemstoneCRUDResult<GemstoneWithRelations>> {
     try {
-      logger.info('Fetching gemstone by ID', { id });
+      logger.info("Fetching gemstone by ID", { id });
 
-      const { data, error } = await supabase
-        .from('gemstones')
-        .select(`
+      const { data, error } = await supabaseAdmin!
+        .from("gemstones")
+        .select(
+          `
           *,
           origin:origins(*),
           images:gemstone_images(*),
           videos:gemstone_videos(*),
           certifications:certifications(*)
-        `)
-        .eq('id', id)
+        `
+        )
+        .eq("id", id)
         .single();
 
       if (error) {
-        logger.error('Failed to fetch gemstone', error);
+        logger.error("Failed to fetch gemstone", error);
         return { success: false, error: error.message };
       }
 
-      logger.info('Gemstone fetched successfully', {
+      logger.info("Gemstone fetched successfully", {
         id: data.id,
         serialNumber: data.serial_number,
       });
@@ -291,8 +302,8 @@ export class GemstoneAdminService {
 
       return { success: true, data: transformedData };
     } catch (error) {
-      logger.error('Unexpected error fetching gemstone', error as Error);
-      return { success: false, error: 'An unexpected error occurred' };
+      logger.error("Unexpected error fetching gemstone", error as Error);
+      return { success: false, error: "An unexpected error occurred" };
     }
   }
 
@@ -303,7 +314,7 @@ export class GemstoneAdminService {
     updates: Array<{ id: string; data: Partial<GemstoneFormData> }>
   ): Promise<GemstoneCRUDResult<{ success: number; failed: number }>> {
     try {
-      logger.info('Starting bulk update', { count: updates.length });
+      logger.info("Starting bulk update", { count: updates.length });
 
       let successCount = 0;
       let failedCount = 0;
@@ -314,14 +325,14 @@ export class GemstoneAdminService {
           successCount++;
         } else {
           failedCount++;
-          logger.error('Bulk update failed for gemstone', {
+          logger.error("Bulk update failed for gemstone", {
             id: update.id,
             error: result.error,
           });
         }
       }
 
-      logger.info('Bulk update completed', {
+      logger.info("Bulk update completed", {
         total: updates.length,
         success: successCount,
         failed: failedCount,
@@ -329,50 +340,53 @@ export class GemstoneAdminService {
 
       return {
         success: true,
-        data: { success: successCount, failed: failedCount }
+        data: { success: successCount, failed: failedCount },
       };
     } catch (error) {
-      logger.error('Unexpected error in bulk update', error as Error);
-      return { success: false, error: 'An unexpected error occurred' };
+      logger.error("Unexpected error in bulk update", error as Error);
+      return { success: false, error: "An unexpected error occurred" };
     }
   }
 
   /**
    * Validate gemstone form data
    */
-  static validateGemstoneData(formData: Partial<GemstoneFormData>): { valid: boolean; errors: string[] } {
+  static validateGemstoneData(formData: Partial<GemstoneFormData>): {
+    valid: boolean;
+    errors: string[];
+  } {
     const errors: string[] = [];
 
     if (!formData.serial_number?.trim()) {
-      errors.push('Serial number is required');
+      errors.push("Serial number is required");
     }
 
     if (!formData.name) {
-      errors.push('Gemstone type is required');
+      errors.push("Gemstone type is required");
     }
 
     if (!formData.color) {
-      errors.push('Color is required');
+      errors.push("Color is required");
     }
 
     if (!formData.cut) {
-      errors.push('Cut is required');
+      errors.push("Cut is required");
     }
 
     if (!formData.clarity) {
-      errors.push('Clarity is required');
+      errors.push("Clarity is required");
     }
 
     if (!formData.weight_carats || formData.weight_carats <= 0) {
-      errors.push('Weight must be greater than 0');
+      errors.push("Weight must be greater than 0");
     }
 
     if (!formData.price_amount || formData.price_amount <= 0) {
-      errors.push('Price must be greater than 0');
+      errors.push("Price must be greater than 0");
     }
 
     if (!formData.price_currency) {
-      errors.push('Price currency is required');
+      errors.push("Price currency is required");
     }
 
     // Check for duplicate serial number (would need to be async)
@@ -380,35 +394,38 @@ export class GemstoneAdminService {
 
     return {
       valid: errors.length === 0,
-      errors
+      errors,
     };
   }
 
   /**
    * Check if serial number already exists
    */
-  static async checkSerialNumberExists(serialNumber: string, excludeId?: string): Promise<boolean> {
+  static async checkSerialNumberExists(
+    serialNumber: string,
+    excludeId?: string
+  ): Promise<boolean> {
     try {
-      let query = supabase
-        .from('gemstones')
-        .select('id')
-        .eq('serial_number', serialNumber)
+      let query = supabaseAdmin!
+        .from("gemstones")
+        .select("id")
+        .eq("serial_number", serialNumber)
         .limit(1);
 
       if (excludeId) {
-        query = query.neq('id', excludeId);
+        query = query.neq("id", excludeId);
       }
 
       const { data, error } = await query;
 
       if (error) {
-        logger.error('Failed to check serial number', error);
+        logger.error("Failed to check serial number", error);
         return false; // Assume it doesn't exist on error
       }
 
       return (data?.length || 0) > 0;
     } catch (error) {
-      logger.error('Unexpected error checking serial number', error as Error);
+      logger.error("Unexpected error checking serial number", error as Error);
       return false;
     }
   }
@@ -416,8 +433,10 @@ export class GemstoneAdminService {
   /**
    * Bulk import gemstones from CSV/Excel data
    */
-  static async bulkImportGemstones(importData: BulkImportData[]): Promise<BulkImportResult> {
-    logger.info('Starting bulk import', { count: importData.length });
+  static async bulkImportGemstones(
+    importData: BulkImportData[]
+  ): Promise<BulkImportResult> {
+    logger.info("Starting bulk import", { count: importData.length });
 
     const result: BulkImportResult = {
       success: false,
@@ -443,7 +462,7 @@ export class GemstoneAdminService {
 
         logger.info(`Processing batch ${batchIndex + 1}/${batches.length}`, {
           batchSize: batch.length,
-          startRow: batchStartRow
+          startRow: batchStartRow,
         });
 
         // Process each gemstone in the batch
@@ -457,7 +476,7 @@ export class GemstoneAdminService {
             if (!validation.success) {
               result.errors.push({
                 row: rowNumber,
-                error: validation.error || 'Validation failed',
+                error: validation.error || "Validation failed",
                 data: gemstoneData,
               });
               result.failed++;
@@ -465,11 +484,13 @@ export class GemstoneAdminService {
             }
 
             // Check for duplicates
-            const duplicateCheck = await this.checkSerialNumberExists(gemstoneData.serialNumber);
+            const duplicateCheck = await this.checkSerialNumberExists(
+              gemstoneData.serialNumber
+            );
             if (duplicateCheck) {
               result.duplicates.push({
                 serialNumber: gemstoneData.serialNumber,
-                reason: 'Serial number already exists',
+                reason: "Serial number already exists",
               });
               result.failed++;
               continue;
@@ -490,7 +511,8 @@ export class GemstoneAdminService {
               price_amount: gemstoneData.price_amount,
               price_currency: gemstoneData.price_currency,
               premium_price_amount: gemstoneData.premium_price_amount ?? null,
-              premium_price_currency: gemstoneData.premium_price_currency ?? null,
+              premium_price_currency:
+                gemstoneData.premium_price_currency ?? null,
               in_stock: gemstoneData.in_stock,
               delivery_days: gemstoneData.delivery_days ?? null,
               internal_code: gemstoneData.internal_code ?? null,
@@ -499,8 +521,8 @@ export class GemstoneAdminService {
             };
 
             // Insert into database
-            const { data, error } = await supabase
-              .from('gemstones')
+            const { data, error } = await supabaseAdmin!
+              .from("gemstones")
               .insert(dbData)
               .select()
               .single();
@@ -512,15 +534,17 @@ export class GemstoneAdminService {
                 data: gemstoneData,
               });
               result.failed++;
-              logger.error('Database insert failed', { rowNumber, error: error.message });
+              logger.error("Database insert failed", {
+                rowNumber,
+                error: error.message,
+              });
             } else {
               result.imported++;
-              logger.info('Gemstone imported successfully', {
+              logger.info("Gemstone imported successfully", {
                 rowNumber,
-                serialNumber: gemstoneData.serialNumber
+                serialNumber: gemstoneData.serialNumber,
               });
             }
-
           } catch (error) {
             result.errors.push({
               row: rowNumber,
@@ -528,13 +552,16 @@ export class GemstoneAdminService {
               data: gemstoneData,
             });
             result.failed++;
-            logger.error('Processing error', { rowNumber, error: (error as Error).message });
+            logger.error("Processing error", {
+              rowNumber,
+              error: (error as Error).message,
+            });
           }
         }
       }
 
       result.success = result.failed === 0;
-      logger.info('Bulk import completed', {
+      logger.info("Bulk import completed", {
         imported: result.imported,
         failed: result.failed,
         totalProcessed: importData.length,
@@ -542,17 +569,20 @@ export class GemstoneAdminService {
       });
 
       return result;
-
     } catch (error) {
-      logger.error('Unexpected error in bulk import', error as Error);
+      logger.error("Unexpected error in bulk import", error as Error);
       return {
         success: false,
         imported: result.imported,
-        failed: result.failed + (importData.length - result.imported - result.failed),
-        errors: [...result.errors, {
-          row: 0,
-          error: `System error: ${(error as Error).message}`,
-        }],
+        failed:
+          result.failed + (importData.length - result.imported - result.failed),
+        errors: [
+          ...result.errors,
+          {
+            row: 0,
+            error: `System error: ${(error as Error).message}`,
+          },
+        ],
         duplicates: result.duplicates,
         warnings: result.warnings,
       };
@@ -562,60 +592,72 @@ export class GemstoneAdminService {
   /**
    * Validate bulk import data
    */
-  private static validateBulkImportData(data: BulkImportData): { success: boolean; error?: string } {
+  private static validateBulkImportData(data: BulkImportData): {
+    success: boolean;
+    error?: string;
+  } {
     // Required field validation
     if (!data.serialNumber?.trim()) {
-      return { success: false, error: 'Serial number is required' };
+      return { success: false, error: "Serial number is required" };
     }
 
     if (!data.name) {
-      return { success: false, error: 'Gemstone type is required' };
+      return { success: false, error: "Gemstone type is required" };
     }
 
     if (!data.color) {
-      return { success: false, error: 'Color is required' };
+      return { success: false, error: "Color is required" };
     }
 
     if (!data.cut) {
-      return { success: false, error: 'Cut is required' };
+      return { success: false, error: "Cut is required" };
     }
 
     if (!data.clarity) {
-      return { success: false, error: 'Clarity is required' };
+      return { success: false, error: "Clarity is required" };
     }
 
     if (!data.weight_carats || data.weight_carats <= 0) {
-      return { success: false, error: 'Weight must be a positive number' };
+      return { success: false, error: "Weight must be a positive number" };
     }
 
     if (!data.price_amount || data.price_amount <= 0) {
-      return { success: false, error: 'Price must be a positive number' };
+      return { success: false, error: "Price must be a positive number" };
     }
 
     if (!data.price_currency) {
-      return { success: false, error: 'Price currency is required' };
+      return { success: false, error: "Price currency is required" };
     }
 
     // Data type validation
     if (data.premium_price_amount && data.premium_price_amount <= 0) {
-      return { success: false, error: 'Premium price must be a positive number' };
+      return {
+        success: false,
+        error: "Premium price must be a positive number",
+      };
     }
 
-    if (data.delivery_days && (data.delivery_days < 0 || data.delivery_days > 365)) {
-      return { success: false, error: 'Delivery days must be between 0 and 365' };
+    if (
+      data.delivery_days &&
+      (data.delivery_days < 0 || data.delivery_days > 365)
+    ) {
+      return {
+        success: false,
+        error: "Delivery days must be between 0 and 365",
+      };
     }
 
     // Dimension validation
     if (data.length_mm && data.length_mm <= 0) {
-      return { success: false, error: 'Length must be a positive number' };
+      return { success: false, error: "Length must be a positive number" };
     }
 
     if (data.width_mm && data.width_mm <= 0) {
-      return { success: false, error: 'Width must be a positive number' };
+      return { success: false, error: "Width must be a positive number" };
     }
 
     if (data.depth_mm && data.depth_mm <= 0) {
-      return { success: false, error: 'Depth must be a positive number' };
+      return { success: false, error: "Depth must be a positive number" };
     }
 
     return { success: true };

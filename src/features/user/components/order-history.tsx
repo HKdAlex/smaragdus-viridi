@@ -52,7 +52,7 @@ export function OrderHistory({
     const matchesSearch =
       !searchQuery ||
       order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.items.some((item) =>
+      (order.items ?? []).some((item) =>
         item.gemstone.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
 
@@ -80,16 +80,14 @@ export function OrderHistory({
   };
 
   const getOrderSummary = (order: UserOrder) => {
-    const totalItems = order.items.reduce(
-      (sum, item) => sum + item.quantity,
-      0
-    );
-    const gemstoneNames = order.items
+    const safeItems = order.items ?? [];
+    const totalItems = safeItems.reduce((sum, item) => sum + item.quantity, 0);
+    const gemstoneNames = safeItems
       .map((item) => item.gemstone.name)
       .slice(0, 2)
       .join(", ");
     const moreItems =
-      order.items.length > 2 ? ` +${order.items.length - 2} more` : "";
+      safeItems.length > 2 ? ` +${safeItems.length - 2} more` : "";
 
     return `${totalItems} item${
       totalItems !== 1 ? "s" : ""
@@ -230,8 +228,8 @@ export function OrderHistory({
                   <div className="flex items-center justify-between text-sm">
                     <div className="flex items-center space-x-4">
                       <span className="text-muted-foreground">
-                        {order.items.length} item
-                        {order.items.length !== 1 ? "s" : ""}
+                        {order.items?.length ?? 0} item
+                        {(order.items?.length ?? 0) !== 1 ? "s" : ""}
                       </span>
                       {order.delivery_address && (
                         <div className="flex items-center text-muted-foreground">

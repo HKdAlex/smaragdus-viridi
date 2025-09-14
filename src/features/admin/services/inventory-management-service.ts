@@ -1,13 +1,14 @@
-"use client";
-
-import { supabase } from "@/lib/supabase";
 import type { DatabaseGemstone } from "@/shared/types";
+import { supabaseAdmin } from "@/lib/supabase";
 
 // Simple logger for now
 const logger = {
-  info: (message: string, data?: any) => console.log(`[ADMIN-INVENTORY] ${message}`, data),
-  error: (message: string, error?: any) => console.error(`[ADMIN-INVENTORY ERROR] ${message}`, error),
-  warn: (message: string, data?: any) => console.warn(`[ADMIN-INVENTORY WARN] ${message}`, data),
+  info: (message: string, data?: any) =>
+    console.log(`[ADMIN-INVENTORY] ${message}`, data),
+  error: (message: string, error?: any) =>
+    console.error(`[ADMIN-INVENTORY ERROR] ${message}`, error),
+  warn: (message: string, data?: any) =>
+    console.warn(`[ADMIN-INVENTORY WARN] ${message}`, data),
 };
 
 export interface InventoryUpdateData {
@@ -27,7 +28,7 @@ export interface BulkInventoryUpdate {
 export interface InventoryAlert {
   id: string;
   gemstone_id: string;
-  alert_type: 'low_stock' | 'out_of_stock' | 'back_in_stock';
+  alert_type: "low_stock" | "out_of_stock" | "back_in_stock";
   message: string;
   created_at: string;
   resolved_at?: string;
@@ -63,20 +64,23 @@ export class InventoryManagementService {
     updateData: InventoryUpdateData
   ): Promise<{ success: boolean; error?: string }> {
     try {
-      logger.info('Updating gemstone inventory', {
+      logger.info("Updating gemstone inventory", {
         gemstoneId,
-        updateData: { ...updateData, reason: updateData.reason || 'Manual update' }
+        updateData: {
+          ...updateData,
+          reason: updateData.reason || "Manual update",
+        },
       });
 
       // Get current inventory status for audit trail
-      const { data: currentGemstone } = await supabase
-        .from('gemstones')
-        .select('in_stock, delivery_days')
-        .eq('id', gemstoneId)
+      const { data: currentGemstone } = await supabaseAdmin!
+        .from("gemstones")
+        .select("in_stock, delivery_days")
+        .eq("id", gemstoneId)
         .single();
 
       if (!currentGemstone) {
-        return { success: false, error: 'Gemstone not found' };
+        return { success: false, error: "Gemstone not found" };
       }
 
       // Handle null to boolean conversion
@@ -85,7 +89,7 @@ export class InventoryManagementService {
       // Prepare update data
       const updatePayload: any = {
         in_stock: updateData.inStock,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       };
 
       if (updateData.deliveryDays !== undefined) {
@@ -93,24 +97,31 @@ export class InventoryManagementService {
       }
 
       // Update the gemstone
-      const { error } = await supabase
-        .from('gemstones')
+      const { error } = await supabaseAdmin!
+        .from("gemstones")
         .update(updatePayload)
-        .eq('id', gemstoneId);
+        .eq("id", gemstoneId);
 
       if (error) {
-        logger.error('Failed to update gemstone inventory', error);
+        logger.error("Failed to update gemstone inventory", error);
         return { success: false, error: error.message };
       }
 
       // Create alerts based on stock changes
-      await this.handleStockChangeAlerts(gemstoneId, { in_stock: currentStockStatus, delivery_days: currentGemstone.delivery_days ?? undefined }, updateData);
+      await this.handleStockChangeAlerts(
+        gemstoneId,
+        {
+          in_stock: currentStockStatus,
+          delivery_days: currentGemstone.delivery_days ?? undefined,
+        },
+        updateData
+      );
 
-      logger.info('Gemstone inventory updated successfully', { gemstoneId });
+      logger.info("Gemstone inventory updated successfully", { gemstoneId });
       return { success: true };
     } catch (error) {
-      logger.error('Unexpected error updating inventory', error as Error);
-      return { success: false, error: 'An unexpected error occurred' };
+      logger.error("Unexpected error updating inventory", error as Error);
+      return { success: false, error: "An unexpected error occurred" };
     }
   }
 
@@ -119,11 +130,16 @@ export class InventoryManagementService {
    */
   static async bulkUpdateInventory(
     updates: BulkInventoryUpdate
-  ): Promise<{ success: boolean; updated: number; failed: number; error?: string }> {
+  ): Promise<{
+    success: boolean;
+    updated: number;
+    failed: number;
+    error?: string;
+  }> {
     try {
-      logger.info('Starting bulk inventory update', {
+      logger.info("Starting bulk inventory update", {
         count: updates.gemstoneIds.length,
-        updates
+        updates,
       });
 
       let updated = 0;
@@ -135,7 +151,7 @@ export class InventoryManagementService {
             gemstoneId,
             inStock: updates.inStock,
             deliveryDays: updates.deliveryDays,
-            reason: updates.reason
+            reason: updates.reason,
           });
 
           if (updateResult.success) {
@@ -144,28 +160,31 @@ export class InventoryManagementService {
             failed++;
           }
         } catch (error) {
-          logger.error('Failed to update gemstone in bulk inventory operation', {
-            gemstoneId,
-            error: error as Error
-          });
+          logger.error(
+            "Failed to update gemstone in bulk inventory operation",
+            {
+              gemstoneId,
+              error: error as Error,
+            }
+          );
           failed++;
         }
       }
 
-      logger.info('Bulk inventory update completed', {
+      logger.info("Bulk inventory update completed", {
         total: updates.gemstoneIds.length,
         updated,
-        failed
+        failed,
       });
 
       return { success: true, updated, failed };
     } catch (error) {
-      logger.error('Unexpected error in bulk inventory update', error as Error);
+      logger.error("Unexpected error in bulk inventory update", error as Error);
       return {
         success: false,
         updated: 0,
         failed: updates.gemstoneIds.length,
-        error: 'An unexpected error occurred'
+        error: "An unexpected error occurred",
       };
     }
   }
@@ -173,15 +192,19 @@ export class InventoryManagementService {
   /**
    * Get comprehensive inventory report
    */
-  static async getInventoryReport(): Promise<{ success: boolean; data?: InventoryReport; error?: string }> {
+  static async getInventoryReport(): Promise<{
+    success: boolean;
+    data?: InventoryReport;
+    error?: string;
+  }> {
     try {
-      logger.info('Generating inventory report');
+      logger.info("Generating inventory report");
 
       // Get all gemstones
-      const { data: gemstones, error } = await supabase
-        .from('gemstones')
-        .select('*')
-        .order('updated_at', { ascending: false });
+      const { data: gemstones, error } = await supabaseAdmin!
+        .from("gemstones")
+        .select("*")
+        .order("updated_at", { ascending: false });
 
       if (error) {
         return { success: false, error: error.message };
@@ -198,33 +221,35 @@ export class InventoryManagementService {
               lowStock: 0,
               totalValue: 0,
               averageValue: 0,
-              alerts: []
+              alerts: [],
             },
             topValued: [],
             outOfStock: [],
             lowStock: [],
-            recentUpdates: []
-          }
+            recentUpdates: [],
+          },
         };
       }
 
       // Calculate statistics
-      const inStock = gemstones.filter(g => g.in_stock).length;
-      const outOfStock = gemstones.filter(g => !g.in_stock).length;
-      const lowStock = gemstones.filter(g => g.in_stock && this.isLowStock(g)).length;
+      const inStock = gemstones.filter((g) => g.in_stock).length;
+      const outOfStock = gemstones.filter((g) => !g.in_stock).length;
+      const lowStock = gemstones.filter(
+        (g) => g.in_stock && this.isLowStock(g)
+      ).length;
       const totalValue = gemstones.reduce((sum, g) => sum + g.price_amount, 0);
       const averageValue = totalValue / gemstones.length;
 
       // Get alerts (mock data for now)
       const alerts: InventoryAlert[] = gemstones
-        .filter(g => !g.in_stock)
-        .map(g => ({
+        .filter((g) => !g.in_stock)
+        .map((g) => ({
           id: `alert-${g.id}`,
           gemstone_id: g.id,
-          alert_type: 'out_of_stock' as const,
+          alert_type: "out_of_stock" as const,
           message: `${g.name} ${g.color} ${g.cut} is out of stock`,
-          created_at: g.updated_at || '',
-          is_active: true
+          created_at: g.updated_at || "",
+          is_active: true,
         }));
 
       // Top valued gemstones
@@ -233,15 +258,17 @@ export class InventoryManagementService {
         .slice(0, 10);
 
       // Out of stock gemstones
-      const outOfStockGems = gemstones.filter(g => !g.in_stock);
+      const outOfStockGems = gemstones.filter((g) => !g.in_stock);
 
       // Low stock gemstones
-      const lowStockGems = gemstones.filter(g => g.in_stock && this.isLowStock(g));
+      const lowStockGems = gemstones.filter(
+        (g) => g.in_stock && this.isLowStock(g)
+      );
 
       // Recent updates
       const recentUpdates = gemstones
-        .filter(g => {
-          const updatedAt = new Date(g.updated_at || '');
+        .filter((g) => {
+          const updatedAt = new Date(g.updated_at || "");
           const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
           return updatedAt > weekAgo;
         })
@@ -254,7 +281,7 @@ export class InventoryManagementService {
         lowStock,
         totalValue,
         averageValue: Math.round(averageValue),
-        alerts
+        alerts,
       };
 
       const report: InventoryReport = {
@@ -262,54 +289,61 @@ export class InventoryManagementService {
         topValued,
         outOfStock: outOfStockGems,
         lowStock: lowStockGems,
-        recentUpdates
+        recentUpdates,
       };
 
-      logger.info('Inventory report generated', {
+      logger.info("Inventory report generated", {
         totalGemstones: stats.totalGemstones,
         inStock: stats.inStock,
         outOfStock: stats.outOfStock,
-        totalValue: stats.totalValue
+        totalValue: stats.totalValue,
       });
 
       return { success: true, data: report };
     } catch (error) {
-      logger.error('Unexpected error generating inventory report', error as Error);
-      return { success: false, error: 'An unexpected error occurred' };
+      logger.error(
+        "Unexpected error generating inventory report",
+        error as Error
+      );
+      return { success: false, error: "An unexpected error occurred" };
     }
   }
 
   /**
    * Get active inventory alerts
    */
-  static async getActiveAlerts(): Promise<{ success: boolean; data?: InventoryAlert[]; error?: string }> {
+  static async getActiveAlerts(): Promise<{
+    success: boolean;
+    data?: InventoryAlert[];
+    error?: string;
+  }> {
     try {
-      logger.info('Fetching active inventory alerts');
+      logger.info("Fetching active inventory alerts");
 
       // Get out of stock gemstones as alerts
-      const { data: outOfStockGems, error } = await supabase
-        .from('gemstones')
-        .select('id, name, color, cut, updated_at')
-        .eq('in_stock', false)
-        .order('updated_at', { ascending: false });
+      const { data: outOfStockGems, error } = await supabaseAdmin!
+        .from("gemstones")
+        .select("id, name, color, cut, updated_at")
+        .eq("in_stock", false)
+        .order("updated_at", { ascending: false });
 
       if (error) {
         return { success: false, error: error.message };
       }
 
-      const alerts: InventoryAlert[] = (outOfStockGems || []).map(gem => ({
+      const alerts: InventoryAlert[] = (outOfStockGems || []).map((gem) => ({
         id: `alert-${gem.id}`,
         gemstone_id: gem.id,
-        alert_type: 'out_of_stock' as const,
+        alert_type: "out_of_stock" as const,
         message: `${gem.name} ${gem.color} ${gem.cut} is out of stock`,
-        created_at: gem.updated_at || '',
-        is_active: true
+        created_at: gem.updated_at || "",
+        is_active: true,
       }));
 
       return { success: true, data: alerts };
     } catch (error) {
-      logger.error('Unexpected error fetching alerts', error as Error);
-      return { success: false, error: 'An unexpected error occurred' };
+      logger.error("Unexpected error fetching alerts", error as Error);
+      return { success: false, error: "An unexpected error occurred" };
     }
   }
 
@@ -322,38 +356,38 @@ export class InventoryManagementService {
     newData: InventoryUpdateData
   ): Promise<void> {
     try {
-      const { data: gemstone } = await supabase
-        .from('gemstones')
-        .select('name, color, cut')
-        .eq('id', gemstoneId)
+      const { data: gemstone } = await supabaseAdmin!
+        .from("gemstones")
+        .select("name, color, cut")
+        .eq("id", gemstoneId)
         .single();
 
       if (!gemstone) return;
 
       // Create alert based on stock change
-      let alertType: InventoryAlert['alert_type'];
+      let alertType: InventoryAlert["alert_type"];
       let message: string;
 
       if (!oldData.in_stock && newData.inStock) {
-        alertType = 'back_in_stock';
+        alertType = "back_in_stock";
         message = `${gemstone.name} ${gemstone.color} ${gemstone.cut} is back in stock`;
       } else if (oldData.in_stock && !newData.inStock) {
-        alertType = 'out_of_stock';
+        alertType = "out_of_stock";
         message = `${gemstone.name} ${gemstone.color} ${gemstone.cut} is now out of stock`;
       } else {
         return; // No stock status change
       }
 
-      logger.info('Stock alert created', {
+      logger.info("Stock alert created", {
         gemstoneId,
         alertType,
-        message
+        message,
       });
 
       // In a real implementation, you would save this to an alerts table
       // For now, just log the alert
     } catch (error) {
-      logger.error('Failed to handle stock change alerts', error as Error);
+      logger.error("Failed to handle stock change alerts", error as Error);
     }
   }
 
@@ -373,20 +407,20 @@ export class InventoryManagementService {
     daysAhead: number = 30
   ): Promise<{ success: boolean; data?: any; error?: string }> {
     try {
-      logger.info('Generating inventory forecast', { daysAhead });
+      logger.info("Generating inventory forecast", { daysAhead });
 
       // Mock forecast data
       const forecast = {
         projectedStockLevels: [],
         recommendedOrders: [],
         riskAssessments: [],
-        timeRange: `${daysAhead} days`
+        timeRange: `${daysAhead} days`,
       };
 
       return { success: true, data: forecast };
     } catch (error) {
-      logger.error('Unexpected error generating forecast', error as Error);
-      return { success: false, error: 'An unexpected error occurred' };
+      logger.error("Unexpected error generating forecast", error as Error);
+      return { success: false, error: "An unexpected error occurred" };
     }
   }
 }

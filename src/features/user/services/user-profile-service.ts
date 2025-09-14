@@ -12,17 +12,16 @@ import type {
   UserProfile,
 } from "../types/user-profile.types";
 
-import type { Database } from "@/shared/types/database";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { UserProfileError } from "../types/user-profile.types";
 import { createContextLogger } from "@/shared/utils/logger";
 import { supabase } from "@/lib/supabase";
 
 export class UserProfileService {
-  private supabase: SupabaseClient<Database>;
+  private supabase: SupabaseClient<any>;
   private logger = createContextLogger("user-profile-service");
 
-  constructor(supabaseClient?: SupabaseClient<Database>) {
+  constructor(supabaseClient?: SupabaseClient<any>) {
     this.supabase = supabaseClient || supabase;
   }
 
@@ -267,6 +266,50 @@ export class UserProfileService {
       const total = count || 0;
       const hasMore = total > offset + limit;
 
+      // Map DB response to strict UserOrder shape
+      const mappedOrders: UserOrder[] =
+        (orders as any[] | null | undefined)?.map((order) => {
+          const rawItems: any[] = Array.isArray(order?.order_items)
+            ? order.order_items
+            : [];
+
+          const items = rawItems.map((item) => {
+            const g = item?.gemstones || {};
+            const quantity =
+              typeof item?.quantity === "number" ? item.quantity : 1;
+
+            return {
+              id: String(item?.id ?? ""),
+              gemstone: {
+                id: String(g?.id ?? ""),
+                name: String(g?.name ?? ""),
+                color: String(g?.color ?? ""),
+                cut: String(g?.cut ?? ""),
+                weight_carats: Number(g?.weight_carats ?? 0),
+                serial_number: String(g?.serial_number ?? ""),
+              },
+              quantity,
+              unit_price: Number(item?.unit_price ?? 0),
+              line_total:
+                Number(item?.line_total ?? 0) ||
+                Number(item?.unit_price ?? 0) * quantity,
+            };
+          });
+
+          return {
+            id: String(order?.id ?? ""),
+            status: (order?.status ?? "pending") as UserOrder["status"],
+            total_amount: Number(order?.total_amount ?? 0),
+            currency_code: String(order?.currency_code ?? "USD"),
+            created_at: String(order?.created_at ?? new Date().toISOString()),
+            updated_at: String(
+              order?.updated_at ?? order?.created_at ?? new Date().toISOString()
+            ),
+            items,
+            delivery_address: (order?.delivery_address as any) || undefined,
+          };
+        }) || [];
+
       this.logger.info("Order history loaded successfully", {
         userId,
         total,
@@ -277,7 +320,7 @@ export class UserProfileService {
 
       return {
         success: true,
-        orders: (orders as unknown as UserOrder[]) || [],
+        orders: mappedOrders,
         total,
         page,
         limit,

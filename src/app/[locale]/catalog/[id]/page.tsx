@@ -1,8 +1,9 @@
-import type { 
-  DetailGemstone, 
+import type {
   DatabaseGemstoneImage,
-  DatabaseGemstoneVideo 
+  DatabaseGemstoneVideo,
+  DetailGemstone,
 } from "@/shared/types";
+
 import { GemstoneDetail } from "@/features/gemstones/components/gemstone-detail";
 import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
@@ -36,7 +37,7 @@ async function fetchGemstoneById(id: string): Promise<DetailGemstone | null> {
     console.log(`🔍 [GemstoneDetail] Fetching gemstone with ID: ${id}`);
 
     // Fetch gemstone with all related data
-    const { data: gemstone, error: gemstoneError } = await supabase
+    const { data: gemstone, error: gemstoneError } = (await supabase
       .from("gemstones")
       .select(
         `
@@ -48,13 +49,15 @@ async function fetchGemstoneById(id: string): Promise<DetailGemstone | null> {
       `
       )
       .eq("id", id)
-      .single() as { 
-        data: DetailGemstone & {
-          images?: DatabaseGemstoneImage[];
-          videos?: DatabaseGemstoneVideo[];
-        } | null;
-        error: any;
-      };
+      .single()) as {
+      data:
+        | (DetailGemstone & {
+            images?: DatabaseGemstoneImage[];
+            videos?: DatabaseGemstoneVideo[];
+          })
+        | null;
+      error: any;
+    };
 
     if (gemstoneError || !gemstone) {
       console.error(
@@ -65,14 +68,14 @@ async function fetchGemstoneById(id: string): Promise<DetailGemstone | null> {
     }
 
     // Fetch AI analysis results separately
-    const { data: aiAnalysisResults, error: aiError } = await supabase
+    const { data: aiAnalysisResults, error: aiError } = (await supabase
       .from("ai_analysis_results")
       .select("*")
       .eq("gemstone_id", id)
-      .order("created_at", { ascending: false }) as {
-        data: any[] | null;
-        error: any;
-      };
+      .order("created_at", { ascending: false })) as {
+      data: any[] | null;
+      error: any;
+    };
 
     if (aiError) {
       console.warn(`⚠️ [GemstoneDetail] Failed to fetch AI analysis:`, aiError);

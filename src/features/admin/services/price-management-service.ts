@@ -1,12 +1,15 @@
 "use client";
 
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase";
 
 // Simple logger for now
 const logger = {
-  info: (message: string, data?: any) => console.log(`[ADMIN-PRICE] ${message}`, data),
-  error: (message: string, error?: any) => console.error(`[ADMIN-PRICE ERROR] ${message}`, error),
-  warn: (message: string, data?: any) => console.warn(`[ADMIN-PRICE WARN] ${message}`, data),
+  info: (message: string, data?: any) =>
+    console.log(`[ADMIN-PRICE] ${message}`, data),
+  error: (message: string, error?: any) =>
+    console.error(`[ADMIN-PRICE ERROR] ${message}`, error),
+  warn: (message: string, data?: any) =>
+    console.warn(`[ADMIN-PRICE WARN] ${message}`, data),
 };
 
 export interface PriceUpdateData {
@@ -31,7 +34,7 @@ export interface PriceHistoryEntry {
   old_price: number;
   new_price: number;
   currency: string;
-  change_type: 'manual' | 'bulk' | 'system';
+  change_type: "manual" | "bulk" | "system";
   reason?: string;
   created_at: string;
   created_by?: string;
@@ -54,20 +57,25 @@ export class PriceManagementService {
     updateData: PriceUpdateData
   ): Promise<{ success: boolean; error?: string }> {
     try {
-      logger.info('Updating gemstone price', {
+      logger.info("Updating gemstone price", {
         gemstoneId,
-        updateData: { ...updateData, reason: updateData.reason || 'Manual update' }
+        updateData: {
+          ...updateData,
+          reason: updateData.reason || "Manual update",
+        },
       });
 
       // Get current pricing for audit trail
-      const { data: currentGemstone } = await supabase
-        .from('gemstones')
-        .select('price_amount, price_currency, premium_price_amount, premium_price_currency')
-        .eq('id', gemstoneId)
+      const { data: currentGemstone } = await supabaseAdmin!
+        .from("gemstones")
+        .select(
+          "price_amount, price_currency, premium_price_amount, premium_price_currency"
+        )
+        .eq("id", gemstoneId)
         .single();
 
       if (!currentGemstone) {
-        return { success: false, error: 'Gemstone not found' };
+        return { success: false, error: "Gemstone not found" };
       }
 
       // Prepare update data
@@ -86,57 +94,66 @@ export class PriceManagementService {
       updatePayload.updated_at = new Date().toISOString();
 
       // Update the gemstone
-      const { error } = await supabase
-        .from('gemstones')
+      const { error } = await supabaseAdmin!
+        .from("gemstones")
         .update(updatePayload)
-        .eq('id', gemstoneId);
+        .eq("id", gemstoneId);
 
       if (error) {
-        logger.error('Failed to update gemstone price', error);
+        logger.error("Failed to update gemstone price", error);
         return { success: false, error: error.message };
       }
 
       // Log price change in audit trail
-      if (updateData.regularPrice !== undefined && updateData.regularPrice !== currentGemstone.price_amount) {
+      if (
+        updateData.regularPrice !== undefined &&
+        updateData.regularPrice !== currentGemstone.price_amount
+      ) {
         await this.logPriceChange({
           gemstoneId,
           oldPrice: currentGemstone.price_amount,
           newPrice: updateData.regularPrice,
           currency: updateData.currency,
-          changeType: 'manual',
-          reason: updateData.reason || 'Manual price update'
+          changeType: "manual",
+          reason: updateData.reason || "Manual price update",
         });
       }
 
-      if (updateData.premiumPrice !== undefined && updateData.premiumPrice !== currentGemstone.premium_price_amount) {
+      if (
+        updateData.premiumPrice !== undefined &&
+        updateData.premiumPrice !== currentGemstone.premium_price_amount
+      ) {
         await this.logPriceChange({
           gemstoneId,
           oldPrice: currentGemstone.premium_price_amount || 0,
           newPrice: updateData.premiumPrice,
           currency: updateData.currency,
-          changeType: 'manual',
-          reason: updateData.reason || 'Premium price update'
+          changeType: "manual",
+          reason: updateData.reason || "Premium price update",
         });
       }
 
-      logger.info('Gemstone price updated successfully', { gemstoneId });
+      logger.info("Gemstone price updated successfully", { gemstoneId });
       return { success: true };
     } catch (error) {
-      logger.error('Unexpected error updating price', error as Error);
-      return { success: false, error: 'An unexpected error occurred' };
+      logger.error("Unexpected error updating price", error as Error);
+      return { success: false, error: "An unexpected error occurred" };
     }
   }
 
   /**
    * Bulk update prices for multiple gemstones
    */
-  static async bulkUpdatePrices(
-    updates: BulkPriceUpdate
-  ): Promise<{ success: boolean; updated: number; failed: number; error?: string }> {
+  static async bulkUpdatePrices(updates: BulkPriceUpdate): Promise<{
+    success: boolean;
+    updated: number;
+    failed: number;
+    error?: string;
+  }> {
     try {
-      logger.info('Starting bulk price update', {
+      logger.info("Starting bulk price update", {
         count: updates.gemstoneIds.length,
-        updates
+        updates,
       });
 
       let updated = 0;
@@ -145,10 +162,10 @@ export class PriceManagementService {
       for (const gemstoneId of updates.gemstoneIds) {
         try {
           // Get current price
-          const { data: gemstone } = await supabase
-            .from('gemstones')
-            .select('price_amount, price_currency')
-            .eq('id', gemstoneId)
+          const { data: gemstone } = await supabaseAdmin!
+            .from("gemstones")
+            .select("price_amount, price_currency")
+            .eq("id", gemstoneId)
             .single();
 
           if (!gemstone) {
@@ -160,7 +177,8 @@ export class PriceManagementService {
           if (updates.fixedPrice !== undefined) {
             newPrice = updates.fixedPrice;
           } else if (updates.priceIncrease !== undefined) {
-            newPrice = gemstone.price_amount * (1 + updates.priceIncrease / 100);
+            newPrice =
+              gemstone.price_amount * (1 + updates.priceIncrease / 100);
           } else {
             failed++;
             continue;
@@ -171,7 +189,7 @@ export class PriceManagementService {
             gemstoneId,
             regularPrice: Math.round(newPrice),
             currency: updates.currency,
-            reason: updates.reason
+            reason: updates.reason,
           });
 
           if (updateResult.success) {
@@ -180,28 +198,28 @@ export class PriceManagementService {
             failed++;
           }
         } catch (error) {
-          logger.error('Failed to update gemstone in bulk operation', {
+          logger.error("Failed to update gemstone in bulk operation", {
             gemstoneId,
-            error: error as Error
+            error: error as Error,
           });
           failed++;
         }
       }
 
-      logger.info('Bulk price update completed', {
+      logger.info("Bulk price update completed", {
         total: updates.gemstoneIds.length,
         updated,
-        failed
+        failed,
       });
 
       return { success: true, updated, failed };
     } catch (error) {
-      logger.error('Unexpected error in bulk price update', error as Error);
+      logger.error("Unexpected error in bulk price update", error as Error);
       return {
         success: false,
         updated: 0,
         failed: updates.gemstoneIds.length,
-        error: 'An unexpected error occurred'
+        error: "An unexpected error occurred",
       };
     }
   }
@@ -209,15 +227,21 @@ export class PriceManagementService {
   /**
    * Get price analytics
    */
-  static async getPriceAnalytics(): Promise<{ success: boolean; data?: PriceAnalytics; error?: string }> {
+  static async getPriceAnalytics(): Promise<{
+    success: boolean;
+    data?: PriceAnalytics;
+    error?: string;
+  }> {
     try {
-      logger.info('Fetching price analytics');
+      logger.info("Fetching price analytics");
 
       // Get all gemstones with pricing
-      const { data: gemstones, error } = await supabase
-        .from('gemstones')
-        .select('price_amount, price_currency, premium_price_amount, premium_price_currency')
-        .not('price_amount', 'is', null);
+      const { data: gemstones, error } = await supabaseAdmin!
+        .from("gemstones")
+        .select(
+          "price_amount, price_currency, premium_price_amount, premium_price_currency"
+        )
+        .not("price_amount", "is", null);
 
       if (error) {
         return { success: false, error: error.message };
@@ -231,14 +255,15 @@ export class PriceManagementService {
             priceRange: { min: 0, max: 0 },
             priceDistribution: [],
             recentChanges: [],
-            currencyBreakdown: []
-          }
+            currencyBreakdown: [],
+          },
         };
       }
 
       // Calculate analytics
-      const prices = gemstones.map(g => g.price_amount);
-      const averagePrice = prices.reduce((sum, price) => sum + price, 0) / prices.length;
+      const prices = gemstones.map((g) => g.price_amount);
+      const averagePrice =
+        prices.reduce((sum, price) => sum + price, 0) / prices.length;
       const minPrice = Math.min(...prices);
       const maxPrice = Math.max(...prices);
 
@@ -249,41 +274,42 @@ export class PriceManagementService {
       const currencyBreakdown = this.calculateCurrencyBreakdown(gemstones);
 
       // Recent price changes (simplified - would need a proper price_history table)
-      const { data: recentChanges } = await supabase
-        .from('gemstones')
-        .select('id, updated_at')
-        .order('updated_at', { ascending: false })
+      const { data: recentChanges } = await supabaseAdmin!
+        .from("gemstones")
+        .select("id, updated_at")
+        .order("updated_at", { ascending: false })
         .limit(10);
 
-      const mockRecentChanges: PriceHistoryEntry[] = recentChanges?.map(g => ({
-        id: `change-${g.id}`,
-        gemstone_id: g.id,
-        old_price: 0, // Would need proper price history tracking
-        new_price: 0,
-        currency: 'USD',
-        change_type: 'manual' as const,
-        reason: 'Recent update',
-        created_at: g.updated_at || '',
-        created_by: 'system'
-      })) || [];
+      const mockRecentChanges: PriceHistoryEntry[] =
+        recentChanges?.map((g) => ({
+          id: `change-${g.id}`,
+          gemstone_id: g.id,
+          old_price: 0, // Would need proper price history tracking
+          new_price: 0,
+          currency: "USD",
+          change_type: "manual" as const,
+          reason: "Recent update",
+          created_at: g.updated_at || "",
+          created_by: "system",
+        })) || [];
 
       const analytics: PriceAnalytics = {
         averagePrice: Math.round(averagePrice),
         priceRange: { min: minPrice, max: maxPrice },
         priceDistribution: distribution,
         recentChanges: mockRecentChanges,
-        currencyBreakdown
+        currencyBreakdown,
       };
 
-      logger.info('Price analytics calculated', {
+      logger.info("Price analytics calculated", {
         gemstoneCount: gemstones.length,
-        averagePrice: analytics.averagePrice
+        averagePrice: analytics.averagePrice,
       });
 
       return { success: true, data: analytics };
     } catch (error) {
-      logger.error('Unexpected error fetching price analytics', error as Error);
-      return { success: false, error: 'An unexpected error occurred' };
+      logger.error("Unexpected error fetching price analytics", error as Error);
+      return { success: false, error: "An unexpected error occurred" };
     }
   }
 
@@ -294,38 +320,42 @@ export class PriceManagementService {
     gemstoneId: string
   ): Promise<{ success: boolean; data?: PriceHistoryEntry[]; error?: string }> {
     try {
-      logger.info('Fetching price history', { gemstoneId });
+      logger.info("Fetching price history", { gemstoneId });
 
       // For now, return mock data - would need a proper price_history table
       const mockHistory: PriceHistoryEntry[] = [
         {
-          id: '1',
+          id: "1",
           gemstone_id: gemstoneId,
           old_price: 1000,
           new_price: 1200,
-          currency: 'USD',
-          change_type: 'manual',
-          reason: 'Market adjustment',
-          created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-          created_by: 'admin'
+          currency: "USD",
+          change_type: "manual",
+          reason: "Market adjustment",
+          created_at: new Date(
+            Date.now() - 7 * 24 * 60 * 60 * 1000
+          ).toISOString(),
+          created_by: "admin",
         },
         {
-          id: '2',
+          id: "2",
           gemstone_id: gemstoneId,
           old_price: 1200,
           new_price: 1100,
-          currency: 'USD',
-          change_type: 'bulk',
-          reason: 'Seasonal discount',
-          created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-          created_by: 'admin'
-        }
+          currency: "USD",
+          change_type: "bulk",
+          reason: "Seasonal discount",
+          created_at: new Date(
+            Date.now() - 3 * 24 * 60 * 60 * 1000
+          ).toISOString(),
+          created_by: "admin",
+        },
       ];
 
       return { success: true, data: mockHistory };
     } catch (error) {
-      logger.error('Unexpected error fetching price history', error as Error);
-      return { success: false, error: 'An unexpected error occurred' };
+      logger.error("Unexpected error fetching price history", error as Error);
+      return { success: false, error: "An unexpected error occurred" };
     }
   }
 
@@ -337,40 +367,45 @@ export class PriceManagementService {
     oldPrice: number;
     newPrice: number;
     currency: string;
-    changeType: 'manual' | 'bulk' | 'system';
+    changeType: "manual" | "bulk" | "system";
     reason?: string;
   }): Promise<void> {
     try {
       // For now, just log to console - would need a price_history table
-      logger.info('Price change logged', params);
+      logger.info("Price change logged", params);
     } catch (error) {
-      logger.error('Failed to log price change', error as Error);
+      logger.error("Failed to log price change", error as Error);
     }
   }
 
   /**
    * Calculate price distribution
    */
-  private static calculatePriceDistribution(prices: number[]): { range: string; count: number }[] {
+  private static calculatePriceDistribution(
+    prices: number[]
+  ): { range: string; count: number }[] {
     const ranges = [
-      { min: 0, max: 500, label: '$0 - $500' },
-      { min: 500, max: 1000, label: '$500 - $1,000' },
-      { min: 1000, max: 2500, label: '$1,000 - $2,500' },
-      { min: 2500, max: 5000, label: '$2,500 - $5,000' },
-      { min: 5000, max: 10000, label: '$5,000 - $10,000' },
-      { min: 10000, max: Infinity, label: '$10,000+' }
+      { min: 0, max: 500, label: "$0 - $500" },
+      { min: 500, max: 1000, label: "$500 - $1,000" },
+      { min: 1000, max: 2500, label: "$1,000 - $2,500" },
+      { min: 2500, max: 5000, label: "$2,500 - $5,000" },
+      { min: 5000, max: 10000, label: "$5,000 - $10,000" },
+      { min: 10000, max: Infinity, label: "$10,000+" },
     ];
 
-    return ranges.map(range => ({
+    return ranges.map((range) => ({
       range: range.label,
-      count: prices.filter(price => price >= range.min && price < range.max).length
+      count: prices.filter((price) => price >= range.min && price < range.max)
+        .length,
     }));
   }
 
   /**
    * Calculate currency breakdown
    */
-  private static calculateCurrencyBreakdown(gemstones: any[]): { currency: string; count: number; avgPrice: number }[] {
+  private static calculateCurrencyBreakdown(
+    gemstones: any[]
+  ): { currency: string; count: number; avgPrice: number }[] {
     const currencyGroups = gemstones.reduce((acc, gem) => {
       const currency = gem.price_currency;
       if (!acc[currency]) {
@@ -381,10 +416,18 @@ export class PriceManagementService {
       return acc;
     }, {} as Record<string, { prices: number[]; count: number }>);
 
-    return (Object.entries(currencyGroups) as [string, { prices: number[]; count: number }][]).map(([currency, data]) => ({
+    return (
+      Object.entries(currencyGroups) as [
+        string,
+        { prices: number[]; count: number }
+      ][]
+    ).map(([currency, data]) => ({
       currency,
       count: data.count,
-      avgPrice: Math.round(data.prices.reduce((sum: number, price: number) => sum + price, 0) / data.prices.length)
+      avgPrice: Math.round(
+        data.prices.reduce((sum: number, price: number) => sum + price, 0) /
+          data.prices.length
+      ),
     }));
   }
 }

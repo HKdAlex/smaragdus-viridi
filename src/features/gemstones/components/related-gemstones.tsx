@@ -103,9 +103,9 @@ export function RelatedGemstones({
           if (error2) throw error2;
 
           // Merge results, avoiding duplicates
-          const existingIds = new Set(results.map((g) => g.id));
+          const existingIds = new Set(results.map((g: any) => g.id));
           const newResults = (sameColorAndPrice || []).filter(
-            (g) => !existingIds.has(g.id)
+            (g: any) => !existingIds.has(g.id)
           );
           results = [...results, ...newResults];
         }
@@ -119,15 +119,15 @@ export function RelatedGemstones({
 
           if (error3) throw error3;
 
-          const existingIds = new Set(results.map((g) => g.id));
+          const existingIds = new Set(results.map((g: any) => g.id));
           const newResults = (sameType || []).filter(
-            (g) => !existingIds.has(g.id)
+            (g: any) => !existingIds.has(g.id)
           );
           results = [...results, ...newResults];
         }
 
         // Sort images by order for each gemstone
-        results.forEach((gemstone) => {
+        results.forEach((gemstone: any) => {
           if (gemstone.images) {
             gemstone.images.sort(
               (a: any, b: any) => a.image_order - b.image_order

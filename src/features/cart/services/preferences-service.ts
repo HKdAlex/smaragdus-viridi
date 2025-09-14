@@ -1,14 +1,11 @@
-import type {
-    CurrencyCode,
-    UserPreferences
-} from '@/shared/types'
+import type { CurrencyCode, UserPreferences } from "@/shared/types";
 
-import { Logger } from '@/shared/utils/logger'
-import { supabase } from '@/lib/supabase'
+import { Logger } from "@/shared/utils/logger";
+import { supabase } from "@/lib/supabase";
 
 export class PreferencesService {
-  private supabase = supabase
-  private logger = new Logger('PreferencesService')
+  private supabase = supabase;
+  private logger = new Logger("PreferencesService");
 
   /**
    * Get user preferences
@@ -16,25 +13,32 @@ export class PreferencesService {
   async getUserPreferences(userId: string): Promise<UserPreferences | null> {
     try {
       const { data, error } = await this.supabase
-        .from('user_preferences')
-        .select('*')
-        .eq('user_id', userId)
-        .single()
+        .from("user_preferences")
+        .select("*")
+        .eq("user_id", userId)
+        .single();
 
       if (error) {
-        if (error.code === 'PGRST116') {
+        if (error.code === "PGRST116") {
           // No preferences found, return defaults
-          this.logger.info('No user preferences found, returning defaults', { userId })
-          return this.getDefaultPreferences()
+          this.logger.info("No user preferences found, returning defaults", {
+            userId,
+          });
+          return this.getDefaultPreferences();
         }
-        throw error
+        throw error;
       }
 
-      this.logger.info('User preferences loaded', { userId, theme: data.theme })
-      return data as UserPreferences
+      this.logger.info("User preferences loaded", {
+        userId,
+        theme: data.theme,
+      });
+      return data as UserPreferences;
     } catch (error) {
-      this.logger.error('Failed to get user preferences', error as Error, { userId })
-      return this.getDefaultPreferences()
+      this.logger.error("Failed to get user preferences", error as Error, {
+        userId,
+      });
+      return this.getDefaultPreferences();
     }
   }
 
@@ -48,91 +52,102 @@ export class PreferencesService {
     try {
       // Check if preferences already exist
       const { data: existing } = await this.supabase
-        .from('user_preferences')
-        .select('id')
-        .eq('user_id', userId)
-        .single()
+        .from("user_preferences")
+        .select("id")
+        .eq("user_id", userId)
+        .single();
 
-      let result: any
+      let result: any;
 
       if (existing) {
         // Update existing preferences
         const { data, error } = await this.supabase
-          .from('user_preferences')
+          .from("user_preferences")
           .update({
             ...preferences,
-            updated_at: new Date().toISOString()
+            updated_at: new Date().toISOString(),
           })
-          .eq('user_id', userId)
+          .eq("user_id", userId)
           .select()
-          .single()
+          .single();
 
-        if (error) throw error
-        result = data
+        if (error) throw error;
+        result = data;
       } else {
         // Create new preferences
-        const defaultPrefs = this.getDefaultPreferences()
+        const defaultPrefs = this.getDefaultPreferences();
         const { data, error } = await this.supabase
-          .from('user_preferences')
+          .from("user_preferences")
           .insert({
             user_id: userId,
             ...defaultPrefs,
             ...preferences,
             created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
+            updated_at: new Date().toISOString(),
           })
           .select()
-          .single()
+          .single();
 
-        if (error) throw error
-        result = data
+        if (error) throw error;
+        result = data;
       }
 
-      this.logger.info('User preferences updated', {
+      this.logger.info("User preferences updated", {
         userId,
-        updatedFields: Object.keys(preferences)
-      })
+        updatedFields: Object.keys(preferences),
+      });
 
-      return result as UserPreferences
+      return result as UserPreferences;
     } catch (error) {
-      this.logger.error('Failed to update user preferences', error as Error, {
+      this.logger.error("Failed to update user preferences", error as Error, {
         userId,
-        preferences
-      })
-      return null
+        preferences,
+      });
+      return null;
     }
   }
 
   /**
    * Update theme preference
    */
-  async updateTheme(userId: string, theme: 'light' | 'dark' | 'system'): Promise<boolean> {
+  async updateTheme(
+    userId: string,
+    theme: "light" | "dark" | "system"
+  ): Promise<boolean> {
     try {
-      const success = await this.updateUserPreferences(userId, { theme })
+      const success = await this.updateUserPreferences(userId, { theme });
       if (success) {
         // Apply theme immediately
-        this.applyTheme(theme)
+        this.applyTheme(theme);
       }
-      return !!success
+      return !!success;
     } catch (error) {
-      this.logger.error('Failed to update theme', error as Error, { userId, theme })
-      return false
+      this.logger.error("Failed to update theme", error as Error, {
+        userId,
+        theme,
+      });
+      return false;
     }
   }
 
   /**
    * Update currency preference
    */
-  async updateCurrency(userId: string, preferred_currency: CurrencyCode): Promise<boolean> {
+  async updateCurrency(
+    userId: string,
+    preferred_currency: CurrencyCode
+  ): Promise<boolean> {
     try {
-      const success = await this.updateUserPreferences(userId, { preferred_currency })
-      return !!success
+      const success = await this.updateUserPreferences(userId, {
+        preferred_currency,
+      });
+      return !!success;
     } catch (error) {
-      this.logger.error('Failed to update currency', error as Error, {
+      this.logger.error("Failed to update currency", error as Error, {
         userId,
-        preferred_currency
-      })
-      return false
+        preferred_currency,
+      });
+      return false;
     }
   }
 
@@ -142,21 +157,21 @@ export class PreferencesService {
   async updateNotifications(
     userId: string,
     notifications: {
-      email_notifications?: boolean
-      cart_updates?: boolean
-      order_updates?: boolean
-      marketing_emails?: boolean
+      email_notifications?: boolean;
+      cart_updates?: boolean;
+      order_updates?: boolean;
+      marketing_emails?: boolean;
     }
   ): Promise<boolean> {
     try {
-      const success = await this.updateUserPreferences(userId, notifications)
-      return !!success
+      const success = await this.updateUserPreferences(userId, notifications);
+      return !!success;
     } catch (error) {
-      this.logger.error('Failed to update notifications', error as Error, {
+      this.logger.error("Failed to update notifications", error as Error, {
         userId,
-        notifications
-      })
-      return false
+        notifications,
+      });
+      return false;
     }
   }
 
@@ -166,19 +181,19 @@ export class PreferencesService {
   async updatePrivacy(
     userId: string,
     privacy: {
-      profile_visibility?: 'public' | 'private'
-      data_sharing?: boolean
+      profile_visibility?: "public" | "private";
+      data_sharing?: boolean;
     }
   ): Promise<boolean> {
     try {
-      const success = await this.updateUserPreferences(userId, privacy)
-      return !!success
+      const success = await this.updateUserPreferences(userId, privacy);
+      return !!success;
     } catch (error) {
-      this.logger.error('Failed to update privacy settings', error as Error, {
+      this.logger.error("Failed to update privacy settings", error as Error, {
         userId,
-        privacy
-      })
-      return false
+        privacy,
+      });
+      return false;
     }
   }
 
@@ -188,17 +203,19 @@ export class PreferencesService {
   async deleteUserPreferences(userId: string): Promise<boolean> {
     try {
       const { error } = await this.supabase
-        .from('user_preferences')
+        .from("user_preferences")
         .delete()
-        .eq('user_id', userId)
+        .eq("user_id", userId);
 
-      if (error) throw error
+      if (error) throw error;
 
-      this.logger.info('User preferences deleted', { userId })
-      return true
+      this.logger.info("User preferences deleted", { userId });
+      return true;
     } catch (error) {
-      this.logger.error('Failed to delete user preferences', error as Error, { userId })
-      return false
+      this.logger.error("Failed to delete user preferences", error as Error, {
+        userId,
+      });
+      return false;
     }
   }
 
@@ -207,50 +224,60 @@ export class PreferencesService {
    */
   private getDefaultPreferences(): UserPreferences {
     return {
-      theme: 'system',
-      preferred_currency: 'USD',
+      theme: "system",
+      preferred_currency: "USD",
       email_notifications: true,
       cart_updates: true,
       order_updates: true,
       marketing_emails: false,
-      profile_visibility: 'private',
-      data_sharing: false
-    }
+      profile_visibility: "private",
+      data_sharing: false,
+    };
   }
 
   /**
    * Apply theme to the document
    */
-  private applyTheme(theme: 'light' | 'dark' | 'system'): void {
-    const root = document.documentElement
+  private applyTheme(theme: "light" | "dark" | "system"): void {
+    const root = document.documentElement;
 
     // Remove existing theme classes
-    root.classList.remove('light', 'dark')
+    root.classList.remove("light", "dark");
 
-    if (theme === 'system') {
+    if (theme === "system") {
       // Use system preference
-      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-      root.classList.add(systemTheme)
+      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+        .matches
+        ? "dark"
+        : "light";
+      root.classList.add(systemTheme);
     } else {
-      root.classList.add(theme)
+      root.classList.add(theme);
     }
 
     // Store in localStorage for immediate access
-    localStorage.setItem('theme', theme)
+    localStorage.setItem("theme", theme);
   }
 
   /**
    * Initialize theme from localStorage or system preference
    */
   initializeTheme(): void {
-    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | 'system' | null
+    const savedTheme = localStorage.getItem("theme") as
+      | "light"
+      | "dark"
+      | "system"
+      | null;
 
     if (savedTheme) {
-      this.applyTheme(savedTheme)
+      this.applyTheme(savedTheme);
     } else {
       // Use system preference
-      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-      this.applyTheme('system')
+      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+        .matches
+        ? "dark"
+        : "light";
+      this.applyTheme("system");
     }
   }
 }
