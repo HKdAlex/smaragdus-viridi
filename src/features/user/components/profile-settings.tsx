@@ -50,9 +50,10 @@ export function ProfileSettings({
     phone: user.phone || "",
     preferred_currency: user.preferred_currency,
     language_preference: user.language_preference,
-    email_notifications: user.email_notifications,
-    order_updates: user.order_updates,
-    marketing_emails: user.marketing_emails,
+    // Preferences will be loaded from separate preferences table
+    email_notifications: true, // default value
+    order_updates: true, // default value
+    marketing_emails: false, // default value
   });
 
   // Password form state
@@ -196,7 +197,7 @@ export function ProfileSettings({
             <div className="space-y-2">
               <Label htmlFor="currency">Preferred Currency</Label>
               <Select
-                value={profileForm.preferred_currency}
+                value={profileForm.preferred_currency || undefined}
                 onValueChange={(value) =>
                   setProfileForm((prev) => ({
                     ...prev,
@@ -503,13 +504,13 @@ export function ProfileSettings({
               <Label>Account Role</Label>
               <div className="flex items-center space-x-2">
                 <Input
-                  value={user.role
+                  value={(user.role || "guest")
                     .replace("_", " ")
                     .replace(/\b\w/g, (l) => l.toUpperCase())}
                   readOnly
                   className="bg-muted"
                 />
-                {user.discount_percentage > 0 && (
+                {(user.discount_percentage || 0) > 0 && (
                   <Badge variant="outline" className="bg-yellow-50">
                     {user.discount_percentage}% Discount
                   </Badge>
@@ -520,7 +521,11 @@ export function ProfileSettings({
             <div className="space-y-2">
               <Label>Member Since</Label>
               <Input
-                value={new Date(user.created_at).toLocaleDateString()}
+                value={
+                  user.created_at
+                    ? new Date(user.created_at).toLocaleDateString()
+                    : "Unknown"
+                }
                 readOnly
                 className="bg-muted"
               />
@@ -529,7 +534,11 @@ export function ProfileSettings({
             <div className="space-y-2">
               <Label>Last Updated</Label>
               <Input
-                value={new Date(user.updated_at).toLocaleDateString()}
+                value={
+                  user.updated_at
+                    ? new Date(user.updated_at).toLocaleDateString()
+                    : "Unknown"
+                }
                 readOnly
                 className="bg-muted"
               />

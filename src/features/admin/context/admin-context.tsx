@@ -1,9 +1,10 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { UserProfile, auth } from "@/lib/auth";
 
+import type { DatabaseUserProfile } from "@/shared/types";
 import { User } from "@supabase/supabase-js";
+import { auth } from "@/lib/auth";
 import { useTranslations } from "next-intl";
 
 // Simple logger for now - will be replaced with proper logger later
@@ -19,7 +20,7 @@ const adminLogger = {
 interface AdminContextType {
   // Authentication state
   user: User | null;
-  profile: UserProfile | null;
+  profile: DatabaseUserProfile | null;
   isAdmin: boolean;
   isLoading: boolean;
 
@@ -36,14 +37,14 @@ interface AdminContextType {
   ) => Promise<{ success: boolean; error?: string }>;
 
   // User management
-  getAllUsers: () => Promise<UserProfile[]>;
+  getAllUsers: () => Promise<DatabaseUserProfile[]>;
   updateUserRole: (
     userId: string,
-    newRole: UserProfile["role"]
+    newRole: DatabaseUserProfile["role"]
   ) => Promise<boolean>;
   promoteToAdmin: (userId: string) => Promise<boolean>;
   demoteFromAdmin: (userId: string) => Promise<boolean>;
-  getAdminUsers: () => Promise<UserProfile[]>;
+  getAdminUsers: () => Promise<DatabaseUserProfile[]>;
 }
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
@@ -51,7 +52,7 @@ const AdminContext = createContext<AdminContextType | undefined>(undefined);
 export function AdminProvider({ children }: { children: React.ReactNode }) {
   const t = useTranslations("errors.admin");
   const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [profile, setProfile] = useState<DatabaseUserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -198,7 +199,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
 
   const updateUserRole = async (
     userId: string,
-    newRole: UserProfile["role"]
+    newRole: DatabaseUserProfile["role"]
   ) => {
     if (!isAdmin || !newRole) return false;
     try {

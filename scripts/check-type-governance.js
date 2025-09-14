@@ -118,8 +118,12 @@ function checkFile(filePath) {
 
     // Check for forbidden type aliases
     for (const forbiddenType of FORBIDDEN_TYPES) {
+      // Use word boundary to prevent false positives (e.g. OrderStatusColor should not match OrderStatus)
+      const exactTypePattern = new RegExp(
+        `export type ${forbiddenType}(?![a-zA-Z0-9_])`
+      );
       if (
-        line.includes(`export type ${forbiddenType}`) &&
+        exactTypePattern.test(line) &&
         !line.includes("import") &&
         !line.includes("Database[")
       ) {

@@ -20,7 +20,7 @@ export class OrderTrackingService {
       const template = ORDER_EVENT_TEMPLATES[request.event_type]
       const supabase = await createServerClient()
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('order_events')
         .insert({
           order_id: request.order_id,
@@ -56,7 +56,14 @@ export class OrderTrackingService {
         .from('orders')
         .select('id, status, updated_at')
         .eq('id', orderId)
-        .single()
+        .single() as {
+          data: { 
+            id: string
+            status: string
+            updated_at: string 
+          } | null
+          error: any
+        }
 
       if (orderError || !order) return null
 

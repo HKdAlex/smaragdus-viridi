@@ -4,7 +4,10 @@ export type { DatabaseOrder, DatabaseOrderItem } from '@/shared/types'
 
 // ===== APPLICATION LAYER EXTENSIONS =====
 
-import type { CurrencyCode, DatabaseOrderItem } from '@/shared/types'
+import type { CurrencyCode, DatabaseOrderItem, OrderStatus } from '@/shared/types'
+
+// Re-export OrderStatus for components that need it
+export type { OrderStatus }
 
 // Extended order with full details
 export interface AdminOrder {
@@ -50,14 +53,7 @@ export interface AdminOrderItem extends DatabaseOrderItem {
   }
 }
 
-// Order status types
-export type OrderStatus =
-  | 'pending'
-  | 'confirmed'
-  | 'processing'
-  | 'shipped'
-  | 'delivered'
-  | 'cancelled'
+// Order status types imported from @/shared/types
 
 export type OrderStatusColor =
   | 'default'    // green - delivered

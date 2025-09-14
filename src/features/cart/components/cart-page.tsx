@@ -10,7 +10,7 @@ import { EmptyCart } from "./empty-cart";
 import Link from "next/link";
 import { OrderConfirmationModal } from "@/features/orders/components/order-confirmation-modal";
 import { Separator } from "@/shared/components/ui/separator";
-import { useAuth } from "@/features/auth/context/auth-context";
+import { useAuth } from "@/features/auth/hooks/use-auth";
 import { useCart } from "../hooks/use-cart";
 import { useState } from "react";
 import { useTranslations } from "next-intl";

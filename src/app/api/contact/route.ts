@@ -1,21 +1,28 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { ContactFormSchema, ContactSubmissionResponse } from '@/features/contact/types/contact.types';
-import { createServerSupabaseClient } from '@/lib/supabase';
+import {
+  ContactFormSchema,
+  ContactSubmissionResponse,
+} from "@/features/contact/types/contact.types";
+import { NextRequest, NextResponse } from "next/server";
+
+import { createServerSupabaseClient } from "@/lib/supabase";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const clientIP = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
-    
+    const clientIP =
+      request.headers.get("x-forwarded-for") ||
+      request.headers.get("x-real-ip") ||
+      "unknown";
+
     // Validate the form data
     const validationResult = ContactFormSchema.safeParse(body);
-    
+
     if (!validationResult.success) {
       return NextResponse.json(
         {
           success: false,
-          message: 'Validation failed',
-          error: 'Please check all required fields and try again.',
+          message: "Validation failed",
+          error: "Please check all required fields and try again.",
           validationErrors: validationResult.error.format(),
         } as ContactSubmissionResponse,
         { status: 400 }
@@ -25,16 +32,17 @@ export async function POST(request: NextRequest) {
     const formData = validationResult.data;
 
     // Get additional metadata from request
-    const userAgent = body.userAgent || request.headers.get('user-agent') || '';
-    const referrerUrl = body.referrerUrl || request.headers.get('referer') || '';
-    const locale = body.locale || 'en';
+    const userAgent = body.userAgent || request.headers.get("user-agent") || "";
+    const referrerUrl =
+      body.referrerUrl || request.headers.get("referer") || "";
+    const locale = body.locale || "en";
 
     // Create Supabase client
     const supabase = await createServerSupabaseClient();
 
     // Insert contact message into database
-    const { data, error } = await supabase
-      .from('contact_messages')
+    const { data, error } = await (supabase as any)
+      .from("contact_messages")
       .insert({
         name: formData.name,
         email: formData.email,
@@ -49,19 +57,19 @@ export async function POST(request: NextRequest) {
         ip_address: clientIP,
         locale: locale,
         referrer_url: referrerUrl,
-        status: 'unread',
+        status: "unread",
         is_spam: false,
       })
-      .select('id')
+      .select("id")
       .single();
 
     if (error) {
-      console.error('Database error inserting contact message:', error);
+      console.error("Database error inserting contact message:", error);
       return NextResponse.json(
         {
           success: false,
-          message: 'Failed to save message',
-          error: 'There was an error saving your message. Please try again.',
+          message: "Failed to save message",
+          error: "There was an error saving your message. Please try again.",
         } as ContactSubmissionResponse,
         { status: 500 }
       );
@@ -73,23 +81,31 @@ export async function POST(request: NextRequest) {
 
     const responseMessages = {
       en: {
-        success: 'Thank you for contacting us! We have received your message and will get back to you within 24 hours.',
-        high_urgency: 'Thank you for contacting us! We have received your urgent message and will prioritize your inquiry.',
-        urgent: 'Thank you for contacting us! We have received your urgent message and will contact you as soon as possible.',
+        success:
+          "Thank you for contacting us! We have received your message and will get back to you within 24 hours.",
+        high_urgency:
+          "Thank you for contacting us! We have received your urgent message and will prioritize your inquiry.",
+        urgent:
+          "Thank you for contacting us! We have received your urgent message and will contact you as soon as possible.",
       },
       ru: {
-        success: 'Спасибо за обращение! Мы получили ваше сообщение и свяжемся с вами в течение 24 часов.',
-        high_urgency: 'Спасибо за обращение! Мы получили ваше срочное сообщение и обработаем его приоритетно.',
-        urgent: 'Спасибо за обращение! Мы получили ваше срочное сообщение и свяжемся с вами как можно скорее.',
-      }
+        success:
+          "Спасибо за обращение! Мы получили ваше сообщение и свяжемся с вами в течение 24 часов.",
+        high_urgency:
+          "Спасибо за обращение! Мы получили ваше срочное сообщение и обработаем его приоритетно.",
+        urgent:
+          "Спасибо за обращение! Мы получили ваше срочное сообщение и свяжемся с вами как можно скорее.",
+      },
     };
 
-    const messages = responseMessages[locale as keyof typeof responseMessages] || responseMessages.en;
-    
+    const messages =
+      responseMessages[locale as keyof typeof responseMessages] ||
+      responseMessages.en;
+
     let successMessage = messages.success;
-    if (formData.urgencyLevel === 'high') {
+    if (formData.urgencyLevel === "high") {
       successMessage = messages.high_urgency;
-    } else if (formData.urgencyLevel === 'urgent') {
+    } else if (formData.urgencyLevel === "urgent") {
       successMessage = messages.urgent;
     }
 
@@ -101,14 +117,13 @@ export async function POST(request: NextRequest) {
       } as ContactSubmissionResponse,
       { status: 200 }
     );
-
   } catch (error) {
-    console.error('Unexpected error in contact API:', error);
+    console.error("Unexpected error in contact API:", error);
     return NextResponse.json(
       {
         success: false,
-        message: 'Server error',
-        error: 'An unexpected error occurred. Please try again later.',
+        message: "Server error",
+        error: "An unexpected error occurred. Please try again later.",
       } as ContactSubmissionResponse,
       { status: 500 }
     );
@@ -117,22 +132,13 @@ export async function POST(request: NextRequest) {
 
 // Handle unsupported methods
 export async function GET() {
-  return NextResponse.json(
-    { error: 'Method not allowed' },
-    { status: 405 }
-  );
+  return NextResponse.json({ error: "Method not allowed" }, { status: 405 });
 }
 
 export async function PUT() {
-  return NextResponse.json(
-    { error: 'Method not allowed' },
-    { status: 405 }
-  );
+  return NextResponse.json({ error: "Method not allowed" }, { status: 405 });
 }
 
 export async function DELETE() {
-  return NextResponse.json(
-    { error: 'Method not allowed' },
-    { status: 405 }
-  );
+  return NextResponse.json({ error: "Method not allowed" }, { status: 405 });
 }

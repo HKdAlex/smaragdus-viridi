@@ -1,9 +1,9 @@
 "use client";
 
+import { useRouter, useSearchParams } from "next/navigation";
+
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
-import { useAuth } from "../context/auth-context";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
@@ -13,9 +13,8 @@ export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+  const searchParams = useSearchParams();
   const t = useTranslations("auth");
-
-  const { signIn } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,9 +22,26 @@ export function LoginForm() {
     setError("");
 
     try {
-      await signIn(email, password);
-      // Redirect to home page after successful login
-      router.push("/");
+      // Use the new server-side login API
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error || "Login failed");
+      }
+
+      // Successful login - redirect
+      const redirectTo = searchParams.get("redirectTo") || "/";
+
+      // Force a page reload to ensure middleware picks up the new session
+      window.location.href = redirectTo;
     } catch (err) {
       setError(
         err instanceof Error ? err.message : t("errors.invalidCredentials")

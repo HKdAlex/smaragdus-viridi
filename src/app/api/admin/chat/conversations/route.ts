@@ -24,7 +24,10 @@ export async function GET(request: NextRequest) {
       .from('user_profiles')
       .select('role')
       .eq('user_id', user.id)
-      .single()
+      .single() as {
+        data: { role: string } | null
+        error: any
+      }
 
     if (profileError || userProfile?.role !== 'admin') {
       return NextResponse.json(

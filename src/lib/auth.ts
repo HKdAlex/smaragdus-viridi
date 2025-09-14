@@ -1,19 +1,16 @@
-import type { Database } from "@/shared/types/database";
+import type { DatabaseUserProfile, UserRole } from "@/shared/types";
+
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "./supabase";
 
-export type UserProfile = Database["public"]["Tables"]["user_profiles"]["Row"];
-// eslint-disable-next-line no-restricted-syntax
-export type UserRole = Database["public"]["Enums"]["user_role"];
-
-export interface AdminUser extends UserProfile {
-  role: 'admin';
+export interface AdminUser extends DatabaseUserProfile {
+  role: "admin";
 }
 
 export interface AuthResult {
   success: boolean;
   user?: User;
-  profile?: UserProfile;
+  profile?: DatabaseUserProfile;
   error?: string;
 }
 
@@ -31,7 +28,9 @@ export const auth = {
 
     // Profile will be created automatically by database trigger when user confirms email
     console.log("User account created successfully:", data.user?.email);
-    console.log("Please check your email and click the confirmation link to complete registration.");
+    console.log(
+      "Please check your email and click the confirmation link to complete registration."
+    );
 
     return data;
   },
@@ -58,7 +57,7 @@ export const auth = {
     return user;
   },
 
-  async getUserProfile(userId: string): Promise<UserProfile | null> {
+  async getUserProfile(userId: string): Promise<DatabaseUserProfile | null> {
     const { data, error } = await supabase
       .from("user_profiles")
       .select("*")
@@ -67,7 +66,7 @@ export const auth = {
 
     if (error) {
       // If profile doesn't exist, return null instead of throwing
-      if (error.code === 'PGRST116') {
+      if (error.code === "PGRST116") {
         console.log("User profile not found, will create on demand");
         return null;
       }
@@ -77,12 +76,12 @@ export const auth = {
     return data;
   },
 
-
-
   async updateUserProfile(
-    userId: string, 
-    updates: Partial<Pick<UserProfile, "name" | "phone" | "preferred_currency">>
-  ): Promise<UserProfile | null> {
+    userId: string,
+    updates: Partial<
+      Pick<DatabaseUserProfile, "name" | "phone" | "preferred_currency">
+    >
+  ): Promise<DatabaseUserProfile | null> {
     const { data, error } = await supabase
       .from("user_profiles")
       .update({
@@ -119,10 +118,10 @@ export const auth = {
   // Admin-specific methods
   async isAdmin(userId: string): Promise<boolean> {
     const profile = await this.getUserProfile(userId);
-    return profile?.role === 'admin';
+    return profile?.role === "admin";
   },
 
-  async getAdminUsers(): Promise<UserProfile[]> {
+  async getAdminUsers(): Promise<DatabaseUserProfile[]> {
     const { data, error } = await supabase
       .from("user_profiles")
       .select("*")
@@ -140,8 +139,8 @@ export const auth = {
     const { error } = await supabase
       .from("user_profiles")
       .update({
-        role: 'admin',
-        updated_at: new Date().toISOString()
+        role: "admin",
+        updated_at: new Date().toISOString(),
       })
       .eq("user_id", userId);
 
@@ -156,8 +155,8 @@ export const auth = {
     const { error } = await supabase
       .from("user_profiles")
       .update({
-        role: 'regular_customer',
-        updated_at: new Date().toISOString()
+        role: "regular_customer",
+        updated_at: new Date().toISOString(),
       })
       .eq("user_id", userId);
 
@@ -168,7 +167,11 @@ export const auth = {
     return true;
   },
 
-  async createAdminUser(email: string, password: string, name: string): Promise<AuthResult> {
+  async createAdminUser(
+    email: string,
+    password: string,
+    name: string
+  ): Promise<AuthResult> {
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -176,7 +179,7 @@ export const auth = {
         options: {
           data: {
             name,
-            role: 'admin' // This will be set by the database trigger
+            role: "admin", // This will be set by the database trigger
           },
         },
       });
@@ -184,9 +187,11 @@ export const auth = {
       if (error) throw error;
 
       // Wait a moment for the profile to be created by the trigger
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      const profile = data.user ? await this.getUserProfile(data.user.id) : null;
+      const profile = data.user
+        ? await this.getUserProfile(data.user.id)
+        : null;
 
       return {
         success: true,
@@ -196,12 +201,15 @@ export const auth = {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to create admin user',
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to create admin user",
       };
     }
   },
 
-  async getAllUsers(): Promise<UserProfile[]> {
+  async getAllUsers(): Promise<DatabaseUserProfile[]> {
     const { data, error } = await supabase
       .from("user_profiles")
       .select("*")
@@ -219,7 +227,7 @@ export const auth = {
       .from("user_profiles")
       .update({
         role: newRole,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq("user_id", userId);
 
@@ -229,4 +237,4 @@ export const auth = {
     }
     return true;
   },
-}; 
+};

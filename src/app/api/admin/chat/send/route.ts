@@ -24,7 +24,10 @@ export async function POST(request: NextRequest) {
       .from('user_profiles')
       .select('role')
       .eq('user_id', user.id)
-      .single()
+      .single() as {
+        data: { role: string } | null
+        error: any
+      }
 
     if (profileError || userProfile?.role !== 'admin') {
       return NextResponse.json(
@@ -56,7 +59,7 @@ export async function POST(request: NextRequest) {
     const { user_id, content } = validationResult.data
 
     // Insert admin message
-    const { data: message, error: insertError } = await supabase
+    const { data: message, error: insertError } = await (supabase as any)
       .from('chat_messages')
       .insert({
         user_id,

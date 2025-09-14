@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-import { createServerClient } from '@/lib/supabase-server'
 import { createContextLogger } from '@/shared/utils/logger'
+import { createServerClient } from '@/lib/supabase-server'
 
 const logger = createContextLogger('orders-events-api')
 
@@ -23,7 +23,15 @@ export async function GET(
       .from('orders')
       .select('id, user_id, status, updated_at')
       .eq('id', orderId)
-      .single()
+      .single() as {
+        data: { 
+          id: string
+          user_id: string
+          status: string
+          updated_at: string 
+        } | null
+        error: any
+      }
 
     if (orderError || !order) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })

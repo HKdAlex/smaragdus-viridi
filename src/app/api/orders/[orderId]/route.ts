@@ -24,7 +24,7 @@ export async function GET(
     }
 
     // Fetch order with items and gemstone details
-    const { data: order, error: orderError } = await supabase
+    const { data: order, error: orderError } = await (supabase as any)
       .from('orders')
       .select(`
         *,
@@ -55,7 +55,10 @@ export async function GET(
       .from('user_profiles')
       .select('role')
       .eq('user_id', user.id)
-      .single()
+      .single() as {
+        data: { role: string } | null
+        error: any
+      }
 
     const isAdmin = userProfile?.role === 'admin'
     const isOwner = order.user_id === user.id
@@ -78,7 +81,10 @@ export async function GET(
         .from('user_profiles')
         .select('name, phone')
         .eq('user_id', order.user_id)
-        .single()
+        .single() as {
+          data: { name: string, phone: string | null } | null
+          error: any
+        }
 
       // Get user email from auth (admin only)
       let email = null
@@ -99,7 +105,7 @@ export async function GET(
     const formattedOrder = {
       ...order,
       user: userInfo,
-      total_items: order.items?.reduce((sum, item) => sum + (item.quantity || 1), 0) || 0
+      total_items: order.items?.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0) || 0
     }
 
     logger.info('Order details fetched successfully', {

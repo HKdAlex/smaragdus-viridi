@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { UserProfilePage } from "@/features/user/components/user-profile-page";
-import { createServerClient } from "@/lib/supabase-server";
+import { createServerSupabaseClient } from "@/lib/supabase";
 import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import { userProfileService } from "@/features/user/services/user-profile-service";
@@ -15,7 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ProfilePage() {
-  const supabase = await createServerClient();
+  const supabase = await createServerSupabaseClient();
   const {
     data: { user },
     error: authError,
@@ -35,9 +35,6 @@ export default async function ProfilePage() {
       phone: "",
       preferred_currency: "USD" as const,
       language_preference: "en" as const,
-      email_notifications: true,
-      order_updates: true,
-      marketing_emails: false,
     };
 
     const result = await userProfileService.updateProfile(
@@ -59,9 +56,6 @@ export default async function ProfilePage() {
         discount_percentage: 0,
         preferred_currency: "USD" as const,
         language_preference: "en" as const,
-        email_notifications: true,
-        order_updates: true,
-        marketing_emails: false,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };

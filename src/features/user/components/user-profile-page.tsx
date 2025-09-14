@@ -92,9 +92,9 @@ export function UserProfilePage({
           </div>
           <Badge
             variant="outline"
-            className={`px-3 py-1 ${getRoleBadgeColor(user.role)}`}
+            className={`px-3 py-1 ${getRoleBadgeColor(user.role || "guest")}`}
           >
-            {getRoleDisplayName(user.role)}
+            {getRoleDisplayName(user.role || "guest")}
           </Badge>
         </div>
 
@@ -113,7 +113,7 @@ export function UserProfilePage({
                 {stats.averageOrderValue > 0
                   ? `Avg: ${formatCurrency(
                       stats.averageOrderValue,
-                      user.preferred_currency
+                      user.preferred_currency || "USD"
                     )}`
                   : "No orders yet"}
               </p>
@@ -127,7 +127,10 @@ export function UserProfilePage({
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {formatCurrency(stats.totalSpent, user.preferred_currency)}
+                {formatCurrency(
+                  stats.totalSpent,
+                  user.preferred_currency || "USD"
+                )}
               </div>
               <p className="text-xs text-muted-foreground">
                 Since {new Date(stats.memberSince).getFullYear()}
@@ -222,7 +225,9 @@ export function UserProfilePage({
                       <div>
                         <p className="font-medium">
                           Member since{" "}
-                          {new Date(user.created_at).toLocaleDateString()}
+                          {user.created_at
+                            ? new Date(user.created_at).toLocaleDateString()
+                            : "Unknown"}
                         </p>
                         <p className="text-sm text-muted-foreground">
                           Account Created
@@ -240,7 +245,7 @@ export function UserProfilePage({
                             Currency:
                           </span>
                           <span className="ml-2 font-medium">
-                            {user.preferred_currency}
+                            {user.preferred_currency || "USD"}
                           </span>
                         </div>
                         <div>

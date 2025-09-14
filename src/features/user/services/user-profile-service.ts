@@ -1,24 +1,24 @@
 import type {
-    ChangePasswordRequest,
-    ChangePasswordResponse,
-    GetActivityHistoryRequest,
-    GetActivityHistoryResponse,
-    GetOrderHistoryRequest,
-    GetOrderHistoryResponse,
-    ProfileStats,
-    UpdateProfileRequest,
-    UpdateProfileResponse,
-    UserOrder,
-    UserProfile
-} from '../types/user-profile.types'
+  ChangePasswordRequest,
+  ChangePasswordResponse,
+  GetActivityHistoryRequest,
+  GetActivityHistoryResponse,
+  GetOrderHistoryRequest,
+  GetOrderHistoryResponse,
+  ProfileStats,
+  UpdateProfileRequest,
+  UpdateProfileResponse,
+  UserOrder,
+  UserProfile,
+} from "../types/user-profile.types";
 
-import { UserProfileError } from '../types/user-profile.types'
-import { createContextLogger } from '@/shared/utils/logger'
-import { supabase } from '@/lib/supabase'
+import { UserProfileError } from "../types/user-profile.types";
+import { createContextLogger } from "@/shared/utils/logger";
+import { supabase } from "@/lib/supabase";
 
 export class UserProfileService {
-  private supabase = supabase
-  private logger = createContextLogger('user-profile-service')
+  private supabase = supabase;
+  private logger = createContextLogger("user-profile-service");
 
   /**
    * Get user profile
@@ -26,116 +26,142 @@ export class UserProfileService {
   async getProfile(userId: string): Promise<UserProfile | null> {
     try {
       const { data: profile, error } = await this.supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('user_id', userId)
-        .single()
+        .from("user_profiles")
+        .select("*")
+        .eq("user_id", userId)
+        .single();
 
       if (error) {
-        if (error.code === 'PGRST116') {
-          this.logger.warn('Profile not found', { userId })
-          return null
+        if (error.code === "PGRST116") {
+          this.logger.warn("Profile not found", { userId });
+          return null;
         }
-        throw new UserProfileError('PROFILE_NOT_FOUND', 'Failed to load profile')
+        throw new UserProfileError(
+          "PROFILE_NOT_FOUND",
+          "Failed to load profile"
+        );
       }
 
-      this.logger.info('Profile loaded successfully', { userId })
-      return profile as UserProfile
+      this.logger.info("Profile loaded successfully", { userId });
+      return profile as UserProfile;
     } catch (error) {
-      this.logger.error('Failed to get profile', error as Error, { userId })
-      throw error
+      this.logger.error("Failed to get profile", error as Error, { userId });
+      throw error;
     }
   }
 
   /**
    * Update user profile
    */
-  async updateProfile(userId: string, updates: UpdateProfileRequest): Promise<UpdateProfileResponse> {
+  async updateProfile(
+    userId: string,
+    updates: UpdateProfileRequest
+  ): Promise<UpdateProfileResponse> {
     try {
       const { data: profile, error } = await this.supabase
-        .from('user_profiles')
+        .from("user_profiles")
         .update({
           ...updates,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
-        .eq('user_id', userId)
+        .eq("user_id", userId)
         .select()
-        .single()
+        .single();
 
       if (error) {
-        this.logger.error('Failed to update profile', error, { userId, updates })
-        throw new UserProfileError('UPDATE_FAILED', 'Failed to update profile')
+        this.logger.error("Failed to update profile", error, {
+          userId,
+          updates,
+        });
+        throw new UserProfileError("UPDATE_FAILED", "Failed to update profile");
       }
 
       // Log the profile update activity
-      await this.logActivity(userId, 'profile_updated', 'Profile information updated', { updates })
+      await this.logActivity(
+        userId,
+        "profile_updated",
+        "Profile information updated",
+        { updates }
+      );
 
-      this.logger.info('Profile updated successfully', { userId })
-      return { success: true, profile: profile as UserProfile }
+      this.logger.info("Profile updated successfully", { userId });
+      return { success: true, profile: profile as UserProfile };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-      this.logger.error('Failed to update profile', error as Error, { userId })
-      return { success: false, error: errorMessage }
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      this.logger.error("Failed to update profile", error as Error, { userId });
+      return { success: false, error: errorMessage };
     }
   }
 
   /**
    * Change user password
    */
-  async changePassword(userId: string, request: ChangePasswordRequest): Promise<ChangePasswordResponse> {
+  async changePassword(
+    userId: string,
+    request: ChangePasswordRequest
+  ): Promise<ChangePasswordResponse> {
     try {
-      const { current_password, new_password, confirm_password } = request
+      const { current_password, new_password, confirm_password } = request;
 
       // Validate passwords match
       if (new_password !== confirm_password) {
-        return { success: false, error: 'New passwords do not match' }
+        return { success: false, error: "New passwords do not match" };
       }
 
       // Validate password strength
       if (new_password.length < 8) {
-        return { success: false, error: 'Password must be at least 8 characters long' }
+        return {
+          success: false,
+          error: "Password must be at least 8 characters long",
+        };
       }
 
       // Update password using Supabase Auth
       const { error } = await this.supabase.auth.updateUser({
-        password: new_password
-      })
+        password: new_password,
+      });
 
       if (error) {
-        this.logger.error('Failed to change password', error, { userId })
-        return { success: false, error: 'Failed to change password' }
+        this.logger.error("Failed to change password", error, { userId });
+        return { success: false, error: "Failed to change password" };
       }
 
       // Log the password change activity
-      await this.logActivity(userId, 'password_changed', 'Password changed successfully')
+      await this.logActivity(
+        userId,
+        "password_changed",
+        "Password changed successfully"
+      );
 
-      this.logger.info('Password changed successfully', { userId })
-      return { success: true }
+      this.logger.info("Password changed successfully", { userId });
+      return { success: true };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-      this.logger.error('Failed to change password', error as Error, { userId })
-      return { success: false, error: errorMessage }
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      this.logger.error("Failed to change password", error as Error, {
+        userId,
+      });
+      return { success: false, error: errorMessage };
     }
   }
 
   /**
    * Get user order history
    */
-  async getOrderHistory(userId: string, request: GetOrderHistoryRequest = {}): Promise<GetOrderHistoryResponse> {
+  async getOrderHistory(
+    userId: string,
+    request: GetOrderHistoryRequest = {}
+  ): Promise<GetOrderHistoryResponse> {
     try {
-      const {
-        page = 1,
-        limit = 10,
-        status,
-        date_from,
-        date_to
-      } = request
+      const { page = 1, limit = 10, status, date_from, date_to } = request;
 
-      const offset = (page - 1) * limit
+      const offset = (page - 1) * limit;
 
       let query = this.supabase
-        .from('orders')
-        .select(`
+        .from("orders")
+        .select(
+          `
           *,
           order_items (
             *,
@@ -148,56 +174,68 @@ export class UserProfileService {
               serial_number
             )
           )
-        `, { count: 'exact' })
-        .eq('user_id', userId)
+        `,
+          { count: "exact" }
+        )
+        .eq("user_id", userId);
 
       // Apply filters
       if (status && status.length > 0) {
-        query = query.in('status', status)
+        query = query.in("status", status);
       }
 
       if (date_from) {
-        query = query.gte('created_at', date_from)
+        query = query.gte("created_at", date_from);
       }
 
       if (date_to) {
-        query = query.lte('created_at', date_to)
+        query = query.lte("created_at", date_to);
       }
 
       // Apply sorting and pagination
       query = query
-        .order('created_at', { ascending: false })
-        .range(offset, offset + limit - 1)
+        .order("created_at", { ascending: false })
+        .range(offset, offset + limit - 1);
 
-      const { data: orders, error, count } = await query
+      const { data: orders, error, count } = await query;
 
       if (error) {
-        this.logger.error('Failed to get order history', error, { userId, request })
-        throw new UserProfileError('UPDATE_FAILED', 'Failed to load order history')
+        this.logger.error("Failed to get order history", error, {
+          userId,
+          request,
+        });
+        throw new UserProfileError(
+          "UPDATE_FAILED",
+          "Failed to load order history"
+        );
       }
 
-      const total = count || 0
-      const hasMore = total > offset + limit
+      const total = count || 0;
+      const hasMore = total > offset + limit;
 
-      this.logger.info('Order history loaded successfully', {
+      this.logger.info("Order history loaded successfully", {
         userId,
         total,
         page,
         limit,
-        hasMore
-      })
+        hasMore,
+      });
 
       return {
         success: true,
-        orders: orders as unknown as UserOrder[] || [],
+        orders: (orders as unknown as UserOrder[]) || [],
         total,
         page,
         limit,
-        hasMore
-      }
+        hasMore,
+      };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-      this.logger.error('Failed to get order history', error as Error, { userId, request })
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      this.logger.error("Failed to get order history", error as Error, {
+        userId,
+        request,
+      });
       return {
         success: false,
         error: errorMessage,
@@ -205,17 +243,22 @@ export class UserProfileService {
         total: 0,
         page: 1,
         limit: 10,
-        hasMore: false
-      }
+        hasMore: false,
+      };
     }
   }
 
   /**
    * Get user activity history
    */
-  async getActivityHistory(userId: string, request: GetActivityHistoryRequest = {}): Promise<GetActivityHistoryResponse> {
+  async getActivityHistory(
+    userId: string,
+    request: GetActivityHistoryRequest = {}
+  ): Promise<GetActivityHistoryResponse> {
     // TODO: Implement activity history when user_activities table is created
-    this.logger.info('Activity history requested but not yet implemented', { userId })
+    this.logger.info("Activity history requested but not yet implemented", {
+      userId,
+    });
 
     return {
       success: true,
@@ -223,8 +266,8 @@ export class UserProfileService {
       total: 0,
       page: 1,
       limit: 20,
-      hasMore: false
-    }
+      hasMore: false,
+    };
   }
 
   /**
@@ -234,47 +277,48 @@ export class UserProfileService {
     try {
       // Get order statistics
       const { data: orderStats, error: orderError } = await this.supabase
-        .from('orders')
-        .select('total_amount, created_at')
-        .eq('user_id', userId)
-        .eq('status', 'delivered')
+        .from("orders")
+        .select("total_amount, created_at")
+        .eq("user_id", userId)
+        .eq("status", "delivered");
 
       if (orderError) {
-        this.logger.error('Failed to get order stats', orderError, { userId })
+        this.logger.error("Failed to get order stats", orderError, { userId });
       }
 
-      const totalOrders = orderStats?.length || 0
-      const totalSpent = orderStats?.reduce((sum, order) => sum + order.total_amount, 0) || 0
-      const averageOrderValue = totalOrders > 0 ? totalSpent / totalOrders : 0
+      const totalOrders = orderStats?.length || 0;
+      const totalSpent =
+        orderStats?.reduce((sum, order) => sum + order.total_amount, 0) || 0;
+      const averageOrderValue = totalOrders > 0 ? totalSpent / totalOrders : 0;
 
       // Get user creation date
       const { data: userProfile, error: profileError } = await this.supabase
-        .from('user_profiles')
-        .select('created_at')
-        .eq('user_id', userId)
-        .single()
+        .from("user_profiles")
+        .select("created_at")
+        .eq("user_id", userId)
+        .single();
 
-      const memberSince = userProfile?.created_at || new Date().toISOString()
+      const memberSince = userProfile?.created_at || new Date().toISOString();
 
       // Get favorites count
       const { count: favoriteCount, error: favoriteError } = await this.supabase
-        .from('favorites')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId)
+        .from("favorites")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", userId);
 
       // Get cart items count
       const { count: cartCount, error: cartError } = await this.supabase
-        .from('cart_items')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId)
+        .from("cart_items")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", userId);
 
-      this.logger.info('Profile stats calculated', {
+      this.logger.info("Profile stats calculated", {
         userId,
         totalOrders,
         totalSpent,
         favoriteCount: favoriteCount || 0,
-        cartCount: cartCount || 0
-      })
+        cartCount: cartCount || 0,
+      });
 
       return {
         totalOrders,
@@ -282,10 +326,12 @@ export class UserProfileService {
         averageOrderValue,
         memberSince,
         favoriteGemstones: favoriteCount || 0,
-        cartItems: cartCount || 0
-      }
+        cartItems: cartCount || 0,
+      };
     } catch (error) {
-      this.logger.error('Failed to get profile stats', error as Error, { userId })
+      this.logger.error("Failed to get profile stats", error as Error, {
+        userId,
+      });
       // Return default stats on error
       return {
         totalOrders: 0,
@@ -293,8 +339,8 @@ export class UserProfileService {
         averageOrderValue: 0,
         memberSince: new Date().toISOString(),
         favoriteGemstones: 0,
-        cartItems: 0
-      }
+        cartItems: 0,
+      };
     }
   }
 
@@ -308,9 +354,13 @@ export class UserProfileService {
     metadata?: Record<string, any>
   ): Promise<void> {
     // TODO: Implement activity logging when user_activities table is created
-    this.logger.debug('Activity logged (not persisted)', { userId, type, description })
+    this.logger.debug("Activity logged (not persisted)", {
+      userId,
+      type,
+      description,
+    });
   }
 }
 
 // Export singleton instance
-export const userProfileService = new UserProfileService()
+export const userProfileService = new UserProfileService();
