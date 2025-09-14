@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 import { chatService } from '@/features/chat'
 import { createContextLogger } from '@/shared/utils/logger'
-import { createServerClient } from '@/lib/supabase'
+import { createServerClient } from '@/lib/supabase-server'
 
 const logger = createContextLogger('chat-read-api')
 
@@ -14,7 +14,7 @@ export async function POST(
   try {
     const { messageId } = await params
 
-    const supabase = createServerClient()
+    const supabase = await createServerClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {

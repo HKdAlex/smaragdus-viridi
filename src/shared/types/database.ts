@@ -707,6 +707,70 @@ export type Database = {
         }
         Relationships: []
       }
+      order_events: {
+        Row: {
+          created_at: string | null
+          description: string
+          event_type: string
+          id: string
+          is_internal: boolean | null
+          metadata: Json | null
+          order_id: string
+          performed_at: string | null
+          performed_by: string | null
+          severity: string
+          title: string
+        }
+        Insert: {
+          created_at?: string | null
+          description: string
+          event_type: string
+          id?: string
+          is_internal?: boolean | null
+          metadata?: Json | null
+          order_id: string
+          performed_at?: string | null
+          performed_by?: string | null
+          severity?: string
+          title: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          event_type?: string
+          id?: string
+          is_internal?: boolean | null
+          metadata?: Json | null
+          order_id?: string
+          performed_at?: string | null
+          performed_by?: string | null
+          severity?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_events_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_events_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders_with_details"
+            referencedColumns: ["order_id"]
+          },
+          {
+            foreignKeyName: "order_events_performed_by_fkey"
+            columns: ["performed_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_items: {
         Row: {
           gemstone_id: string

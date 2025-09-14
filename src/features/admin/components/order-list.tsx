@@ -1,23 +1,11 @@
 "use client";
 
 import {
-  ArrowUpDown,
-  Eye,
-  MoreHorizontal,
-  Package,
-  Search,
-  X,
-} from "lucide-react";
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
-import type {
-  OrderListProps,
-  OrderStatus,
-} from "../types/order-management.types";
 import {
   Select,
   SelectContent,
@@ -33,14 +21,27 @@ import {
   TableHeader,
   TableRow,
 } from "@/shared/components/ui/table";
+import {
+  ArrowUpDown,
+  Eye,
+  MoreHorizontal,
+  Package,
+  Search,
+  X,
+} from "lucide-react";
+import type {
+  OrderListProps,
+  OrderStatus,
+} from "../types/order-management.types";
 
+import { useRouter } from "@/i18n/navigation";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
-import { ORDER_STATUS_CONFIG } from "../types/order-management.types";
 import { format } from "date-fns";
-import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
+import { ORDER_STATUS_CONFIG } from "../types/order-management.types";
 
 export function OrderList({
   orders,
@@ -50,6 +51,7 @@ export function OrderList({
   selectedOrderId,
 }: OrderListProps) {
   const t = useTranslations("admin.orders");
+  const router = useRouter();
   const [sortField, setSortField] = useState<"created_at" | "total_amount">(
     "created_at"
   );
@@ -105,6 +107,14 @@ export function OrderList({
     } catch (error) {
       console.error("Failed to update order status:", error);
     }
+  };
+
+  const handleOrderClick = (order: any) => {
+    // Navigate to the order details page using the correct internationalized routing approach
+    router.push({
+      pathname: "/orders/[id]" as const,
+      params: { id: order.id },
+    });
   };
 
   const formatCurrency = (amount: number, currency: string) => {
@@ -231,7 +241,7 @@ export function OrderList({
                   className={`cursor-pointer hover:bg-muted/50 ${
                     selectedOrderId === order.id ? "bg-muted" : ""
                   }`}
-                  onClick={() => onOrderSelect(order)}
+                  onClick={() => handleOrderClick(order)}
                 >
                   <TableCell className="font-mono text-sm">
                     {order.id.slice(0, 8)}...
@@ -262,7 +272,9 @@ export function OrderList({
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => onOrderSelect(order)}>
+                        <DropdownMenuItem
+                          onClick={() => handleOrderClick(order)}
+                        >
                           <Eye className="mr-2 h-4 w-4" />
                           {t("viewDetails")}
                         </DropdownMenuItem>
@@ -308,7 +320,7 @@ export function OrderList({
                               onClick={() =>
                                 handleStatusUpdate(order.id, "cancelled")
                               }
-                              className="text-destructive"
+                              className="text-red-600"
                             >
                               {t("cancelOrder")}
                             </DropdownMenuItem>

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 import { chatService } from '@/features/chat'
+import { createServerClient } from '@/lib/supabase-server'
 import { createContextLogger } from '@/shared/utils/logger'
-import { createServerClient } from '@/lib/supabase'
 import { z } from 'zod'
 
 const logger = createContextLogger('chat-api')
@@ -10,7 +10,7 @@ const logger = createContextLogger('chat-api')
 // GET /api/chat - Get user's chat messages
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createServerClient()
+    const supabase = await createServerClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {
@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
 // POST /api/chat - Send a new chat message
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createServerClient()
+    const supabase = await createServerClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {

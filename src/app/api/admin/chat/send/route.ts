@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 import { createContextLogger } from '@/shared/utils/logger'
-import { createServerClient } from '@/lib/supabase'
+import { createServerClient } from '@/lib/supabase-server'
 import { z } from 'zod'
 
 const logger = createContextLogger('admin-chat-send-api')
@@ -9,7 +9,7 @@ const logger = createContextLogger('admin-chat-send-api')
 // POST /api/admin/chat/send - Send admin message to user
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createServerClient()
+    const supabase = await createServerClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {

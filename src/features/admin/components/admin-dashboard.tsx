@@ -418,10 +418,10 @@ function AdminDashboardOverview() {
               <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center justify-between">
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs sm:text-sm text-muted-foreground mb-1 truncate">
+                    <p className="text-xs sm:text-sm text-muted-foreground mb-1 break-words">
                       {stat.title}
                     </p>
-                    <p className="text-xl sm:text-2xl font-bold text-foreground truncate">
+                    <p className="text-xl sm:text-2xl font-bold text-foreground break-words">
                       {stat.value}
                     </p>
                     <p
@@ -432,7 +432,7 @@ function AdminDashboardOverview() {
                       }`}
                     >
                       <TrendingUp className="w-3 h-3 flex-shrink-0" />
-                      <span className="truncate">
+                      <span className="break-words">
                         {stat.change} {t("stats.fromLastMonth")}
                       </span>
                     </p>
@@ -459,7 +459,7 @@ function AdminDashboardOverview() {
             <Button className="flex items-center gap-3 h-auto p-4 justify-start min-h-[60px] text-left">
               <Upload className="w-5 h-5 flex-shrink-0" />
               <div className="text-left min-w-0 flex-1">
-                <div className="font-medium text-sm sm:text-base truncate">
+                <div className="font-medium text-sm sm:text-base break-words">
                   {t("quickActions.uploadGemstones")}
                 </div>
                 <div className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
@@ -474,7 +474,7 @@ function AdminDashboardOverview() {
             >
               <Edit className="w-5 h-5 flex-shrink-0" />
               <div className="text-left min-w-0 flex-1">
-                <div className="font-medium text-sm sm:text-base truncate">
+                <div className="font-medium text-sm sm:text-base break-words">
                   {t("quickActions.editPrices")}
                 </div>
                 <div className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
@@ -489,7 +489,7 @@ function AdminDashboardOverview() {
             >
               <Users className="w-5 h-5 flex-shrink-0" />
               <div className="text-left min-w-0 flex-1">
-                <div className="font-medium text-sm sm:text-base truncate">
+                <div className="font-medium text-sm sm:text-base break-words">
                   {t("quickActions.userManagement")}
                 </div>
                 <div className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
@@ -513,7 +513,7 @@ function AdminDashboardOverview() {
             <div className="flex items-center gap-3 sm:gap-4 p-3 bg-muted/30 rounded-lg">
               <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
               <div className="flex-1 min-w-0">
-                <p className="font-medium text-sm sm:text-base truncate">
+                <p className="font-medium text-sm sm:text-base break-words">
                   {t("recentActivity.newGemstoneAdded")}
                 </p>
                 <p className="text-xs sm:text-sm text-muted-foreground">
@@ -525,7 +525,7 @@ function AdminDashboardOverview() {
             <div className="flex items-center gap-3 sm:gap-4 p-3 bg-muted/30 rounded-lg">
               <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
               <div className="flex-1 min-w-0">
-                <p className="font-medium text-sm sm:text-base truncate">
+                <p className="font-medium text-sm sm:text-base break-words">
                   {t("recentActivity.userPromoted")}
                 </p>
                 <p className="text-xs sm:text-sm text-muted-foreground">
@@ -537,7 +537,7 @@ function AdminDashboardOverview() {
             <div className="flex items-center gap-3 sm:gap-4 p-3 bg-muted/30 rounded-lg">
               <div className="w-2 h-2 bg-orange-500 rounded-full flex-shrink-0"></div>
               <div className="flex-1 min-w-0">
-                <p className="font-medium text-sm sm:text-base truncate">
+                <p className="font-medium text-sm sm:text-base break-words">
                   {t("recentActivity.priceUpdateApplied", { count: 15 })}
                 </p>
                 <p className="text-xs sm:text-sm text-muted-foreground">

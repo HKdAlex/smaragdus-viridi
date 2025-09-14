@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-import { createServerClient } from '@/lib/supabase'
+import { createServerClient } from '@/lib/supabase-server'
 import { logger } from '@/shared/utils/logger'
 
 export async function GET(
@@ -9,7 +9,10 @@ export async function GET(
 ) {
   try {
     const { orderId } = await params
-    const supabase = createServerClient()
+    const supabase = await createServerClient()
+    
+    // Check if this is an admin request
+    const isAdminRequest = request.headers.get('X-Admin-Context') === 'true'
 
     // Get the current user
     const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -57,7 +60,10 @@ export async function GET(
     const isAdmin = userProfile?.role === 'admin'
     const isOwner = order.user_id === user.id
 
-    if (!isAdmin && !isOwner) {
+    // If this is an admin request, allow access regardless of ownership
+    if (isAdminRequest && isAdmin) {
+      // Admin can view any order
+    } else if (!isAdmin && !isOwner) {
       return NextResponse.json(
         { error: 'Forbidden' },
         { status: 403 }
@@ -100,6 +106,7 @@ export async function GET(
       orderId,
       userId: user.id,
       isAdmin,
+      isAdminRequest,
       itemCount: order.items?.length || 0
     })
 

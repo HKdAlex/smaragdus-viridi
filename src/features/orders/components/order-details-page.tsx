@@ -1,6 +1,12 @@
 "use client";
 
 import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
+import {
   AlertCircle,
   ArrowLeft,
   CheckCircle,
@@ -8,31 +14,29 @@ import {
   Package,
   Truck,
 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui/card";
-import { ORDER_STATUS_COLORS, ORDER_STATUS_LABELS } from "../types/order.types";
 import { useEffect, useState } from "react";
+import { ORDER_STATUS_COLORS, ORDER_STATUS_LABELS } from "../types/order.types";
 
+import { useRouter } from "@/i18n/navigation";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import type { Order } from "@/shared/types";
-import { OrderTimeline } from "./order-timeline";
-import type { OrderTimeline as OrderTimelineType } from "../types/order-tracking.types";
-import { OrderTrackingService } from "../services/order-tracking-service";
 import { Separator } from "@/shared/components/ui/separator";
-import { useRouter } from "@/i18n/navigation";
+import type { Order } from "@/shared/types";
 import { useTranslations } from "next-intl";
+import type { OrderTimeline as OrderTimelineType } from "../types/order-tracking.types";
+import { OrderTimeline } from "./order-timeline";
 
 interface OrderDetailsPageProps {
   orderId: string;
   locale: string;
+  isAdmin?: boolean;
 }
 
-export function OrderDetailsPage({ orderId, locale }: OrderDetailsPageProps) {
+export function OrderDetailsPage({
+  orderId,
+  locale,
+  isAdmin = false,
+}: OrderDetailsPageProps) {
   const router = useRouter();
   const t = useTranslations("orders");
   const tCommon = useTranslations("common");
@@ -44,7 +48,7 @@ export function OrderDetailsPage({ orderId, locale }: OrderDetailsPageProps) {
 
   useEffect(() => {
     loadOrderDetails();
-  }, [orderId]);
+  }, [orderId, isAdmin]);
 
   const loadOrderDetails = async () => {
     try {
@@ -52,15 +56,24 @@ export function OrderDetailsPage({ orderId, locale }: OrderDetailsPageProps) {
       setError(null);
 
       // Fetch order details from API
-      const response = await fetch(`/api/orders/${orderId}`);
+      const response = await fetch(`/api/orders/${orderId}`, {
+        headers: {
+          "Content-Type": "application/json",
+          // Add admin context header if user is admin
+          ...(isAdmin && { "X-Admin-Context": "true" }),
+        },
+      });
       const result = await response.json();
 
       if (result.success && result.order) {
         setOrder(result.order);
-        
-        // Load order timeline
-        const timelineData = await OrderTrackingService.getOrderTimeline(orderId);
-        setTimeline(timelineData);
+
+        // Load order timeline from API
+        const eventsRes = await fetch(`/api/orders/${orderId}/events`);
+        const eventsJson = await eventsRes.json();
+        if (eventsJson.success && eventsJson.timeline) {
+          setTimeline(eventsJson.timeline as OrderTimelineType);
+        }
       } else {
         setError(result.error || "Failed to load order details");
       }
@@ -297,10 +310,7 @@ export function OrderDetailsPage({ orderId, locale }: OrderDetailsPageProps) {
 
             {/* Order Timeline */}
             {timeline && (
-              <OrderTimeline 
-                timeline={timeline} 
-                showInternalEvents={false}
-              />
+              <OrderTimeline timeline={timeline} showInternalEvents={false} />
             )}
           </div>
 
@@ -349,7 +359,9 @@ export function OrderDetailsPage({ orderId, locale }: OrderDetailsPageProps) {
                   <>
                     <Separator />
                     <div className="space-y-2">
-                      <h4 className="font-medium text-sm">{t("customerInfo")}</h4>
+                      <h4 className="font-medium text-sm">
+                        {t("customerInfo")}
+                      </h4>
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">
                           {t("customerName")}

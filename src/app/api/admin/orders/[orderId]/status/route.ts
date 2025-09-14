@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 import { createContextLogger } from '@/shared/utils/logger'
-import { createServerClient } from '@/lib/supabase'
+import { createServerClient } from '@/lib/supabase-server'
 import { orderManagementService } from '@/features/admin/services/order-management-service'
 import { z } from 'zod'
 
@@ -15,7 +15,7 @@ export async function PUT(
   try {
     const { orderId } = await params
 
-    const supabase = createServerClient()
+    const supabase = await createServerClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {

@@ -1,12 +1,13 @@
 import type {
-  CreateOrderEventRequest,
-  OrderEvent,
-  OrderEventType,
-  OrderTimeline
+    CreateOrderEventRequest,
+    OrderEvent,
+    OrderEventType,
+    OrderTimeline
 } from '../types/order-tracking.types'
 
 import { ORDER_EVENT_TEMPLATES } from '../types/order-tracking.types'
 import { createContextLogger } from '@/shared/utils/logger'
+import { createServerClient } from '@/lib/supabase-server'
 
 const logger = createContextLogger('order-tracking')
 
@@ -16,29 +17,27 @@ export class OrderTrackingService {
    */
   static async createEvent(request: CreateOrderEventRequest): Promise<OrderEvent | null> {
     try {
-      // Get template for the event type
       const template = ORDER_EVENT_TEMPLATES[request.event_type]
-      
-      // For now, return a mock event since the order_events table doesn't exist yet
-      const mockEvent: OrderEvent = {
-        id: Math.random().toString(36).substr(2, 9),
-        order_id: request.order_id,
-        event_type: request.event_type,
-        severity: request.severity || template.severity,
-        title: request.title || template.title,
-        description: request.description || template.description,
-        metadata: request.metadata || {},
-        performed_at: new Date().toISOString(),
-        is_internal: request.is_internal || false
-      }
+      const supabase = await createServerClient()
 
-      logger.info('Mock order event created', { 
-        orderId: request.order_id, 
-        eventType: request.event_type,
-        eventId: mockEvent.id 
-      })
+      const { data, error } = await supabase
+        .from('order_events')
+        .insert({
+          order_id: request.order_id,
+          event_type: request.event_type,
+          severity: request.severity || template.severity,
+          title: request.title || template.title,
+          description: request.description || template.description,
+          metadata: request.metadata || {},
+          is_internal: request.is_internal || false,
+        })
+        .select('*')
+        .single()
 
-      return mockEvent
+      if (error) throw error
+
+      logger.info('Order event created', { orderId: request.order_id, eventType: request.event_type })
+      return data as unknown as OrderEvent
     } catch (error) {
       logger.error('Error creating order event', error as Error, { orderId: request.order_id })
       return null
@@ -50,32 +49,31 @@ export class OrderTrackingService {
    */
   static async getOrderTimeline(orderId: string): Promise<OrderTimeline | null> {
     try {
-      // For now, return a mock timeline since the order_events table doesn't exist yet
-      // This will be replaced with actual database queries once the table is created
-      const mockTimeline: OrderTimeline = {
+      const supabase = await createServerClient()
+
+      // Fetch order for status
+      const { data: order, error: orderError } = await supabase
+        .from('orders')
+        .select('id, status, updated_at')
+        .eq('id', orderId)
+        .single()
+
+      if (orderError || !order) return null
+
+      const { data: events, error } = await supabase
+        .from('order_events')
+        .select('*')
+        .eq('order_id', orderId)
+        .order('performed_at', { ascending: true })
+
+      if (error) throw error
+
+      return {
         order_id: orderId,
-        events: [
-          {
-            id: '1',
-            order_id: orderId,
-            event_type: 'order_created',
-            severity: 'success',
-            title: 'Order Created',
-            description: 'Order has been successfully created',
-            performed_at: new Date().toISOString(),
-            is_internal: false
-          }
-        ],
-        current_status: 'pending',
-        last_updated: new Date().toISOString()
+        events: (events || []) as unknown as OrderEvent[],
+        current_status: (order.status || 'pending') as any,
+        last_updated: order.updated_at || new Date().toISOString()
       }
-
-      logger.info('Mock order timeline retrieved', { 
-        orderId, 
-        eventCount: mockTimeline.events.length 
-      })
-
-      return mockTimeline
     } catch (error) {
       logger.error('Error getting order timeline', error as Error, { orderId })
       return null
@@ -183,21 +181,15 @@ export class OrderTrackingService {
    */
   static async getRecentEvents(limit: number = 50): Promise<OrderEvent[]> {
     try {
-      // For now, return mock events since the order_events table doesn't exist yet
-      const mockEvents: OrderEvent[] = [
-        {
-          id: '1',
-          order_id: 'mock-order-1',
-          event_type: 'order_created',
-          severity: 'success',
-          title: 'Order Created',
-          description: 'Order has been successfully created',
-          performed_at: new Date().toISOString(),
-          is_internal: false
-        }
-      ]
+      const supabase = await createServerClient()
+      const { data, error } = await supabase
+        .from('order_events')
+        .select('*')
+        .order('performed_at', { ascending: false })
+        .limit(limit)
 
-      return mockEvents.slice(0, limit)
+      if (error) throw error
+      return (data || []) as unknown as OrderEvent[]
     } catch (error) {
       logger.error('Error getting recent events', error as Error)
       return []
@@ -213,24 +205,16 @@ export class OrderTrackingService {
     offset: number = 0
   ): Promise<{ events: OrderEvent[], total: number }> {
     try {
-      // For now, return mock events since the order_events table doesn't exist yet
-      const mockEvents: OrderEvent[] = [
-        {
-          id: '1',
-          order_id: orderId,
-          event_type: 'order_created',
-          severity: 'success',
-          title: 'Order Created',
-          description: 'Order has been successfully created',
-          performed_at: new Date().toISOString(),
-          is_internal: false
-        }
-      ]
+      const supabase = await createServerClient()
+      const { data, error, count } = await supabase
+        .from('order_events')
+        .select('*', { count: 'exact' })
+        .eq('order_id', orderId)
+        .order('performed_at', { ascending: true })
+        .range(offset, offset + limit - 1)
 
-      return {
-        events: mockEvents.slice(offset, offset + limit),
-        total: mockEvents.length
-      }
+      if (error) throw error
+      return { events: (data || []) as unknown as OrderEvent[], total: count || 0 }
     } catch (error) {
       logger.error('Error getting order events', error as Error, { orderId })
       return { events: [], total: 0 }

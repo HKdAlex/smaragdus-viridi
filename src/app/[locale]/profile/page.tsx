@@ -1,9 +1,9 @@
-import { UserProfilePage } from "@/features/user/components/user-profile-page";
-import { userProfileService } from "@/features/user/services/user-profile-service";
-import { createServerClient } from "@/lib/supabase";
 import { Metadata } from "next";
+import { UserProfilePage } from "@/features/user/components/user-profile-page";
+import { createServerClient } from "@/lib/supabase-server";
 import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
+import { userProfileService } from "@/features/user/services/user-profile-service";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("user");
@@ -15,7 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ProfilePage() {
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
   const {
     data: { user },
     error: authError,

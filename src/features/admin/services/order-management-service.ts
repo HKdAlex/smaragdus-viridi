@@ -10,9 +10,9 @@ import type {
     UpdateOrderStatusResponse
 } from '../types/order-management.types'
 
-import { supabase } from '@/lib/supabase'
-import { createContextLogger } from '@/shared/utils/logger'
 import { OrderManagementError } from '../types/order-management.types'
+import { createContextLogger } from '@/shared/utils/logger'
+import { supabase } from '@/lib/supabase'
 
 export class OrderManagementService {
   private supabase = supabase

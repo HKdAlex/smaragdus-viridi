@@ -1,4 +1,4 @@
-import { OrderDetailsPage } from "@/features/orders/components/order-details-page";
+import { OrderDetailsWrapper } from "@/features/orders/components/order-details-wrapper";
 
 interface PageProps {
   params: Promise<{ id: string; locale: string }>;
@@ -7,7 +7,7 @@ interface PageProps {
 export default async function OrderPage({ params }: PageProps) {
   const { id, locale } = await params;
 
-  return <OrderDetailsPage orderId={id} locale={locale} />;
+  return <OrderDetailsWrapper orderId={id} locale={locale} />;
 }
 
 export async function generateMetadata({ params }: PageProps) {

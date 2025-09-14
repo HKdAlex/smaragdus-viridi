@@ -2,14 +2,14 @@ import { NextRequest, NextResponse } from 'next/server'
 
 import { chatService } from '@/features/chat'
 import { createContextLogger } from '@/shared/utils/logger'
-import { createServerClient } from '@/lib/supabase'
+import { createServerClient } from '@/lib/supabase-server'
 
 const logger = createContextLogger('admin-chat-api')
 
 // GET /api/admin/chat/conversations - Get all chat conversations for admin
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createServerClient()
+    const supabase = await createServerClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {

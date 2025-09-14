@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 import { createContextLogger } from '@/shared/utils/logger'
-import { createServerClient } from '@/lib/supabase'
+import { createServerClient } from '@/lib/supabase-server'
 import { orderManagementService } from '@/features/admin/services/order-management-service'
 
 const logger = createContextLogger('admin-orders-api')
@@ -9,7 +9,7 @@ const logger = createContextLogger('admin-orders-api')
 // GET /api/admin/orders - Get orders for admin dashboard
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createServerClient()
+    const supabase = await createServerClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {
