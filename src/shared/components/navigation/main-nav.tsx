@@ -33,10 +33,18 @@ interface NavItem {
 export function MainNav() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
-  const { user, signOut } = useAuth();
+  const { user, signOut, loading } = useAuth();
   const { isAdmin } = useSafeAdminStatus();
   const t = useTranslations("navigation");
   const tAccessibility = useTranslations("common.accessibility");
+
+  // Debug logging for navbar auth state
+  console.log("[NAVBAR] Auth state:", {
+    hasUser: !!user,
+    userEmail: user?.email,
+    isLoading: loading,
+    timestamp: new Date().toISOString(),
+  });
 
   // Memoize userId to prevent unnecessary re-renders
   const userId = useMemo(() => user?.id, [user?.id]);
@@ -186,7 +194,13 @@ export function MainNav() {
 
             {/* Auth buttons */}
             <div className="hidden sm:flex items-center space-x-3">
-              {user ? (
+              {loading ? (
+                // Show loading state while auth is initializing
+                <div className="flex items-center space-x-2">
+                  <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+                  <span className="text-sm text-muted-foreground">Loading...</span>
+                </div>
+              ) : user ? (
                 // User is signed in - show user menu
                 <div className="flex items-center space-x-3">
                   <span className="text-sm text-muted-foreground">
@@ -310,7 +324,13 @@ export function MainNav() {
 
               {/* Mobile auth buttons */}
               <div className="px-3 py-2 space-y-2">
-                {user ? (
+                {loading ? (
+                  // Show loading state while auth is initializing
+                  <div className="flex items-center justify-center space-x-2 py-4">
+                    <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+                    <span className="text-sm text-muted-foreground">Loading...</span>
+                  </div>
+                ) : user ? (
                   // User is signed in - show user info and sign out
                   <>
                     <div className="px-3 py-2 text-sm text-muted-foreground">

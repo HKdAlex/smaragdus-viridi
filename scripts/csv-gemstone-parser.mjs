@@ -472,25 +472,55 @@ async function findExistingGemstone(internalCode) {
 async function updateGemstone(existingGemstone, csvData) {
   const updateData = {};
 
-  // Only update fields that are missing or null in database
-  if (!existingGemstone.internal_code && csvData.internal_code) {
+  // Update fields if CSV has better data (not null/empty/zero)
+  if (
+    csvData.internal_code &&
+    (!existingGemstone.internal_code ||
+      existingGemstone.internal_code.trim() === "")
+  ) {
     updateData.internal_code = csvData.internal_code;
   }
 
-  if (!existingGemstone.description && csvData.description) {
+  if (
+    csvData.description &&
+    (!existingGemstone.description ||
+      existingGemstone.description.trim() === "")
+  ) {
     updateData.description = csvData.description;
   }
 
-  if (!existingGemstone.length_mm && csvData.length_mm) {
+  // Update dimensions if CSV has valid values (not 0)
+  if (
+    csvData.length_mm &&
+    csvData.length_mm > 0 &&
+    (!existingGemstone.length_mm || existingGemstone.length_mm === 0)
+  ) {
     updateData.length_mm = csvData.length_mm;
   }
 
-  if (!existingGemstone.width_mm && csvData.width_mm) {
+  if (
+    csvData.width_mm &&
+    csvData.width_mm > 0 &&
+    (!existingGemstone.width_mm || existingGemstone.width_mm === 0)
+  ) {
     updateData.width_mm = csvData.width_mm;
   }
 
-  if (!existingGemstone.depth_mm && csvData.depth_mm) {
+  if (
+    csvData.depth_mm &&
+    csvData.depth_mm > 0 &&
+    (!existingGemstone.depth_mm || existingGemstone.depth_mm === 0)
+  ) {
     updateData.depth_mm = csvData.depth_mm;
+  }
+
+  // Update weight if CSV has valid value (not 0)
+  if (
+    csvData.weight_carats &&
+    csvData.weight_carats > 0 &&
+    (!existingGemstone.weight_carats || existingGemstone.weight_carats === 0)
+  ) {
+    updateData.weight_carats = csvData.weight_carats;
   }
 
   // Always update price fields if available (CSV is more current)

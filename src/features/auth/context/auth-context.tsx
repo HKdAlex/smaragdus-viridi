@@ -37,24 +37,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Get initial session
     const getInitialSession = async () => {
       try {
+        console.log("[AUTH PROVIDER] Getting initial session...");
         const {
           data: { session },
+          error: sessionError,
         } = await supabase.auth.getSession();
 
+        console.log("[AUTH PROVIDER] Initial session result:", {
+          hasSession: !!session,
+          hasUser: !!session?.user,
+          sessionError: sessionError?.message,
+          userEmail: session?.user?.email,
+        });
+
         if (session?.user) {
+          console.log("[AUTH PROVIDER] Setting user and fetching profile...");
           setUser(session.user);
           // Fetch profile using server action
           const { profile } = await getUserProfile();
           setProfile(profile);
+          console.log("[AUTH PROVIDER] Profile loaded, hasProfile:", !!profile);
         } else {
+          console.log("[AUTH PROVIDER] No session found, setting user to null");
           setUser(null);
           setProfile(null);
         }
       } catch (error) {
-        console.error("Error getting initial session:", error);
+        console.error("[AUTH PROVIDER] Error getting initial session:", error);
         setUser(null);
         setProfile(null);
       } finally {
+        console.log("[AUTH PROVIDER] Initial session loading complete");
         setLoading(false);
       }
     };
