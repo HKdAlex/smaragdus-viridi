@@ -262,6 +262,7 @@ export class UserProfileError extends Error {
     public code:
       | "PROFILE_NOT_FOUND"
       | "UPDATE_FAILED"
+      | "CREATE_FAILED"
       | "VALIDATION_ERROR"
       | "PERMISSION_DENIED",
     message: string,

@@ -3,7 +3,7 @@ import { UserProfilePage } from "@/features/user/components/user-profile-page";
 import { createServerSupabaseClient } from "@/lib/supabase";
 import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
-import { userProfileService } from "@/features/user/services/user-profile-service";
+import { UserProfileService } from "@/features/user/services/user-profile-service";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("user");
@@ -25,8 +25,11 @@ export default async function ProfilePage() {
     redirect("/login");
   }
 
+  // Create server-side UserProfileService instance
+  const serverUserProfileService = new UserProfileService(supabase as any);
+
   // Get user profile
-  let profile = await userProfileService.getProfile(user.id);
+  let profile = await serverUserProfileService.getProfile(user.id);
 
   if (!profile) {
     // Create default profile if it doesn't exist
@@ -37,7 +40,7 @@ export default async function ProfilePage() {
       language_preference: "en" as const,
     };
 
-    const result = await userProfileService.updateProfile(
+    const result = await serverUserProfileService.createProfile(
       user.id,
       defaultProfile
     );
@@ -63,7 +66,7 @@ export default async function ProfilePage() {
   }
 
   // Get profile statistics
-  const stats = await userProfileService.getProfileStats(user.id);
+  const stats = await serverUserProfileService.getProfileStats(user.id);
 
   return (
     <UserProfilePage
@@ -71,7 +74,9 @@ export default async function ProfilePage() {
       stats={stats}
       onUpdateProfile={async (updates) => {
         "use server";
-        await userProfileService.updateProfile(user.id, updates);
+        const supabase = await createServerSupabaseClient();
+        const service = new UserProfileService(supabase as any);
+        await service.updateProfile(user.id, updates);
       }}
       onUpdatePreferences={async (preferences) => {
         "use server";
@@ -79,7 +84,9 @@ export default async function ProfilePage() {
       }}
       onChangePassword={async (request) => {
         "use server";
-        await userProfileService.changePassword(user.id, request);
+        const supabase = await createServerSupabaseClient();
+        const service = new UserProfileService(supabase as any);
+        await service.changePassword(user.id, request);
       }}
     />
   );

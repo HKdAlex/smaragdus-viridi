@@ -15,10 +15,16 @@ import type {
 import { UserProfileError } from "../types/user-profile.types";
 import { createContextLogger } from "@/shared/utils/logger";
 import { supabase } from "@/lib/supabase";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/shared/types/database";
 
 export class UserProfileService {
-  private supabase = supabase;
+  private supabase: SupabaseClient<Database>;
   private logger = createContextLogger("user-profile-service");
+
+  constructor(supabaseClient?: SupabaseClient<Database>) {
+    this.supabase = supabaseClient || supabase;
+  }
 
   /**
    * Get user profile
@@ -47,6 +53,54 @@ export class UserProfileService {
     } catch (error) {
       this.logger.error("Failed to get profile", error as Error, { userId });
       throw error;
+    }
+  }
+
+  /**
+   * Create user profile
+   */
+  async createProfile(
+    userId: string,
+    profileData: Partial<UpdateProfileRequest>
+  ): Promise<UpdateProfileResponse> {
+    try {
+      const { data: profile, error } = await this.supabase
+        .from("user_profiles")
+        .insert({
+          user_id: userId,
+          name: profileData.name || "User",
+          phone: profileData.phone || "",
+          preferred_currency: profileData.preferred_currency || "USD",
+          language_preference: profileData.language_preference || "en",
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .select()
+        .single();
+
+      if (error) {
+        this.logger.error("Failed to create profile", error, {
+          userId,
+          profileData,
+        });
+        throw new UserProfileError("CREATE_FAILED", "Failed to create profile");
+      }
+
+      // Log the profile creation activity
+      await this.logActivity(
+        userId,
+        "profile_created",
+        "Profile created successfully",
+        { profileData }
+      );
+
+      this.logger.info("Profile created successfully", { userId });
+      return { success: true, profile: profile as UserProfile };
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      this.logger.error("Failed to create profile", error as Error, { userId });
+      return { success: false, error: errorMessage };
     }
   }
 
