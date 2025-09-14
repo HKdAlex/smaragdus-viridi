@@ -1,9 +1,8 @@
-import type {
+import type { 
+  DetailGemstone, 
   DatabaseGemstoneImage,
-  DatabaseGemstoneVideo,
-  DetailGemstone,
+  DatabaseGemstoneVideo 
 } from "@/shared/types";
-
 import { GemstoneDetail } from "@/features/gemstones/components/gemstone-detail";
 import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
@@ -49,7 +48,13 @@ async function fetchGemstoneById(id: string): Promise<DetailGemstone | null> {
       `
       )
       .eq("id", id)
-      .single();
+      .single() as { 
+        data: DetailGemstone & {
+          images?: DatabaseGemstoneImage[];
+          videos?: DatabaseGemstoneVideo[];
+        } | null;
+        error: any;
+      };
 
     if (gemstoneError || !gemstone) {
       console.error(
@@ -64,14 +69,17 @@ async function fetchGemstoneById(id: string): Promise<DetailGemstone | null> {
       .from("ai_analysis_results")
       .select("*")
       .eq("gemstone_id", id)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false }) as {
+        data: any[] | null;
+        error: any;
+      };
 
     if (aiError) {
       console.warn(`⚠️ [GemstoneDetail] Failed to fetch AI analysis:`, aiError);
     }
 
     // Sort images by order
-    if (gemstone.images) {
+    if (gemstone.images && Array.isArray(gemstone.images)) {
       gemstone.images.sort(
         (a: DatabaseGemstoneImage, b: DatabaseGemstoneImage) =>
           a.image_order - b.image_order
@@ -79,7 +87,7 @@ async function fetchGemstoneById(id: string): Promise<DetailGemstone | null> {
     }
 
     // Sort videos by order
-    if (gemstone.videos) {
+    if (gemstone.videos && Array.isArray(gemstone.videos)) {
       gemstone.videos.sort(
         (a: DatabaseGemstoneVideo, b: DatabaseGemstoneVideo) =>
           a.video_order - b.video_order
