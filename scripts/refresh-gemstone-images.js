@@ -5,9 +5,11 @@
  * Completely replaces all gemstone images with fresh, curated images from Unsplash
  */
 
+// Import centralized gemstone properties
 import { createClient } from "@supabase/supabase-js";
 import dotenv from "dotenv";
 import fetch from "node-fetch";
+import { GEMSTONE_EMOJIS } from "../src/shared/config/gemstone-properties.js";
 
 // Load environment variables
 dotenv.config({ path: ".env.local" });
@@ -342,18 +344,8 @@ async function generateSummaryReport() {
 
   for (const [type, data] of Object.entries(summary)) {
     const emoji =
-      {
-        diamond: "💎",
-        emerald: "💚",
-        ruby: "❤️",
-        sapphire: "💙",
-        amethyst: "💜",
-        topaz: "🌟",
-        garnet: "🔴",
-        peridot: "💚",
-        citrine: "💛",
-        tanzanite: "💙",
-      }[type] || "💎";
+      // Use centralized emoji mapping
+      GEMSTONE_EMOJIS[type] || "💎";
 
     console.log(`  ${emoji} ${type.toUpperCase()}: ${data.count} stones`);
     console.log(`     Colors: ${Array.from(data.colors).join(", ")}`);

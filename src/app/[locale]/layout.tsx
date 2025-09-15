@@ -5,6 +5,7 @@ import {
 } from "next-intl/server";
 
 import { AuthProvider } from "@/features/auth/context/auth-context";
+import { CartProviderWrapper } from "@/features/cart/context/cart-provider-wrapper";
 import { ChatWidget } from "@/features/chat";
 import { routing } from "@/i18n/routing";
 import { Footer } from "@/shared/components/layout/footer";
@@ -52,12 +53,14 @@ export default async function LocaleLayout({
   return (
     <NextIntlClientProvider messages={messages} locale={locale}>
       <AuthProvider>
-        <div className="flex flex-col min-h-screen">
-          <MainNav />
-          <main className="flex-1">{children}</main>
-          <Footer />
-          <ChatWidget />
-        </div>
+        <CartProviderWrapper>
+          <div className="flex flex-col min-h-screen">
+            <MainNav />
+            <main className="flex-1">{children}</main>
+            <Footer />
+            <ChatWidget />
+          </div>
+        </CartProviderWrapper>
       </AuthProvider>
     </NextIntlClientProvider>
   );

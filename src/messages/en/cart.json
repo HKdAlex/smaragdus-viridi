@@ -50,7 +50,8 @@
     "continueShopping": "Continue Shopping",
     "checkout": "Order {count} Item(s)",
     "processing": "Processing Order...",
-    "tryAgain": "Try Again"
+    "tryAgain": "Try Again",
+    "cancel": "Cancel"
   },
   "loading": "Loading your cart...",
   "error": "Error loading cart",

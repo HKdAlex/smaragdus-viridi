@@ -37,7 +37,7 @@ export function ActivityFeed({
   onLoadMore,
   hasMore = false,
 }: ActivityFeedProps) {
-  const t = useTranslations("user.profile");
+  const t = useTranslations("user.activity");
   const getActivityIcon = (type: string) => {
     switch (type) {
       case "order_placed":
@@ -83,50 +83,52 @@ export function ActivityFeed({
   const getActivityTitle = (type: string) => {
     switch (type) {
       case "order_placed":
-        return "Order Placed";
+        return t("titles.orderPlaced");
       case "order_status_changed":
-        return "Order Status Updated";
+        return t("titles.orderStatusUpdated");
       case "profile_updated":
-        return "Profile Updated";
+        return t("titles.profileUpdated");
       case "password_changed":
-        return "Password Changed";
+        return t("titles.passwordChanged");
       case "favorite_added":
-        return "Added to Favorites";
+        return t("titles.addedToFavorites");
       case "favorite_removed":
-        return "Removed from Favorites";
+        return t("titles.removedFromFavorites");
       case "cart_updated":
-        return "Cart Updated";
+        return t("titles.cartUpdated");
       default:
-        return "Activity";
+        return t("titles.activity");
     }
   };
 
   const formatActivityDescription = (activity: UserActivity) => {
     switch (activity.type) {
       case "order_placed":
-        return `You placed an order for ${
-          activity.metadata?.total || "an item"
-        }`;
+        return t("descriptions.orderPlaced", {
+          total: activity.metadata?.total || t("descriptions.anItem"),
+        });
       case "order_status_changed":
-        return `Order status changed to ${
-          activity.metadata?.new_status || "updated"
-        }`;
+        return t("descriptions.orderStatusChanged", {
+          status: activity.metadata?.new_status || t("descriptions.updated"),
+        });
       case "profile_updated":
-        return "Your profile information was updated";
+        return t("descriptions.profileUpdated");
       case "password_changed":
-        return "Your password was changed successfully";
+        return t("descriptions.passwordChanged");
       case "favorite_added":
-        return `Added ${
-          activity.metadata?.gemstone_name || "an item"
-        } to favorites`;
+        return t("descriptions.favoriteAdded", {
+          item: activity.metadata?.gemstone_name || t("descriptions.anItem"),
+        });
       case "favorite_removed":
-        return `Removed ${
-          activity.metadata?.gemstone_name || "an item"
-        } from favorites`;
+        return t("descriptions.favoriteRemoved", {
+          item: activity.metadata?.gemstone_name || t("descriptions.anItem"),
+        });
       case "cart_updated":
-        return `Updated cart with ${activity.metadata?.action || "changes"}`;
+        return t("descriptions.cartUpdated", {
+          action: activity.metadata?.action || t("descriptions.changes"),
+        });
       default:
-        return activity.description || "Activity occurred";
+        return activity.description || t("descriptions.activityOccurred");
     }
   };
 
@@ -134,7 +136,7 @@ export function ActivityFeed({
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold">Activity Feed</h2>
+          <h2 className="text-2xl font-bold">{t("title")}</h2>
         </div>
         <div className="animate-pulse space-y-4">
           {Array.from({ length: 5 }).map((_, i) => (
@@ -150,10 +152,8 @@ export function ActivityFeed({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Activity Feed</h2>
-          <p className="text-muted-foreground">
-            Track your recent account activity and changes
-          </p>
+          <h2 className="text-2xl font-bold">{t("title")}</h2>
+          <p className="text-muted-foreground">{t("subtitle")}</p>
         </div>
       </div>
 
@@ -162,9 +162,9 @@ export function ActivityFeed({
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Calendar className="w-12 h-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No activity yet</h3>
+            <h3 className="text-lg font-semibold mb-2">{t("noActivity")}</h3>
             <p className="text-muted-foreground text-center">
-              Your account activity will appear here as you use the platform
+              {t("noActivityDesc")}
             </p>
           </CardContent>
         </Card>
@@ -216,7 +216,7 @@ export function ActivityFeed({
           {hasMore && (
             <div className="flex justify-center pt-4">
               <Button variant="outline" onClick={onLoadMore} disabled={loading}>
-                {loading ? "Loading..." : "Load More Activity"}
+                {loading ? t("loading") : t("loadMore")}
               </Button>
             </div>
           )}
@@ -227,8 +227,8 @@ export function ActivityFeed({
       {activities.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Activity Summary</CardTitle>
-            <CardDescription>{t("activityOverview")}</CardDescription>
+            <CardTitle className="text-lg">{t("summary.title")}</CardTitle>
+            <CardDescription>{t("summary.description")}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -237,7 +237,7 @@ export function ActivityFeed({
                   {activities.filter((a) => a.type === "order_placed").length}
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  Orders Placed
+                  {t("summary.ordersPlaced")}
                 </div>
               </div>
 
@@ -249,7 +249,7 @@ export function ActivityFeed({
                   }
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  Profile Updates
+                  {t("summary.profileUpdates")}
                 </div>
               </div>
 
@@ -258,7 +258,7 @@ export function ActivityFeed({
                   {activities.filter((a) => a.type.includes("favorite")).length}
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  Favorites Changed
+                  {t("summary.favoritesChanged")}
                 </div>
               </div>
 
@@ -267,7 +267,7 @@ export function ActivityFeed({
                   {activities.filter((a) => a.type === "cart_updated").length}
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  Cart Updates
+                  {t("summary.cartUpdates")}
                 </div>
               </div>
             </div>

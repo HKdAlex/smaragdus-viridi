@@ -39,8 +39,8 @@ type MediaItem = {
 };
 
 export function MediaGallery({ images, videos }: MediaGalleryProps) {
-  const t = useTranslations("errors.media");
-  const tMedia = useTranslations("gemstones.media");
+  const t = useTranslations("gemstones.media");
+  const tErrors = useTranslations("errors.media");
 
   // Combine and sort media items
   const mediaItems: MediaItem[] = [
@@ -71,6 +71,7 @@ export function MediaGallery({ images, videos }: MediaGalleryProps) {
   const [isVideoMuted, setIsVideoMuted] = useState(true);
   const [videoCurrentTime, setVideoCurrentTime] = useState(0);
   const [videoDuration, setVideoDuration] = useState(0);
+  const [imageError, setImageError] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const currentMedia = mediaItems[currentIndex];
@@ -161,12 +162,14 @@ export function MediaGallery({ images, videos }: MediaGalleryProps) {
       setIsVideoPlaying(false);
       setVideoCurrentTime(0);
     }
+    // Reset image error when media changes
+    setImageError(false);
   }, [currentIndex, currentMedia?.type]);
 
   if (mediaItems.length === 0) {
     return (
       <div className="aspect-square bg-muted rounded-lg flex items-center justify-center">
-        <p className="text-muted-foreground">{tMedia("noMediaAvailable")}</p>
+        <p className="text-muted-foreground">{t("noMediaAvailable")}</p>
       </div>
     );
   }
@@ -176,14 +179,27 @@ export function MediaGallery({ images, videos }: MediaGalleryProps) {
       {/* Main Media Display - Optimized for square gemstone images */}
       <div className="relative aspect-square bg-gradient-to-br from-muted/20 to-muted/40 rounded-xl overflow-hidden shadow-2xl group">
         {currentMedia.type === "image" ? (
-          <Image
-            src={currentMedia.url}
-            alt={t("media.gemstone")}
-            fill
-            className="object-contain transition-all duration-500 group-hover:scale-[1.02] p-2"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 60vw, 50vw"
-            priority
-          />
+          imageError ? (
+            <div className="w-full h-full flex items-center justify-center bg-muted/50">
+              <div className="text-center text-muted-foreground">
+                <div className="text-4xl mb-2">💎</div>
+                <p className="text-sm">{tErrors("media.image")}</p>
+                {currentMedia.isPrimary && (
+                  <p className="text-xs mt-1">{tErrors("media.primary")}</p>
+                )}
+              </div>
+            </div>
+          ) : (
+            <Image
+              src={currentMedia.url}
+              alt={t("gemstone")}
+              fill
+              className="object-contain transition-all duration-500 group-hover:scale-[1.02] p-2"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 60vw, 50vw"
+              priority
+              onError={() => setImageError(true)}
+            />
+          )
         ) : (
           <div className="relative w-full h-full p-2">
             <video
@@ -269,10 +285,8 @@ export function MediaGallery({ images, videos }: MediaGalleryProps) {
           <Badge
             variant={currentMedia.type === "video" ? "destructive" : "default"}
           >
-            {currentMedia.type === "video"
-              ? t("media.video")
-              : t("media.image")}
-            {currentMedia.isPrimary && ` • ${t("media.primary")}`}
+            {currentMedia.type === "video" ? t("video") : t("image")}
+            {currentMedia.isPrimary && ` • ${t("primary")}`}
           </Badge>
         </div>
 
@@ -352,7 +366,7 @@ export function MediaGallery({ images, videos }: MediaGalleryProps) {
               {media.type === "image" ? (
                 <Image
                   src={media.url}
-                  alt={t("media.thumbnail")}
+                  alt={t("thumbnail")}
                   fill
                   className="object-contain p-1"
                   sizes="80px"
@@ -362,7 +376,7 @@ export function MediaGallery({ images, videos }: MediaGalleryProps) {
                   {media.thumbnailUrl ? (
                     <Image
                       src={media.thumbnailUrl}
-                      alt={t("media.videoThumbnail")}
+                      alt={t("videoThumbnail")}
                       fill
                       className="object-cover"
                       sizes="80px"
@@ -407,7 +421,7 @@ export function MediaGallery({ images, videos }: MediaGalleryProps) {
               <div className="relative w-full h-full">
                 <Image
                   src={currentMedia.url}
-                  alt={t("media.gemstone")}
+                  alt={t("gemstone")}
                   fill
                   className="object-contain"
                   sizes="95vw"

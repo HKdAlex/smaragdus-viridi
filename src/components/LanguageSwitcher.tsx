@@ -1,50 +1,20 @@
 "use client";
 
 import { usePathname, useRouter } from "@/i18n/navigation";
+import { useLocale, useTranslations } from "next-intl";
 
 import { Button } from "@/shared/components/ui/button";
-import { useLocale } from "next-intl";
 
 export function LanguageSwitcher() {
   const locale = useLocale();
-  const pathname = usePathname();
   const router = useRouter();
+  const pathname = usePathname();
+  const t = useTranslations("common");
 
   const switchLocale = (newLocale: string) => {
-    // Handle dynamic routes properly
-    // For dynamic routes, we need to use the current URL and extract the path
-    const currentUrl = window.location.pathname;
-    const localeFreePath = currentUrl.replace(/^\/(en|ru)/, "");
-
-    // Map the path to a valid pathname for next-intl
-    if (localeFreePath.startsWith("/catalog/")) {
-      // For catalog pages, use the static pathname
-      router.replace("/catalog", { locale: newLocale });
-    } else {
-      // For static routes, validate the pathname first
-      const validPathnames = [
-        "/",
-        "/about",
-        "/contact",
-        "/cart",
-        "/catalog",
-        "/login",
-        "/signup",
-        "/profile",
-        "/orders",
-        "/admin",
-        "/admin/dashboard",
-        "/admin/login",
-      ];
-      const cleanPathname = pathname as any;
-
-      if (validPathnames.includes(cleanPathname)) {
-        router.replace(cleanPathname, { locale: newLocale });
-      } else {
-        // Fallback to home page
-        router.replace("/", { locale: newLocale });
-      }
-    }
+    // Use next-intl's router which handles locale switching properly
+    // This preserves the current path and query parameters
+    router.replace(pathname as any, { locale: newLocale });
   };
 
   return (

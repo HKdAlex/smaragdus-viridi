@@ -4,12 +4,16 @@
   "subtitle": "Откройте для себя нашу премиальную коллекцию",
   "loading": "Загрузка камней...",
   "noResults": "Камни не найдены",
+  "showingResults": "Показано {current} из {total} камней",
   "search": {
     "placeholder": "Поиск камней...",
     "advanced": "Расширенный поиск",
     "filters": "Фильтры",
     "clearFilters": "Очистить все фильтры"
   },
+  "type": "Тип",
+  "color": "Цвет",
+  "cut": "Огранка",
   "filters": {
     "title": "Фильтры",
     "gemstoneType": "Тип камня",
@@ -74,6 +78,48 @@
       "title": "{weight}кт {color} {name}",
       "description": "{price} - огранка {cut}, чистота {clarity}"
     },
-    "imageAlt": "{weight}кт {color} {name}"
+    "imageAlt": "{weight}кт {color} {name}",
+    "detail": {
+      "catalog": "Каталог",
+      "backToCatalog": "Назад к каталогу",
+      "serial": "Серийный номер",
+      "code": "Код",
+      "inStock": "В наличии",
+      "outOfStock": "Нет в наличии",
+      "daysDelivery": "{days} дней доставка",
+      "description": "Описание",
+      "professionalSummary": "Профессиональное резюме",
+      "specialFeatures": "Особые характеристики",
+      "keyHighlights": "Ключевые особенности",
+      "technicalSpecifications": "Технические характеристики",
+      "the4Cs": "4C",
+      "caratWeight": "Вес в каратах",
+      "color": "Цвет",
+      "cut": "Огранка",
+      "clarity": "Чистота",
+      "physicalProperties": "Физические свойства",
+      "dimensions": "Размеры",
+      "length": "Длина",
+      "width": "Ширина",
+      "depth": "Глубина",
+      "overall": "Общие",
+      "origin": "Происхождение",
+      "country": "Страна",
+      "region": "Регион",
+      "treatment": "Обработка",
+      "certifications": "Сертификаты",
+      "addToCart": "Добавить в корзину",
+      "adding": "Добавление...",
+      "inCart": "В корзине",
+      "signInToAdd": "Войдите для добавления",
+      "requestInfo": "Запросить информацию",
+      "qualityGrades": {
+        "excellent": "Отличное",
+        "veryGood": "Очень хорошее",
+        "good": "Хорошее",
+        "fair": "Удовлетворительное"
+      },
+      "professionalDescription": "Профессионального качества {color} {name} с исключительной огранкой {cut}. Этот {weight} каратный камень демонстрирует чистоту {clarity} и представляет отличную ценность для коллекционеров и дизайнеров ювелирных изделий."
+    }
   }
 }

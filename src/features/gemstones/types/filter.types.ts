@@ -205,29 +205,8 @@ export const DEFAULT_ADVANCED_FILTERS: AdvancedGemstoneFilters = {
 };
 
 // ===== FILTER LABELS =====
-
-export const GEMSTONE_TYPE_LABELS: Record<GemstoneType, string> = {
-  diamond: "Diamond",
-  emerald: "Emerald",
-  ruby: "Ruby",
-  sapphire: "Sapphire",
-  amethyst: "Amethyst",
-  topaz: "Topaz",
-  garnet: "Garnet",
-  peridot: "Peridot",
-  citrine: "Citrine",
-  tanzanite: "Tanzanite",
-  aquamarine: "Aquamarine",
-  morganite: "Morganite",
-  tourmaline: "Tourmaline",
-  zircon: "Zircon",
-  apatite: "Apatite",
-  quartz: "Quartz",
-  paraiba: "Paraiba",
-  spinel: "Spinel",
-  alexandrite: "Alexandrite",
-  agate: "Agate",
-};
+// NOTE: Gemstone type labels are now handled by useFilterLabels hook
+// This maintains database-first approach and proper localization
 
 export const COLOR_LABELS: Record<GemColor, string> = {
   // Diamond colors

@@ -36,7 +36,7 @@ async function fetchGemstoneById(id: string): Promise<DetailGemstone | null> {
 
     console.log(`🔍 [GemstoneDetail] Fetching gemstone with ID: ${id}`);
 
-    // Fetch gemstone with all related data
+    // Fetch gemstone with all related data (only items with price > 0)
     const { data: gemstone, error: gemstoneError } = (await supabase
       .from("gemstones")
       .select(
@@ -49,6 +49,7 @@ async function fetchGemstoneById(id: string): Promise<DetailGemstone | null> {
       `
       )
       .eq("id", id)
+      .gt("price_amount", 0) // Only show items with price > 0
       .single()) as {
       data:
         | (DetailGemstone & {

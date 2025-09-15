@@ -10,12 +10,12 @@ import { Eye, EyeOff, Loader2, Shield } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
-// Using basic HTML elements for Label and Alert until shared components are available
 import { Logo } from "@/shared/components/ui/logo";
-import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { useAdmin } from "../context/admin-context";
+// Using basic HTML elements for Label and Alert until shared components are available
+import { useRouter } from "@/i18n/navigation";
+import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 export function AdminLogin() {
   const [email, setEmail] = useState("");
@@ -37,7 +37,7 @@ export function AdminLogin() {
       const result = await signIn(email, password);
 
       if (result.success) {
-        router.push("/admin/dashboard");
+        router.push("/admin/dashboard" as any);
       } else {
         setError(result.error || t("login.loginFailed"));
       }
@@ -165,7 +165,7 @@ export function AdminLogin() {
           <div className="mt-4 text-center">
             <Button
               variant="link"
-              onClick={() => router.push("/")}
+              onClick={() => router.push("/" as any)}
               className="text-sm text-muted-foreground hover:text-foreground"
             >
               {t("login.returnToSite")}

@@ -4,12 +4,16 @@
   "subtitle": "Discover our premium collection",
   "loading": "Loading gemstones...",
   "noResults": "No gemstones found",
+  "showingResults": "Showing {current} of {total} gemstones",
   "search": {
     "placeholder": "Search gemstones...",
     "advanced": "Advanced Search",
     "filters": "Filters",
     "clearFilters": "Clear All Filters"
   },
+  "type": "Type",
+  "color": "Color",
+  "cut": "Cut",
   "filters": {
     "title": "Filters",
     "gemstoneType": "Gemstone Type",
@@ -74,6 +78,48 @@
       "title": "{weight}ct {color} {name}",
       "description": "{price} - {cut} cut, {clarity} clarity"
     },
-    "imageAlt": "{weight}ct {color} {name}"
+    "imageAlt": "{weight}ct {color} {name}",
+    "detail": {
+      "catalog": "Catalog",
+      "backToCatalog": "Back to Catalog",
+      "serial": "Serial",
+      "code": "Code",
+      "inStock": "In Stock",
+      "outOfStock": "Out of Stock",
+      "daysDelivery": "{days} days delivery",
+      "description": "Description",
+      "professionalSummary": "Professional Summary",
+      "specialFeatures": "Special Features",
+      "keyHighlights": "Key Highlights",
+      "technicalSpecifications": "Technical Specifications",
+      "the4Cs": "The 4Cs",
+      "caratWeight": "Carat Weight",
+      "color": "Color",
+      "cut": "Cut",
+      "clarity": "Clarity",
+      "physicalProperties": "Physical Properties",
+      "dimensions": "Dimensions",
+      "length": "Length",
+      "width": "Width",
+      "depth": "Depth",
+      "overall": "Overall",
+      "origin": "Origin",
+      "country": "Country",
+      "region": "Region",
+      "treatment": "Treatment",
+      "certifications": "Certifications",
+      "addToCart": "Add to Cart",
+      "adding": "Adding...",
+      "inCart": "In Cart",
+      "signInToAdd": "Sign In to Add",
+      "requestInfo": "Request Info",
+      "qualityGrades": {
+        "excellent": "Excellent",
+        "veryGood": "Very Good",
+        "good": "Good",
+        "fair": "Fair"
+      },
+      "professionalDescription": "Professional quality {color} {name} with exceptional {cut} cut. This {weight} carat gemstone exhibits {clarity} clarity and represents excellent value for collectors and jewelry designers."
+    }
   }
 }

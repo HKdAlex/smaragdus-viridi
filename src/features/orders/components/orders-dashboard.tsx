@@ -221,7 +221,7 @@ export function OrdersDashboard({
               loading={loading}
               onOrderSelect={(order) => {
                 // Navigate to individual order page
-                window.location.href = `/${locale}/orders/${order.id}`;
+                window.location.href = `/orders/${order.id}`;
               }}
               onLoadMore={loadMore}
               hasMore={hasMore}
@@ -233,7 +233,7 @@ export function OrdersDashboard({
               orders={orders.filter((order) => order.status === "pending")}
               loading={loading}
               onOrderSelect={(order) => {
-                window.location.href = `/${locale}/orders/${order.id}`;
+                window.location.href = `/orders/${order.id}`;
               }}
             />
           </TabsContent>
@@ -248,7 +248,7 @@ export function OrdersDashboard({
               )}
               loading={loading}
               onOrderSelect={(order) => {
-                window.location.href = `/${locale}/orders/${order.id}`;
+                window.location.href = `/orders/${order.id}`;
               }}
             />
           </TabsContent>
@@ -258,7 +258,7 @@ export function OrdersDashboard({
               orders={orders.filter((order) => order.status === "delivered")}
               loading={loading}
               onOrderSelect={(order) => {
-                window.location.href = `/${locale}/orders/${order.id}`;
+                window.location.href = `/orders/${order.id}`;
               }}
             />
           </TabsContent>

@@ -10,12 +10,10 @@ import type {
   UpdateOrderStatusResponse,
 } from "../types/order-management.types";
 
-import { OrderManagementError } from "../types/order-management.types";
 import { createContextLogger } from "@/shared/utils/logger";
-import { supabaseAdmin } from "@/lib/supabase";
+import { OrderManagementError } from "../types/order-management.types";
 
 export class OrderManagementService {
-  private supabase = supabaseAdmin!;
   private logger = createContextLogger("order-management-service");
 
   /**
@@ -33,164 +31,56 @@ export class OrderManagementService {
 
       const offset = (page - 1) * limit;
 
-      // Build the query using the orders_with_details view
-      let query = this.supabase
-        .from("orders_with_details")
-        .select("*", { count: "exact" });
+      // Build query parameters for API call
+      const searchParams = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+        sort_by,
+        sort_order,
+      });
 
-      // Apply filters
+      // Add filters to query parameters
       if (filters.status && filters.status.length > 0) {
-        query = query.in("status", filters.status);
+        searchParams.append("status", filters.status.join(","));
       }
-
       if (filters.user_id) {
-        query = query.eq("user_id", filters.user_id);
+        searchParams.append("user_id", filters.user_id);
       }
-
       if (filters.date_from) {
-        query = query.gte("created_at", filters.date_from);
+        searchParams.append("date_from", filters.date_from);
       }
-
       if (filters.date_to) {
-        query = query.lte("created_at", filters.date_to);
+        searchParams.append("date_to", filters.date_to);
       }
 
-      if (filters.min_amount !== undefined) {
-        query = query.gte("total_amount", filters.min_amount);
-      }
-
-      if (filters.max_amount !== undefined) {
-        query = query.lte("total_amount", filters.max_amount);
-      }
-
-      if (filters.currency) {
-        query = query.eq("currency_code", filters.currency as any);
-      }
-
-      if (filters.search) {
-        // Search in order ID only since we removed user join
-        query = query.ilike("id", `%${filters.search}%`);
-      }
-
-      // Apply sorting
-      const sortColumn =
-        sort_by === "total_amount" ? "total_amount" : "created_at";
-      query = query.order(sortColumn, { ascending: sort_order === "asc" });
-
-      // Apply pagination
-      query = query.range(offset, offset + limit - 1);
-
-      const { data: rawOrders, error, count } = await query;
-
-      if (error) {
-        this.logger.error("Failed to fetch orders", error, { request });
-        throw new OrderManagementError(
-          "NETWORK_ERROR",
-          "Failed to fetch orders"
-        );
-      }
-
-      const total = count || 0;
-      const hasMore = total > offset + limit;
-
-      // Group the flattened data back into orders with items
-      const orderMap = new Map<string, AdminOrder>();
-
-      for (const row of rawOrders || []) {
-        const orderId = row.order_id;
-
-        if (!orderId) continue; // Skip rows without order_id
-
-        if (!orderMap.has(orderId)) {
-          // Create new order
-          orderMap.set(orderId, {
-            id: orderId,
-            user_id: row.user_id || "",
-            status: row.status || "pending",
-            total_amount: row.total_amount || 0,
-            currency_code: row.currency_code || "USD",
-            notes: row.notes || "",
-            created_at: row.created_at || new Date().toISOString(),
-            updated_at: row.updated_at || new Date().toISOString(),
-            user: {
-              id: row.user_id || "",
-              name: row.user_name || "",
-              email: row.user_phone || "", // Using phone as email since view doesn't have email
-            },
-            items: [],
-          });
+      const response = await fetch(
+        `/api/admin/orders?${searchParams.toString()}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-
-        const order = orderMap.get(orderId)!;
-
-        // Add order item if it exists
-        if (row.order_item_id && row.gemstone_id) {
-          order.items.push({
-            id: row.order_item_id,
-            order_id: orderId,
-            gemstone_id: row.gemstone_id,
-            quantity: row.quantity || 1,
-            unit_price: row.unit_price || 0,
-            line_total: row.line_total || 0,
-            gemstone: {
-              id: row.gemstone_id,
-              name: row.gemstone_name || "",
-              color: row.gemstone_color || "",
-              cut: row.gemstone_cut || "",
-              weight_carats: row.weight_carats || 0,
-              serial_number: row.serial_number || "",
-              in_stock: row.in_stock || false,
-              images: [], // Will be populated later
-            },
-          });
-        }
-      }
-
-      const orders = Array.from(orderMap.values());
-
-      // Fetch images for all gemstones in the orders
-      const gemstoneIds = orders.flatMap((order) =>
-        order.items
-          .map((item) => item.gemstone?.id)
-          .filter((id): id is string => Boolean(id))
       );
 
-      if (gemstoneIds.length > 0) {
-        const { data: imagesData, error: imagesError } = await this.supabase
-          .from("gemstone_images")
-          .select("id, gemstone_id, image_url, image_order, is_primary")
-          .in("gemstone_id", gemstoneIds)
-          .order("image_order");
-
-        if (imagesError) {
-          this.logger.error("Failed to fetch gemstone images", imagesError);
-        } else if (imagesData) {
-          // Group images by gemstone_id
-          const imagesByGemstone = imagesData.reduce((acc, img) => {
-            if (!acc[img.gemstone_id]) {
-              acc[img.gemstone_id] = [];
-            }
-            acc[img.gemstone_id].push({
-              id: img.id,
-              image_url: img.image_url,
-              image_order: img.image_order,
-              is_primary: img.is_primary || false,
-            });
-            return acc;
-          }, {} as Record<string, Array<{ id: string; image_url: string; image_order: number; is_primary: boolean }>>);
-
-          // Attach images to gemstones
-          orders.forEach((order) => {
-            order.items.forEach((item) => {
-              if (item.gemstone && item.gemstone.id in imagesByGemstone) {
-                item.gemstone.images = imagesByGemstone[item.gemstone.id];
-              }
-            });
-          });
-        }
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error || "Failed to fetch orders");
+      }
+
+      const orders = result.data.orders;
+      const total = result.data.total;
+      const hasMore = result.data.hasMore;
+
+      // Orders are already in the correct format from the API
+
       this.logger.info("Orders fetched successfully", {
+        count: orders?.length || 0,
         total,
         page,
         limit,
@@ -200,10 +90,10 @@ export class OrderManagementService {
 
       return {
         success: true,
-        orders,
+        orders: orders || [],
         total,
-        page,
-        limit,
+        page: result.data.page,
+        limit: result.data.limit,
         hasMore,
       };
     } catch (error) {
@@ -244,126 +134,45 @@ export class OrderManagementService {
     try {
       const { order_id, new_status, notes } = request;
 
-      // First, get the current order to validate the transition
-      const { data: currentOrder, error: fetchError } = await this.supabase
-        .from("orders")
-        .select("*")
-        .eq("id", order_id)
-        .single();
-
-      if (fetchError || !currentOrder) {
-        this.logger.error("Order not found for status update", fetchError, {
-          order_id,
-        });
-        throw new OrderManagementError("ORDER_NOT_FOUND", "Order not found");
-      }
-
-      // Validate status transition
-      if (
-        currentOrder.status &&
-        !this.isValidStatusTransition(currentOrder.status, new_status)
-      ) {
-        this.logger.warn("Invalid status transition attempted", {
-          order_id,
-          current_status: currentOrder.status,
+      // Call API to update order status
+      const response = await fetch(`/api/admin/orders/${order_id}/status`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
           new_status,
-        });
-        throw new OrderManagementError(
-          "INVALID_STATUS_TRANSITION",
-          `Cannot change status from ${currentOrder.status} to ${new_status}`
-        );
+          notes,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      // Update the order status
-      const { data: updatedOrder, error: updateError } = await this.supabase
-        .from("orders")
-        .update({
-          status: new_status,
-          updated_at: new Date().toISOString(),
-          notes: notes || currentOrder.notes,
-        })
-        .eq("id", order_id)
-        .select("*")
-        .single();
+      const result = await response.json();
 
-      if (updateError) {
-        this.logger.error("Failed to update order status", updateError, {
-          order_id,
-          new_status,
-        });
-        throw new OrderManagementError(
-          "NETWORK_ERROR",
-          "Failed to update order status"
-        );
+      if (!result.success) {
+        throw new Error(result.error || "Failed to update order status");
       }
 
-      // Fetch user data separately since relationships aren't defined
-      const { data: userProfile } = await this.supabase
-        .from("user_profiles")
-        .select("id, name, phone")
-        .eq("user_id", updatedOrder.user_id)
-        .single();
-
-      // Fetch order items separately
-      const { data: orderItems } = await this.supabase
-        .from("order_items")
-        .select("*")
-        .eq("order_id", order_id);
-
-      // Construct the complete order object
-      const completeOrder: AdminOrder = {
-        ...updatedOrder,
-        status: updatedOrder.status || "pending", // Provide default value for null status
-        currency_code: updatedOrder.currency_code || "USD", // Provide default value for null currency
-        created_at: updatedOrder.created_at || new Date().toISOString(), // Provide default value for null created_at
-        updated_at: updatedOrder.updated_at || new Date().toISOString(), // Provide default value for null updated_at
-        delivery_address: updatedOrder.delivery_address as
-          | string
-          | null
-          | undefined, // Cast delivery_address properly
-        user: userProfile
-          ? {
-              id: userProfile.id,
-              name: userProfile.name,
-              email: userProfile.phone || "No email", // Using phone as email since email isn't in user_profiles
-            }
-          : {
-              id: updatedOrder.user_id,
-              name: "Unknown User",
-              email: "No email",
-            },
-        items: (orderItems || []).map((item) => ({
-          ...item,
-          quantity: item.quantity || 1, // Provide default value for null quantity
-        })),
-      };
-
-      // Log the status change
       this.logger.info("Order status updated successfully", {
         order_id,
-        old_status: currentOrder.status,
         new_status,
-        user_id: currentOrder.user_id,
       });
 
       return {
         success: true,
-        order: completeOrder,
+        order: result.data.order,
       };
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error";
       this.logger.error("Failed to update order status", error as Error, {
         request,
       });
 
-      if (error instanceof OrderManagementError) {
-        return { success: false, error: error.message };
-      }
-
       return {
         success: false,
-        error: "Failed to update order status. Please try again.",
+        error: `Failed to update order status: ${(error as Error).message}`,
       };
     }
   }
@@ -458,86 +267,31 @@ export class OrderManagementService {
         dateFilter = `created_at.gte.${dateRange.from},created_at.lte.${dateRange.to}`;
       }
 
-      // Get total orders and revenue
-      let totalsQuery = this.supabase
-        .from("orders")
-        .select("total_amount, currency_code, status, user_id")
-        .eq("status", "delivered"); // Only count completed orders
+      // Get total orders and revenue - TODO: Implement via API
+      // let totalsQuery = this.supabase
+      //   .from("orders")
+      //   .select("total_amount, currency_code, status, user_id")
+      //   .eq("status", "delivered"); // Only count completed orders
 
-      if (dateRange) {
-        totalsQuery = totalsQuery
-          .gte("created_at", dateRange.from)
-          .lte("created_at", dateRange.to);
-      }
-
-      const { data: totals, error: totalsError } = await totalsQuery;
-
-      if (totalsError) {
-        this.logger.error("Failed to fetch order totals", totalsError);
-        throw new OrderManagementError(
-          "NETWORK_ERROR",
-          "Failed to fetch analytics"
-        );
-      }
-
-      // Calculate basic metrics
-      const total_orders = totals?.length || 0;
-      const total_revenue =
-        totals?.reduce((sum, order) => sum + order.total_amount, 0) || 0;
-      const average_order_value =
-        total_orders > 0 ? total_revenue / total_orders : 0;
-
-      // Get orders by status
-      let statusQuery = this.supabase.from("orders").select("status");
-
-      if (dateRange) {
-        statusQuery = statusQuery
-          .gte("created_at", dateRange.from)
-          .lte("created_at", dateRange.to);
-      }
-
-      const { data: statusData, error: statusError } = await statusQuery;
-
-      const orders_by_status: Record<OrderStatus, number> = {
-        pending: 0,
-        confirmed: 0,
-        processing: 0,
-        shipped: 0,
-        delivered: 0,
-        cancelled: 0,
-      };
-
-      statusData?.forEach((order) => {
-        orders_by_status[order.status as OrderStatus]++;
-      });
-
-      // Get customer statistics
-      const uniqueCustomers = new Set(totals?.map((order) => order.user_id));
-      const total_customers = uniqueCustomers.size;
-      const repeat_customers = Array.from(uniqueCustomers).filter((userId) => {
-        return totals?.filter((order) => order.user_id === userId).length > 1;
-      }).length;
-      const average_orders_per_customer =
-        total_customers > 0 ? total_orders / total_customers : 0;
-
-      this.logger.info("Order analytics generated successfully", {
-        total_orders,
-        total_revenue,
-        average_order_value,
-        total_customers,
-      });
-
+      // TODO: Implement analytics via API
       return {
-        total_orders,
-        total_revenue,
-        average_order_value,
-        orders_by_status,
-        orders_by_date: [], // Would need additional query for date aggregation
-        top_products: [], // Would need additional query for product aggregation
+        total_orders: 0,
+        total_revenue: 0,
+        average_order_value: 0,
+        orders_by_status: {
+          pending: 0,
+          confirmed: 0,
+          processing: 0,
+          shipped: 0,
+          delivered: 0,
+          cancelled: 0,
+        },
+        orders_by_date: [],
+        top_products: [],
         customer_stats: {
-          total_customers,
-          repeat_customers,
-          average_orders_per_customer,
+          total_customers: 0,
+          repeat_customers: 0,
+          average_orders_per_customer: 0,
         },
       };
     } catch (error) {

@@ -3,7 +3,7 @@
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { useAuth } from "../context/auth-context";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
@@ -58,7 +58,7 @@ export function SignupForm() {
         </div>
         <Button
           variant="outline"
-          onClick={() => router.push("/login")}
+          onClick={() => router.push("/login" as any)}
           className="w-full min-h-[48px]"
         >
           {t("signup.goToLogin")}

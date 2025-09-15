@@ -1,17 +1,23 @@
 "use client";
 
+import { CheckCircle, Loader2, X } from "lucide-react";
+import {
+  ColorIndicator,
+  CutIcon,
+  GemstoneTypeIcon,
+} from "@/shared/components/ui/gemstone-icons";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/shared/components/ui/dialog";
-import { CheckCircle, Loader2, X } from "lucide-react";
 
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { Separator } from "@/shared/components/ui/separator";
 import type { CartItem } from "@/shared/types";
+import { Separator } from "@/shared/components/ui/separator";
+import { useGemstoneTranslations } from "@/features/gemstones/utils/gemstone-translations";
 import { useTranslations } from "next-intl";
 
 interface OrderConfirmationModalProps {
@@ -54,6 +60,8 @@ export function OrderConfirmationModal({
 }: OrderConfirmationModalProps) {
   const t = useTranslations("cart");
   const tOrders = useTranslations("orders");
+  const { translateColor, translateCut, translateGemstoneType } =
+    useGemstoneTranslations();
 
   const totalAmount = selectedItems.reduce(
     (sum, item) => sum + item.line_total.amount,
@@ -102,15 +110,38 @@ export function OrderConfirmationModal({
                   {selectedItems.map((item) => (
                     <div
                       key={item.id}
-                      className="flex justify-between items-center text-sm"
+                      className="flex justify-between items-start text-sm space-y-2"
                     >
-                      <div className="flex-1 min-w-0">
-                        <div className="font-medium truncate">
-                          {item.gemstone?.name} {item.gemstone?.color}
+                      <div className="flex-1 min-w-0 space-y-1">
+                        {/* Gemstone Type with Icon */}
+                        <div className="flex items-center space-x-2">
+                          <GemstoneTypeIcon className="w-3 h-3 text-primary" />
+                          <div className="font-medium truncate">
+                            {translateGemstoneType(item.gemstone?.name || "")}
+                          </div>
                         </div>
-                        <div className="text-muted-foreground">
-                          {item.gemstone?.cut} • {item.gemstone?.weight_carats}
-                          ct
+
+                        {/* Color with Icon */}
+                        <div className="flex items-center space-x-2">
+                          <ColorIndicator
+                            color={item.gemstone?.color || ""}
+                            className="w-2 h-2"
+                          />
+                          <span className="text-muted-foreground text-xs">
+                            {translateColor(item.gemstone?.color || "")}
+                          </span>
+                        </div>
+
+                        {/* Cut with Icon and Weight */}
+                        <div className="flex items-center space-x-2">
+                          <CutIcon
+                            cut={item.gemstone?.cut || ""}
+                            className="w-3 h-3"
+                          />
+                          <span className="text-muted-foreground text-xs">
+                            {translateCut(item.gemstone?.cut || "")} •{" "}
+                            {item.gemstone?.weight_carats}ct
+                          </span>
                         </div>
                       </div>
                       <div className="text-right ml-4">

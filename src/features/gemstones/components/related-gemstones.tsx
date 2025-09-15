@@ -16,9 +16,10 @@ import { useEffect, useRef, useState } from "react";
 
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { SafeImage } from "@/shared/components/ui/safe-image";
 import { supabase } from "@/lib/supabase";
+import { useGemstoneTranslations } from "../utils/gemstone-translations";
 import { useTranslations } from "next-intl";
 
 interface RelatedGemstonesProps {
@@ -48,6 +49,15 @@ export function RelatedGemstones({
   color,
   priceRange,
 }: RelatedGemstonesProps) {
+  const t = useTranslations("gemstones.related");
+  const {
+    translateColor,
+    translateCut,
+    translateClarity,
+    translateGemstoneType,
+    translateCutLabel,
+  } = useGemstoneTranslations();
+
   const [relatedGemstones, setRelatedGemstones] = useState<RelatedGemstone[]>(
     []
   );
@@ -55,7 +65,6 @@ export function RelatedGemstones({
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const t = useTranslations("gemstones.related");
   const tErrors = useTranslations("errors.cart");
 
   // Fetch related gemstones based on similarity criteria
@@ -76,6 +85,7 @@ export function RelatedGemstones({
           )
           .neq("id", currentGemstone.id) // Exclude current gemstone
           .eq("in_stock", true) // Only show available gemstones
+          .gt("price_amount", 0) // Only show items with price > 0
           .limit(12);
 
         // Apply similarity filters in order of priority
@@ -169,7 +179,15 @@ export function RelatedGemstones({
     };
 
     fetchRelatedGemstones();
-  }, [currentGemstone.id, gemstoneType, color, priceRange.min, priceRange.max]);
+  }, [
+    currentGemstone.id,
+    currentGemstone.price_amount,
+    gemstoneType,
+    color,
+    priceRange.min,
+    priceRange.max,
+    tErrors,
+  ]);
 
   // Handle scroll functionality
   const updateScrollButtons = () => {
@@ -301,7 +319,7 @@ export function RelatedGemstones({
             return (
               <Link
                 key={(gemstone as DatabaseGemstone).id}
-                href={`/catalog/${(gemstone as DatabaseGemstone).id}`}
+                href={`/catalog/${(gemstone as DatabaseGemstone).id}` as any}
                 className="flex-shrink-0 w-64 group"
               >
                 <div className="space-y-3">
@@ -366,12 +384,17 @@ export function RelatedGemstones({
                     <div className="space-y-1">
                       <h4 className="font-medium text-sm line-clamp-1 capitalize">
                         {(gemstone as DatabaseGemstone).weight_carats}ct{" "}
-                        {(gemstone as DatabaseGemstone).color}{" "}
-                        {(gemstone as DatabaseGemstone).name}
+                        {translateColor((gemstone as DatabaseGemstone).color)}{" "}
+                        {translateGemstoneType(
+                          (gemstone as DatabaseGemstone).name
+                        )}
                       </h4>
                       <p className="text-xs text-muted-foreground line-clamp-1">
-                        {(gemstone as DatabaseGemstone).cut} Cut •{" "}
-                        {(gemstone as DatabaseGemstone).clarity} Clarity
+                        {translateCut((gemstone as DatabaseGemstone).cut)}{" "}
+                        {translateCutLabel()} •{" "}
+                        {translateClarity(
+                          (gemstone as DatabaseGemstone).clarity
+                        )}
                       </p>
                       {gemstone.origin && (
                         <p className="text-xs text-muted-foreground line-clamp-1">
@@ -406,7 +429,7 @@ export function RelatedGemstones({
 
         {/* View All Link */}
         <div className="mt-6 text-center">
-          <Link href={`/catalog?types=${gemstoneType}&colors=${color}`}>
+          <Link href={`/catalog?types=${gemstoneType}&colors=${color}` as any}>
             <Button variant="outline" className="w-full sm:w-auto">
               {t("viewAllSimilar")}
             </Button>

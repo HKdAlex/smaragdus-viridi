@@ -10,6 +10,8 @@
  * - Comprehensive progress tracking
  */
 
+// Import centralized gemstone properties
+import { GEMSTONE_DEFAULT_COLORS } from "../src/shared/config/gemstone-properties.js";
 import { createClient } from "@supabase/supabase-js";
 import crypto from "crypto";
 import ffmpegPath from "@ffmpeg-installer/ffmpeg";
@@ -220,23 +222,8 @@ function detectGemstoneType(folderName) {
 }
 
 function detectGemstoneColor(gemstoneType) {
-  // Map gemstone types to their typical colors
-  const colorMap = {
-    emerald: "green",
-    aquamarine: "blue",
-    morganite: "pink",
-    garnet: "red",
-    peridot: "green",
-    sapphire: "blue",
-    amethyst: "colorless", // Could be fancy-blue for some varieties
-    citrine: "yellow",
-    tanzanite: "fancy-blue",
-    tourmaline: "green", // Can be various colors
-    zircon: "colorless",
-    apatite: "blue",
-    quartz: "colorless",
-  };
-  return colorMap[gemstoneType] || "colorless";
+  // Use centralized color mapping instead of hardcoded values
+  return GEMSTONE_DEFAULT_COLORS[gemstoneType] || "colorless";
 }
 
 function generateSerialNumber(folderName) {

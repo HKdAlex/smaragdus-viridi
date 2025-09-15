@@ -5,7 +5,7 @@ import { useMemo, useRef, useState } from "react";
 
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useAuth } from "@/features/auth/context/auth-context";
-import { useCart } from "@/features/cart/hooks/use-cart";
+import { useCartContext } from "@/features/cart/context/cart-context";
 import { Button } from "@/shared/components/ui/button";
 import { Logo } from "@/shared/components/ui/logo";
 import { ThemeToggle } from "@/shared/components/ui/theme-toggle";
@@ -40,9 +40,17 @@ export function MainNav() {
   const tAccessibility = useTranslations("common.accessibility");
 
   // Debug logging for navbar auth state (only log when state actually changes)
-  const authStateRef = useRef({ hasUser: false, userEmail: undefined, isLoading: true });
-  const currentAuthState = { hasUser: !!user, userEmail: user?.email, isLoading: loading };
-  
+  const authStateRef = useRef({
+    hasUser: false,
+    userEmail: undefined as string | undefined,
+    isLoading: true,
+  });
+  const currentAuthState = {
+    hasUser: !!user,
+    userEmail: user?.email,
+    isLoading: loading,
+  };
+
   if (
     authStateRef.current.hasUser !== currentAuthState.hasUser ||
     authStateRef.current.userEmail !== currentAuthState.userEmail ||
@@ -55,58 +63,83 @@ export function MainNav() {
     authStateRef.current = currentAuthState;
   }
 
-  // Memoize userId to prevent unnecessary re-renders
-  const userId = useMemo(() => user?.id, [user?.id]);
-  const { getItemCount } = useCart(userId);
+  // Get cart count from context
+  const { getItemCount } = useCartContext();
 
   // Memoize navigation arrays to prevent unnecessary re-renders
-  const navigation: NavItem[] = useMemo(() => [
-    { name: t("home"), href: "/" },
-    { name: t("catalog"), href: "/catalog" },
-    { name: t("about"), href: "/about" },
-    { name: t("contact"), href: "/contact" },
-  ], [t]);
+  const navigation: NavItem[] = useMemo(() => {
+    const baseNavigation = [
+      { name: t("home"), href: "/" },
+      { name: t("catalog"), href: "/catalog" },
+    ];
+
+    // Hide "About" and "Contact" for admin users
+    if (!isAdmin) {
+      baseNavigation.push(
+        { name: t("about"), href: "/about" },
+        { name: t("contact"), href: "/contact" }
+      );
+    }
+
+    return baseNavigation;
+  }, [t, isAdmin]);
 
   // User navigation (shown when logged in)
-  const userNavigation: NavItem[] = useMemo(() => [
-    { name: t("orders"), href: "/orders" },
-    { name: t("profile"), href: "/profile" },
-  ], [t]);
+  const userNavigation: NavItem[] = useMemo(() => {
+    const baseUserNavigation = [{ name: t("profile"), href: "/profile" }];
+
+    // Hide "Orders" for admin users
+    if (!isAdmin) {
+      baseUserNavigation.unshift({ name: t("orders"), href: "/orders" });
+    }
+
+    return baseUserNavigation;
+  }, [t, isAdmin]);
 
   // Admin navigation (conditionally shown)
-  const adminNavigation: NavItem[] = useMemo(() => [
-    { name: t("admin"), href: "/admin" }
-  ], [t]);
+  const adminNavigation: NavItem[] = useMemo(
+    () => [{ name: t("admin"), href: "/admin" }],
+    [t]
+  );
 
-  const isCurrentPage = useMemo(() => (href: string) => {
-    if (href === "/") {
-      return pathname === "/";
-    }
-    return pathname.startsWith(href);
-  }, [pathname]);
+  const isCurrentPage = useMemo(
+    () => (href: string) => {
+      if (href === "/") {
+        return pathname === "/";
+      }
+      return pathname.startsWith(href);
+    },
+    [pathname]
+  );
 
   // Memoize sign-out handler to prevent unnecessary re-renders
-  const handleSignOut = useMemo(() => async () => {
-    try {
-      await signOut();
-      // Redirect to home page after sign out
-      router.push("/");
-    } catch (error) {
-      console.error(t("signOutFailed"), error);
-    }
-  }, [signOut, router, t]);
+  const handleSignOut = useMemo(
+    () => async () => {
+      try {
+        await signOut();
+        // Redirect to home page after sign out
+        router.push("/");
+      } catch (error) {
+        console.error(t("signOutFailed"), error);
+      }
+    },
+    [signOut, router, t]
+  );
 
   // Memoize mobile sign-out handler
-  const handleMobileSignOut = useMemo(() => async () => {
-    try {
-      await signOut();
-      setMobileMenuOpen(false);
-      // Redirect to home page after sign out
-      router.push("/");
-    } catch (error) {
-      console.error(t("signOutFailed"), error);
-    }
-  }, [signOut, router, t, setMobileMenuOpen]);
+  const handleMobileSignOut = useMemo(
+    () => async () => {
+      try {
+        await signOut();
+        setMobileMenuOpen(false);
+        // Redirect to home page after sign out
+        router.push("/");
+      } catch (error) {
+        console.error(t("signOutFailed"), error);
+      }
+    },
+    [signOut, router, t, setMobileMenuOpen]
+  );
 
   return (
     <header className="bg-background border-b border-border transition-colors duration-300 sticky top-0 z-50 backdrop-blur-sm bg-background/95">

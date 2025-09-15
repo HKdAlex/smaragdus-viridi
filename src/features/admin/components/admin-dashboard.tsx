@@ -191,7 +191,7 @@ export function AdminDashboard() {
               variant="outline"
               size="sm"
               onClick={signOut}
-              className="flex items-center gap-2 min-h-[44px] hidden sm:flex"
+              className="items-center gap-2 min-h-[44px] hidden sm:flex"
             >
               <LogOut className="w-4 h-4" />
               {t("header.signOut")}
@@ -216,7 +216,7 @@ export function AdminDashboard() {
           ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
           md:translate-x-0 transition-transform duration-300 ease-in-out
           fixed md:static top-16 md:top-0 left-0 z-40
-          w-64 sm:w-72 h-[calc(100vh-4rem)] md:h-screen
+          w-64 sm:w-80 h-[calc(100vh-4rem)] md:h-screen
           bg-background/95 backdrop-blur-sm border-r border-border
           overflow-y-auto shadow-lg md:shadow-none
         `}
@@ -230,7 +230,7 @@ export function AdminDashboard() {
                 <Button
                   key={tab.id}
                   variant={isActive ? "default" : "ghost"}
-                  className="w-full justify-start gap-3 h-auto p-3 sm:p-4 min-h-[48px] text-left py-4"
+                  className="w-full justify-start gap-3 h-auto p-3 sm:p-4 min-h-[56px] text-left py-4"
                   onClick={() => {
                     setActiveTab(tab.id);
                     setSidebarOpen(false); // Close mobile sidebar
@@ -241,7 +241,7 @@ export function AdminDashboard() {
                     <div className="font-medium text-sm sm:text-base break-words">
                       {tab.name}
                     </div>
-                    <div className="text-xs text-muted-foreground break-words leading-relaxed">
+                    <div className="text-xs sm:text-sm text-muted-foreground break-words leading-relaxed whitespace-normal overflow-wrap-anywhere">
                       {tab.description}
                     </div>
                   </div>

@@ -1,6 +1,19 @@
 "use client";
 
 import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/shared/components/ui/tabs";
+import {
   Calendar,
   CreditCard,
   Heart,
@@ -10,28 +23,15 @@ import {
   ShoppingCart,
   User,
 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui/card";
 import type { ProfileStats, UserProfile } from "../types/user-profile.types";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/shared/components/ui/tabs";
 
-import { ActivityFeed } from "./activity-feed";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { OrderHistory } from "./order-history";
-import { ProfileSettings } from "./profile-settings";
 import { Separator } from "@/shared/components/ui/separator";
 import { useTranslations } from "next-intl";
+import { ActivityFeed } from "./activity-feed";
+import { OrderHistory } from "./order-history";
+import { ProfileSettings } from "./profile-settings";
 
 interface UserProfilePageProps {
   user: UserProfile;
@@ -49,6 +49,11 @@ export function UserProfilePage({
   onChangePassword,
 }: UserProfilePageProps) {
   const t = useTranslations("user.profile");
+  const tStats = useTranslations("user.stats");
+  const tSettings = useTranslations("user.settings");
+  const tOverview = useTranslations("user.overview");
+  const tOrders = useTranslations("user.orders");
+  const tFavorites = useTranslations("user.favorites");
 
   const formatCurrency = (amount: number, currency: string) => {
     return new Intl.NumberFormat("en-US", {
@@ -72,13 +77,13 @@ export function UserProfilePage({
   const getRoleDisplayName = (role: string) => {
     switch (role) {
       case "premium_customer":
-        return "Premium Customer";
+        return tSettings("premiumCustomer");
       case "regular_customer":
-        return "Regular Customer";
+        return tSettings("regularCustomer");
       case "admin":
-        return "Administrator";
+        return tSettings("administrator");
       default:
-        return "Guest";
+        return tSettings("guest");
     }
   };
 
@@ -88,10 +93,8 @@ export function UserProfilePage({
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">My Profile</h1>
-            <p className="text-muted-foreground">
-              Manage your account settings and view your order history
-            </p>
+            <h1 className="text-3xl font-bold">{t("title")}</h1>
+            <p className="text-muted-foreground">{t("description")}</p>
           </div>
           <Badge
             variant="outline"
@@ -106,7 +109,7 @@ export function UserProfilePage({
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Total Orders
+                {tStats("totalOrders")}
               </CardTitle>
               <Package className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
@@ -114,18 +117,20 @@ export function UserProfilePage({
               <div className="text-2xl font-bold">{stats.totalOrders}</div>
               <p className="text-xs text-muted-foreground">
                 {stats.averageOrderValue > 0
-                  ? `Avg: ${formatCurrency(
+                  ? `${tStats("averageOrder")}: ${formatCurrency(
                       stats.averageOrderValue,
                       user.preferred_currency || "USD"
                     )}`
-                  : "No orders yet"}
+                  : tOrders("noOrdersDesc")}
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Spent</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                {tStats("totalSpent")}
+              </CardTitle>
               <CreditCard className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -136,32 +141,39 @@ export function UserProfilePage({
                 )}
               </div>
               <p className="text-xs text-muted-foreground">
-                Since {new Date(stats.memberSince).getFullYear()}
+                {tStats("memberSince")}{" "}
+                {new Date(stats.memberSince).getFullYear()}
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Favorites</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                {tStats("favorites")}
+              </CardTitle>
               <Heart className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
                 {stats.favoriteGemstones}
               </div>
-              <p className="text-xs text-muted-foreground">Saved gemstones</p>
+              <p className="text-xs text-muted-foreground">
+                {tFavorites("noFavoritesDesc")}
+              </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Cart Items</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                {tStats("cartItems")}
+              </CardTitle>
               <ShoppingCart className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.cartItems}</div>
-              <p className="text-xs text-muted-foreground">Items in cart</p>
+              <p className="text-xs text-muted-foreground">{tStats("items")}</p>
             </CardContent>
           </Card>
         </div>
@@ -184,10 +196,10 @@ export function UserProfilePage({
                   <CardHeader>
                     <CardTitle className="flex items-center">
                       <User className="w-5 h-5 mr-2" />
-                      Profile Information
+                      {tSettings("personalInfo")}
                     </CardTitle>
                     <CardDescription>
-                      Your personal information and preferences
+                      {tSettings("preferences")}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
@@ -196,7 +208,7 @@ export function UserProfilePage({
                       <div>
                         <p className="font-medium">{user.name}</p>
                         <p className="text-sm text-muted-foreground">
-                          Full Name
+                          {tSettings("fullName")}
                         </p>
                       </div>
                     </div>
@@ -206,7 +218,7 @@ export function UserProfilePage({
                       <div>
                         <p className="font-medium">{user.email}</p>
                         <p className="text-sm text-muted-foreground">
-                          Email Address
+                          {tSettings("email")}
                         </p>
                       </div>
                     </div>
@@ -217,7 +229,7 @@ export function UserProfilePage({
                         <div>
                           <p className="font-medium">{user.phone}</p>
                           <p className="text-sm text-muted-foreground">
-                            Phone Number
+                            {tSettings("phone")}
                           </p>
                         </div>
                       </div>
@@ -227,13 +239,14 @@ export function UserProfilePage({
                       <Calendar className="w-4 h-4 text-muted-foreground" />
                       <div>
                         <p className="font-medium">
-                          Member since{" "}
-                          {user.created_at
-                            ? new Date(user.created_at).toLocaleDateString()
-                            : "Unknown"}
+                          {tOverview("memberSince", {
+                            date: user.created_at
+                              ? new Date(user.created_at).toLocaleDateString()
+                              : "Unknown",
+                          })}
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          Account Created
+                          {tOverview("accountType")}
                         </p>
                       </div>
                     </div>
@@ -241,11 +254,13 @@ export function UserProfilePage({
                     <Separator />
 
                     <div className="space-y-2">
-                      <p className="text-sm font-medium">Preferences</p>
+                      <p className="text-sm font-medium">
+                        {tSettings("preferences")}
+                      </p>
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
                           <span className="text-muted-foreground">
-                            Currency:
+                            {tSettings("currency")}:
                           </span>
                           <span className="ml-2 font-medium">
                             {user.preferred_currency || "USD"}
@@ -253,7 +268,7 @@ export function UserProfilePage({
                         </div>
                         <div>
                           <span className="text-muted-foreground">
-                            Language:
+                            {tSettings("language")}:
                           </span>
                           <span className="ml-2 font-medium">
                             {user.language_preference === "en"
@@ -271,17 +286,15 @@ export function UserProfilePage({
                   <CardHeader>
                     <CardTitle className="flex items-center">
                       <Package className="w-5 h-5 mr-2" />
-                      Recent Orders
+                      {tOrders("title")}
                     </CardTitle>
-                    <CardDescription>
-                      Your latest order activity
-                    </CardDescription>
+                    <CardDescription>{tOrders("subtitle")}</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="text-center py-8">
                       <Package className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                       <p className="text-muted-foreground">
-                        Order history will appear here
+                        {tOrders("noOrdersDesc")}
                       </p>
                       <Button variant="outline" className="mt-4" asChild>
                         <a href="#orders">{t("viewAllOrders")}</a>

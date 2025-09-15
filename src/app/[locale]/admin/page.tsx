@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 
 export default function AdminPage() {
   const router = useRouter();
 
   useEffect(() => {
     // Redirect to login page
-    router.push("/admin/login");
+    router.push("/admin/login" as any);
   }, [router]);
 
   return (

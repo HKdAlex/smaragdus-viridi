@@ -2,22 +2,21 @@
 
 import { ArrowLeft, Lock, ShoppingBag } from "lucide-react";
 
+import { useAuth } from "@/features/auth/context/auth-context";
+import { OrderConfirmationModal } from "@/features/orders/components/order-confirmation-modal";
+import type { CreateOrderResponse } from "@/features/orders/types/order.types";
+import { Link } from "@/i18n/navigation";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { CartItem } from "./cart-item";
-import type { CreateOrderResponse } from "@/features/orders/types/order.types";
-import { EmptyCart } from "./empty-cart";
-import Link from "next/link";
-import { OrderConfirmationModal } from "@/features/orders/components/order-confirmation-modal";
 import { Separator } from "@/shared/components/ui/separator";
-import { useAuth } from "@/features/auth/context/auth-context";
-import { useCart } from "../hooks/use-cart";
-import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
+import { useCartContext } from "../context/cart-context";
+import { CartItem } from "./cart-item";
+import { EmptyCart } from "./empty-cart";
 
 export function CartPage() {
   const { user } = useAuth();
-  const userId = user?.id;
   const t = useTranslations("cart");
   const tErrors = useTranslations("errors.cart");
   const {
@@ -32,7 +31,7 @@ export function CartPage() {
     toggleSelectAll,
     toggleItemSelection,
     isItemSelected,
-  } = useCart(user?.id);
+  } = useCartContext();
 
   const [isClearing, setIsClearing] = useState(false);
   const [isProcessingOrder, setIsProcessingOrder] = useState(false);
@@ -65,7 +64,7 @@ export function CartPage() {
   };
 
   const handleConfirmOrder = async () => {
-    if (!userId || selectedItemsCount === 0) return;
+    if (!user?.id || selectedItemsCount === 0) return;
 
     setIsProcessingOrder(true);
     setOrderResult(null);
@@ -82,7 +81,7 @@ export function CartPage() {
           })) || [];
 
       const orderRequest = {
-        user_id: userId,
+        user_id: user.id,
         items: orderItems.map((item) => ({
           gemstone_id: item.gemstone_id,
           quantity: item.quantity,

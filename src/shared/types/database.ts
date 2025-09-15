@@ -362,6 +362,13 @@ export type Database = {
             foreignKeyName: "contact_messages_responded_by_fkey"
             columns: ["responded_by"]
             isOneToOne: false
+            referencedRelation: "orders_with_user_details"
+            referencedColumns: ["profile_id"]
+          },
+          {
+            foreignKeyName: "contact_messages_responded_by_fkey"
+            columns: ["responded_by"]
+            isOneToOne: false
             referencedRelation: "user_profiles"
             referencedColumns: ["id"]
           },
@@ -856,6 +863,20 @@ export type Database = {
             referencedColumns: ["order_id"]
           },
           {
+            foreignKeyName: "order_events_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders_with_user_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_events_performed_by_fkey"
+            columns: ["performed_by"]
+            isOneToOne: false
+            referencedRelation: "orders_with_user_details"
+            referencedColumns: ["profile_id"]
+          },
+          {
             foreignKeyName: "order_events_performed_by_fkey"
             columns: ["performed_by"]
             isOneToOne: false
@@ -917,6 +938,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "orders_with_details"
             referencedColumns: ["order_id"]
+          },
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders_with_user_details"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1112,6 +1140,30 @@ export type Database = {
           user_phone: string | null
           user_role: Database["public"]["Enums"]["user_role"] | null
           weight_carats: number | null
+        }
+        Relationships: []
+      }
+      orders_with_user_details: {
+        Row: {
+          created_at: string | null
+          currency_code: Database["public"]["Enums"]["currency_code"] | null
+          delivery_address: Json | null
+          discount_percentage: number | null
+          email: string | null
+          id: string | null
+          name: string | null
+          notes: string | null
+          payment_type: Database["public"]["Enums"]["payment_type"] | null
+          phone: string | null
+          preferred_currency:
+            | Database["public"]["Enums"]["currency_code"]
+            | null
+          profile_id: string | null
+          role: Database["public"]["Enums"]["user_role"] | null
+          status: Database["public"]["Enums"]["order_status"] | null
+          total_amount: number | null
+          updated_at: string | null
+          user_id: string | null
         }
         Relationships: []
       }

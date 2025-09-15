@@ -109,7 +109,11 @@ export function InventoryManagementDashboard() {
         setBulkUpdate({ inStock: true, deliveryDays: "", reason: "" });
         loadInventoryData(); // Refresh data
       } else {
-        alert(tInventory("bulkUpdateFailed", { error: result.error || "Unknown error" }));
+        alert(
+          tInventory("bulkUpdateFailed", {
+            error: result.error || "Unknown error",
+          })
+        );
       }
     } catch (err) {
       alert(tInventory("unexpectedError"));
@@ -127,9 +131,11 @@ export function InventoryManagementDashboard() {
   };
 
   const formatPrice = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("ru-RU", {
       style: "currency",
       currency: "USD",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
     }).format(amount / 100);
   };
 

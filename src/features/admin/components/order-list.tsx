@@ -260,7 +260,9 @@ export function OrderList({
                     {format(new Date(order.created_at), "MMM d, yyyy")}
                   </TableCell>
                   <TableCell>{getStatusBadge(order.status)}</TableCell>
-                  <TableCell>{order.items?.length || 0} items</TableCell>
+                  <TableCell>
+                    {order.items?.length || 0} {t("items")}
+                  </TableCell>
                   <TableCell className="font-medium">
                     {formatCurrency(order.total_amount, order.currency_code)}
                   </TableCell>

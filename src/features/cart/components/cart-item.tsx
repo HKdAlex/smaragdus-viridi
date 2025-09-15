@@ -1,11 +1,16 @@
 "use client";
 
+import {
+  ColorIndicator,
+  CutIcon,
+  GemstoneTypeIcon,
+} from "@/shared/components/ui/gemstone-icons";
+
 import { Button } from "@/shared/components/ui/button";
 import type { CartItem as CartItemType } from "@/shared/types";
 import Image from "next/image";
-import {
-  removeFromCart,
-} from "../services/cart-service";
+import { removeFromCart } from "../services/cart-service";
+import { useGemstoneTranslations } from "@/features/gemstones/utils/gemstone-translations";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
@@ -25,12 +30,12 @@ export function CartItem({
   const [isLoading, setIsLoading] = useState(false);
   const [isRemoving, setIsRemoving] = useState(false);
   const t = useTranslations("cart.items");
+  const { translateColor, translateCut, translateGemstoneType } =
+    useGemstoneTranslations();
 
   const handleSelectionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onSelectionChange(item.id, e.target.checked);
   };
-
-
 
   const handleRemove = async () => {
     setIsRemoving(true);
@@ -71,11 +76,11 @@ export function CartItem({
   }
 
   return (
-    <div className="border border-border rounded-lg p-4 space-y-4 bg-card">
+    <div className="border border-border rounded-lg p-4 bg-card hover:shadow-sm transition-shadow">
       {/* Selection checkbox and item content */}
       <div className="flex space-x-4">
         {/* Selection checkbox */}
-        <div className="flex items-center min-h-[44px]">
+        <div className="flex items-center min-h-[64px] sm:min-h-[80px]">
           <input
             type="checkbox"
             checked={isSelected}
@@ -85,19 +90,19 @@ export function CartItem({
           />
         </div>
         {/* Gemstone Image */}
-        <div className="relative w-16 h-16 flex-shrink-0">
+        <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0">
           {primaryImage ? (
             <Image
               src={primaryImage.image_url}
               alt={gemstone.name}
               fill
               className="object-cover rounded-md"
-              sizes="64px"
+              sizes="(max-width: 640px) 64px, 80px"
             />
           ) : (
             <div className="w-full h-full bg-muted rounded-md flex items-center justify-center">
               <svg
-                className="h-6 w-6 text-muted-foreground"
+                className="h-5 w-5 sm:h-6 sm:w-6 text-muted-foreground"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -114,14 +119,42 @@ export function CartItem({
         </div>
 
         {/* Gemstone Details */}
-        <div className="flex-1 min-w-0">
-          <h3 className="font-medium text-foreground truncate text-sm sm:text-base">
-            {gemstone.name} {gemstone.color} {gemstone.cut}
-          </h3>
-          <p className="text-xs sm:text-sm text-muted-foreground">
-            {gemstone.weight_carats}ct • {gemstone.serial_number}
+        <div className="flex-1 min-w-0 space-y-2">
+          {/* Gemstone Type and Color with Icons */}
+          <div className="flex items-center space-x-2">
+            <GemstoneTypeIcon className="w-4 h-4 text-primary" />
+            <h3 className="font-medium text-foreground text-sm sm:text-base">
+              {translateGemstoneType(gemstone.name)}
+            </h3>
+          </div>
+
+          {/* Color with Icon */}
+          <div className="flex items-center space-x-2">
+            <ColorIndicator color={gemstone.color} className="w-3 h-3" />
+            <span className="text-sm text-muted-foreground">
+              {translateColor(gemstone.color)}
+            </span>
+          </div>
+
+          {/* Cut with Icon and Weight */}
+          <div className="flex items-center gap-3 text-xs sm:text-sm text-muted-foreground">
+            <div className="flex items-center space-x-1">
+              <CutIcon cut={gemstone.cut} className="w-3 h-3" />
+              <span className="bg-muted/50 px-2 py-1 rounded-md font-medium">
+                {translateCut(gemstone.cut)}
+              </span>
+            </div>
+            <span>•</span>
+            <span className="font-medium">{gemstone.weight_carats}ct</span>
+          </div>
+
+          {/* Serial Number */}
+          <p className="text-xs text-muted-foreground font-mono">
+            {gemstone.serial_number}
           </p>
-          <p className="text-xs sm:text-sm font-medium text-foreground">
+
+          {/* Price */}
+          <p className="text-sm font-semibold text-foreground">
             {item.formatted_unit_price} {t("each")}
           </p>
         </div>
@@ -133,7 +166,7 @@ export function CartItem({
             size="sm"
             onClick={handleRemove}
             disabled={isLoading || isRemoving}
-            className="text-muted-foreground hover:text-destructive p-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
+            className="text-muted-foreground hover:text-destructive p-2 min-h-[64px] sm:min-h-[80px] min-w-[44px] flex items-center justify-center"
             aria-label={t("removeFromCart", { name: gemstone.name })}
           >
             {isRemoving ? (
@@ -154,15 +187,6 @@ export function CartItem({
               </svg>
             )}
           </Button>
-        </div>
-      </div>
-
-      {/* Price Display */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="text-left sm:text-right">
-          <p className="text-base sm:text-lg font-semibold text-foreground">
-            {t("price")}: {item.formatted_unit_price}
-          </p>
         </div>
       </div>
     </div>

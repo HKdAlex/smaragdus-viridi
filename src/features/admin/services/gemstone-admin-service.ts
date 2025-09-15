@@ -254,7 +254,21 @@ export class GemstoneAdminService {
         origin: gemstone.origin || undefined,
       }));
 
-      return { success: true, data: transformedData };
+      // Sort to prioritize gemstones with images first
+      const sortedData = transformedData.sort((a, b) => {
+        const aHasImages = a.images && a.images.length > 0;
+        const bHasImages = b.images && b.images.length > 0;
+
+        if (aHasImages && !bHasImages) return -1;
+        if (!aHasImages && bHasImages) return 1;
+
+        // If both have images or both don't have images, sort by created_at
+        const aDate = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const bDate = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return bDate - aDate;
+      });
+
+      return { success: true, data: sortedData };
     } catch (error) {
       logger.error("Unexpected error fetching gemstones", error as Error);
       return { success: false, error: "An unexpected error occurred" };

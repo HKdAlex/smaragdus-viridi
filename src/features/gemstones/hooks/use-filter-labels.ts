@@ -8,6 +8,7 @@ import type {
   GemstoneType,
 } from "@/shared/types";
 
+import { Constants } from "@/shared/types/database";
 import { useTranslations } from "next-intl";
 
 export interface FilterLabels {
@@ -19,96 +20,85 @@ export interface FilterLabels {
 }
 
 export function useFilterLabels(): FilterLabels {
-  const t = useTranslations("filters.advanced");
+  const tGemstones = useTranslations("gemstones");
+  const tFilters = useTranslations("filters.advanced");
+
+  // Generate gemstone types dynamically from database constants
+  const gemstoneTypes = Constants.public.Enums.gemstone_type.reduce(
+    (acc, type) => {
+      acc[type as GemstoneType] = tGemstones(`types.${type}`);
+      return acc;
+    },
+    {} as Record<GemstoneType, string>
+  );
 
   return {
-    gemstoneTypes: {
-      diamond: t("gemstoneTypes.diamond"),
-      emerald: t("gemstoneTypes.emerald"),
-      ruby: t("gemstoneTypes.ruby"),
-      sapphire: t("gemstoneTypes.sapphire"),
-      amethyst: t("gemstoneTypes.amethyst"),
-      topaz: t("gemstoneTypes.topaz"),
-      garnet: t("gemstoneTypes.garnet"),
-      peridot: t("gemstoneTypes.peridot"),
-      citrine: t("gemstoneTypes.citrine"),
-      tanzanite: t("gemstoneTypes.tanzanite"),
-      aquamarine: t("gemstoneTypes.aquamarine"),
-      morganite: t("gemstoneTypes.morganite"),
-      tourmaline: t("gemstoneTypes.tourmaline"),
-      zircon: t("gemstoneTypes.zircon"),
-      apatite: t("gemstoneTypes.apatite"),
-      quartz: t("gemstoneTypes.quartz"),
-      paraiba: t("gemstoneTypes.paraiba"),
-      spinel: t("gemstoneTypes.spinel"),
-      alexandrite: t("gemstoneTypes.alexandrite"),
-      agate: t("gemstoneTypes.agate"),
-    },
+    gemstoneTypes,
     colors: {
       // Diamond colors
-      D: t("colors.D"),
-      E: t("colors.E"),
-      F: t("colors.F"),
-      G: t("colors.G"),
-      H: t("colors.H"),
-      I: t("colors.I"),
-      J: t("colors.J"),
-      K: t("colors.K"),
-      L: t("colors.L"),
-      M: t("colors.M"),
+      D: tGemstones("colors.D"),
+      E: tGemstones("colors.E"),
+      F: tGemstones("colors.F"),
+      G: tGemstones("colors.G"),
+      H: tGemstones("colors.H"),
+      I: tGemstones("colors.I"),
+      J: tGemstones("colors.J"),
+      K: tGemstones("colors.K"),
+      L: tGemstones("colors.L"),
+      M: tGemstones("colors.M"),
       // Basic colors
-      red: t("colors.red"),
-      blue: t("colors.blue"),
-      green: t("colors.green"),
-      yellow: t("colors.yellow"),
-      pink: t("colors.pink"),
-      white: t("colors.white"),
-      black: t("colors.black"),
-      colorless: t("colors.colorless"),
+      red: tGemstones("colors.red"),
+      blue: tGemstones("colors.blue"),
+      green: tGemstones("colors.green"),
+      yellow: tGemstones("colors.yellow"),
+      pink: tGemstones("colors.pink"),
+      white: tGemstones("colors.white"),
+      black: tGemstones("colors.black"),
+      colorless: tGemstones("colors.colorless"),
       // Fancy colors
-      "fancy-yellow": t("colors.fancy-yellow"),
-      "fancy-blue": t("colors.fancy-blue"),
-      "fancy-pink": t("colors.fancy-pink"),
-      "fancy-green": t("colors.fancy-green"),
+      "fancy-yellow": tGemstones("colors.fancy-yellow"),
+      "fancy-blue": tGemstones("colors.fancy-blue"),
+      "fancy-pink": tGemstones("colors.fancy-pink"),
+      "fancy-green": tGemstones("colors.fancy-green"),
     },
     cuts: {
-      round: t("cuts.round"),
-      oval: t("cuts.oval"),
-      marquise: t("cuts.marquise"),
-      pear: t("cuts.pear"),
-      emerald: t("cuts.emerald"),
-      princess: t("cuts.princess"),
-      cushion: t("cuts.cushion"),
-      radiant: t("cuts.radiant"),
-      fantasy: t("cuts.fantasy"),
-      baguette: t("cuts.baguette"),
-      asscher: t("cuts.asscher"),
-      rhombus: t("cuts.rhombus"),
-      trapezoid: t("cuts.trapezoid"),
-      triangle: t("cuts.triangle"),
-      heart: t("cuts.heart"),
-      cabochon: t("cuts.cabochon"),
-      pentagon: t("cuts.pentagon"),
-      hexagon: t("cuts.hexagon"),
+      round: tGemstones("cuts.round"),
+      oval: tGemstones("cuts.oval"),
+      marquise: tGemstones("cuts.marquise"),
+      pear: tGemstones("cuts.pear"),
+      emerald: tGemstones("cuts.emerald"),
+      princess: tGemstones("cuts.princess"),
+      cushion: tGemstones("cuts.cushion"),
+      radiant: tGemstones("cuts.radiant"),
+      fantasy: tGemstones("cuts.fantasy"),
+      baguette: tGemstones("cuts.baguette"),
+      asscher: tGemstones("cuts.asscher"),
+      rhombus: tGemstones("cuts.rhombus"),
+      trapezoid: tGemstones("cuts.trapezoid"),
+      triangle: tGemstones("cuts.triangle"),
+      heart: tGemstones("cuts.heart"),
+      cabochon: tGemstones("cuts.cabochon"),
+      pentagon: tGemstones("cuts.pentagon"),
+      hexagon: tGemstones("cuts.hexagon"),
     },
     clarity: {
-      FL: t("clarity.FL"),
-      IF: t("clarity.IF"),
-      VVS1: t("clarity.VVS1"),
-      VVS2: t("clarity.VVS2"),
-      VS1: t("clarity.VS1"),
-      VS2: t("clarity.VS2"),
-      SI1: t("clarity.SI1"),
-      SI2: t("clarity.SI2"),
-      I1: t("clarity.I1"),
+      FL: tGemstones("clarities.FL"),
+      IF: tGemstones("clarities.IF"),
+      VVS1: tGemstones("clarities.VVS1"),
+      VVS2: tGemstones("clarities.VVS2"),
+      VS1: tGemstones("clarities.VS1"),
+      VS2: tGemstones("clarities.VS2"),
+      SI1: tGemstones("clarities.SI1"),
+      SI2: tGemstones("clarities.SI2"),
+      I1: tGemstones("clarities.I1"),
     },
     sort: {
-      created_at: t("sort.created_at"),
-      price_amount: t("sort.price_amount"),
-      weight_carats: t("sort.weight_carats"),
-      name: t("sort.name"),
-      color: t("sort.color"),
-      cut: t("sort.cut"),
+      created_at: tFilters("sort.created_at"),
+      price_amount: tFilters("sort.price_amount"),
+      weight_carats: tFilters("sort.weight_carats"),
+      name: tFilters("sort.name"),
+      color: tFilters("sort.color"),
+      cut: tFilters("sort.cut"),
     },
   };
 }

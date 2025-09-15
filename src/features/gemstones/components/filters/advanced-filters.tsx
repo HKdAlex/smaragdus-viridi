@@ -29,6 +29,7 @@ import { FilterDropdown } from "./filter-dropdown";
 import { RangeSlider } from "./range-slider";
 import { useAdvancedFilters } from "../../hooks/use-advanced-filters";
 import { useFilterLabels } from "../../hooks/use-filter-labels";
+import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 
 // Import constants and utilities
@@ -52,7 +53,12 @@ export function AdvancedFilters({
 }: AdvancedFiltersProps) {
   const t = useTranslations("filters.advanced");
   const filterLabels = useFilterLabels();
-  const { filters, ...filterActions } = useAdvancedFilters(undefined, true);
+  const pathname = usePathname();
+  const { filters, ...filterActions } = useAdvancedFilters(
+    undefined,
+    true,
+    pathname
+  );
 
   // Track previous filters to prevent unnecessary callbacks
   const prevFiltersRef = useRef<AdvancedGemstoneFilters>(filters);
@@ -234,7 +240,7 @@ export function AdvancedFilters({
             {t("title")}
           </h2>
           {activeFilterCount > 0 && (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
+            <span className="flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
               {t("activeFilters", { count: activeFilterCount })}
             </span>
           )}
@@ -244,7 +250,7 @@ export function AdvancedFilters({
         {hasFilters && (
           <button
             onClick={filterActions.resetFilters}
-            className="inline-flex items-center px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground
+            className="flex items-center px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground
                        bg-muted/50 hover:bg-muted rounded-lg transition-colors duration-200
                        border border-border/50 hover:border-border min-h-[44px] min-w-[44px]
                        flex items-center justify-center"

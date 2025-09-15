@@ -17,6 +17,7 @@ import {
 import { useEffect, useState } from "react";
 import { ORDER_STATUS_COLORS, ORDER_STATUS_LABELS } from "../types/order.types";
 
+import { useGemstoneTranslations } from "@/features/gemstones/utils/gemstone-translations";
 import { useRouter } from "@/i18n/navigation";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
@@ -40,6 +41,8 @@ export function OrderDetailsPage({
   const router = useRouter();
   const t = useTranslations("orders");
   const tCommon = useTranslations("common");
+  const { translateColor, translateCut, translateGemstoneType } =
+    useGemstoneTranslations();
 
   const [order, setOrder] = useState<Order | null>(null);
   const [timeline, setTimeline] = useState<OrderTimelineType | null>(null);
@@ -279,10 +282,11 @@ export function OrderDetailsPage({
                       <div className="flex justify-between items-start mb-2">
                         <div>
                           <h4 className="font-medium text-foreground">
-                            {item.gemstone?.name} {item.gemstone?.color}
+                            {translateGemstoneType(item.gemstone?.name || "")}{" "}
+                            {translateColor(item.gemstone?.color || "")}
                           </h4>
                           <p className="text-sm text-muted-foreground">
-                            {item.gemstone?.cut} •{" "}
+                            {translateCut(item.gemstone?.cut || "")} •{" "}
                             {item.gemstone?.weight_carats}ct
                           </p>
                           <p className="text-xs text-muted-foreground">

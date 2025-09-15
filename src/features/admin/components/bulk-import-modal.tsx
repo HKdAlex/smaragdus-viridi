@@ -318,16 +318,23 @@ export function BulkImportModal({
                               {gemstone.serialNumber}
                             </td>
                             <td className="p-2 capitalize text-foreground">
-                              {gemstone.name}
+                              {t(`gemstones.types.${gemstone.name}` as any) ||
+                                gemstone.name}
                             </td>
                             <td className="p-2 text-foreground">
-                              {gemstone.color}
+                              {t(`gemstones.colors.${gemstone.color}` as any) ||
+                                gemstone.color}
                             </td>
                             <td className="p-2 text-foreground">
-                              {gemstone.weight_carats}ct
+                              {gemstone.weight_carats}крт
                             </td>
                             <td className="p-2 text-foreground">
-                              ${(gemstone.price_amount / 100).toLocaleString()}
+                              {new Intl.NumberFormat("ru-RU", {
+                                style: "currency",
+                                currency: "USD",
+                                minimumFractionDigits: 0,
+                                maximumFractionDigits: 0,
+                              }).format(gemstone.price_amount / 100)}
                             </td>
                             <td className="p-2">
                               <span
@@ -338,8 +345,8 @@ export function BulkImportModal({
                                 }`}
                               >
                                 {gemstone.in_stock
-                                  ? "In Stock"
-                                  : "Out of Stock"}
+                                  ? t("inStock")
+                                  : t("outOfStock")}
                               </span>
                             </td>
                           </tr>

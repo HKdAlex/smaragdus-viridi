@@ -1,5 +1,12 @@
 "use client";
 
+import {
+  ColorIndicator,
+  CutIcon,
+  GemstoneColorIcon,
+  GemstoneCutIcon,
+  GemstoneTypeIcon,
+} from "@/shared/components/ui/gemstone-icons";
 import type {
   DatabaseCertification,
   DatabaseGemstone,
@@ -12,13 +19,14 @@ import type {
 } from "@/shared/types";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { SafeImage } from "@/shared/components/ui/safe-image";
+import { useTranslations } from "next-intl";
+import Link from "next/link";
+import { catalogCache } from "../services/catalog-cache";
+import type { AdvancedGemstoneFilters } from "../types/filter.types";
+import { useGemstoneTranslations } from "../utils/gemstone-translations";
 import { AdvancedFilters } from "./filters/advanced-filters";
 import { AdvancedFiltersV2 } from "./filters/advanced-filters-v2";
-import type { AdvancedGemstoneFilters } from "../types/filter.types";
-import Link from "next/link";
-import { SafeImage } from "@/shared/components/ui/safe-image";
-import { catalogCache } from "../services/catalog-cache";
-import { useTranslations } from "next-intl";
 
 // Enhanced gemstone interface for the catalog
 interface CatalogGemstone extends DatabaseGemstone {
@@ -95,6 +103,12 @@ const getBestAIAnalysis = (aiAnalysis: any[] | null | undefined) => {
 
 export function GemstoneCatalogOptimized() {
   const t = useTranslations("catalog");
+  const {
+    translateColor,
+    translateCut,
+    translateClarity,
+    translateGemstoneType,
+  } = useGemstoneTranslations();
 
   const [gemstones, setGemstones] = useState<CatalogGemstone[]>([]);
   const [loading, setLoading] = useState(true);
@@ -394,10 +408,10 @@ export function GemstoneCatalogOptimized() {
 
       {/* Toggle between filters */}
       <div className="flex items-center justify-center mb-6 px-4">
-        <div className="inline-flex rounded-lg border border-border bg-muted p-1 w-full max-w-xs sm:w-auto">
+        <div className="inline-flex rounded-lg border border-border bg-muted p-1">
           <button
             onClick={() => setUseVisualFilters(false)}
-            className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 text-sm font-medium rounded-md transition-colors min-h-[44px] ${
+            className={`px-4 py-2 text-sm font-medium rounded-md transition-colors min-h-[44px] whitespace-nowrap ${
               !useVisualFilters
                 ? "bg-background text-foreground shadow-sm"
                 : "text-muted-foreground hover:text-foreground"
@@ -407,7 +421,7 @@ export function GemstoneCatalogOptimized() {
           </button>
           <button
             onClick={() => setUseVisualFilters(true)}
-            className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 text-sm font-medium rounded-md transition-colors min-h-[44px] ${
+            className={`px-4 py-2 text-sm font-medium rounded-md transition-colors min-h-[44px] whitespace-nowrap ${
               useVisualFilters
                 ? "bg-background text-foreground shadow-sm"
                 : "text-muted-foreground hover:text-foreground"
@@ -457,8 +471,11 @@ export function GemstoneCatalogOptimized() {
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-lg sm:text-xl font-semibold text-foreground">
             {pagination
-              ? `Showing ${gemstones.length} of ${pagination.totalItems} gemstones`
-              : `Loading gemstones...`}
+              ? t("showingResults", {
+                  current: gemstones.length,
+                  total: pagination.totalItems,
+                })
+              : t("loading")}
           </h2>
         </div>
 
@@ -567,14 +584,60 @@ export function GemstoneCatalogOptimized() {
 
                     {/* Details */}
                     <div className="p-3 sm:p-4">
-                      <div className="flex items-start justify-between mb-2">
-                        <h3 className="font-semibold text-foreground capitalize leading-tight text-sm sm:text-base">
-                          {(gemstone as DatabaseGemstone).color}{" "}
-                          {(gemstone as DatabaseGemstone).name}
-                        </h3>
-                        <span className="text-xs sm:text-sm text-muted-foreground capitalize ml-2 flex-shrink-0">
-                          {(gemstone as DatabaseGemstone).cut}
-                        </span>
+                      {/* Title */}
+                      <h3 className="font-semibold text-foreground capitalize leading-tight text-sm sm:text-base mb-3">
+                        {translateColor((gemstone as DatabaseGemstone).color)}{" "}
+                        {translateGemstoneType(
+                          (gemstone as DatabaseGemstone).name
+                        )}
+                      </h3>
+
+                      {/* Attributes with icons and labels */}
+                      <div className="space-y-2 mb-3">
+                        {/* Gemstone Type */}
+                        <div className="flex items-center space-x-2">
+                          <GemstoneTypeIcon className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-xs text-muted-foreground">
+                            {t("type")}:
+                          </span>
+                          <span className="text-xs font-medium text-foreground">
+                            {translateGemstoneType(
+                              (gemstone as DatabaseGemstone).name
+                            )}
+                          </span>
+                        </div>
+
+                        {/* Color */}
+                        <div className="flex items-center space-x-2">
+                          <GemstoneColorIcon className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-xs text-muted-foreground">
+                            {t("color")}:
+                          </span>
+                          <ColorIndicator
+                            color={(gemstone as DatabaseGemstone).color}
+                            className="w-3 h-3"
+                          />
+                          <span className="text-xs font-medium text-foreground">
+                            {translateColor(
+                              (gemstone as DatabaseGemstone).color
+                            )}
+                          </span>
+                        </div>
+
+                        {/* Cut */}
+                        <div className="flex items-center space-x-2">
+                          <GemstoneCutIcon className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-xs text-muted-foreground">
+                            {t("cut")}:
+                          </span>
+                          <CutIcon
+                            cut={(gemstone as DatabaseGemstone).cut}
+                            className="w-4 h-4"
+                          />
+                          <span className="text-xs font-medium text-foreground">
+                            {translateCut((gemstone as DatabaseGemstone).cut)}
+                          </span>
+                        </div>
                       </div>
 
                       <div className="space-y-1 text-xs sm:text-sm text-muted-foreground mb-3">
@@ -582,7 +645,9 @@ export function GemstoneCatalogOptimized() {
                           {(gemstone as DatabaseGemstone).weight_carats}ct
                         </div>
                         <div>
-                          {(gemstone as DatabaseGemstone).clarity} clarity
+                          {translateClarity(
+                            (gemstone as DatabaseGemstone).clarity
+                          )}
                         </div>
                         {gemstone.origin && (
                           <div className="text-xs">

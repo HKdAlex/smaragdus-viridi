@@ -1,5 +1,6 @@
 "use client";
 
+import { Link } from "@/i18n/navigation";
 import {
   Card,
   CardContent,
@@ -16,7 +17,6 @@ import {
 } from "@/shared/components/ui/select";
 import { ChevronRight, MapPin, Package, Plus, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
-import Link from "next/link";
 import {
   ORDER_STATUS_CONFIG,
   type OrderStatus,
@@ -91,16 +91,18 @@ export function OrderHistory({
     const moreItems =
       safeItems.length > 2 ? ` +${safeItems.length - 2} more` : "";
 
-    return `${totalItems} item${
-      totalItems !== 1 ? "s" : ""
-    }: ${gemstoneNames}${moreItems}`;
+    return t("orderSummary", {
+      count: totalItems,
+      items: gemstoneNames,
+      more: moreItems,
+    });
   };
 
   if (loading && orders.length === 0) {
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold">Order History</h2>
+          <h2 className="text-2xl font-bold">{t("title")}</h2>
         </div>
         <div className="animate-pulse space-y-4">
           {Array.from({ length: 3 }).map((_, i) => (
@@ -116,16 +118,14 @@ export function OrderHistory({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Order History</h2>
-          <p className="text-muted-foreground">
-            View and track your past orders
-          </p>
+          <h2 className="text-2xl font-bold">{t("title")}</h2>
+          <p className="text-muted-foreground">{t("subtitle")}</p>
         </div>
         <div className="flex items-center space-x-2">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
             <Input
-              placeholder="Search orders..."
+              placeholder={t("searchPlaceholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9 w-64"
@@ -160,17 +160,17 @@ export function OrderHistory({
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Package className="w-12 h-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No orders found</h3>
+            <h3 className="text-lg font-semibold mb-2">{t("noOrdersFound")}</h3>
             <p className="text-muted-foreground text-center mb-6">
               {searchQuery || statusFilter !== "all"
-                ? "Try adjusting your search or filter criteria"
-                : "You haven't placed any orders yet"}
+                ? t("noOrdersFiltered")
+                : t("noOrdersDesc")}
             </p>
             {!searchQuery && statusFilter === "all" && (
               <Button asChild>
                 <Link href="/catalog">
                   <Plus className="w-4 h-4 mr-2" />
-                  Start Shopping
+                  {t("startShopping")}
                 </Link>
               </Button>
             )}
@@ -191,7 +191,7 @@ export function OrderHistory({
                   <div className="flex items-center space-x-3">
                     <div>
                       <CardTitle className="text-lg">
-                        Order #{order.id.slice(0, 8)}
+                        {t("orderNumber", { number: order.id.slice(0, 8) })}
                       </CardTitle>
                       <CardDescription>
                         {format(
@@ -232,8 +232,7 @@ export function OrderHistory({
                   <div className="flex items-center justify-between text-sm">
                     <div className="flex items-center space-x-4">
                       <span className="text-muted-foreground">
-                        {order.items?.length ?? 0} item
-                        {(order.items?.length ?? 0) !== 1 ? "s" : ""}
+                        {t("itemCount", { count: order.items?.length ?? 0 })}
                       </span>
                       {order.delivery_address && (
                         <div className="flex items-center text-muted-foreground">
@@ -244,7 +243,7 @@ export function OrderHistory({
                       )}
                     </div>
                     <div className="text-muted-foreground">
-                      Last updated:{" "}
+                      {t("lastUpdated")}:{" "}
                       {format(new Date(order.updated_at), "MMM d, h:mm a")}
                     </div>
                   </div>
@@ -257,7 +256,7 @@ export function OrderHistory({
           {hasMore && (
             <div className="flex justify-center pt-4">
               <Button variant="outline" onClick={onLoadMore} disabled={loading}>
-                {loading ? "Loading..." : "Load More Orders"}
+                {loading ? t("loading") : t("loadMore")}
               </Button>
             </div>
           )}
@@ -270,9 +269,12 @@ export function OrderHistory({
           <CardContent className="pt-6">
             <div className="text-center">
               <p className="text-sm text-muted-foreground">
-                Showing {filteredOrders.length} of {orders.length} orders
-                {searchQuery && ` matching "${searchQuery}"`}
-                {statusFilter !== "all" && ` with status "${statusFilter}"`}
+                {t("showingResults", {
+                  filtered: filteredOrders.length,
+                  total: orders.length,
+                  query: searchQuery || "",
+                  status: statusFilter !== "all" ? statusFilter : "",
+                })}
               </p>
             </div>
           </CardContent>

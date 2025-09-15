@@ -178,7 +178,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
-    console.log("[AUTH PROVIDER] Sign out initiated...");
     setLoading(true);
     try {
       const { error } = await supabase.auth.signOut();
@@ -188,9 +187,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw error;
       }
 
-      console.log(
-        "[AUTH PROVIDER] Sign out successful, clearing state immediately..."
-      );
       // Clear state immediately as fallback in case onAuthStateChange doesn't trigger
       setUser(null);
       setProfile(null);

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { useThemeContext } from "@/shared/context/theme-context";
 import { useTranslations } from "next-intl";
 
@@ -94,7 +94,7 @@ export function Logo({
   );
 
   if (href) {
-    return <Link href={href}>{logoElement}</Link>;
+    return <Link href={href as any}>{logoElement}</Link>;
   }
 
   return logoElement;

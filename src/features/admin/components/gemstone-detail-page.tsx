@@ -1,13 +1,18 @@
 "use client";
 
-import { ArrowLeft, Edit, Eye, Gem, Package, Save, X } from "lucide-react";
-import { useState } from "react";
-import { useTranslations } from "next-intl";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
+import { ArrowLeft, Edit, Eye, Gem, Package, X } from "lucide-react";
 
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Separator } from "@/shared/components/ui/separator";
+import { useTranslations } from "next-intl";
+import { useState } from "react";
 import type { GemstoneWithRelations } from "../services/gemstone-admin-service";
 import { GemstoneForm } from "./gemstone-form";
 
@@ -38,15 +43,16 @@ export function GemstoneDetailPage({
   };
 
   const formatPrice = (amount: number, currency: string) => {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("ru-RU", {
       style: "currency",
       currency: currency,
       minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
     }).format(amount / 100);
   };
 
   const formatWeight = (weight: number) => {
-    return `${weight.toFixed(2)}ct`;
+    return `${weight.toFixed(2)}крт`;
   };
 
   if (mode === "edit") {
@@ -91,7 +97,8 @@ export function GemstoneDetailPage({
             {t("title")} #{gemstone.serial_number}
           </h2>
           <p className="text-muted-foreground text-sm sm:text-base">
-            {formatWeight(gemstone.weight_carats)} {gemstone.color} {gemstone.name}
+            {formatWeight(gemstone.weight_carats)} {gemstone.color}{" "}
+            {gemstone.name}
           </p>
         </div>
         <Button
@@ -198,7 +205,9 @@ export function GemstoneDetailPage({
                   <label className="text-sm font-medium text-muted-foreground">
                     {tForm("labels.weight")}
                   </label>
-                  <p className="text-foreground">{formatWeight(gemstone.weight_carats)}</p>
+                  <p className="text-foreground">
+                    {formatWeight(gemstone.weight_carats)}
+                  </p>
                 </div>
                 {gemstone.origin && (
                   <div>
@@ -213,7 +222,9 @@ export function GemstoneDetailPage({
               </div>
 
               {/* Dimensions */}
-              {(gemstone.length_mm || gemstone.width_mm || gemstone.depth_mm) && (
+              {(gemstone.length_mm ||
+                gemstone.width_mm ||
+                gemstone.depth_mm) && (
                 <>
                   <Separator />
                   <div>
@@ -226,7 +237,9 @@ export function GemstoneDetailPage({
                           <label className="text-xs text-muted-foreground">
                             {tForm("labels.length")}
                           </label>
-                          <p className="text-foreground">{gemstone.length_mm}mm</p>
+                          <p className="text-foreground">
+                            {gemstone.length_mm}mm
+                          </p>
                         </div>
                       )}
                       {gemstone.width_mm && (
@@ -234,7 +247,9 @@ export function GemstoneDetailPage({
                           <label className="text-xs text-muted-foreground">
                             {tForm("labels.width")}
                           </label>
-                          <p className="text-foreground">{gemstone.width_mm}mm</p>
+                          <p className="text-foreground">
+                            {gemstone.width_mm}mm
+                          </p>
                         </div>
                       )}
                       {gemstone.depth_mm && (
@@ -242,7 +257,9 @@ export function GemstoneDetailPage({
                           <label className="text-xs text-muted-foreground">
                             {tForm("labels.depth")}
                           </label>
-                          <p className="text-foreground">{gemstone.depth_mm}mm</p>
+                          <p className="text-foreground">
+                            {gemstone.depth_mm}mm
+                          </p>
                         </div>
                       )}
                     </div>
@@ -310,7 +327,9 @@ export function GemstoneDetailPage({
                   <label className="text-sm font-medium text-muted-foreground">
                     {tForm("labels.deliveryDays")}
                   </label>
-                  <p className="text-foreground">{gemstone.delivery_days} days</p>
+                  <p className="text-foreground">
+                    {gemstone.delivery_days} days
+                  </p>
                 </div>
               )}
             </CardContent>
@@ -328,7 +347,9 @@ export function GemstoneDetailPage({
                   {t("createdAt")}
                 </label>
                 <p className="text-foreground">
-                  {gemstone.created_at ? new Date(gemstone.created_at).toLocaleDateString() : t("notAvailable")}
+                  {gemstone.created_at
+                    ? new Date(gemstone.created_at).toLocaleDateString()
+                    : t("notAvailable")}
                 </p>
               </div>
 
@@ -338,7 +359,9 @@ export function GemstoneDetailPage({
                   {t("updatedAt")}
                 </label>
                 <p className="text-foreground">
-                  {gemstone.updated_at ? new Date(gemstone.updated_at).toLocaleDateString() : t("notAvailable")}
+                  {gemstone.updated_at
+                    ? new Date(gemstone.updated_at).toLocaleDateString()
+                    : t("notAvailable")}
                 </p>
               </div>
 
@@ -348,7 +371,9 @@ export function GemstoneDetailPage({
                   <label className="text-sm font-medium text-muted-foreground">
                     {tForm("labels.description")}
                   </label>
-                  <p className="text-foreground text-sm">{gemstone.description}</p>
+                  <p className="text-foreground text-sm">
+                    {gemstone.description}
+                  </p>
                 </div>
               )}
 
@@ -358,7 +383,9 @@ export function GemstoneDetailPage({
                   <label className="text-sm font-medium text-muted-foreground">
                     {tForm("labels.promotionalText")}
                   </label>
-                  <p className="text-foreground text-sm">{gemstone.promotional_text}</p>
+                  <p className="text-foreground text-sm">
+                    {gemstone.promotional_text}
+                  </p>
                 </div>
               )}
             </CardContent>

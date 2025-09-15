@@ -10,6 +10,7 @@
  * - Memory-efficient streaming for large files
  */
 
+// Import centralized gemstone properties
 import ffmpegPath from "@ffmpeg-installer/ffmpeg";
 import { createClient } from "@supabase/supabase-js";
 import { spawn } from "child_process";
@@ -19,6 +20,7 @@ import fs from "fs/promises";
 import heicConvert from "heic-convert";
 import path from "path";
 import sharp from "sharp";
+import { GEMSTONE_DEFAULT_COLORS } from "../src/shared/config/gemstone-properties.js";
 import { createBatchTracker } from "./shared/batch-tracker.mjs";
 import { createAuditLogger } from "./shared/import-audit.mjs";
 
@@ -233,22 +235,8 @@ function detectGemstoneType(folderName) {
 }
 
 function detectGemstoneColor(gemstoneType) {
-  const colorMap = {
-    emerald: "green",
-    aquamarine: "blue",
-    morganite: "pink",
-    garnet: "red",
-    peridot: "green",
-    sapphire: "blue",
-    amethyst: "colorless",
-    citrine: "yellow",
-    tanzanite: "fancy-blue",
-    tourmaline: "green",
-    zircon: "colorless",
-    apatite: "blue",
-    quartz: "colorless",
-  };
-  return colorMap[gemstoneType] || "colorless";
+  // Use centralized color mapping instead of hardcoded values
+  return GEMSTONE_DEFAULT_COLORS[gemstoneType] || "colorless";
 }
 
 function generateSerialNumber(folderName) {

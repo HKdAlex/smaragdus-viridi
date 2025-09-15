@@ -82,7 +82,13 @@
     "updatePrivacyFailed": "Failed to update privacy settings"
   },
   "media": {
-    "downloadFailed": "Download failed"
+    "downloadFailed": "Download failed",
+    "media": {
+      "gemstone": "Gemstone media error",
+      "image": "Image processing error",
+      "primary": "Primary media error",
+      "thumbnail": "Thumbnail generation error"
+    }
   },
   "admin": {
     "loadGemstoneStatsFailed": "Failed to load gemstone stats",

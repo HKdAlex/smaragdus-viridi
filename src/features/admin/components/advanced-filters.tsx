@@ -6,7 +6,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
-import { ChevronDown, ChevronUp, Filter, RotateCcw, X } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -14,8 +13,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
+import { ChevronDown, ChevronUp, Filter, RotateCcw, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import { useGemstoneTranslations } from "@/features/gemstones/utils/gemstone-translations";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Checkbox } from "@/shared/components/ui/checkbox";
@@ -113,6 +114,13 @@ export function AdvancedFilters({
   availableOrigins = [],
 }: AdvancedFiltersProps) {
   const t = useTranslations("admin.advancedFilters");
+  const {
+    translateGemstoneType,
+    translateColor,
+    translateCut,
+    translateClarity,
+    translateOrigin,
+  } = useGemstoneTranslations();
   const [localFilters, setLocalFilters] =
     useState<AdvancedFiltersState>(filters);
 
@@ -191,7 +199,7 @@ export function AdvancedFilters({
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("ru-RU", {
       style: "currency",
       currency: "USD",
       minimumFractionDigits: 0,
@@ -200,7 +208,7 @@ export function AdvancedFilters({
   };
 
   const formatWeight = (weight: number) => {
-    return `${weight.toFixed(2)}ct`;
+    return `${weight.toFixed(2)}крт`;
   };
 
   return (
@@ -267,7 +275,9 @@ export function AdvancedFilters({
                         )
                       }
                     />
-                    <span className="text-sm capitalize">{type}</span>
+                    <span className="text-sm">
+                      {translateGemstoneType(type)}
+                    </span>
                   </label>
                 ))}
               </div>
@@ -292,7 +302,7 @@ export function AdvancedFilters({
                         )
                       }
                     />
-                    <span className="text-sm">{color}</span>
+                    <span className="text-sm">{translateColor(color)}</span>
                   </label>
                 ))}
               </div>
@@ -313,7 +323,7 @@ export function AdvancedFilters({
                         handleMultiSelectChange("cuts", cut, checked as boolean)
                       }
                     />
-                    <span className="text-sm capitalize">{cut}</span>
+                    <span className="text-sm">{translateCut(cut)}</span>
                   </label>
                 ))}
               </div>
@@ -338,7 +348,7 @@ export function AdvancedFilters({
                         )
                       }
                     />
-                    <span className="text-sm">{clarity}</span>
+                    <span className="text-sm">{translateClarity(clarity)}</span>
                   </label>
                 ))}
               </div>
@@ -503,7 +513,7 @@ export function AdvancedFilters({
                           )
                         }
                       />
-                      <span className="text-sm">{origin}</span>
+                      <span className="text-sm">{translateOrigin(origin)}</span>
                     </label>
                   ))}
                 </div>

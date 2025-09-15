@@ -372,9 +372,12 @@ export function GemstoneListOptimized({
   );
 
   // Export operations
-  const handleExportSingle = useCallback(async (gemstone: GemstoneWithRelations) => {
-    await handleExport("csv", false, [gemstone.id]);
-  }, []);
+  const handleExportSingle = useCallback(
+    async (gemstone: GemstoneWithRelations) => {
+      await handleExport("csv", false, [gemstone.id]);
+    },
+    []
+  );
 
   const handleExport = useCallback(
     async (
@@ -436,15 +439,49 @@ export function GemstoneListOptimized({
 
   // Utility functions
   const formatPrice = useCallback((amount: number, currency: string) => {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("ru-RU", {
       style: "currency",
       currency: currency,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
     }).format(amount / 100);
   }, []);
 
-  const formatWeight = useCallback((weight: number) => {
-    return `${weight.toFixed(2)}ct`;
-  }, []);
+  const formatWeight = useCallback(
+    (weight: number) => {
+      return `${weight.toFixed(2)}${t("carats")}`;
+    },
+    [t]
+  );
+
+  // Localization helpers
+  const getLocalizedGemstoneType = useCallback(
+    (type: string) => {
+      return t(`gemstones.types.${type}` as any) || type;
+    },
+    [t]
+  );
+
+  const getLocalizedColor = useCallback(
+    (color: string) => {
+      return t(`gemstones.colors.${color}` as any) || color;
+    },
+    [t]
+  );
+
+  const getLocalizedCut = useCallback(
+    (cut: string) => {
+      return t(`gemstones.cuts.${cut}` as any) || cut;
+    },
+    [t]
+  );
+
+  const getLocalizedClarity = useCallback(
+    (clarity: string) => {
+      return t(`gemstones.clarities.${clarity}` as any) || clarity;
+    },
+    [t]
+  );
 
   if (loading) {
     return (
@@ -594,7 +631,10 @@ export function GemstoneListOptimized({
                       className="hover:bg-muted/30 transition-colors cursor-pointer"
                       onClick={() => onView?.(gemstone)}
                     >
-                      <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
+                      <td
+                        className="px-6 py-4"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <input
                           type="checkbox"
                           checked={selectedGemstones.has(gemstone.id)}
@@ -606,15 +646,23 @@ export function GemstoneListOptimized({
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center">
-                          <div className="flex-shrink-0 w-12 h-12">
+                          <div className="flex-shrink-0 w-12 h-12 relative">
                             {gemstone.images && gemstone.images.length > 0 ? (
                               <img
                                 src={gemstone.images[0].image_url}
-                                alt={gemstone.name}
-                                className="w-12 h-12 rounded-lg object-cover"
+                                alt={getLocalizedGemstoneType(gemstone.name)}
+                                className="w-12 h-12 rounded-lg object-cover border border-border"
                                 loading="lazy"
                                 decoding="async"
+                                onLoad={(e) => {
+                                  // Hide fallback when image loads successfully
+                                  const target = e.target as HTMLImageElement;
+                                  const fallback =
+                                    target.nextElementSibling as HTMLElement;
+                                  if (fallback) fallback.style.display = "none";
+                                }}
                                 onError={(e) => {
+                                  // Show fallback when image fails to load
                                   const target = e.target as HTMLImageElement;
                                   target.style.display = "none";
                                   const fallback =
@@ -622,15 +670,16 @@ export function GemstoneListOptimized({
                                   if (fallback) fallback.style.display = "flex";
                                 }}
                               />
-                            ) : (
-                              <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center">
-                                <Gem className="w-6 h-6 text-muted-foreground" />
-                              </div>
-                            )}
-                            {/* Hidden fallback for broken images */}
+                            ) : null}
+                            {/* Fallback for missing or broken images */}
                             <div
-                              className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center"
-                              style={{ display: "none" }}
+                              className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center border border-border absolute inset-0"
+                              style={{
+                                display:
+                                  gemstone.images && gemstone.images.length > 0
+                                    ? "flex"
+                                    : "flex",
+                              }}
                             >
                               <Gem className="w-6 h-6 text-muted-foreground" />
                             </div>
@@ -638,23 +687,31 @@ export function GemstoneListOptimized({
                           <div className="ml-4">
                             <div className="font-medium text-foreground">
                               {formatWeight(gemstone.weight_carats)}{" "}
-                              {gemstone.color} {gemstone.name}
+                              {getLocalizedColor(gemstone.color)}{" "}
+                              {getLocalizedGemstoneType(gemstone.name)}
                             </div>
                             <div className="text-sm text-muted-foreground">
                               {gemstone.serial_number}
                               {gemstone.internal_code &&
                                 ` • ${gemstone.internal_code}`}
+                              {gemstone.images &&
+                                gemstone.images.length > 0 && (
+                                  <span className="ml-2 text-xs text-green-600">
+                                    📷 {gemstone.images.length}
+                                  </span>
+                                )}
                             </div>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4">
                         <div className="text-sm text-foreground">
-                          <div className="capitalize">
-                            {t("cutFormat", { cut: gemstone.cut })}
+                          <div>
+                            {t("labels.cut")}: {getLocalizedCut(gemstone.cut)}
                           </div>
                           <div>
-                            {t("clarityFormat", { clarity: gemstone.clarity })}
+                            {t("labels.clarity")}:{" "}
+                            {getLocalizedClarity(gemstone.clarity)}
                           </div>
                           {gemstone.origin && (
                             <div className="text-muted-foreground">
@@ -698,14 +755,15 @@ export function GemstoneListOptimized({
                           </Badge>
                           {gemstone.delivery_days && (
                             <span className="text-xs text-muted-foreground">
-                              {t("deliveryDays", {
-                                days: gemstone.delivery_days,
-                              })}
+                              {gemstone.delivery_days} {t("days")}
                             </span>
                           )}
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-right" onClick={(e) => e.stopPropagation()}>
+                      <td
+                        className="px-6 py-4 text-right"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <GemstoneActionsMenu
                           gemstone={gemstone}
                           onView={handleViewDetail}

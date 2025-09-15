@@ -1,5 +1,7 @@
 "use client";
 
+import { useGemstoneTranslations } from "@/features/gemstones/utils/gemstone-translations";
+import { useRouter } from "@/i18n/navigation";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -21,7 +23,6 @@ import { Textarea } from "@/shared/components/ui/textarea";
 import type { DatabaseGemstone, DatabaseOrigin } from "@/shared/types";
 import { AlertCircle, Gem, Loader2, Minus, Plus, Save, X } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   GemstoneAdminService,
@@ -107,6 +108,14 @@ export function GemstoneForm({
   onCancel,
 }: GemstoneFormProps) {
   const t = useTranslations("admin.gemstoneForm");
+  const tCurrencies = useTranslations("admin.currencies");
+  const {
+    translateGemstoneType,
+    translateColor,
+    translateCut,
+    translateClarity,
+    translateOrigin,
+  } = useGemstoneTranslations();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [origins, setOrigins] = useState<DatabaseOrigin[]>([]);
@@ -248,7 +257,7 @@ export function GemstoneForm({
         onSuccess?.(result.data);
         if (!gemstone) {
           // Redirect to edit mode for the new gemstone
-          router.push(`/admin/gemstones/${result.data.id}/edit`);
+          router.push(`/admin/gemstones/${result.data.id}/edit` as any);
         }
       } else {
         setErrors({ submit: result.error || t("errors.generalError") });
@@ -343,7 +352,7 @@ export function GemstoneForm({
                 <SelectContent>
                   {GEMSTONE_TYPES.map((type) => (
                     <SelectItem key={type} value={type}>
-                      {type.charAt(0).toUpperCase() + type.slice(1)}
+                      {translateGemstoneType(type)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -367,7 +376,7 @@ export function GemstoneForm({
                 <SelectContent>
                   {GEM_COLORS.map((color) => (
                     <SelectItem key={color} value={color}>
-                      {color.toUpperCase()}
+                      {translateColor(color)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -391,7 +400,7 @@ export function GemstoneForm({
                 <SelectContent>
                   {GEM_CUTS.map((cut) => (
                     <SelectItem key={cut} value={cut}>
-                      {cut.charAt(0).toUpperCase() + cut.slice(1)}
+                      {translateCut(cut)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -417,7 +426,7 @@ export function GemstoneForm({
                 <SelectContent>
                   {GEM_CLARITIES.map((clarity) => (
                     <SelectItem key={clarity} value={clarity}>
-                      {clarity}
+                      {translateClarity(clarity)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -515,7 +524,7 @@ export function GemstoneForm({
                 <SelectItem value="">{t("noOriginSpecified")}</SelectItem>
                 {origins.map((origin) => (
                   <SelectItem key={origin.id} value={origin.id}>
-                    {origin.name} - {origin.country}
+                    {translateOrigin(origin.name)} - {origin.country}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -539,7 +548,7 @@ export function GemstoneForm({
                   <SelectContent>
                     {CURRENCIES.map((currency) => (
                       <SelectItem key={currency} value={currency}>
-                        {currency}
+                        {tCurrencies(currency as any) || currency}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -584,7 +593,7 @@ export function GemstoneForm({
                   <SelectContent>
                     {CURRENCIES.map((currency) => (
                       <SelectItem key={currency} value={currency}>
-                        {currency}
+                        {tCurrencies(currency as any) || currency}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -671,7 +680,9 @@ export function GemstoneForm({
 
           {/* Promotional Text */}
           <div className="space-y-2">
-            <label htmlFor="promotional_text">{t("labels.promotionalText")}</label>
+            <label htmlFor="promotional_text">
+              {t("labels.promotionalText")}
+            </label>
             <Textarea
               id="promotional_text"
               value={formData.promotional_text || ""}
@@ -698,14 +709,14 @@ export function GemstoneForm({
                   (e.preventDefault(), addMarketingHighlight())
                 }
               />
-                              <Button
-                  type="button"
-                  onClick={addMarketingHighlight}
-                  variant="outline"
-                >
-                  <Plus className="w-4 h-4" />
-                  {t("actions.addHighlight")}
-                </Button>
+              <Button
+                type="button"
+                onClick={addMarketingHighlight}
+                variant="outline"
+              >
+                <Plus className="w-4 h-4" />
+                {t("actions.addHighlight")}
+              </Button>
             </div>
 
             {marketingHighlights.length > 0 && (

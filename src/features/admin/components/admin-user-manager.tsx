@@ -7,12 +7,105 @@ import {
   CardTitle,
 } from "@/shared/components/ui/card";
 import { Shield, UserCheck, UserPlus, Users } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/shared/components/ui/button";
 import { useTranslations } from "next-intl";
+import { StatisticsService } from "../services/statistics-service";
 
 export function AdminUserManager() {
   const t = useTranslations("admin");
+  const [userStats, setUserStats] = useState({
+    totalUsers: 0,
+    activeUsers: 0,
+    premiumUsers: 0,
+    admins: 0,
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    loadUserStats();
+  }, []);
+
+  const loadUserStats = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const result = await StatisticsService.getUserActivityStats();
+
+      if (result.success) {
+        setUserStats({
+          totalUsers: result.data.totalUsers,
+          activeUsers: result.data.activeUsers,
+          premiumUsers: result.data.premiumUsers,
+          admins: result.data.admins,
+        });
+      } else {
+        setError(result.error);
+      }
+    } catch (error) {
+      setError("Failed to load user statistics");
+      console.error("Failed to load user stats:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-3xl font-bold text-foreground">
+              {t("users.title")}
+            </h2>
+            <p className="text-muted-foreground">{t("users.subtitle")}</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Card
+              key={i}
+              className="border-0 shadow-lg bg-gradient-to-br from-card to-muted/20"
+            >
+              <CardContent className="p-6">
+                <div className="animate-pulse">
+                  <div className="h-12 w-12 bg-muted rounded-lg mb-4"></div>
+                  <div className="h-6 w-16 bg-muted rounded mb-2"></div>
+                  <div className="h-4 w-24 bg-muted rounded"></div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-3xl font-bold text-foreground">
+              {t("users.title")}
+            </h2>
+            <p className="text-muted-foreground">{t("users.subtitle")}</p>
+          </div>
+        </div>
+        <Card className="border-0 shadow-lg bg-gradient-to-br from-card to-muted/20">
+          <CardContent className="p-6 text-center">
+            <p className="text-red-600 mb-4">{error}</p>
+            <Button onClick={loadUserStats} variant="outline">
+              Retry
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -39,7 +132,7 @@ export function AdminUserManager() {
                 <Users className="w-6 h-6 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold">3,429</p>
+                <p className="text-2xl font-bold">{userStats.totalUsers}</p>
                 <p className="text-sm text-muted-foreground">
                   {t("users.stats.totalUsers")}
                 </p>
@@ -55,7 +148,7 @@ export function AdminUserManager() {
                 <UserCheck className="w-6 h-6 text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold">2,890</p>
+                <p className="text-2xl font-bold">{userStats.activeUsers}</p>
                 <p className="text-sm text-muted-foreground">
                   {t("users.stats.activeUsers")}
                 </p>
@@ -71,7 +164,7 @@ export function AdminUserManager() {
                 <Shield className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold">12</p>
+                <p className="text-2xl font-bold">{userStats.premiumUsers}</p>
                 <p className="text-sm text-muted-foreground">
                   {t("users.stats.vipUsers")}
                 </p>
@@ -87,7 +180,7 @@ export function AdminUserManager() {
                 <Shield className="w-6 h-6 text-purple-600 dark:text-purple-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold">3</p>
+                <p className="text-2xl font-bold">{userStats.admins}</p>
                 <p className="text-sm text-muted-foreground">
                   {t("users.stats.admins")}
                 </p>

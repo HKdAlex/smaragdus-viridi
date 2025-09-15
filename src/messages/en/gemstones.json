@@ -10,16 +10,16 @@
     "peridot": "Peridot",
     "citrine": "Citrine",
     "tanzanite": "Tanzanite",
-    "opal": "Opal",
     "aquamarine": "Aquamarine",
+    "morganite": "Morganite",
     "tourmaline": "Tourmaline",
-    "alexandrite": "Alexandrite",
-    "spinel": "Spinel",
     "zircon": "Zircon",
-    "iolite": "Iolite",
-    "moonstone": "Moonstone",
-    "labradorite": "Labradorite",
-    "sunstone": "Sunstone"
+    "apatite": "Apatite",
+    "quartz": "Quartz",
+    "paraiba": "Paraiba",
+    "spinel": "Spinel",
+    "alexandrite": "Alexandrite",
+    "agate": "Agate"
   },
   "cuts": {
     "round": "Round",
@@ -37,7 +37,13 @@
     "trilliant": "Trilliant",
     "rose": "Rose",
     "step": "Step",
-    "mixed": "Mixed"
+    "mixed": "Mixed",
+    "rhombus": "Rhombus",
+    "trapezoid": "Trapezoid",
+    "triangle": "Triangle",
+    "cabochon": "Cabochon",
+    "pentagon": "Pentagon",
+    "hexagon": "Hexagon"
   },
   "colors": {
     "D": "D (Colorless)",
@@ -63,6 +69,14 @@
     "X": "X (Fancy Light)",
     "Y": "Y (Fancy Light)",
     "Z": "Z (Fancy Light)",
+    "red": "Red",
+    "blue": "Blue",
+    "green": "Green",
+    "yellow": "Yellow",
+    "pink": "Pink",
+    "white": "White",
+    "black": "Black",
+    "colorless": "Colorless",
     "fancy-yellow": "Fancy Yellow",
     "fancy-blue": "Fancy Blue",
     "fancy-pink": "Fancy Pink",
@@ -252,5 +266,19 @@
     "thumbnail": "Thumbnail",
     "videoThumbnail": "Video thumbnail",
     "gemstone": "Gemstone"
+  },
+  "labels": {
+    "cut": "Cut",
+    "clarity": "Clarity",
+    "color": "Color",
+    "type": "Type",
+    "origin": "Origin",
+    "weight": "Weight",
+    "price": "Price",
+    "dimensions": "Dimensions",
+    "certification": "Certification",
+    "treatment": "Treatment",
+    "fluorescence": "Fluorescence",
+    "finish": "Finish"
   }
 }

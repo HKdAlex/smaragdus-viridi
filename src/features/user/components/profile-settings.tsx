@@ -42,7 +42,7 @@ export function ProfileSettings({
   onUpdateProfile,
   onChangePassword,
 }: ProfileSettingsProps) {
-  const t = useTranslations("user");
+  const t = useTranslations("user.settings");
 
   // Profile form state
   const [profileForm, setProfileForm] = useState({
@@ -88,13 +88,12 @@ export function ProfileSettings({
       await onUpdateProfile(profileForm);
       setProfileMessage({
         type: "success",
-        text: "Profile updated successfully!",
+        text: t("profileUpdatedSuccess"),
       });
     } catch (error) {
       setProfileMessage({
         type: "error",
-        text:
-          error instanceof Error ? error.message : "Failed to update profile",
+        text: error instanceof Error ? error.message : t("profileUpdateFailed"),
       });
     } finally {
       setUpdatingProfile(false);
@@ -104,14 +103,14 @@ export function ProfileSettings({
   const handlePasswordChange = async () => {
     // Validate passwords
     if (passwordForm.new_password !== passwordForm.confirm_password) {
-      setPasswordMessage({ type: "error", text: "New passwords do not match" });
+      setPasswordMessage({ type: "error", text: t("passwordsDoNotMatch") });
       return;
     }
 
     if (passwordForm.new_password.length < 8) {
       setPasswordMessage({
         type: "error",
-        text: "Password must be at least 8 characters long",
+        text: t("passwordTooShort"),
       });
       return;
     }
@@ -123,7 +122,7 @@ export function ProfileSettings({
       await onChangePassword(passwordForm);
       setPasswordMessage({
         type: "success",
-        text: "Password changed successfully!",
+        text: t("passwordChangedSuccess"),
       });
       setPasswordForm({
         current_password: "",
@@ -134,7 +133,7 @@ export function ProfileSettings({
       setPasswordMessage({
         type: "error",
         text:
-          error instanceof Error ? error.message : "Failed to change password",
+          error instanceof Error ? error.message : t("passwordChangeFailed"),
       });
     } finally {
       setChangingPassword(false);
@@ -162,40 +161,38 @@ export function ProfileSettings({
         <CardHeader>
           <CardTitle className="flex items-center">
             <User className="w-5 h-5 mr-2" />
-            Profile Information
+            {t("personalInfo")}
           </CardTitle>
-          <CardDescription>
-            Update your personal information and preferences
-          </CardDescription>
+          <CardDescription>{t("preferences")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
+              <Label htmlFor="name">{t("fullName")}</Label>
               <Input
                 id="name"
                 value={profileForm.name}
                 onChange={(e) =>
                   setProfileForm((prev) => ({ ...prev, name: e.target.value }))
                 }
-                placeholder="Enter your full name"
+                placeholder={t("enterFullName")}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="phone">Phone Number</Label>
+              <Label htmlFor="phone">{t("phone")}</Label>
               <Input
                 id="phone"
                 value={profileForm.phone}
                 onChange={(e) =>
                   setProfileForm((prev) => ({ ...prev, phone: e.target.value }))
                 }
-                placeholder="Enter your phone number"
+                placeholder={t("enterPhone")}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="currency">Preferred Currency</Label>
+              <Label htmlFor="currency">{t("currency")}</Label>
               <Select
                 value={profileForm.preferred_currency || undefined}
                 onValueChange={(value) =>
@@ -206,7 +203,7 @@ export function ProfileSettings({
                 }
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select currency" />
+                  <SelectValue placeholder={t("selectCurrency")} />
                 </SelectTrigger>
                 <SelectContent>
                   {currencies.map((currency) => (
@@ -219,7 +216,7 @@ export function ProfileSettings({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="language">Language</Label>
+              <Label htmlFor="language">{t("language")}</Label>
               <Select
                 value={profileForm.language_preference}
                 onValueChange={(value) =>
@@ -230,7 +227,7 @@ export function ProfileSettings({
                 }
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select language" />
+                  <SelectValue placeholder={t("selectLanguage")} />
                 </SelectTrigger>
                 <SelectContent>
                   {languages.map((language) => (
@@ -246,7 +243,9 @@ export function ProfileSettings({
           <Separator />
 
           <div className="space-y-4">
-            <h4 className="text-sm font-medium">Notification Preferences</h4>
+            <h4 className="text-sm font-medium">
+              {t("notificationPreferences")}
+            </h4>
 
             <div className="space-y-3">
               <div className="flex items-center space-x-2">
@@ -261,7 +260,7 @@ export function ProfileSettings({
                   }
                 />
                 <Label htmlFor="email-notifications" className="text-sm">
-                  Email notifications for important updates
+                  {t("emailNotifications")}
                 </Label>
               </div>
 
@@ -277,7 +276,7 @@ export function ProfileSettings({
                   }
                 />
                 <Label htmlFor="order-updates" className="text-sm">
-                  Order status updates and tracking information
+                  {t("orderUpdates")}
                 </Label>
               </div>
 
@@ -293,7 +292,7 @@ export function ProfileSettings({
                   }
                 />
                 <Label htmlFor="marketing-emails" className="text-sm">
-                  Marketing emails and special offers
+                  {t("marketingEmails")}
                 </Label>
               </div>
             </div>
@@ -314,11 +313,11 @@ export function ProfileSettings({
           <div className="flex justify-end">
             <Button onClick={handleProfileUpdate} disabled={updatingProfile}>
               {updatingProfile ? (
-                "Updating..."
+                t("updating")
               ) : (
                 <>
                   <Save className="w-4 h-4 mr-2" />
-                  Save Changes
+                  {t("saveChanges")}
                 </>
               )}
             </Button>
@@ -331,16 +330,14 @@ export function ProfileSettings({
         <CardHeader>
           <CardTitle className="flex items-center">
             <Lock className="w-5 h-5 mr-2" />
-            Change Password
+            {t("changePassword")}
           </CardTitle>
-          <CardDescription>
-            Update your account password for better security
-          </CardDescription>
+          <CardDescription>{t("changePasswordDesc")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="current-password">Current Password</Label>
+              <Label htmlFor="current-password">{t("currentPassword")}</Label>
               <div className="relative">
                 <Input
                   id="current-password"
@@ -352,7 +349,7 @@ export function ProfileSettings({
                       current_password: e.target.value,
                     }))
                   }
-                  placeholder="Enter current password"
+                  placeholder={t("enterCurrentPassword")}
                   autoComplete="current-password"
                 />
                 <Button
@@ -377,7 +374,7 @@ export function ProfileSettings({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="new-password">New Password</Label>
+              <Label htmlFor="new-password">{t("newPassword")}</Label>
               <div className="relative">
                 <Input
                   id="new-password"
@@ -389,7 +386,7 @@ export function ProfileSettings({
                       new_password: e.target.value,
                     }))
                   }
-                  placeholder="Enter new password"
+                  placeholder={t("enterNewPassword")}
                   autoComplete="new-password"
                 />
                 <Button
@@ -414,7 +411,7 @@ export function ProfileSettings({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirm-password">Confirm New Password</Label>
+              <Label htmlFor="confirm-password">{t("confirmPassword")}</Label>
               <div className="relative">
                 <Input
                   id="confirm-password"
@@ -426,7 +423,7 @@ export function ProfileSettings({
                       confirm_password: e.target.value,
                     }))
                   }
-                  placeholder="Confirm new password"
+                  placeholder={t("confirmNewPassword")}
                   autoComplete="new-password"
                 />
                 <Button
@@ -470,11 +467,11 @@ export function ProfileSettings({
               variant="outline"
             >
               {changingPassword ? (
-                "Changing..."
+                t("changing")
               ) : (
                 <>
                   <Lock className="w-4 h-4 mr-2" />
-                  Change Password
+                  {t("changePassword")}
                 </>
               )}
             </Button>
@@ -485,23 +482,21 @@ export function ProfileSettings({
       {/* Account Information (Read-only) */}
       <Card>
         <CardHeader>
-          <CardTitle>Account Information</CardTitle>
-          <CardDescription>
-            Your account details and membership information
-          </CardDescription>
+          <CardTitle>{t("accountInformation")}</CardTitle>
+          <CardDescription>{t("accountDetails")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label>Email Address</Label>
+              <Label>{t("email")}</Label>
               <div className="flex items-center space-x-2">
                 <Input value={user.email} readOnly className="bg-muted" />
-                <Badge variant="secondary">Verified</Badge>
+                <Badge variant="secondary">{t("verified")}</Badge>
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label>Account Role</Label>
+              <Label>{t("accountRole")}</Label>
               <div className="flex items-center space-x-2">
                 <Input
                   value={(user.role || "guest")
@@ -512,19 +507,19 @@ export function ProfileSettings({
                 />
                 {(user.discount_percentage || 0) > 0 && (
                   <Badge variant="outline" className="bg-yellow-50">
-                    {user.discount_percentage}% Discount
+                    {user.discount_percentage}% {t("discount")}
                   </Badge>
                 )}
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label>Member Since</Label>
+              <Label>{t("memberSince")}</Label>
               <Input
                 value={
                   user.created_at
                     ? new Date(user.created_at).toLocaleDateString()
-                    : "Unknown"
+                    : t("unknown")
                 }
                 readOnly
                 className="bg-muted"
@@ -532,12 +527,12 @@ export function ProfileSettings({
             </div>
 
             <div className="space-y-2">
-              <Label>Last Updated</Label>
+              <Label>{t("lastUpdated")}</Label>
               <Input
                 value={
                   user.updated_at
                     ? new Date(user.updated_at).toLocaleDateString()
-                    : "Unknown"
+                    : t("unknown")
                 }
                 readOnly
                 className="bg-muted"

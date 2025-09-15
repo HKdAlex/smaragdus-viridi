@@ -1,5 +1,19 @@
 "use client";
 
+import { Link, useRouter } from "@/i18n/navigation";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
+import {
+  ColorIndicator,
+  CutIcon,
+  GemstoneColorIcon,
+  GemstoneCutIcon,
+  GemstoneTypeIcon,
+} from "@/shared/components/ui/gemstone-icons";
 import {
   ArrowLeft,
   Heart,
@@ -10,25 +24,19 @@ import {
   Star,
   Truck,
 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui/card";
 
-import { AIAnalysisDisplay } from "./ai-analysis-display";
+import { useAuth } from "@/features/auth/context/auth-context";
+import { useCartContext } from "@/features/cart/context/cart-context";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { CertificationDisplay } from "./certification-display";
 import type { DetailGemstone } from "@/shared/types";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { useState } from "react";
+import { useGemstoneTranslations } from "../utils/gemstone-translations";
+import { AIAnalysisDisplay } from "./ai-analysis-display";
+import { CertificationDisplay } from "./certification-display";
 import { MediaGallery } from "./media-gallery";
 import { RelatedGemstones } from "./related-gemstones";
-import { useAuth } from "@/features/auth/context/auth-context";
-import { useCart } from "@/features/cart/hooks/use-cart";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 
 // DetailGemstone interface is now imported from shared types
 
@@ -39,10 +47,17 @@ interface GemstoneDetailProps {
 export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
   const router = useRouter();
   const { user } = useAuth();
-  const { addToCart, isInCart } = useCart(user?.id);
+  const { addToCart, isInCart } = useCartContext();
   const [isFavorite, setIsFavorite] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [cartMessage, setCartMessage] = useState<string | null>(null);
+  const t = useTranslations("catalog.gemstone.detail");
+  const {
+    translateColor,
+    translateCut,
+    translateClarity,
+    translateGemstoneType,
+  } = useGemstoneTranslations();
 
   const isAlreadyInCart = isInCart(gemstone.id);
 
@@ -80,14 +95,23 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
     const index = clarityOrder.indexOf(gemstone.clarity);
     if (index <= 1)
       return {
-        grade: "Excellent",
+        grade: t("qualityGrades.excellent"),
         color: "text-green-600 dark:text-green-400",
       };
     if (index <= 4)
-      return { grade: "Very Good", color: "text-blue-600 dark:text-blue-400" };
+      return {
+        grade: t("qualityGrades.veryGood"),
+        color: "text-blue-600 dark:text-blue-400",
+      };
     if (index <= 6)
-      return { grade: "Good", color: "text-yellow-600 dark:text-yellow-400" };
-    return { grade: "Fair", color: "text-orange-600 dark:text-orange-400" };
+      return {
+        grade: t("qualityGrades.good"),
+        color: "text-yellow-600 dark:text-yellow-400",
+      };
+    return {
+      grade: t("qualityGrades.fair"),
+      color: "text-orange-600 dark:text-orange-400",
+    };
   };
 
   const qualityGrade = getQualityGrade();
@@ -187,11 +211,11 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                 href="/catalog"
                 className="hover:text-foreground transition-colors font-medium"
               >
-                Catalog
+                {t("catalog")}
               </Link>
               <span className="text-muted-foreground/60">/</span>
               <span className="text-foreground capitalize font-medium">
-                {gemstone.name}s
+                {translateGemstoneType(gemstone.name)}s
               </span>
               <span className="text-muted-foreground/60">/</span>
               <span className="text-foreground font-medium">
@@ -206,7 +230,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
               className="text-muted-foreground hover:text-foreground"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Catalog
+              {t("backToCatalog")}
             </Button>
           </div>
         </div>
@@ -228,19 +252,23 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                 <div className="space-y-4">
                   <div className="flex items-start justify-between">
                     <div className="space-y-2">
-                      <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground capitalize leading-tight">
-                        {formatWeight(gemstone.weight_carats)}ct{" "}
-                        {gemstone.color} {gemstone.name}
-                      </h1>
-                      <div className="flex items-center gap-3 text-sm">
-                        <span className="text-muted-foreground font-medium">
-                          Serial: {gemstone.serial_number}
+                      <div className="flex items-center space-x-3">
+                        <GemstoneTypeIcon className="w-6 h-6 text-primary" />
+                        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground capitalize leading-tight">
+                          {formatWeight(gemstone.weight_carats)}ct{" "}
+                          {translateColor(gemstone.color)}{" "}
+                          {translateGemstoneType(gemstone.name)}
+                        </h1>
+                      </div>
+                      <div className="flex items-center gap-3 text-sm flex-wrap">
+                        <span className="text-muted-foreground font-medium whitespace-nowrap">
+                          {t("serial")}: {gemstone.serial_number}
                         </span>
                         {gemstone.internal_code && (
                           <>
                             <span className="text-muted-foreground/60">•</span>
-                            <span className="text-muted-foreground">
-                              Code: {gemstone.internal_code}
+                            <span className="text-muted-foreground whitespace-nowrap">
+                              {t("code")}: {gemstone.internal_code}
                             </span>
                           </>
                         )}
@@ -300,7 +328,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                         variant={gemstone.in_stock ? "default" : "destructive"}
                         className="px-3 py-1 text-sm font-medium"
                       >
-                        {gemstone.in_stock ? "In Stock" : "Out of Stock"}
+                        {gemstone.in_stock ? t("inStock") : t("outOfStock")}
                       </Badge>
                       <Badge
                         variant="outline"
@@ -312,7 +340,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                       {gemstone.delivery_days && (
                         <div className="flex items-center text-sm text-muted-foreground bg-muted px-3 py-1 rounded-full">
                           <Truck className="w-4 h-4 mr-1" />
-                          {gemstone.delivery_days} days delivery
+                          {t("daysDelivery", { days: gemstone.delivery_days })}
                         </div>
                       )}
                     </div>
@@ -327,7 +355,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                 <CardContent className="p-6">
                   <h3 className="text-xl font-bold text-foreground mb-4 flex items-center">
                     <div className="w-1 h-6 bg-gradient-to-b from-primary to-primary/60 rounded-full mr-3" />
-                    Description
+                    {t("description")}
                   </h3>
                   <div className="prose prose-slate dark:prose-invert max-w-none text-foreground leading-relaxed">
                     {gemstone.description}
@@ -341,14 +369,16 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
               <CardContent className="p-6">
                 <h3 className="text-xl font-bold text-foreground mb-4 flex items-center">
                   <div className="w-1 h-6 bg-gradient-to-b from-muted-foreground to-muted-foreground/60 rounded-full mr-3" />
-                  Professional Summary
+                  {t("professionalSummary")}
                 </h3>
                 <p className="text-foreground/90 leading-relaxed font-medium">
-                  Professional quality {gemstone.color} {gemstone.name} with
-                  exceptional {gemstone.cut} cut. This {gemstone.weight_carats}{" "}
-                  carat gemstone exhibits {gemstone.clarity} clarity and
-                  represents excellent value for collectors and jewelry
-                  designers.
+                  {t("professionalDescription", {
+                    color: gemstone.color,
+                    name: gemstone.name,
+                    cut: gemstone.cut,
+                    weight: gemstone.weight_carats,
+                    clarity: gemstone.clarity,
+                  })}
                 </p>
               </CardContent>
             </Card>
@@ -359,7 +389,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                 <CardContent className="p-6">
                   <h3 className="text-xl font-bold text-primary mb-4 flex items-center">
                     <div className="w-1 h-6 bg-gradient-to-b from-primary to-primary/60 rounded-full mr-3" />
-                    Special Features
+                    {t("specialFeatures")}
                   </h3>
                   <div className="text-primary/90 leading-relaxed font-medium">
                     {gemstone.promotional_text}
@@ -375,7 +405,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                   <CardContent className="p-6">
                     <h3 className="text-xl font-bold text-foreground mb-4 flex items-center">
                       <div className="w-1 h-6 bg-gradient-to-b from-primary to-primary/60 rounded-full mr-3" />
-                      Key Highlights
+                      {t("keyHighlights")}
                     </h3>
                     <ul className="space-y-3">
                       {gemstone.marketing_highlights.map((highlight, index) => (
@@ -417,12 +447,12 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
               >
                 <ShoppingCart className="w-5 h-5 mr-2" />
                 {isAddingToCart
-                  ? "Adding..."
+                  ? t("adding")
                   : isAlreadyInCart
-                  ? "In Cart"
+                  ? t("inCart")
                   : user
-                  ? "Add to Cart"
-                  : "Sign In to Add"}
+                  ? t("addToCart")
+                  : t("signInToAdd")}
               </Button>
               <Button
                 variant="outline"
@@ -430,7 +460,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                 className="flex-1 h-12 sm:h-12 text-base font-medium border-2 hover:border-primary/50 transition-all duration-200 min-h-[48px]"
               >
                 <Info className="w-5 h-5 mr-2" />
-                Request Info
+                {t("requestInfo")}
               </Button>
             </div>
           </div>
@@ -444,7 +474,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                 <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/60 rounded-lg flex items-center justify-center mr-3">
                   <Shield className="w-5 h-5 text-primary-foreground" />
                 </div>
-                Technical Specifications
+                {t("technicalSpecifications")}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -453,37 +483,54 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                 <div className="bg-gradient-to-br from-muted/30 to-card p-6 rounded-xl border border-border shadow-sm">
                   <h4 className="font-bold text-base text-foreground mb-4 flex items-center">
                     <div className="w-1 h-5 bg-gradient-to-b from-primary to-primary/60 rounded-full mr-2" />
-                    The 4Cs
+                    {t("the4Cs")}
                   </h4>
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-muted-foreground">
-                        Carat Weight
+                        {t("caratWeight")}
                       </span>
                       <span className="font-semibold text-foreground">
                         {formatWeight(gemstone.weight_carats)}ct
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">
-                        Color
-                      </span>
-                      <span className="font-semibold text-foreground capitalize">
-                        {gemstone.color}
-                      </span>
+                      <div className="flex items-center space-x-2">
+                        <GemstoneColorIcon className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-sm text-muted-foreground">
+                          {t("color")}
+                        </span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <ColorIndicator
+                          color={gemstone.color}
+                          className="w-4 h-4"
+                        />
+                        <span className="font-semibold text-foreground capitalize">
+                          {translateColor(gemstone.color)}
+                        </span>
+                      </div>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">Cut</span>
-                      <span className="font-semibold text-foreground capitalize">
-                        {gemstone.cut}
-                      </span>
+                      <div className="flex items-center space-x-2">
+                        <GemstoneCutIcon className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-sm text-muted-foreground">
+                          {t("cut")}
+                        </span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <CutIcon cut={gemstone.cut} className="w-4 h-4" />
+                        <span className="font-semibold text-foreground capitalize">
+                          {translateCut(gemstone.cut)}
+                        </span>
+                      </div>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-muted-foreground">
-                        Clarity
+                        {t("clarity")}
                       </span>
                       <span className="font-semibold text-foreground">
-                        {gemstone.clarity}
+                        {translateClarity(gemstone.clarity)}
                       </span>
                     </div>
                   </div>
@@ -493,12 +540,12 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                 <div className="bg-gradient-to-br from-muted/30 to-card p-6 rounded-xl border border-border shadow-sm">
                   <h4 className="font-bold text-base text-foreground mb-4 flex items-center">
                     <div className="w-1 h-5 bg-gradient-to-b from-primary to-primary/60 rounded-full mr-2" />
-                    Dimensions
+                    {t("dimensions")}
                   </h4>
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-muted-foreground">
-                        Length
+                        {t("length")}
                       </span>
                       <span className="font-semibold text-foreground">
                         {gemstone.length_mm} mm
@@ -506,7 +553,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-muted-foreground">
-                        Width
+                        {t("width")}
                       </span>
                       <span className="font-semibold text-foreground">
                         {gemstone.width_mm} mm
@@ -514,7 +561,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-muted-foreground">
-                        Depth
+                        {t("depth")}
                       </span>
                       <span className="font-semibold text-foreground">
                         {gemstone.depth_mm} mm
@@ -522,7 +569,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-muted-foreground">
-                        Overall
+                        {t("overall")}
                       </span>
                       <span className="font-semibold text-foreground">
                         {formatDimensions()}
@@ -535,14 +582,14 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                 <div className="bg-gradient-to-br from-muted/30 to-card p-6 rounded-xl border border-border shadow-sm">
                   <h4 className="font-bold text-base text-foreground mb-4 flex items-center">
                     <div className="w-1 h-5 bg-gradient-to-b from-primary to-primary/60 rounded-full mr-2" />
-                    Origin & Provenance
+                    {t("origin")} & Provenance
                   </h4>
                   <div className="space-y-3">
                     {gemstone.origin ? (
                       <>
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-muted-foreground">
-                            Origin
+                            {t("origin")}
                           </span>
                           <span className="font-semibold text-foreground">
                             {gemstone.origin.name}
@@ -550,7 +597,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-muted-foreground">
-                            Country
+                            {t("country")}
                           </span>
                           <span className="font-semibold text-foreground">
                             {gemstone.origin.country}
@@ -559,7 +606,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                         {gemstone.origin.region && (
                           <div className="flex justify-between items-center">
                             <span className="text-sm text-muted-foreground">
-                              Region
+                              {t("region")}
                             </span>
                             <span className="font-semibold text-foreground">
                               {gemstone.origin.region}

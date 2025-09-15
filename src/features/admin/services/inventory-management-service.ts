@@ -1,5 +1,5 @@
-import type { DatabaseGemstone } from "@/shared/types";
 import { supabaseAdmin } from "@/lib/supabase";
+import type { DatabaseGemstone } from "@/shared/types";
 
 // Simple logger for now
 const logger = {
@@ -128,9 +128,7 @@ export class InventoryManagementService {
   /**
    * Bulk update inventory for multiple gemstones
    */
-  static async bulkUpdateInventory(
-    updates: BulkInventoryUpdate
-  ): Promise<{
+  static async bulkUpdateInventory(updates: BulkInventoryUpdate): Promise<{
     success: boolean;
     updated: number;
     failed: number;
