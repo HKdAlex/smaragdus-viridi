@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { supabaseAdmin } from "@/lib/supabase";
-import { createServerClient } from "@/lib/supabase-server";
 import { createContextLogger } from "@/shared/utils/logger";
+import { createServerClient } from "@/lib/supabase-server";
+import { supabaseAdmin } from "@/lib/supabase";
 import { z } from "zod";
 
 const logger = createContextLogger("chat-api");

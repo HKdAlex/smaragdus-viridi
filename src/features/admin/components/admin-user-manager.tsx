@@ -10,8 +10,8 @@ import { Shield, UserCheck, UserPlus, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/shared/components/ui/button";
-import { useTranslations } from "next-intl";
 import { StatisticsService } from "../services/statistics-service";
+import { useTranslations } from "next-intl";
 
 export function AdminUserManager() {
   const t = useTranslations("admin");

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { createServerSupabaseClient } from "@/lib/supabase";
 import type { Database } from "@/shared/types/database";
+import { createServerSupabaseClient } from "@/lib/supabase";
 
 export async function GET(request: NextRequest) {
   try {

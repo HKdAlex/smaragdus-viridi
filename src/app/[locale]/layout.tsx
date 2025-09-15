@@ -7,12 +7,12 @@ import {
 import { AuthProvider } from "@/features/auth/context/auth-context";
 import { CartProviderWrapper } from "@/features/cart/context/cart-provider-wrapper";
 import { ChatWidget } from "@/features/chat";
-import { routing } from "@/i18n/routing";
 import { Footer } from "@/shared/components/layout/footer";
 import { MainNav } from "@/shared/components/navigation/main-nav";
 import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { notFound } from "next/navigation";
+import { routing } from "@/i18n/routing";
 
 export async function generateMetadata({
   params,

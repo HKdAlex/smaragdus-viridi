@@ -1,8 +1,8 @@
 "use client";
 
-import { useAuth } from "@/features/auth/context/auth-context";
-import { ReactNode } from "react";
 import { CartProvider } from "./cart-context";
+import { ReactNode } from "react";
+import { useAuth } from "@/features/auth/context/auth-context";
 
 interface CartProviderWrapperProps {
   children: ReactNode;

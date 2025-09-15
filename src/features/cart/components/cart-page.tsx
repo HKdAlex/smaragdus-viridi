@@ -2,18 +2,18 @@
 
 import { ArrowLeft, Lock, ShoppingBag } from "lucide-react";
 
-import { useAuth } from "@/features/auth/context/auth-context";
-import { OrderConfirmationModal } from "@/features/orders/components/order-confirmation-modal";
-import type { CreateOrderResponse } from "@/features/orders/types/order.types";
-import { Link } from "@/i18n/navigation";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { Separator } from "@/shared/components/ui/separator";
-import { useTranslations } from "next-intl";
-import { useState } from "react";
-import { useCartContext } from "../context/cart-context";
 import { CartItem } from "./cart-item";
+import type { CreateOrderResponse } from "@/features/orders/types/order.types";
 import { EmptyCart } from "./empty-cart";
+import { Link } from "@/i18n/navigation";
+import { OrderConfirmationModal } from "@/features/orders/components/order-confirmation-modal";
+import { Separator } from "@/shared/components/ui/separator";
+import { useAuth } from "@/features/auth/context/auth-context";
+import { useCartContext } from "../context/cart-context";
+import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 export function CartPage() {
   const { user } = useAuth();
