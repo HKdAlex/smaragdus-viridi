@@ -85,6 +85,29 @@ export function MainNav() {
     return pathname.startsWith(href);
   }, [pathname]);
 
+  // Memoize sign-out handler to prevent unnecessary re-renders
+  const handleSignOut = useMemo(() => async () => {
+    try {
+      await signOut();
+      // Redirect to home page after sign out
+      router.push("/");
+    } catch (error) {
+      console.error(t("signOutFailed"), error);
+    }
+  }, [signOut, router, t]);
+
+  // Memoize mobile sign-out handler
+  const handleMobileSignOut = useMemo(() => async () => {
+    try {
+      await signOut();
+      setMobileMenuOpen(false);
+      // Redirect to home page after sign out
+      router.push("/");
+    } catch (error) {
+      console.error(t("signOutFailed"), error);
+    }
+  }, [signOut, router, t, setMobileMenuOpen]);
+
   return (
     <header className="bg-background border-b border-border transition-colors duration-300 sticky top-0 z-50 backdrop-blur-sm bg-background/95">
       <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8" aria-label="Top">
@@ -224,15 +247,7 @@ export function MainNav() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={async () => {
-                      try {
-                        await signOut();
-                        // Redirect to home page after sign out
-                        router.push("/");
-                      } catch (error) {
-                        console.error(t("signOutFailed"), error);
-                      }
-                    }}
+                    onClick={handleSignOut}
                     className="border-border text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
                   >
                     {t("signOut")}
