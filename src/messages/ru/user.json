@@ -7,7 +7,14 @@
     "save": "Сохранить изменения",
     "cancel": "Отмена",
     "edit": "Редактировать",
-    "back": "Назад"
+    "back": "Назад",
+    "tabs": {
+      "overview": "Обзор",
+      "orderHistory": "История заказов",
+      "activity": "Активность",
+      "settings": "Настройки"
+    },
+    "viewAllOrders": "Посмотреть все заказы"
   },
   "overview": {
     "title": "Обзор профиля",
@@ -141,7 +148,23 @@
     "networkError": "Ошибка сети. Попробуйте еще раз",
     "unauthorized": "У вас нет прав для выполнения этого действия",
     "validationError": "Проверьте введенные данные и попробуйте снова"
-  }
+  },
+  "filterByStatus": "Фильтр по статусу",
+  "allOrders": "Все заказы",
+  "status": {
+    "pending": "В ожидании",
+    "confirmed": "Подтверждён",
+    "processing": "В обработке",
+    "shipped": "Отправлен",
+    "delivered": "Доставлен",
+    "cancelled": "Отменён"
+  },
+  "tabs": {
+    "overview": "Обзор",
+    "orderHistory": "История заказов",
+    "activity": "Активность",
+    "settings": "Настройки"
+  },
+  "viewAllOrders": "Посмотреть все заказы",
+  "activityOverview": "Обзор активности вашего аккаунта"
 }
-
-

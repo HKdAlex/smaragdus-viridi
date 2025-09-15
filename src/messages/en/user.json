@@ -7,7 +7,14 @@
     "save": "Save Changes",
     "cancel": "Cancel",
     "edit": "Edit",
-    "back": "Back"
+    "back": "Back",
+    "tabs": {
+      "overview": "Overview",
+      "orderHistory": "Order History",
+      "activity": "Activity",
+      "settings": "Settings"
+    },
+    "viewAllOrders": "View All Orders"
   },
   "overview": {
     "title": "Profile Overview",
@@ -141,9 +148,23 @@
     "networkError": "Network error. Please try again",
     "unauthorized": "You are not authorized to perform this action",
     "validationError": "Please check your input and try again"
-  }
+  },
+  "filterByStatus": "Filter by status",
+  "allOrders": "All Orders",
+  "status": {
+    "pending": "Pending",
+    "confirmed": "Confirmed",
+    "processing": "Processing",
+    "shipped": "Shipped",
+    "delivered": "Delivered",
+    "cancelled": "Cancelled"
+  },
+  "tabs": {
+    "overview": "Overview",
+    "orderHistory": "Order History",
+    "activity": "Activity",
+    "settings": "Settings"
+  },
+  "viewAllOrders": "View All Orders",
+  "activityOverview": "Your account activity overview"
 }
-
-
-
-
