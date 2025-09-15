@@ -373,16 +373,7 @@ export function MainNav() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={async () => {
-                        try {
-                          await signOut();
-                          setMobileMenuOpen(false);
-                          // Redirect to home page after sign out
-                          router.push("/");
-                        } catch (error) {
-                          console.error(t("signOutFailed"), error);
-                        }
-                      }}
+                      onClick={handleMobileSignOut}
                       className="w-full border-border text-foreground hover:bg-accent hover:text-accent-foreground"
                     >
                       {t("signOut")}
