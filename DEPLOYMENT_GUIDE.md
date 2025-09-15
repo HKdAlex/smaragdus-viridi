@@ -9,19 +9,38 @@
 ## 🚀 Deployment Steps
 
 ### 1. Environment Variables Setup
-Configure these environment variables in your Vercel dashboard:
+**IMPORTANT**: You must set these environment variables in your Vercel dashboard before deployment.
 
+#### Option A: Via Vercel Dashboard (Recommended)
+1. Go to your Vercel project dashboard
+2. Navigate to **Settings** → **Environment Variables**
+3. Add each variable:
+
+| Variable Name | Value | Environment |
+|---------------|-------|-------------|
+| `NEXT_PUBLIC_SUPABASE_URL` | `https://your-project.supabase.co` | Production, Preview, Development |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `your_anon_key_here` | Production, Preview, Development |
+| `SUPABASE_SERVICE_ROLE_KEY` | `your_service_role_key_here` | Production, Preview, Development |
+| `NEXT_PUBLIC_APP_URL` | `https://your-domain.vercel.app` | Production, Preview, Development |
+| `OPENAI_API_KEY` | `your_openai_key_here` | Production, Preview, Development |
+
+#### Option B: Via Vercel CLI
 ```bash
-# Required Supabase Configuration
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+# Set environment variables via CLI
+vercel env add NEXT_PUBLIC_SUPABASE_URL
+vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY
+vercel env add SUPABASE_SERVICE_ROLE_KEY
+vercel env add NEXT_PUBLIC_APP_URL
+vercel env add OPENAI_API_KEY
+```
 
-# Application Configuration
-NEXT_PUBLIC_APP_URL=https://your-domain.vercel.app
-
-# Optional: OpenAI API Key for AI features
-OPENAI_API_KEY=your_openai_api_key
+#### Required Values:
+```bash
+# Get these from your Supabase project dashboard
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+NEXT_PUBLIC_APP_URL=https://your-app-name.vercel.app
 ```
 
 ### 2. Vercel Configuration
