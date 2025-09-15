@@ -17,8 +17,47 @@
         {
           "key": "X-XSS-Protection",
           "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
         }
       ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.crystallique.ru"
+        }
+      ],
+      "destination": "https://crystallique.ru",
+      "permanent": true
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.crystallique.com"
+        }
+      ],
+      "destination": "https://crystallique.com",
+      "permanent": true
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.crystallique.kz"
+        }
+      ],
+      "destination": "https://crystallique.kz",
+      "permanent": true
     }
   ]
 }
