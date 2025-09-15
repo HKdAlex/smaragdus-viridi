@@ -22,6 +22,7 @@ import { Button } from "@/shared/components/ui/button";
 import { Separator } from "@/shared/components/ui/separator";
 import type { UserActivity } from "../types/user-profile.types";
 import { format } from "date-fns";
+import { useTranslations } from "next-intl";
 
 interface ActivityFeedProps {
   activities?: UserActivity[];
@@ -36,6 +37,7 @@ export function ActivityFeed({
   onLoadMore,
   hasMore = false,
 }: ActivityFeedProps) {
+  const t = useTranslations("user.profile");
   const getActivityIcon = (type: string) => {
     switch (type) {
       case "order_placed":
@@ -226,7 +228,7 @@ export function ActivityFeed({
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Activity Summary</CardTitle>
-            <CardDescription>Your account activity overview</CardDescription>
+            <CardDescription>{t("activityOverview")}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -275,8 +277,3 @@ export function ActivityFeed({
     </div>
   );
 }
-
-
-
-
-

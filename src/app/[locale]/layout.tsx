@@ -6,12 +6,12 @@ import {
 
 import { AuthProvider } from "@/features/auth/context/auth-context";
 import { ChatWidget } from "@/features/chat";
+import { routing } from "@/i18n/routing";
 import { Footer } from "@/shared/components/layout/footer";
 import { MainNav } from "@/shared/components/navigation/main-nav";
 import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { notFound } from "next/navigation";
-import { routing } from "@/i18n/routing";
 
 export async function generateMetadata({
   params,
@@ -47,10 +47,10 @@ export default async function LocaleLayout({
 
   // Providing all messages to the client
   // side is the easiest way to get started
-  const messages = await getMessages();
+  const messages = await getMessages({ locale });
 
   return (
-    <NextIntlClientProvider messages={messages}>
+    <NextIntlClientProvider messages={messages} locale={locale}>
       <AuthProvider>
         <div className="flex flex-col min-h-screen">
           <MainNav />

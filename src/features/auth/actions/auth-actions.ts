@@ -19,7 +19,8 @@ export async function loginAction(formData: FormData) {
   }
 
   revalidatePath("/", "layout");
-  redirect("/profile");
+  // Don't redirect here - let the client handle it
+  return { success: true };
 }
 
 export async function signupAction(formData: FormData) {

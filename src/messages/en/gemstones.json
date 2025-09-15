@@ -187,7 +187,10 @@
     "hpht-treated": "HPHT Treated",
     "cvd-grown": "CVD Grown",
     "flux-grown": "Flux Grown",
-    "hydrothermal-grown": "Hydrothermal Grown"
+    "hydrothermal-grown": "Hydrothermal Grown",
+    "price": "Price",
+    "color": "Color",
+    "cut": "Cut"
   },
   "grading": {
     "excellent": "Excellent",
@@ -231,6 +234,12 @@
     }
   },
   "filters": {
+    "title": "Advanced Filters",
+    "subtitle": "Refine your search to find the perfect gemstone",
+    "searchPlaceholder": "Search by serial number, type, or description...",
+    "resetAll": "Reset All ({count})",
+    "filtersApplied": "{count} filter{count, plural, one {} other {s}} applied",
+    "personalizedResults": "Personalized results based on your preferences",
     "coloredGemstones": "Colored Gemstones"
   },
   "media": {
@@ -243,23 +252,5 @@
     "thumbnail": "Thumbnail",
     "videoThumbnail": "Video thumbnail",
     "gemstone": "Gemstone"
-  },
-  "related": {
-    "title": "Similar Gemstones",
-    "description": "Discover similar gemstones that match your preferences",
-    "noImage": "No Image",
-    "outOfStock": "Out of Stock",
-    "viewAllSimilar": "View All Similar Gemstones",
-    "cut": "Cut",
-    "clarity": "Clarity",
-    "similarity": {
-      "verySimilar": "Very Similar",
-      "similar": "Similar",
-      "related": "Related",
-      "sameTypeAndColor": "Same Type & Color",
-      "sameType": "Same Type",
-      "sameColor": "Same Color",
-      "similarPrice": "Similar Price"
-    }
   }
 }

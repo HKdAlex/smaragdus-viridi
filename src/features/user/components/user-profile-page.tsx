@@ -31,6 +31,7 @@ import { Button } from "@/shared/components/ui/button";
 import { OrderHistory } from "./order-history";
 import { ProfileSettings } from "./profile-settings";
 import { Separator } from "@/shared/components/ui/separator";
+import { useTranslations } from "next-intl";
 
 interface UserProfilePageProps {
   user: UserProfile;
@@ -47,6 +48,8 @@ export function UserProfilePage({
   onUpdatePreferences,
   onChangePassword,
 }: UserProfilePageProps) {
+  const t = useTranslations("user.profile");
+
   const formatCurrency = (amount: number, currency: string) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -167,10 +170,10 @@ export function UserProfilePage({
         <div className="space-y-6">
           <Tabs defaultValue="overview">
             <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="orders">Order History</TabsTrigger>
-              <TabsTrigger value="activity">Activity</TabsTrigger>
-              <TabsTrigger value="settings">Settings</TabsTrigger>
+              <TabsTrigger value="overview">{t("tabs.overview")}</TabsTrigger>
+              <TabsTrigger value="orders">{t("tabs.orderHistory")}</TabsTrigger>
+              <TabsTrigger value="activity">{t("tabs.activity")}</TabsTrigger>
+              <TabsTrigger value="settings">{t("tabs.settings")}</TabsTrigger>
             </TabsList>
 
             {/* Overview Tab */}
@@ -281,7 +284,7 @@ export function UserProfilePage({
                         Order history will appear here
                       </p>
                       <Button variant="outline" className="mt-4" asChild>
-                        <a href="#orders">View All Orders</a>
+                        <a href="#orders">{t("viewAllOrders")}</a>
                       </Button>
                     </div>
                   </CardContent>

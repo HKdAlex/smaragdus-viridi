@@ -3,9 +3,9 @@
 import { AuthChangeEvent, Session, User } from "@supabase/supabase-js";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 
-import type { DatabaseUserProfile } from "@/shared/types";
 import { getUserProfile } from "@/features/auth/actions/auth-actions";
 import { supabase } from "@/lib/supabase";
+import type { DatabaseUserProfile } from "@/shared/types";
 
 interface AuthContextType {
   user: User | null;
@@ -114,6 +114,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           console.log("[AUTH PROVIDER] User signed out, clearing state...");
           setUser(null);
           setProfile(null);
+          console.log("[AUTH PROVIDER] State cleared after sign out");
         } else if (event === "TOKEN_REFRESHED" && session) {
           console.log("[AUTH PROVIDER] Token refreshed, updating user...");
           setUser(session.user);
@@ -177,13 +178,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
+    console.log("[AUTH PROVIDER] Sign out initiated...");
     setLoading(true);
     try {
-      await supabase.auth.signOut();
+      const { error } = await supabase.auth.signOut();
 
-      // onAuthStateChange will handle state cleanup automatically
+      if (error) {
+        console.error("[AUTH PROVIDER] Sign out error:", error);
+        throw error;
+      }
+
+      console.log(
+        "[AUTH PROVIDER] Sign out successful, clearing state immediately..."
+      );
+      // Clear state immediately as fallback in case onAuthStateChange doesn't trigger
+      setUser(null);
+      setProfile(null);
+
+      // onAuthStateChange will also handle state cleanup, but this ensures immediate response
     } catch (error) {
-      console.error("Sign out error:", error);
+      console.error("[AUTH PROVIDER] Sign out error:", error);
       // Still clear local state even if signOut fails
       setUser(null);
       setProfile(null);

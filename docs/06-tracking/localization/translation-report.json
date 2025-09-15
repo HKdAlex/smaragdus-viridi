@@ -1,0 +1,92 @@
+{
+  "timestamp": "2025-09-14T22:18:56.952Z",
+  "summary": {
+    "totalFiles": 16,
+    "completeFiles": 16,
+    "filesWithIssues": 0,
+    "totalMissingKeys": 0,
+    "totalExtraKeys": 0
+  },
+  "files": [
+    {
+      "filename": "admin.json",
+      "status": "complete",
+      "issues": []
+    },
+    {
+      "filename": "auth.json",
+      "status": "complete",
+      "issues": []
+    },
+    {
+      "filename": "cart.json",
+      "status": "complete",
+      "issues": []
+    },
+    {
+      "filename": "catalog.json",
+      "status": "complete",
+      "issues": []
+    },
+    {
+      "filename": "chat.json",
+      "status": "complete",
+      "issues": []
+    },
+    {
+      "filename": "common.json",
+      "status": "complete",
+      "issues": []
+    },
+    {
+      "filename": "contact.json",
+      "status": "complete",
+      "issues": []
+    },
+    {
+      "filename": "errors.json",
+      "status": "complete",
+      "issues": []
+    },
+    {
+      "filename": "filters.json",
+      "status": "complete",
+      "issues": []
+    },
+    {
+      "filename": "footer.json",
+      "status": "complete",
+      "issues": []
+    },
+    {
+      "filename": "forms.json",
+      "status": "complete",
+      "issues": []
+    },
+    {
+      "filename": "gemstones.json",
+      "status": "complete",
+      "issues": []
+    },
+    {
+      "filename": "home.json",
+      "status": "complete",
+      "issues": []
+    },
+    {
+      "filename": "navigation.json",
+      "status": "complete",
+      "issues": []
+    },
+    {
+      "filename": "orders.json",
+      "status": "complete",
+      "issues": []
+    },
+    {
+      "filename": "user.json",
+      "status": "complete",
+      "issues": []
+    }
+  ]
+}

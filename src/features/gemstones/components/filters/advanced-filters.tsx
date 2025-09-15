@@ -9,13 +9,9 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import {
-  CLARITY_LABELS,
   CLARITY_ORDER,
-  COLOR_LABELS,
-  CUT_LABELS,
   DEFAULT_PRICE_RANGE,
   DEFAULT_WEIGHT_RANGE,
-  GEMSTONE_TYPE_LABELS,
   categorizeColor,
   getActiveFilterCount,
   hasActiveFilters,
@@ -32,6 +28,7 @@ import type { AdvancedGemstoneFilters } from "../../types/filter.types";
 import { FilterDropdown } from "./filter-dropdown";
 import { RangeSlider } from "./range-slider";
 import { useAdvancedFilters } from "../../hooks/use-advanced-filters";
+import { useFilterLabels } from "../../hooks/use-filter-labels";
 import { useTranslations } from "next-intl";
 
 // Import constants and utilities
@@ -54,6 +51,7 @@ export function AdvancedFilters({
   onFiltersChange,
 }: AdvancedFiltersProps) {
   const t = useTranslations("filters.advanced");
+  const filterLabels = useFilterLabels();
   const { filters, ...filterActions } = useAdvancedFilters(undefined, true);
 
   // Track previous filters to prevent unnecessary callbacks
@@ -102,12 +100,12 @@ export function AdvancedFilters({
   // Prepare filter options with labels and counts
   const gemstoneTypeOptions = useMemo(() => {
     const available = options.gemstoneTypes || [];
-    return Object.entries(GEMSTONE_TYPE_LABELS)
+    return Object.entries(filterLabels.gemstoneTypes)
       .map(([value, label]) => {
         const option = available.find((opt) => opt.value === value);
         return {
           value: value as GemstoneType,
-          label,
+          label: label,
           count: option?.count || 0,
           disabled: !option || option.count === 0,
         };
@@ -117,11 +115,15 @@ export function AdvancedFilters({
           !opt.disabled ||
           filterActions.isFilterActive("gemstoneTypes", opt.value)
       );
-  }, [options.gemstoneTypes, filterActions.isFilterActive]);
+  }, [
+    options.gemstoneTypes,
+    filterActions.isFilterActive,
+    filterLabels.gemstoneTypes,
+  ]);
 
   const colorOptions = useMemo(() => {
     const available = options.colors || [];
-    return Object.entries(COLOR_LABELS)
+    return Object.entries(filterLabels.colors)
       .map(([value, label]) => {
         const option = available.find((opt) => opt.value === value);
         const category = categorizeColor(value as GemColor);
@@ -145,11 +147,11 @@ export function AdvancedFilters({
         }
         return a.label.localeCompare(b.label);
       });
-  }, [options.colors, filterActions.isFilterActive]);
+  }, [options.colors, filterActions.isFilterActive, filterLabels.colors]);
 
   const cutOptions = useMemo(() => {
     const available = options.cuts || [];
-    return Object.entries(CUT_LABELS)
+    return Object.entries(filterLabels.cuts)
       .map(([value, label]) => {
         const option = available.find((opt) => opt.value === value);
         return {
@@ -163,11 +165,11 @@ export function AdvancedFilters({
         (opt) =>
           !opt.disabled || filterActions.isFilterActive("cuts", opt.value)
       );
-  }, [options.cuts, filterActions.isFilterActive]);
+  }, [options.cuts, filterActions.isFilterActive, filterLabels.cuts]);
 
   const clarityOptions = useMemo(() => {
     const available = options.clarities || [];
-    return Object.entries(CLARITY_LABELS)
+    return Object.entries(filterLabels.clarity)
       .map(([value, label]) => {
         const option = available.find((opt) => opt.value === value);
         return {
@@ -183,7 +185,7 @@ export function AdvancedFilters({
           !opt.disabled || filterActions.isFilterActive("clarities", opt.value)
       )
       .sort((a, b) => a.order - b.order);
-  }, [options.clarities, filterActions.isFilterActive]);
+  }, [options.clarities, filterActions.isFilterActive, filterLabels.clarity]);
 
   const originOptions = useMemo(() => {
     return (

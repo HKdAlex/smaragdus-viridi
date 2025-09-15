@@ -187,7 +187,10 @@
     "hpht-treated": "Обработка HPHT",
     "cvd-grown": "Выращен CVD",
     "flux-grown": "Выращен методом флюса",
-    "hydrothermal-grown": "Выращен гидротермально"
+    "hydrothermal-grown": "Выращен гидротермально",
+    "price": "Цена",
+    "color": "Цвет",
+    "cut": "Огранка"
   },
   "grading": {
     "excellent": "Отличная",
@@ -231,6 +234,12 @@
     }
   },
   "filters": {
+    "title": "Расширенные Фильтры",
+    "subtitle": "Уточните поиск, чтобы найти идеальный драгоценный камень",
+    "searchPlaceholder": "Поиск по серийному номеру, типу или описанию...",
+    "resetAll": "Сбросить все ({count})",
+    "filtersApplied": "{count} фильтр{count, plural, one {} few {а} other {ов}} применен{count, plural, one {} few {о} other {о}}",
+    "personalizedResults": "Персонализированные результаты на основе ваших предпочтений",
     "coloredGemstones": "Цветные драгоценные камни"
   },
   "media": {
@@ -243,23 +252,5 @@
     "thumbnail": "Миниатюра",
     "videoThumbnail": "Миниатюра видео",
     "gemstone": "Драгоценный камень"
-  },
-  "related": {
-    "title": "Похожие драгоценные камни",
-    "description": "Откройте для себя похожие драгоценные камни, которые соответствуют вашим предпочтениям",
-    "noImage": "Нет изображения",
-    "outOfStock": "Нет в наличии",
-    "viewAllSimilar": "Посмотреть все похожие камни",
-    "cut": "Огранка",
-    "clarity": "Чистота",
-    "similarity": {
-      "verySimilar": "Очень похожий",
-      "similar": "Похожий",
-      "related": "Родственный",
-      "sameTypeAndColor": "Тот же тип и цвет",
-      "sameType": "Тот же тип",
-      "sameColor": "Тот же цвет",
-      "similarPrice": "Похожая цена"
-    }
   }
 }

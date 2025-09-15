@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useThemeContext } from "@/shared/context/theme-context";
+import { useTranslations } from "next-intl";
 
 interface LogoProps {
   variant?: "inline" | "block";
@@ -31,6 +32,7 @@ export function Logo({
   enhancedContrast = true, // Default to enhanced contrast
 }: LogoProps) {
   const { resolvedTheme } = useThemeContext();
+  const t = useTranslations("common");
   const { width, height, textSize, heightClass } = sizeMap[size];
 
   // Choose logo source based on variant
@@ -64,7 +66,7 @@ export function Logo({
     <div className={`flex items-center space-x-3 ${className}`}>
       <Image
         src={logoSrc}
-        alt="Crystallique"
+        alt={t("brandName")}
         width={width}
         height={height}
         className={`logo-crisp transition-all duration-300 ${

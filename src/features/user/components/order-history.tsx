@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/shared/components/ui/select";
 import { ChevronRight, MapPin, Package, Plus, Search } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import {
   ORDER_STATUS_CONFIG,
@@ -46,6 +47,7 @@ export function OrderHistory({
 }: OrderHistoryProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all");
+  const t = useTranslations("user.orders");
 
   // Filter orders based on search and status
   const filteredOrders = orders.filter((order) => {
@@ -136,16 +138,18 @@ export function OrderHistory({
             }
           >
             <SelectTrigger className="w-40">
-              <SelectValue placeholder="Filter by status" />
+              <SelectValue placeholder={t("filterByStatus")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Orders</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="confirmed">Confirmed</SelectItem>
-              <SelectItem value="processing">Processing</SelectItem>
-              <SelectItem value="shipped">Shipped</SelectItem>
-              <SelectItem value="delivered">Delivered</SelectItem>
-              <SelectItem value="cancelled">Cancelled</SelectItem>
+              <SelectItem value="all">{t("allOrders")}</SelectItem>
+              <SelectItem value="pending">{t("status.pending")}</SelectItem>
+              <SelectItem value="confirmed">{t("status.confirmed")}</SelectItem>
+              <SelectItem value="processing">
+                {t("status.processing")}
+              </SelectItem>
+              <SelectItem value="shipped">{t("status.shipped")}</SelectItem>
+              <SelectItem value="delivered">{t("status.delivered")}</SelectItem>
+              <SelectItem value="cancelled">{t("status.cancelled")}</SelectItem>
             </SelectContent>
           </Select>
         </div>

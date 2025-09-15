@@ -1,14 +1,14 @@
 "use client";
 
-import { Link, usePathname } from "@/i18n/navigation";
-import { useMemo, useState } from "react";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
+import { useMemo, useRef, useState } from "react";
 
-import { Button } from "@/shared/components/ui/button";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import { Logo } from "@/shared/components/ui/logo";
-import { ThemeToggle } from "@/shared/components/ui/theme-toggle";
 import { useAuth } from "@/features/auth/context/auth-context";
 import { useCart } from "@/features/cart/hooks/use-cart";
+import { Button } from "@/shared/components/ui/button";
+import { Logo } from "@/shared/components/ui/logo";
+import { ThemeToggle } from "@/shared/components/ui/theme-toggle";
 import { useTranslations } from "next-intl";
 
 // Safe admin status hook that doesn't throw if AdminProvider is not available
@@ -33,46 +33,57 @@ interface NavItem {
 export function MainNav() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
   const { user, signOut, loading } = useAuth();
   const { isAdmin } = useSafeAdminStatus();
   const t = useTranslations("navigation");
   const tAccessibility = useTranslations("common.accessibility");
 
-  // Debug logging for navbar auth state
-  console.log("[NAVBAR] Auth state:", {
-    hasUser: !!user,
-    userEmail: user?.email,
-    isLoading: loading,
-    timestamp: new Date().toISOString(),
-  });
+  // Debug logging for navbar auth state (only log when state actually changes)
+  const authStateRef = useRef({ hasUser: false, userEmail: undefined, isLoading: true });
+  const currentAuthState = { hasUser: !!user, userEmail: user?.email, isLoading: loading };
+  
+  if (
+    authStateRef.current.hasUser !== currentAuthState.hasUser ||
+    authStateRef.current.userEmail !== currentAuthState.userEmail ||
+    authStateRef.current.isLoading !== currentAuthState.isLoading
+  ) {
+    console.log("[NAVBAR] Auth state changed:", {
+      ...currentAuthState,
+      timestamp: new Date().toISOString(),
+    });
+    authStateRef.current = currentAuthState;
+  }
 
   // Memoize userId to prevent unnecessary re-renders
   const userId = useMemo(() => user?.id, [user?.id]);
   const { getItemCount } = useCart(userId);
 
-  // Create navigation arrays with translations
-  const navigation: NavItem[] = [
+  // Memoize navigation arrays to prevent unnecessary re-renders
+  const navigation: NavItem[] = useMemo(() => [
     { name: t("home"), href: "/" },
     { name: t("catalog"), href: "/catalog" },
     { name: t("about"), href: "/about" },
     { name: t("contact"), href: "/contact" },
-  ];
+  ], [t]);
 
   // User navigation (shown when logged in)
-  const userNavigation: NavItem[] = [
+  const userNavigation: NavItem[] = useMemo(() => [
     { name: t("orders"), href: "/orders" },
     { name: t("profile"), href: "/profile" },
-  ];
+  ], [t]);
 
   // Admin navigation (conditionally shown)
-  const adminNavigation: NavItem[] = [{ name: t("admin"), href: "/admin" }];
+  const adminNavigation: NavItem[] = useMemo(() => [
+    { name: t("admin"), href: "/admin" }
+  ], [t]);
 
-  const isCurrentPage = (href: string) => {
+  const isCurrentPage = useMemo(() => (href: string) => {
     if (href === "/") {
       return pathname === "/";
     }
     return pathname.startsWith(href);
-  };
+  }, [pathname]);
 
   return (
     <header className="bg-background border-b border-border transition-colors duration-300 sticky top-0 z-50 backdrop-blur-sm bg-background/95">
@@ -198,7 +209,9 @@ export function MainNav() {
                 // Show loading state while auth is initializing
                 <div className="flex items-center space-x-2">
                   <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
-                  <span className="text-sm text-muted-foreground">Loading...</span>
+                  <span className="text-sm text-muted-foreground">
+                    Loading...
+                  </span>
                 </div>
               ) : user ? (
                 // User is signed in - show user menu
@@ -214,6 +227,8 @@ export function MainNav() {
                     onClick={async () => {
                       try {
                         await signOut();
+                        // Redirect to home page after sign out
+                        router.push("/");
                       } catch (error) {
                         console.error(t("signOutFailed"), error);
                       }
@@ -328,7 +343,9 @@ export function MainNav() {
                   // Show loading state while auth is initializing
                   <div className="flex items-center justify-center space-x-2 py-4">
                     <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
-                    <span className="text-sm text-muted-foreground">Loading...</span>
+                    <span className="text-sm text-muted-foreground">
+                      Loading...
+                    </span>
                   </div>
                 ) : user ? (
                   // User is signed in - show user info and sign out
@@ -345,6 +362,8 @@ export function MainNav() {
                         try {
                           await signOut();
                           setMobileMenuOpen(false);
+                          // Redirect to home page after sign out
+                          router.push("/");
                         } catch (error) {
                           console.error(t("signOutFailed"), error);
                         }

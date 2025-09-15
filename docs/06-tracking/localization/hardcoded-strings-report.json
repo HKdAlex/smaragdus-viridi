@@ -1,0 +1,554 @@
+{
+  "timestamp": "2025-09-14T22:42:03.292Z",
+  "summary": {
+    "totalFiles": 156,
+    "filesWithFindings": 7,
+    "totalFindings": 33,
+    "bySeverity": {
+      "high": [],
+      "medium": [
+        {
+          "line": 210,
+          "text": "Diamond",
+          "context": "diamond: \"Diamond\",",
+          "pattern": "keyword",
+          "severity": "medium",
+          "file": "src/features/gemstones/types/filter.types.ts"
+        },
+        {
+          "line": 211,
+          "text": "Emerald",
+          "context": "emerald: \"Emerald\",",
+          "pattern": "keyword",
+          "severity": "medium",
+          "file": "src/features/gemstones/types/filter.types.ts"
+        },
+        {
+          "line": 212,
+          "text": "Ruby",
+          "context": "ruby: \"Ruby\",",
+          "pattern": "keyword",
+          "severity": "medium",
+          "file": "src/features/gemstones/types/filter.types.ts"
+        },
+        {
+          "line": 213,
+          "text": "Sapphire",
+          "context": "sapphire: \"Sapphire\",",
+          "pattern": "keyword",
+          "severity": "medium",
+          "file": "src/features/gemstones/types/filter.types.ts"
+        },
+        {
+          "line": 265,
+          "text": "Emerald",
+          "context": "emerald: \"Emerald\",",
+          "pattern": "keyword",
+          "severity": "medium",
+          "file": "src/features/gemstones/types/filter.types.ts"
+        },
+        {
+          "line": 295,
+          "text": "Price",
+          "context": "price_amount: \"Price\",",
+          "pattern": "keyword",
+          "severity": "medium",
+          "file": "src/features/gemstones/types/filter.types.ts"
+        },
+        {
+          "line": 298,
+          "text": "Color",
+          "context": "color: \"Color\",",
+          "pattern": "keyword",
+          "severity": "medium",
+          "file": "src/features/gemstones/types/filter.types.ts"
+        },
+        {
+          "line": 299,
+          "text": "Cut",
+          "context": "cut: \"Cut\",",
+          "pattern": "keyword",
+          "severity": "medium",
+          "file": "src/features/gemstones/types/filter.types.ts"
+        },
+        {
+          "line": 63,
+          "text": "No profile loaded",
+          "context": "if (!profile) throw new Error(\"No profile loaded\");",
+          "pattern": 3,
+          "severity": "medium",
+          "file": "src/features/user/hooks/use-user-profile.ts"
+        },
+        {
+          "line": 105,
+          "text": "No profile loaded",
+          "context": "if (!profile) throw new Error(\"No profile loaded\");",
+          "pattern": 3,
+          "severity": "medium",
+          "file": "src/features/user/hooks/use-user-profile.ts"
+        }
+      ],
+      "low": [
+        {
+          "line": 181,
+          "text": "Promise",
+          "context": "onStatusUpdate: (orderId: string, newStatus: OrderStatus) => Promise<void>",
+          "pattern": 0,
+          "severity": "low",
+          "file": "src/features/admin/types/order-management.types.ts"
+        },
+        {
+          "line": 188,
+          "text": "Promise",
+          "context": "onStatusUpdate: (orderId: string, newStatus: OrderStatus) => Promise<void>",
+          "pattern": 0,
+          "severity": "low",
+          "file": "src/features/admin/types/order-management.types.ts"
+        },
+        {
+          "line": 220,
+          "text": "Promise",
+          "context": "updateOrderStatus: (orderId: string, newStatus: OrderStatus) => Promise<void>",
+          "pattern": 0,
+          "severity": "low",
+          "file": "src/features/admin/types/order-management.types.ts"
+        },
+        {
+          "line": 221,
+          "text": "Promise",
+          "context": "bulkUpdateOrders: (orderIds: string[], newStatus: OrderStatus) => Promise<void>",
+          "pattern": 0,
+          "severity": "low",
+          "file": "src/features/admin/types/order-management.types.ts"
+        },
+        {
+          "line": 14,
+          "text": "Promise",
+          "context": "signIn: (email: string, password: string) => Promise<any>;",
+          "pattern": 0,
+          "severity": "low",
+          "file": "src/features/auth/context/auth-context.tsx"
+        },
+        {
+          "line": 15,
+          "text": "Promise",
+          "context": "signUp: (email: string, password: string, name: string) => Promise<any>;",
+          "pattern": 0,
+          "severity": "low",
+          "file": "src/features/auth/context/auth-context.tsx"
+        },
+        {
+          "line": 16,
+          "text": "Promise",
+          "context": "signOut: () => Promise<void>;",
+          "pattern": 0,
+          "severity": "low",
+          "file": "src/features/auth/context/auth-context.tsx"
+        },
+        {
+          "line": 17,
+          "text": "Promise",
+          "context": "refreshProfile: () => Promise<void>;",
+          "pattern": 0,
+          "severity": "low",
+          "file": "src/features/auth/context/auth-context.tsx"
+        },
+        {
+          "line": 22,
+          "text": "Promise",
+          "context": "signIn: (email: string, password: string) => Promise<void>;",
+          "pattern": 0,
+          "severity": "low",
+          "file": "src/features/auth/types/auth.types.ts"
+        },
+        {
+          "line": 23,
+          "text": "Promise",
+          "context": "signUp: (email: string, password: string, name: string, phone: string) => Promise<void>;",
+          "pattern": 0,
+          "severity": "low",
+          "file": "src/features/auth/types/auth.types.ts"
+        },
+        {
+          "line": 24,
+          "text": "Promise",
+          "context": "signOut: () => Promise<void>;",
+          "pattern": 0,
+          "severity": "low",
+          "file": "src/features/auth/types/auth.types.ts"
+        },
+        {
+          "line": 86,
+          "text": "Promise",
+          "context": "onSendMessage: (content: string, attachments?: File[]) => Promise<void>",
+          "pattern": 0,
+          "severity": "low",
+          "file": "src/features/chat/types/chat.types.ts"
+        },
+        {
+          "line": 175,
+          "text": "Promise",
+          "context": "sendMessage: (content: string, attachments?: File[]) => Promise<void>",
+          "pattern": 0,
+          "severity": "low",
+          "file": "src/features/chat/types/chat.types.ts"
+        },
+        {
+          "line": 176,
+          "text": "Promise",
+          "context": "markAsRead: (messageId: string) => Promise<void>",
+          "pattern": 0,
+          "severity": "low",
+          "file": "src/features/chat/types/chat.types.ts"
+        },
+        {
+          "line": 173,
+          "text": "Promise",
+          "context": "onUpdate: (updates: UpdateProfileRequest) => Promise<void>;",
+          "pattern": 0,
+          "severity": "low",
+          "file": "src/features/user/types/user-profile.types.ts"
+        },
+        {
+          "line": 189,
+          "text": "Promise",
+          "context": "onUpdateProfile: (updates: UpdateProfileRequest) => Promise<void>;",
+          "pattern": 0,
+          "severity": "low",
+          "file": "src/features/user/types/user-profile.types.ts"
+        },
+        {
+          "line": 190,
+          "text": "Promise",
+          "context": "onUpdatePreferences: (preferences: Partial<UserPreferences>) => Promise<void>;",
+          "pattern": 0,
+          "severity": "low",
+          "file": "src/features/user/types/user-profile.types.ts"
+        },
+        {
+          "line": 191,
+          "text": "Promise",
+          "context": "onChangePassword: (request: ChangePasswordRequest) => Promise<void>;",
+          "pattern": 0,
+          "severity": "low",
+          "file": "src/features/user/types/user-profile.types.ts"
+        },
+        {
+          "line": 209,
+          "text": "Promise",
+          "context": "updateProfile: (updates: UpdateProfileRequest) => Promise<void>;",
+          "pattern": 0,
+          "severity": "low",
+          "file": "src/features/user/types/user-profile.types.ts"
+        },
+        {
+          "line": 210,
+          "text": "Promise",
+          "context": "updatePreferences: (preferences: Partial<UserPreferences>) => Promise<void>;",
+          "pattern": 0,
+          "severity": "low",
+          "file": "src/features/user/types/user-profile.types.ts"
+        },
+        {
+          "line": 211,
+          "text": "Promise",
+          "context": "changePassword: (request: ChangePasswordRequest) => Promise<void>;",
+          "pattern": 0,
+          "severity": "low",
+          "file": "src/features/user/types/user-profile.types.ts"
+        },
+        {
+          "line": 221,
+          "text": "Promise",
+          "context": "loadOrders: (request?: GetOrderHistoryRequest) => Promise<void>;",
+          "pattern": 0,
+          "severity": "low",
+          "file": "src/features/user/types/user-profile.types.ts"
+        },
+        {
+          "line": 232,
+          "text": "Promise",
+          "context": "loadActivities: (request?: GetActivityHistoryRequest) => Promise<void>;",
+          "pattern": 0,
+          "severity": "low",
+          "file": "src/features/user/types/user-profile.types.ts"
+        }
+      ]
+    }
+  },
+  "results": [
+    {
+      "file": "src/features/admin/types/order-management.types.ts",
+      "findings": [
+        {
+          "line": 181,
+          "text": "Promise",
+          "context": "onStatusUpdate: (orderId: string, newStatus: OrderStatus) => Promise<void>",
+          "pattern": 0,
+          "severity": "low"
+        },
+        {
+          "line": 188,
+          "text": "Promise",
+          "context": "onStatusUpdate: (orderId: string, newStatus: OrderStatus) => Promise<void>",
+          "pattern": 0,
+          "severity": "low"
+        },
+        {
+          "line": 220,
+          "text": "Promise",
+          "context": "updateOrderStatus: (orderId: string, newStatus: OrderStatus) => Promise<void>",
+          "pattern": 0,
+          "severity": "low"
+        },
+        {
+          "line": 221,
+          "text": "Promise",
+          "context": "bulkUpdateOrders: (orderIds: string[], newStatus: OrderStatus) => Promise<void>",
+          "pattern": 0,
+          "severity": "low"
+        }
+      ],
+      "hasTranslations": false
+    },
+    {
+      "file": "src/features/auth/context/auth-context.tsx",
+      "findings": [
+        {
+          "line": 14,
+          "text": "Promise",
+          "context": "signIn: (email: string, password: string) => Promise<any>;",
+          "pattern": 0,
+          "severity": "low"
+        },
+        {
+          "line": 15,
+          "text": "Promise",
+          "context": "signUp: (email: string, password: string, name: string) => Promise<any>;",
+          "pattern": 0,
+          "severity": "low"
+        },
+        {
+          "line": 16,
+          "text": "Promise",
+          "context": "signOut: () => Promise<void>;",
+          "pattern": 0,
+          "severity": "low"
+        },
+        {
+          "line": 17,
+          "text": "Promise",
+          "context": "refreshProfile: () => Promise<void>;",
+          "pattern": 0,
+          "severity": "low"
+        }
+      ],
+      "hasTranslations": false
+    },
+    {
+      "file": "src/features/auth/types/auth.types.ts",
+      "findings": [
+        {
+          "line": 22,
+          "text": "Promise",
+          "context": "signIn: (email: string, password: string) => Promise<void>;",
+          "pattern": 0,
+          "severity": "low"
+        },
+        {
+          "line": 23,
+          "text": "Promise",
+          "context": "signUp: (email: string, password: string, name: string, phone: string) => Promise<void>;",
+          "pattern": 0,
+          "severity": "low"
+        },
+        {
+          "line": 24,
+          "text": "Promise",
+          "context": "signOut: () => Promise<void>;",
+          "pattern": 0,
+          "severity": "low"
+        }
+      ],
+      "hasTranslations": false
+    },
+    {
+      "file": "src/features/chat/types/chat.types.ts",
+      "findings": [
+        {
+          "line": 86,
+          "text": "Promise",
+          "context": "onSendMessage: (content: string, attachments?: File[]) => Promise<void>",
+          "pattern": 0,
+          "severity": "low"
+        },
+        {
+          "line": 175,
+          "text": "Promise",
+          "context": "sendMessage: (content: string, attachments?: File[]) => Promise<void>",
+          "pattern": 0,
+          "severity": "low"
+        },
+        {
+          "line": 176,
+          "text": "Promise",
+          "context": "markAsRead: (messageId: string) => Promise<void>",
+          "pattern": 0,
+          "severity": "low"
+        }
+      ],
+      "hasTranslations": false
+    },
+    {
+      "file": "src/features/gemstones/types/filter.types.ts",
+      "findings": [
+        {
+          "line": 210,
+          "text": "Diamond",
+          "context": "diamond: \"Diamond\",",
+          "pattern": "keyword",
+          "severity": "medium"
+        },
+        {
+          "line": 211,
+          "text": "Emerald",
+          "context": "emerald: \"Emerald\",",
+          "pattern": "keyword",
+          "severity": "medium"
+        },
+        {
+          "line": 212,
+          "text": "Ruby",
+          "context": "ruby: \"Ruby\",",
+          "pattern": "keyword",
+          "severity": "medium"
+        },
+        {
+          "line": 213,
+          "text": "Sapphire",
+          "context": "sapphire: \"Sapphire\",",
+          "pattern": "keyword",
+          "severity": "medium"
+        },
+        {
+          "line": 265,
+          "text": "Emerald",
+          "context": "emerald: \"Emerald\",",
+          "pattern": "keyword",
+          "severity": "medium"
+        },
+        {
+          "line": 295,
+          "text": "Price",
+          "context": "price_amount: \"Price\",",
+          "pattern": "keyword",
+          "severity": "medium"
+        },
+        {
+          "line": 298,
+          "text": "Color",
+          "context": "color: \"Color\",",
+          "pattern": "keyword",
+          "severity": "medium"
+        },
+        {
+          "line": 299,
+          "text": "Cut",
+          "context": "cut: \"Cut\",",
+          "pattern": "keyword",
+          "severity": "medium"
+        }
+      ],
+      "hasTranslations": false
+    },
+    {
+      "file": "src/features/user/hooks/use-user-profile.ts",
+      "findings": [
+        {
+          "line": 63,
+          "text": "No profile loaded",
+          "context": "if (!profile) throw new Error(\"No profile loaded\");",
+          "pattern": 3,
+          "severity": "medium"
+        },
+        {
+          "line": 105,
+          "text": "No profile loaded",
+          "context": "if (!profile) throw new Error(\"No profile loaded\");",
+          "pattern": 3,
+          "severity": "medium"
+        }
+      ],
+      "hasTranslations": false
+    },
+    {
+      "file": "src/features/user/types/user-profile.types.ts",
+      "findings": [
+        {
+          "line": 173,
+          "text": "Promise",
+          "context": "onUpdate: (updates: UpdateProfileRequest) => Promise<void>;",
+          "pattern": 0,
+          "severity": "low"
+        },
+        {
+          "line": 189,
+          "text": "Promise",
+          "context": "onUpdateProfile: (updates: UpdateProfileRequest) => Promise<void>;",
+          "pattern": 0,
+          "severity": "low"
+        },
+        {
+          "line": 190,
+          "text": "Promise",
+          "context": "onUpdatePreferences: (preferences: Partial<UserPreferences>) => Promise<void>;",
+          "pattern": 0,
+          "severity": "low"
+        },
+        {
+          "line": 191,
+          "text": "Promise",
+          "context": "onChangePassword: (request: ChangePasswordRequest) => Promise<void>;",
+          "pattern": 0,
+          "severity": "low"
+        },
+        {
+          "line": 209,
+          "text": "Promise",
+          "context": "updateProfile: (updates: UpdateProfileRequest) => Promise<void>;",
+          "pattern": 0,
+          "severity": "low"
+        },
+        {
+          "line": 210,
+          "text": "Promise",
+          "context": "updatePreferences: (preferences: Partial<UserPreferences>) => Promise<void>;",
+          "pattern": 0,
+          "severity": "low"
+        },
+        {
+          "line": 211,
+          "text": "Promise",
+          "context": "changePassword: (request: ChangePasswordRequest) => Promise<void>;",
+          "pattern": 0,
+          "severity": "low"
+        },
+        {
+          "line": 221,
+          "text": "Promise",
+          "context": "loadOrders: (request?: GetOrderHistoryRequest) => Promise<void>;",
+          "pattern": 0,
+          "severity": "low"
+        },
+        {
+          "line": 232,
+          "text": "Promise",
+          "context": "loadActivities: (request?: GetActivityHistoryRequest) => Promise<void>;",
+          "pattern": 0,
+          "severity": "low"
+        }
+      ],
+      "hasTranslations": false
+    }
+  ]
+}

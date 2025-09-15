@@ -4,6 +4,7 @@ import { Button } from "@/shared/components/ui/button";
 import type { FileUploadProps } from "../types/chat.types";
 import { Paperclip } from "lucide-react";
 import { useRef } from "react";
+import { useTranslations } from "next-intl";
 
 export function FileUpload({
   onFilesSelected,
@@ -13,6 +14,7 @@ export function FileUpload({
   disabled = false,
 }: FileUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const t = useTranslations("chat");
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
@@ -91,7 +93,7 @@ export function FileUpload({
         onClick={handleClick}
         disabled={disabled}
         className="h-10 w-10 p-0 hover:bg-muted/80 dark:hover:bg-muted/60"
-        title="Attach files"
+        title={t("attachFiles")}
       >
         <Paperclip className="w-4 h-4" />
       </Button>

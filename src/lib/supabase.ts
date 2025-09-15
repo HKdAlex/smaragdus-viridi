@@ -1,7 +1,8 @@
-import { Database } from "@/shared/types/database";
-import { createClient } from "@supabase/supabase-js";
 import { createBrowserClient, createServerClient } from "@supabase/ssr";
+
+import { Database } from "@/shared/types/database";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -11,20 +12,20 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 // Typed singleton wrapper to prevent schema widening and bypass internal cache pitfalls
-let _browserClient: SupabaseClient<Database, 'public'>;
+let _browserClient: SupabaseClient<Database, "public">;
 
-export function getBrowserClient(): SupabaseClient<Database, 'public'> {
+export function getBrowserClient(): SupabaseClient<Database, "public"> {
   if (!_browserClient) {
-    _browserClient = createBrowserClient<Database, 'public'>(
+    _browserClient = createBrowserClient<Database, "public">(
       supabaseUrl,
       supabaseAnonKey,
       {
         // Keep schema a literal, not string
-        db: { schema: 'public' as const },
+        db: { schema: "public" as const },
         // Opt out of the package's internal singleton to avoid type pollution
         isSingleton: false,
       }
-    ) as SupabaseClient<Database, 'public'>;
+    ) as SupabaseClient<Database, "public">;
   }
   return _browserClient;
 }

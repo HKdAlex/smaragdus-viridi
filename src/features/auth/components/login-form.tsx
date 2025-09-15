@@ -2,13 +2,16 @@
 
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
-import { loginAction } from "@/features/auth/actions/auth-actions";
+import { useAuth } from "@/features/auth/context/auth-context";
+import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
 export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const { signIn } = useAuth();
+  const router = useRouter();
   const t = useTranslations("auth");
 
   const handleSubmit = async (formData: FormData) => {
@@ -16,11 +19,13 @@ export function LoginForm() {
     setError("");
 
     try {
-      const result = await loginAction(formData);
-      if (result?.error) {
-        setError(result.error);
-      }
-      // Success redirect happens in server action
+      const email = formData.get("email") as string;
+      const password = formData.get("password") as string;
+
+      await signIn(email, password);
+
+      // Redirect to profile after successful login
+      router.push("/profile");
     } catch (err) {
       setError(
         err instanceof Error ? err.message : t("errors.invalidCredentials")

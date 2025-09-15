@@ -26,6 +26,7 @@
   "clearChat": "Clear Chat",
   "confirmClear": "Are you sure you want to clear the chat history?",
   "chatCleared": "Chat history cleared",
+  "attachFiles": "Attach files",
   "error": {
     "network": "Network error. Please check your connection.",
     "server": "Server error. Please try again later.",
