@@ -1,4 +1,4 @@
-import { Logo, ResponsiveLogo, HeaderLogo, FooterLogo, HeroLogo } from '@/shared/components/logo'
+import { Logo } from '@/shared/components/ui/logo'
 
 export default function LogoDemoPage() {
   return (
@@ -9,22 +9,30 @@ export default function LogoDemoPage() {
         {/* Size Variations */}
         <section className="mb-12">
           <h2 className="text-2xl font-semibold mb-6">Size Variations</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-8 items-center">
             <div className="text-center">
-              <Logo variant="block" size="sm" />
-              <p className="mt-2 text-sm text-gray-600">Small (64px)</p>
+              <Logo variant="block" size="sm" showText={false} />
+              <p className="mt-2 text-sm text-gray-600">Small (32px)</p>
             </div>
             <div className="text-center">
-              <Logo variant="block" size="md" />
-              <p className="mt-2 text-sm text-gray-600">Medium (128px)</p>
+              <Logo variant="block" size="md" showText={false} />
+              <p className="mt-2 text-sm text-gray-600">Medium (48px)</p>
             </div>
             <div className="text-center">
-              <Logo variant="block" size="lg" />
-              <p className="mt-2 text-sm text-gray-600">Large (256px)</p>
+              <Logo variant="block" size="lg" showText={false} />
+              <p className="mt-2 text-sm text-gray-600">Large (80px)</p>
             </div>
             <div className="text-center">
-              <Logo variant="block" size="xl" />
-              <p className="mt-2 text-sm text-gray-600">Extra Large (512px)</p>
+              <Logo variant="block" size="xl" showText={false} />
+              <p className="mt-2 text-sm text-gray-600">Extra Large (120px)</p>
+            </div>
+            <div className="text-center">
+              <Logo variant="block" size="xxl" showText={false} />
+              <p className="mt-2 text-sm text-gray-600">XXL (160px)</p>
+            </div>
+            <div className="text-center">
+              <Logo variant="block" size="xxxl" showText={false} />
+              <p className="mt-2 text-sm text-gray-600">XXXL (200px)</p>
             </div>
           </div>
         </section>
@@ -34,12 +42,12 @@ export default function LogoDemoPage() {
           <h2 className="text-2xl font-semibold mb-6">Logo Variants</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="text-center p-6 bg-white rounded-lg shadow">
-              <Logo variant="block" size="lg" />
+              <Logo variant="block" size="lg" showText={false} />
               <h3 className="mt-4 text-lg font-medium">Block Logo</h3>
               <p className="text-sm text-gray-600">For headers, footers, and prominent placement</p>
             </div>
             <div className="text-center p-6 bg-white rounded-lg shadow">
-              <Logo variant="inline" size="lg" />
+              <Logo variant="inline" size="lg" showText={false} />
               <h3 className="mt-4 text-lg font-medium">Inline Logo</h3>
               <p className="text-sm text-gray-600">For navigation bars and compact spaces</p>
             </div>
@@ -50,9 +58,9 @@ export default function LogoDemoPage() {
         <section className="mb-12">
           <h2 className="text-2xl font-semibold mb-6">Responsive Logo</h2>
           <div className="text-center p-8 bg-white rounded-lg shadow">
-            <ResponsiveLogo variant="block" />
+            <Logo variant="block" size="lg" showText={true} />
             <p className="mt-4 text-sm text-gray-600">
-              Automatically adjusts size based on screen size
+              Logo with text that adapts to screen size
             </p>
           </div>
         </section>
@@ -65,7 +73,7 @@ export default function LogoDemoPage() {
             <div className="bg-white rounded-lg shadow p-6">
               <h3 className="text-lg font-medium mb-4">Header Logo</h3>
               <div className="flex items-center justify-between border-b pb-4">
-                <HeaderLogo />
+                <Logo variant="inline" size="md" showText={true} />
                 <nav className="space-x-4">
                   <a href="#" className="text-gray-600 hover:text-gray-900">Catalog</a>
                   <a href="#" className="text-gray-600 hover:text-gray-900">About</a>
@@ -76,7 +84,7 @@ export default function LogoDemoPage() {
 
             {/* Hero Example */}
             <div className="bg-gradient-to-r from-emerald-50 to-green-50 rounded-lg shadow p-8 text-center">
-              <HeroLogo className="mx-auto mb-4" />
+              <Logo variant="block" size="xxl" showText={false} className="mx-auto mb-4" />
               <h3 className="text-2xl font-bold text-gray-900 mb-2">Crystallique</h3>
               <p className="text-gray-600">Premium Gemstones & Jewelry</p>
             </div>
@@ -84,7 +92,7 @@ export default function LogoDemoPage() {
             {/* Footer Example */}
             <div className="bg-gray-900 text-white rounded-lg shadow p-6">
               <div className="flex items-center justify-between">
-                <FooterLogo />
+                <Logo variant="block" size="md" showText={false} />
                 <div className="text-sm text-gray-400">
                   © 2024 Crystallique. All rights reserved.
                 </div>

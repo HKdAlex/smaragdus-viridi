@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { useThemeContext } from "@/shared/context/theme-context";
 import { useTranslations } from "next-intl";
+import Image from "next/image";
 
 interface LogoProps {
   variant?: "inline" | "block";
@@ -35,11 +35,20 @@ export function Logo({
   const t = useTranslations("common");
   const { width, height, textSize, heightClass } = sizeMap[size];
 
-  // Choose logo source based on variant
+  // Choose logo source based on variant and size for optimization
   const getLogoSrc = () => {
-    return variant === "inline"
-      ? "/crystallique-logo-inline.png"
-      : "/crystallique-logo-block.png";
+    const baseName =
+      variant === "inline"
+        ? "crystallique-logo-inline"
+        : "crystallique-logo-block";
+
+    // Use smaller files for smaller sizes to optimize loading
+    if (size === "sm" || size === "md") {
+      return `/${baseName}-256.png`;
+    }
+
+    // Use optimized 512px version for larger sizes
+    return `/${baseName}-512.png`;
   };
 
   const logoSrc = getLogoSrc();
