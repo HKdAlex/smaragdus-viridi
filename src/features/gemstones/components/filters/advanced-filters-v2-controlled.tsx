@@ -1,9 +1,9 @@
 /**
  * Advanced Filters V2 (Controlled - Visual Version)
- * 
+ *
  * Fully controlled visual filter component with interactive UI elements.
  * Zero internal state - receives all state from parent and notifies via onChange.
- * 
+ *
  * Features:
  * - Visual cut shape selector with icons
  * - Color picker with color circles
@@ -14,12 +14,13 @@
 
 "use client";
 
-import type { AdvancedGemstoneFilters } from "../../types/filter.types";
 import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/outline";
+
+import type { AdvancedGemstoneFilters } from "../../types/filter.types";
+import type { FilterOptions } from "./advanced-filters-controlled";
+import { RangeSlider } from "./range-slider";
 import { useCallback } from "react";
 import { useTranslations } from "next-intl";
-import { RangeSlider } from "./range-slider";
-import type { FilterOptions } from "./advanced-filters-controlled";
 
 // Visual Cut Shapes Component (Controlled)
 const CutShapeSelector = ({
@@ -113,11 +114,19 @@ const ColorPicker = ({
     { value: "red", label: "Red", gradient: "from-red-400 to-red-600" },
     { value: "blue", label: "Blue", gradient: "from-blue-400 to-blue-600" },
     { value: "green", label: "Green", gradient: "from-green-400 to-green-600" },
-    { value: "yellow", label: "Yellow", gradient: "from-yellow-300 to-yellow-500" },
+    {
+      value: "yellow",
+      label: "Yellow",
+      gradient: "from-yellow-300 to-yellow-500",
+    },
     { value: "pink", label: "Pink", gradient: "from-pink-400 to-pink-600" },
     { value: "white", label: "White", gradient: "from-gray-100 to-gray-300" },
     { value: "black", label: "Black", gradient: "from-gray-700 to-gray-900" },
-    { value: "colorless", label: "Colorless", gradient: "from-gray-50 to-gray-200" },
+    {
+      value: "colorless",
+      label: "Colorless",
+      gradient: "from-gray-50 to-gray-200",
+    },
   ];
 
   const diamondGrades = [
@@ -145,7 +154,9 @@ const ColorPicker = ({
 
       {/* Colored Gemstones */}
       <div className="space-y-3">
-        <h4 className="text-sm font-medium text-foreground">Colored Gemstones</h4>
+        <h4 className="text-sm font-medium text-foreground">
+          Colored Gemstones
+        </h4>
         <div className="grid grid-cols-4 gap-2">
           {colorOptions.map(({ value, label, gradient }) => (
             <button
@@ -242,7 +253,10 @@ export function AdvancedFiltersV2Controlled({
   // Handle cut changes
   const handleCutChange = useCallback(
     (cuts: string[]) => {
-      onChange({ ...filters, cuts: cuts.length > 0 ? cuts as any[] : undefined });
+      onChange({
+        ...filters,
+        cuts: cuts.length > 0 ? (cuts as any[]) : undefined,
+      });
     },
     [filters, onChange]
   );
@@ -250,7 +264,10 @@ export function AdvancedFiltersV2Controlled({
   // Handle color changes
   const handleColorChange = useCallback(
     (colors: string[]) => {
-      onChange({ ...filters, colors: colors.length > 0 ? colors as any[] : undefined });
+      onChange({
+        ...filters,
+        colors: colors.length > 0 ? (colors as any[]) : undefined,
+      });
     },
     [filters, onChange]
   );
@@ -296,7 +313,9 @@ export function AdvancedFiltersV2Controlled({
     <div className="bg-card rounded-lg border border-border p-4 sm:p-6 space-y-6">
       {/* Header with Clear All */}
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-foreground">Visual Filters</h3>
+        <h3 className="text-lg font-semibold text-foreground">
+          Visual Filters
+        </h3>
         <button
           onClick={handleClearAll}
           disabled={loading}
@@ -395,4 +414,3 @@ export function AdvancedFiltersV2Controlled({
     </div>
   );
 }
-

@@ -40,7 +40,7 @@ import { useTranslations } from "next-intl";
 
 const PAGE_SIZE = 24;
 
-export function GemstoneCatalogOptimized() {
+export function GemstoneCatalogRefactoredFinal() {
   const t = useTranslations("catalog");
   const searchParams = useSearchParams();
 
