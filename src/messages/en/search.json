@@ -1,0 +1,17 @@
+{
+  "placeholder": "Search gemstones by name, serial number, color...",
+  "search": "Search",
+  "loading": "Loading suggestions...",
+  "noSuggestions": "No suggestions found",
+  "serialNumber": "Serial Number",
+  "type": "Type",
+  "color": "Color",
+  "resultsFor": "Search results for",
+  "searchResults": "Search Results",
+  "noResults": "No results found",
+  "tryDifferent": "Try different keywords or adjust your filters",
+  "enterSearch": "Enter a search query",
+  "searchPrompt": "Use the search box above to find gemstones",
+  "error": "Search error"
+}
+

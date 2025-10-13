@@ -6,8 +6,8 @@ Inconsistent quote styles in database type references:
 
 ```typescript
 // ❌ Inconsistent
-type DbGemstone = Database["public"]["Tables"]["gemstones"]["Row"];  // double
-export type DatabaseGemstone = Database['public']['Tables']['gemstones']['Row']  // single
+type DbGemstone = Database["public"]["Tables"]["gemstones"]["Row"]; // double
+export type DatabaseGemstone = Database["public"]["Tables"]["gemstones"]["Row"]; // single
 ```
 
 ## Solution
@@ -19,11 +19,11 @@ export type DatabaseGemstone = Database['public']['Tables']['gemstones']['Row'] 
 ```javascript
 rules: {
   // Enforce single quotes for consistency
-  quotes: ["error", "single", { 
-    avoidEscape: true, 
-    allowTemplateLiterals: true 
+  quotes: ["error", "single", {
+    avoidEscape: true,
+    allowTemplateLiterals: true
   }],
-  
+
   // Enforce consistent quote props
   "quote-props": ["error", "as-needed"],
 }
@@ -56,16 +56,19 @@ rules: {
 // .eslintrc.custom-rules.js
 module.exports = {
   rules: {
-    'database-type-import': {
+    "database-type-import": {
       create(context) {
         return {
           ImportDeclaration(node) {
             // Enforce imports from @/shared/types/database
-            if (node.source.value.includes('/database') && 
-                !node.source.value.startsWith('@/shared/types/database')) {
+            if (
+              node.source.value.includes("/database") &&
+              !node.source.value.startsWith("@/shared/types/database")
+            ) {
               context.report({
                 node,
-                message: 'Database types must be imported from @/shared/types/database',
+                message:
+                  "Database types must be imported from @/shared/types/database",
               });
             }
           },
@@ -107,10 +110,10 @@ module.exports = {
 # .github/workflows/ci.yml
 - name: Lint
   run: npm run lint
-  
+
 - name: Type Check
   run: npm run typecheck
-  
+
 - name: Verify Database Types
   run: |
     npm run types:generate
@@ -144,21 +147,21 @@ export interface Gemstone {
 
 ```typescript
 // ✅ CORRECT
-import type { Database } from '@/shared/types/database';
-export type Gemstone = Database['public']['Tables']['gemstones']['Row'];
+import type { Database } from "@/shared/types/database";
+export type Gemstone = Database["public"]["Tables"]["gemstones"]["Row"];
 ```
 
 ### ❌ Violation 2: Wrong Import Path
 
 ```typescript
 // ❌ WRONG
-import type { Database } from '@/types/database';
-import type { Database } from '../../types/database';
+import type { Database } from "@/types/database";
+import type { Database } from "../../types/database";
 ```
 
 ```typescript
 // ✅ CORRECT
-import type { Database } from '@/shared/types/database';
+import type { Database } from "@/shared/types/database";
 ```
 
 ### ❌ Violation 3: Inconsistent Quotes
@@ -166,13 +169,13 @@ import type { Database } from '@/shared/types/database';
 ```typescript
 // ❌ WRONG (mixed quotes)
 type DbGemstone = Database["public"]["Tables"]["gemstones"]["Row"];
-type DbUser = Database['public']['Tables']['user_profiles']['Row'];
+type DbUser = Database["public"]["Tables"]["user_profiles"]["Row"];
 ```
 
 ```typescript
 // ✅ CORRECT (consistent single quotes)
-type DbGemstone = Database['public']['Tables']['gemstones']['Row'];
-type DbUser = Database['public']['Tables']['user_profiles']['Row'];
+type DbGemstone = Database["public"]["Tables"]["gemstones"]["Row"];
+type DbUser = Database["public"]["Tables"]["user_profiles"]["Row"];
 ```
 
 ## NPM Scripts
@@ -191,15 +194,18 @@ type DbUser = Database['public']['Tables']['user_profiles']['Row'];
 ## Enforcement Strategy
 
 ### Level 1: Developer Workflow
+
 - Run `npm run lint` before committing
 - Run `npm run typecheck` to catch type errors
 - Use IDE extensions (ESLint, TypeScript)
 
 ### Level 2: Git Hooks
+
 - Pre-commit: `lint` + `typecheck`
 - Pre-push: Full test suite
 
 ### Level 3: CI/CD Pipeline
+
 - Automated linting on every PR
 - Type generation verification
 - Test coverage enforcement
@@ -209,7 +215,7 @@ type DbUser = Database['public']['Tables']['user_profiles']['Row'];
 **Status:** ✅ ESLint rules added, quote consistency enforced
 
 **Next Steps:**
+
 1. Add pre-commit hooks (husky)
 2. Add CI/CD checks
 3. Consider custom ESLint rule for import paths
-
