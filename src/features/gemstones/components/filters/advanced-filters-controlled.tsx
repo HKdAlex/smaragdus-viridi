@@ -1,15 +1,15 @@
 /**
  * Advanced Filters (Controlled Component)
- * 
+ *
  * Fully controlled filter component with zero internal state.
  * Receives filter state from parent and notifies via onChange callback.
- * 
+ *
  * Architecture:
  * - NO internal state (fully controlled)
  * - NO URL manipulation (parent's responsibility)
  * - NO data fetching (receives options as props)
  * - Pure presentation + user interaction handlers
- * 
+ *
  * Benefits:
  * - Single source of truth (parent owns state)
  * - Easy to test (pure component)
@@ -24,6 +24,11 @@ import {
   MagnifyingGlassIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
+import {
+  CLARITY_ORDER,
+  categorizeColor,
+  getActiveFilterCount,
+} from "../../types/filter.types";
 import type {
   GemClarity,
   GemColor,
@@ -31,12 +36,8 @@ import type {
   GemstoneType,
 } from "@/shared/types";
 import { useCallback, useMemo } from "react";
+
 import type { AdvancedGemstoneFilters } from "../../types/filter.types";
-import {
-  CLARITY_ORDER,
-  categorizeColor,
-  getActiveFilterCount,
-} from "../../types/filter.types";
 import { FilterDropdown } from "./filter-dropdown";
 import { RangeSlider } from "./range-slider";
 import { useFilterLabels } from "../../hooks/use-filter-labels";
@@ -60,13 +61,13 @@ export interface FilterOptions {
 interface AdvancedFiltersControlledProps {
   // Current filter state (controlled)
   filters: AdvancedGemstoneFilters;
-  
+
   // Callback when filters change
   onChange: (filters: AdvancedGemstoneFilters) => void;
-  
+
   // Available filter options with counts
   options: FilterOptions;
-  
+
   // Optional loading state
   loading?: boolean;
 }
@@ -97,7 +98,10 @@ export function AdvancedFiltersControlled({
   // Handle gemstone type filter
   const handleTypeChange = useCallback(
     (types: string[]) => {
-      onChange({ ...filters, gemstoneTypes: types.length > 0 ? types as GemstoneType[] : undefined });
+      onChange({
+        ...filters,
+        gemstoneTypes: types.length > 0 ? (types as GemstoneType[]) : undefined,
+      });
     },
     [filters, onChange]
   );
@@ -105,7 +109,10 @@ export function AdvancedFiltersControlled({
   // Handle color filter
   const handleColorChange = useCallback(
     (colors: string[]) => {
-      onChange({ ...filters, colors: colors.length > 0 ? colors as GemColor[] : undefined });
+      onChange({
+        ...filters,
+        colors: colors.length > 0 ? (colors as GemColor[]) : undefined,
+      });
     },
     [filters, onChange]
   );
@@ -113,7 +120,10 @@ export function AdvancedFiltersControlled({
   // Handle cut filter
   const handleCutChange = useCallback(
     (cuts: string[]) => {
-      onChange({ ...filters, cuts: cuts.length > 0 ? cuts as GemCut[] : undefined });
+      onChange({
+        ...filters,
+        cuts: cuts.length > 0 ? (cuts as GemCut[]) : undefined,
+      });
     },
     [filters, onChange]
   );
@@ -121,7 +131,11 @@ export function AdvancedFiltersControlled({
   // Handle clarity filter
   const handleClarityChange = useCallback(
     (clarities: string[]) => {
-      onChange({ ...filters, clarities: clarities.length > 0 ? clarities as GemClarity[] : undefined });
+      onChange({
+        ...filters,
+        clarities:
+          clarities.length > 0 ? (clarities as GemClarity[]) : undefined,
+      });
     },
     [filters, onChange]
   );
@@ -129,7 +143,10 @@ export function AdvancedFiltersControlled({
   // Handle origin filter
   const handleOriginChange = useCallback(
     (origins: string[]) => {
-      onChange({ ...filters, origins: origins.length > 0 ? origins : undefined });
+      onChange({
+        ...filters,
+        origins: origins.length > 0 ? origins : undefined,
+      });
     },
     [filters, onChange]
   );
@@ -285,40 +302,40 @@ export function AdvancedFiltersControlled({
         <FilterDropdown
           label={t("type")}
           options={gemstoneTypeOptions}
-          selected={filters.gemstoneTypes || []}
-          onChange={handleTypeChange}
+          selectedValues={filters.gemstoneTypes || []}
+          onSelectionChange={handleTypeChange}
           disabled={loading}
         />
 
         <FilterDropdown
           label={t("color")}
           options={colorOptions}
-          selected={filters.colors || []}
-          onChange={handleColorChange}
+          selectedValues={filters.colors || []}
+          onSelectionChange={handleColorChange}
           disabled={loading}
         />
 
         <FilterDropdown
           label={t("cut")}
           options={cutOptions}
-          selected={filters.cuts || []}
-          onChange={handleCutChange}
+          selectedValues={filters.cuts || []}
+          onSelectionChange={handleCutChange}
           disabled={loading}
         />
 
         <FilterDropdown
           label={t("clarity")}
           options={clarityOptions}
-          selected={filters.clarities || []}
-          onChange={handleClarityChange}
+          selectedValues={filters.clarities || []}
+          onSelectionChange={handleClarityChange}
           disabled={loading}
         />
 
         <FilterDropdown
           label={t("origin")}
           options={originOptions}
-          selected={filters.origins || []}
-          onChange={handleOriginChange}
+          selectedValues={filters.origins || []}
+          onSelectionChange={handleOriginChange}
           disabled={loading}
         />
       </div>
@@ -375,4 +392,3 @@ export function AdvancedFiltersControlled({
     </div>
   );
 }
-
