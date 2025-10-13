@@ -1,40 +1,25 @@
 /**
  * Query Builder Service
  *
- * DRY utility for constructing URL query strings for gemstone searches.
- * Eliminates duplication of query building logic across components.
- *
- * Following clean-code principles:
- * - DRY: Single source of truth for query construction
- * - Type Safety: Strongly typed inputs and outputs
- * - Pure Functions: No side effects, testable
+ * Handles conversion between filters and URL query strings.
+ * Single source of truth for URL state management.
  */
 
-import type { AdvancedGemstoneFilters } from "../types/filter.types";
-import type { RelatedGemstonesCriteria } from "./gemstone-fetch.service";
+import type { AdvancedGemstoneFilters, MutableAdvancedGemstoneFilters } from "../types/filter.types";
 
 export class QueryBuilderService {
   /**
-   * Build search query parameters from filters
-   * Used for catalog and admin searches
+   * Convert filters to URL query string
    */
-  static buildSearchQuery(
-    filters: AdvancedGemstoneFilters,
-    page: number,
-    pageSize: number = 24
-  ): URLSearchParams {
+  static filtersToQueryString(filters: AdvancedGemstoneFilters): string {
     const params = new URLSearchParams();
-
-    // Pagination
-    params.set("page", page.toString());
-    params.set("pageSize", pageSize.toString());
 
     // Text search
     if (filters.search) {
       params.set("search", filters.search);
     }
 
-    // Categorical filters
+    // Categorical filters (arrays)
     if (filters.gemstoneTypes?.length) {
       params.set("gemstoneTypes", filters.gemstoneTypes.join(","));
     }
@@ -83,40 +68,7 @@ export class QueryBuilderService {
       params.set("sortDirection", filters.sortDirection);
     }
 
-    return params;
-  }
-
-  /**
-   * Build filter counts query
-   * Used for fetching available filter options
-   */
-  static buildFilterCountsQuery(): RequestInit {
-    return {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type: "counts" }),
-    };
-  }
-
-  /**
-   * Build related gemstones query
-   * Used for "You might also like" sections
-   */
-  static buildRelatedQuery(
-    criteria: RelatedGemstonesCriteria,
-    pageSize: number = 8
-  ): URLSearchParams {
-    const params = new URLSearchParams();
-
-    params.set("gemstoneTypes", criteria.gemstoneType);
-    params.set("colors", criteria.color);
-    params.set("priceMin", criteria.priceRange.min.toString());
-    params.set("priceMax", criteria.priceRange.max.toString());
-    params.set("pageSize", (criteria.limit || pageSize).toString());
-    params.set("page", "1");
-    params.set("inStockOnly", "true");
-
-    return params;
+    return params.toString();
   }
 
   /**
@@ -124,43 +76,43 @@ export class QueryBuilderService {
    * Used for URL state restoration
    */
   static parseQueryToFilters(query: URLSearchParams): AdvancedGemstoneFilters {
-    const filters: Partial<AdvancedGemstoneFilters> = {};
+    const result: MutableAdvancedGemstoneFilters = {};
 
     // Text search
     const search = query.get("search");
-    if (search) filters.search = search;
+    if (search) result.search = search;
 
     // Categorical filters
     const gemstoneTypes = query.get("gemstoneTypes");
     if (gemstoneTypes) {
-      filters.gemstoneTypes = gemstoneTypes.split(",") as any[];
+      result.gemstoneTypes = gemstoneTypes.split(",") as any;
     }
 
     const colors = query.get("colors");
     if (colors) {
-      filters.colors = colors.split(",") as any[];
+      result.colors = colors.split(",") as any;
     }
 
     const cuts = query.get("cuts");
     if (cuts) {
-      filters.cuts = cuts.split(",") as any[];
+      result.cuts = cuts.split(",") as any;
     }
 
     const clarities = query.get("clarities");
     if (clarities) {
-      filters.clarities = clarities.split(",") as any[];
+      result.clarities = clarities.split(",") as any;
     }
 
     const origins = query.get("origins");
     if (origins) {
-      filters.origins = origins.split(",");
+      result.origins = origins.split(",");
     }
 
     // Range filters
     const priceMin = query.get("priceMin");
     const priceMax = query.get("priceMax");
     if (priceMin && priceMax) {
-      filters.priceRange = {
+      result.priceRange = {
         min: parseFloat(priceMin),
         max: parseFloat(priceMax),
         currency: "USD",
@@ -170,7 +122,7 @@ export class QueryBuilderService {
     const weightMin = query.get("weightMin");
     const weightMax = query.get("weightMax");
     if (weightMin && weightMax) {
-      filters.weightRange = {
+      result.weightRange = {
         min: parseFloat(weightMin),
         max: parseFloat(weightMax),
       };
@@ -178,28 +130,29 @@ export class QueryBuilderService {
 
     // Boolean filters
     if (query.get("inStockOnly") === "true") {
-      filters.inStockOnly = true;
+      result.inStockOnly = true;
     }
     if (query.get("hasImages") === "true") {
-      filters.hasImages = true;
+      result.hasImages = true;
     }
     if (query.get("hasCertification") === "true") {
-      filters.hasCertification = true;
+      result.hasCertification = true;
     }
     if (query.get("hasAIAnalysis") === "true") {
-      filters.hasAIAnalysis = true;
+      result.hasAIAnalysis = true;
     }
 
     // Sorting
     const sortBy = query.get("sortBy");
     if (sortBy) {
-      filters.sortBy = sortBy as any;
+      result.sortBy = sortBy as any;
     }
     const sortDirection = query.get("sortDirection");
     if (sortDirection) {
-      filters.sortDirection = sortDirection as "asc" | "desc";
+      result.sortDirection = sortDirection as any;
     }
 
-    return filters;
+    // Return as read-only AdvancedGemstoneFilters
+    return result;
   }
 }

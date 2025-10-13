@@ -32,7 +32,7 @@ export class SearchService {
     // Call the search_gemstones_fulltext RPC function
     const { data, error } = await supabase.rpc("search_gemstones_fulltext", {
       search_query: query || "",
-      filters: filters || {},
+      filters: (filters || {}) as any,
       page_num: page,
       page_size: pageSize,
     });
@@ -61,7 +61,7 @@ export class SearchService {
     const totalPages = Math.ceil(totalItems / pageSize);
     
     // Map results
-    const results: GemstoneSearchResult[] = data.map((row: any) => ({
+    const results = data.map((row: any) => ({
       id: row.id,
       serial_number: row.serial_number,
       name: row.name,
@@ -83,7 +83,7 @@ export class SearchService {
     }));
     
     return {
-      data: results,
+      data: results as any,
       pagination: {
         page,
         pageSize,

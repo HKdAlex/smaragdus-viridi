@@ -127,9 +127,7 @@ export function SearchResults() {
           <AdvancedFiltersControlled
             filters={filters}
             onChange={handleFiltersChange}
-            filterCounts={filterCountsData}
-            onReset={resetFilters}
-            activeFilterCount={filterCount}
+            options={filterCountsData.aggregated}
           />
         </div>
       )}
@@ -142,15 +140,17 @@ export function SearchResults() {
         />
       ) : (
         <>
-          <GemstoneGrid gemstones={results} />
+          <GemstoneGrid gemstones={results as any} />
 
           {/* Pagination */}
-          {totalPages > 1 && (
+          {totalPages > 1 && data?.pagination && (
             <div className="mt-8">
-              <PaginationControls
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={handlePageChange}
+              <PaginationControls 
+                pagination={{
+                  ...data.pagination,
+                  totalItems: data.pagination.totalCount,
+                }} 
+                onPageChange={handlePageChange} 
               />
             </div>
           )}

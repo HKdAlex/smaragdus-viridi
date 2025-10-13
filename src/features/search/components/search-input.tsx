@@ -78,7 +78,7 @@ export function SearchInput({
         onSearch(trimmed);
       } else {
         // Navigate to search results page
-        router.push(`/search?q=${encodeURIComponent(trimmed)}`);
+        router.push(`/search?q=${encodeURIComponent(trimmed)}` as any);
       }
     },
     [onSearch, router]

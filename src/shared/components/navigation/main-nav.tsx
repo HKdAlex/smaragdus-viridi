@@ -242,7 +242,7 @@ export function MainNav() {
                       className="w-full shadow-2xl"
                       onSearch={(query) => {
                         setSearchOpen(false);
-                        router.push(`/search?q=${encodeURIComponent(query)}`);
+                        router.push(`/search?q=${encodeURIComponent(query)}` as any);
                       }}
                     />
                   </div>
