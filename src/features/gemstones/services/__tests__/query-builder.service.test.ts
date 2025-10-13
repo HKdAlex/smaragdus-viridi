@@ -1,12 +1,13 @@
 /**
  * Query Builder Service Tests
- * 
+ *
  * Unit tests for QueryBuilderService following clean-code principles.
  */
 
-import { describe, it, expect } from "vitest";
-import { QueryBuilderService } from "../query-builder.service";
+import { describe, expect, it } from "vitest";
+
 import type { AdvancedGemstoneFilters } from "../../types/filter.types";
+import { QueryBuilderService } from "../query-builder.service";
 
 describe("QueryBuilderService", () => {
   describe("buildSearchQuery", () => {
@@ -188,7 +189,9 @@ describe("QueryBuilderService", () => {
     });
 
     it("should parse sorting", () => {
-      const params = new URLSearchParams("sortBy=price_amount&sortDirection=asc");
+      const params = new URLSearchParams(
+        "sortBy=price_amount&sortDirection=asc"
+      );
       const result = QueryBuilderService.parseQueryToFilters(params);
 
       expect(result.sortBy).toBe("price_amount");
@@ -217,12 +220,18 @@ describe("QueryBuilderService", () => {
         sortDirection: "asc",
       };
 
-      const queryParams = QueryBuilderService.buildSearchQuery(originalFilters, 1);
-      const parsedFilters = QueryBuilderService.parseQueryToFilters(queryParams);
+      const queryParams = QueryBuilderService.buildSearchQuery(
+        originalFilters,
+        1
+      );
+      const parsedFilters =
+        QueryBuilderService.parseQueryToFilters(queryParams);
 
       // Compare relevant fields
       expect(parsedFilters.search).toBe(originalFilters.search);
-      expect(parsedFilters.gemstoneTypes).toEqual(originalFilters.gemstoneTypes);
+      expect(parsedFilters.gemstoneTypes).toEqual(
+        originalFilters.gemstoneTypes
+      );
       expect(parsedFilters.colors).toEqual(originalFilters.colors);
       expect(parsedFilters.priceRange).toEqual(originalFilters.priceRange);
       expect(parsedFilters.inStockOnly).toBe(originalFilters.inStockOnly);
@@ -299,4 +308,3 @@ describe("QueryBuilderService", () => {
     });
   });
 });
-

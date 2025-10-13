@@ -1,9 +1,9 @@
 /**
  * Gemstone List (Admin - Refactored)
- * 
+ *
  * Admin interface for managing gemstones using shared services.
  * Reduced from 832 LOC to ~220 LOC by using extracted components/services.
- * 
+ *
  * Maintains admin-specific features:
  * - Bulk selection and editing
  * - Export functionality
@@ -13,6 +13,11 @@
 
 "use client";
 
+import { EmptyState } from "@/features/gemstones/components/empty-state";
+import { PaginationControls } from "@/features/gemstones/components/pagination-controls";
+import { useFilterCounts } from "@/features/gemstones/hooks/use-filter-counts";
+import { useGemstoneFetch } from "@/features/gemstones/hooks/use-gemstone-fetch";
+import type { AdvancedGemstoneFilters } from "@/features/gemstones/types/filter.types";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
@@ -20,12 +25,6 @@ import { Checkbox } from "@/shared/components/ui/checkbox";
 import { FileText, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useState } from "react";
-import { useFilterCounts } from "@/features/gemstones/hooks/use-filter-counts";
-import { useGemstoneFetch } from "@/features/gemstones/hooks/use-gemstone-fetch";
-import type { AdvancedGemstoneFilters } from "@/features/gemstones/types/filter.types";
-import { GemstoneGrid } from "@/features/gemstones/components/gemstone-grid";
-import { PaginationControls } from "@/features/gemstones/components/pagination-controls";
-import { EmptyState } from "@/features/gemstones/components/empty-state";
 import { ExportService, type ExportOptions } from "../services/export-service";
 import type { GemstoneWithRelations } from "../services/gemstone-admin-service";
 import { BulkEditModal } from "./bulk-edit-modal";
@@ -64,7 +63,9 @@ export function GemstoneListRefactored({
   const pageSize = 50; // Larger page size for admin
 
   // Admin-specific state
-  const [selectedGemstones, setSelectedGemstones] = useState<Set<string>>(new Set());
+  const [selectedGemstones, setSelectedGemstones] = useState<Set<string>>(
+    new Set()
+  );
   const [bulkEditOpen, setBulkEditOpen] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [detailViewOpen, setDetailViewOpen] = useState(false);
@@ -79,12 +80,20 @@ export function GemstoneListRefactored({
     cuts: searchFilters.cuts as any[],
     clarities: searchFilters.clarities as any[],
     origins: searchFilters.origins,
-    priceRange: searchFilters.priceMin !== undefined && searchFilters.priceMax !== undefined
-      ? { min: searchFilters.priceMin, max: searchFilters.priceMax, currency: "USD" }
-      : undefined,
-    weightRange: searchFilters.weightMin !== undefined && searchFilters.weightMax !== undefined
-      ? { min: searchFilters.weightMin, max: searchFilters.weightMax }
-      : undefined,
+    priceRange:
+      searchFilters.priceMin !== undefined &&
+      searchFilters.priceMax !== undefined
+        ? {
+            min: searchFilters.priceMin,
+            max: searchFilters.priceMax,
+            currency: "USD",
+          }
+        : undefined,
+    weightRange:
+      searchFilters.weightMin !== undefined &&
+      searchFilters.weightMax !== undefined
+        ? { min: searchFilters.weightMin, max: searchFilters.weightMax }
+        : undefined,
     inStockOnly: searchFilters.inStock,
     sortBy: searchFilters.sortBy as any,
     sortDirection: searchFilters.sortOrder,
@@ -139,25 +148,31 @@ export function GemstoneListRefactored({
     setBulkEditOpen(true);
   }, []);
 
-  const handleExport = useCallback(async (options: ExportOptions) => {
-    try {
-      setExporting(true);
-      await ExportService.exportGemstones(
-        gemstones.map((g: any) => g),
-        options
-      );
-    } catch (error) {
-      console.error("Export failed:", error);
-    } finally {
-      setExporting(false);
-    }
-  }, [gemstones]);
+  const handleExport = useCallback(
+    async (options: ExportOptions) => {
+      try {
+        setExporting(true);
+        await ExportService.exportGemstones(
+          gemstones.map((g: any) => g),
+          options
+        );
+      } catch (error) {
+        console.error("Export failed:", error);
+      } finally {
+        setExporting(false);
+      }
+    },
+    [gemstones]
+  );
 
-  const handleViewDetails = useCallback((gemstone: any) => {
-    setSelectedGemstoneForView(gemstone);
-    setDetailViewOpen(true);
-    if (onView) onView(gemstone);
-  }, [onView]);
+  const handleViewDetails = useCallback(
+    (gemstone: any) => {
+      setSelectedGemstoneForView(gemstone);
+      setDetailViewOpen(true);
+      if (onView) onView(gemstone);
+    },
+    [onView]
+  );
 
   // Extract available origins from filter options
   const availableOrigins = filterOptions?.origins.map((o) => o.value) || [];
@@ -180,7 +195,11 @@ export function GemstoneListRefactored({
               Bulk Edit ({selectedGemstones.size})
             </Button>
           )}
-          <Button onClick={() => handleExport({ format: "csv" })} variant="outline" disabled={exporting}>
+          <Button
+            onClick={() => handleExport({ format: "csv" })}
+            variant="outline"
+            disabled={exporting}
+          >
             <FileText className="w-4 h-4 mr-2" />
             {exporting ? "Exporting..." : "Export"}
           </Button>
@@ -330,4 +349,3 @@ export function GemstoneListRefactored({
     </div>
   );
 }
-
