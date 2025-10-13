@@ -25,9 +25,13 @@ const eslintConfig = [
   },
   {
     rules: {
-      // Enforce single quotes for consistency
-      quotes: ["error", "single", { avoidEscape: true, allowTemplateLiterals: true }],
-      
+      // Enforce single quotes for consistency (matches existing codebase)
+      quotes: [
+        "error",
+        "single",
+        { avoidEscape: true, allowTemplateLiterals: true },
+      ],
+
       // Enforce consistent quote props (for Database['public'] consistency)
       "quote-props": ["error", "as-needed"],
     },

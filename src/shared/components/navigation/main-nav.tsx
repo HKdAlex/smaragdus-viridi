@@ -9,6 +9,7 @@ import { useCartContext } from "@/features/cart/context/cart-context";
 import { Button } from "@/shared/components/ui/button";
 import { Logo } from "@/shared/components/ui/logo";
 import { ThemeToggle } from "@/shared/components/ui/theme-toggle";
+import { SearchInput } from "@/features/search/components/search-input";
 import { useTranslations } from "next-intl";
 
 // Safe admin status hook that doesn't throw if AdminProvider is not available
@@ -32,6 +33,7 @@ interface NavItem {
 
 export function MainNav() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const { user, signOut, loading } = useAuth();
@@ -203,26 +205,44 @@ export function MainNav() {
 
           {/* Right side buttons */}
           <div className="flex items-center space-x-4">
-            {/* Search button */}
-            <button
-              type="button"
-              className="p-2 text-muted-foreground hover:text-primary transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
-              aria-label={tAccessibility("search")}
-            >
-              <svg
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="1.5"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
-                />
-              </svg>
-            </button>
+            {/* Search button/input */}
+            <div className="relative">
+              {!searchOpen ? (
+                <button
+                  type="button"
+                  onClick={() => setSearchOpen(true)}
+                  className="p-2 text-muted-foreground hover:text-primary transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+                  aria-label={tAccessibility("search")}
+                >
+                  <svg
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="1.5"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+                    />
+                  </svg>
+                </button>
+              ) : (
+                <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm" onClick={() => setSearchOpen(false)}>
+                  <div className="fixed left-1/2 top-1/4 -translate-x-1/2 w-full max-w-2xl px-4" onClick={(e) => e.stopPropagation()}>
+                    <SearchInput
+                      autoFocus
+                      className="w-full shadow-2xl"
+                      onSearch={(query) => {
+                        setSearchOpen(false);
+                        router.push(`/search?q=${encodeURIComponent(query)}`);
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Cart button */}
             {user && (
