@@ -95,10 +95,6 @@ BEGIN
         ELSE ts_rank_cd(
           to_tsvector('english',
             COALESCE(g.serial_number, '') || ' ' ||
-            COALESCE(g.name::text, '') || ' ' ||
-            COALESCE(g.color::text, '') || ' ' ||
-            COALESCE(g.cut::text, '') || ' ' ||
-            COALESCE(g.clarity::text, '') || ' ' ||
             COALESCE(g.description, '')
           ),
           ts_query,
@@ -109,13 +105,9 @@ BEGIN
       COUNT(*) OVER() AS total
     FROM gemstones g
     WHERE
-      -- Full-text search condition
+      -- Full-text search condition (only text columns, enums filtered separately)
       (ts_query IS NULL OR to_tsvector('english',
         COALESCE(g.serial_number, '') || ' ' ||
-        COALESCE(g.name::text, '') || ' ' ||
-        COALESCE(g.color::text, '') || ' ' ||
-        COALESCE(g.cut::text, '') || ' ' ||
-        COALESCE(g.clarity::text, '') || ' ' ||
         COALESCE(g.description, '')
       ) @@ ts_query)
       -- Price range filter
@@ -124,8 +116,8 @@ BEGIN
       -- Weight range filter
       AND (min_weight IS NULL OR g.weight_carats >= min_weight)
       AND (max_weight IS NULL OR g.weight_carats <= max_weight)
-      -- Gemstone type filter
-      AND (types IS NULL OR cardinality(types) = 0 OR g.gemstone_type = ANY(types))
+      -- Gemstone type filter (name column is gemstone_type enum)
+      AND (types IS NULL OR cardinality(types) = 0 OR g.name::text = ANY(types))
       -- Color filter
       AND (colors IS NULL OR cardinality(colors) = 0 OR g.color = ANY(colors))
       -- Cut filter
