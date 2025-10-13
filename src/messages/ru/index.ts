@@ -15,6 +15,7 @@ import gemstones from "./gemstones.json";
 import home from "./home.json";
 import navigation from "./navigation.json";
 import orders from "./orders.json";
+import search from "./search.json";
 import user from "./user.json";
 
 export const ru = {
@@ -35,6 +36,7 @@ export const ru = {
   gemstones,
   home,
   orders,
+  search,
 };
 
 export default ru;
