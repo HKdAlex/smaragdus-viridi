@@ -63,6 +63,10 @@
   "adjustFiltersMessage": "Попробуйте изменить фильтры, чтобы увидеть больше результатов.",
   "resultsFound": "Найден {count} камень",
   "resultsFound_other": "Найдено {count} камней",
+  "gemstonesFound": "камней найдено",
+  "page": "Страница",
+  "of": "из",
+  "loadingGemstones": "Загрузка камней...",
   "gemstone": {
     "notFound": "Камень не найден",
     "notFoundDescription": "Запрашиваемый камень не найден.",

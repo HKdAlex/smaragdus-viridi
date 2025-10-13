@@ -63,6 +63,10 @@
   "adjustFiltersMessage": "Try adjusting your filters to see more results.",
   "resultsFound": "{count} gemstone found",
   "resultsFound_other": "{count} gemstones found",
+  "gemstonesFound": "gemstones found",
+  "page": "Page",
+  "of": "of",
+  "loadingGemstones": "Loading gemstones...",
   "gemstone": {
     "notFound": "Gemstone Not Found",
     "notFoundDescription": "The requested gemstone could not be found.",
