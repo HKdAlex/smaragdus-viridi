@@ -7,15 +7,16 @@
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
 -- Create GIN index for full-text search on gemstones
--- Weighted fields: serial_number (A), name (B), color (C), description (D)
+-- Weighted fields: serial_number (A), description (D)
+-- Note: name, color, cut, clarity are enums and must be cast to text
 CREATE INDEX IF NOT EXISTS idx_gemstones_fulltext_search ON gemstones 
 USING GIN (
   to_tsvector('english', 
     COALESCE(serial_number, '') || ' ' ||
-    COALESCE(name, '') || ' ' ||
-    COALESCE(color, '') || ' ' ||
-    COALESCE(gemstone_type, '') || ' ' ||
-    COALESCE(origin, '') || ' ' ||
+    COALESCE(name::text, '') || ' ' ||
+    COALESCE(color::text, '') || ' ' ||
+    COALESCE(cut::text, '') || ' ' ||
+    COALESCE(clarity::text, '') || ' ' ||
     COALESCE(description, '')
   )
 );

@@ -95,10 +95,10 @@ BEGIN
         ELSE ts_rank_cd(
           to_tsvector('english',
             COALESCE(g.serial_number, '') || ' ' ||
-            COALESCE(g.name, '') || ' ' ||
-            COALESCE(g.color, '') || ' ' ||
-            COALESCE(g.gemstone_type, '') || ' ' ||
-            COALESCE(g.origin, '') || ' ' ||
+            COALESCE(g.name::text, '') || ' ' ||
+            COALESCE(g.color::text, '') || ' ' ||
+            COALESCE(g.cut::text, '') || ' ' ||
+            COALESCE(g.clarity::text, '') || ' ' ||
             COALESCE(g.description, '')
           ),
           ts_query,
@@ -112,10 +112,10 @@ BEGIN
       -- Full-text search condition
       (ts_query IS NULL OR to_tsvector('english',
         COALESCE(g.serial_number, '') || ' ' ||
-        COALESCE(g.name, '') || ' ' ||
-        COALESCE(g.color, '') || ' ' ||
-        COALESCE(g.gemstone_type, '') || ' ' ||
-        COALESCE(g.origin, '') || ' ' ||
+        COALESCE(g.name::text, '') || ' ' ||
+        COALESCE(g.color::text, '') || ' ' ||
+        COALESCE(g.cut::text, '') || ' ' ||
+        COALESCE(g.clarity::text, '') || ' ' ||
         COALESCE(g.description, '')
       ) @@ ts_query)
       -- Price range filter
