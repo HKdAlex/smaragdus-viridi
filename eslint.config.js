@@ -23,6 +23,15 @@ const eslintConfig = [
       "*.config.ts",
     ],
   },
+  {
+    rules: {
+      // Enforce single quotes for consistency
+      quotes: ["error", "single", { avoidEscape: true, allowTemplateLiterals: true }],
+      
+      // Enforce consistent quote props (for Database['public'] consistency)
+      "quote-props": ["error", "as-needed"],
+    },
+  },
 ];
 
 export default eslintConfig;
