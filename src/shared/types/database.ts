@@ -1197,6 +1197,26 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      gtrgm_compress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gtrgm_decompress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gtrgm_in: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gtrgm_options: {
+        Args: { "": unknown }
+        Returns: undefined
+      }
+      gtrgm_out: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
       search_gemstones_optimized: {
         Args: {
           clarities?: string[]
@@ -1242,6 +1262,18 @@ export type Database = {
           updated_at: string
           weight_carats: number
         }[]
+      }
+      set_limit: {
+        Args: { "": number }
+        Returns: number
+      }
+      show_limit: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      show_trgm: {
+        Args: { "": string }
+        Returns: string[]
       }
       validate_cart_item: {
         Args: { p_gemstone_id: string; p_quantity: number; p_user_id: string }

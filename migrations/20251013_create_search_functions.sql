@@ -201,31 +201,21 @@ BEGIN
   
   -- Get suggestions from gemstone types
   SELECT DISTINCT
-    g.gemstone_type AS suggestion,
+    g.name::text AS suggestion,
     'type'::text AS category,
-    similarity(g.gemstone_type, query) AS relevance
+    similarity(g.name::text, query) AS relevance
   FROM gemstones g
-  WHERE g.gemstone_type % query
+  WHERE g.name::text % query
   
   UNION ALL
   
   -- Get suggestions from colors
   SELECT DISTINCT
-    g.color AS suggestion,
+    g.color::text AS suggestion,
     'color'::text AS category,
-    similarity(g.color, query) AS relevance
+    similarity(g.color::text, query) AS relevance
   FROM gemstones g
-  WHERE g.color % query
-  
-  UNION ALL
-  
-  -- Get suggestions from origins
-  SELECT DISTINCT
-    g.origin AS suggestion,
-    'origin'::text AS category,
-    similarity(g.origin, query) AS relevance
-  FROM gemstones g
-  WHERE g.origin % query
+  WHERE g.color::text % query
   
   ORDER BY relevance DESC
   LIMIT limit_count;
