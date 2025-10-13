@@ -2,6 +2,7 @@ import "./globals.css";
 
 import { Geist, Geist_Mono } from "next/font/google";
 
+import { QueryProvider } from "@/lib/react-query/provider";
 import { ThemeProvider } from "@/shared/context/theme-context";
 import type { Metadata } from "next";
 
@@ -74,7 +75,9 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning
       >
-        <ThemeProvider>{children}</ThemeProvider>
+        <QueryProvider>
+          <ThemeProvider>{children}</ThemeProvider>
+        </QueryProvider>
       </body>
     </html>
   );
