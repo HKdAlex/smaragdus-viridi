@@ -25,7 +25,7 @@ const eslintConfig = [
   },
   {
     rules: {
-      // Enforce single quotes for consistency (matches existing codebase)
+      // Enforce single quotes for consistency
       quotes: [
         "error",
         "single",
