@@ -9,10 +9,12 @@
 ## Problem
 
 The public catalog intentionally hides gemstones that are not ready for display:
+
 - **306 gemstones** with images but NO price set
 - **93 gemstones** with NO images uploaded
 
 Currently, these are invisible in the admin interface, making it hard for admins to:
+
 1. Know which gemstones need attention
 2. Prioritize data completion work
 3. Track progress on catalog readiness
@@ -30,6 +32,7 @@ Add status filter tabs to admin gemstone list:
 ```
 
 **Benefits:**
+
 - Clear visibility of incomplete items
 - One-click filtering
 - Progress tracking
@@ -53,6 +56,7 @@ Add stats widget to admin dashboard:
 New admin route: `/admin/gemstones/incomplete`
 
 Features:
+
 - List of items needing attention
 - Bulk actions: "Set Price", "Upload Images"
 - Progress tracking
@@ -65,15 +69,17 @@ Features:
 ### Phase 1: Add Filter Status Tabs (2 hours)
 
 **Files to modify:**
+
 - `src/features/admin/components/gemstone-list-optimized.tsx`
 
 **Add filter options:**
+
 ```typescript
-type GemstoneStatus = 
-  | "all"           // All gemstones
-  | "ready"         // Has images + price > 0
-  | "no_price"      // Has images, price = 0
-  | "no_images";    // No images
+type GemstoneStatus =
+  | "all" // All gemstones
+  | "ready" // Has images + price > 0
+  | "no_price" // Has images, price = 0
+  | "no_images"; // No images
 
 const statusFilters = {
   all: { count: 1385, label: "All" },
@@ -84,6 +90,7 @@ const statusFilters = {
 ```
 
 **SQL queries:**
+
 ```sql
 -- No price
 WHERE price_amount = 0
@@ -97,9 +104,11 @@ WHERE NOT EXISTS (
 ### Phase 2: Dashboard Stats Widget (1 hour)
 
 **Files to create:**
+
 - `src/features/admin/components/catalog-completeness-widget.tsx`
 
 **Place on:**
+
 - Admin dashboard home page
 - Shows progress bars
 - Links to filtered views
@@ -107,6 +116,7 @@ WHERE NOT EXISTS (
 ### Phase 3: Bulk Actions (3 hours)
 
 **Features:**
+
 - Bulk price setting
 - Bulk image upload
 - Bulk "mark as incomplete" flagging
@@ -125,6 +135,7 @@ WHERE NOT EXISTS (
 ## Notes
 
 This feature should be implemented AFTER:
+
 - Phase 1 (React Query) is complete
 - Admin component is refactored
 - We have stable admin interface
@@ -134,4 +145,3 @@ This feature should be implemented AFTER:
 **Priority:** Medium (not blocking current work)
 
 **Tracking:** Add to backlog after Phase 1 completion
-

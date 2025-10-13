@@ -1,11 +1,11 @@
 /**
  * Admin Gemstone List (Refactored - Phase 1)
- * 
+ *
  * Clean admin implementation using:
  * - React Query for server state
  * - Controlled filter components
  * - Maintains admin features (bulk edit, export, detail view)
- * 
+ *
  * Reduced from 831 LOC to ~300 LOC by:
  * - Using React Query (replaces admin-cache)
  * - Using Phase 0 shared components
@@ -15,16 +15,16 @@
 
 "use client";
 
-import { useCallback, useState } from "react";
-import { useTranslations } from "next-intl";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Edit, FileText, Gem, Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useCallback, useState } from "react";
 
 // React Query hooks
-import { useGemstoneQuery } from "@/features/gemstones/hooks/use-gemstone-query";
 import { useFilterCountsQuery } from "@/features/gemstones/hooks/use-filter-counts-query";
+import { useGemstoneQuery } from "@/features/gemstones/hooks/use-gemstone-query";
 
 // Filter state hooks
 import { useFilterState } from "@/features/gemstones/hooks/use-filter-state";
@@ -33,15 +33,14 @@ import { useFilterState } from "@/features/gemstones/hooks/use-filter-state";
 import { AdvancedFiltersControlled } from "@/features/gemstones/components/filters/advanced-filters-controlled";
 
 // Shared components
-import { GemstoneGrid } from "@/features/gemstones/components/gemstone-grid";
-import { PaginationControls } from "@/features/gemstones/components/pagination-controls";
 import { EmptyState } from "@/features/gemstones/components/empty-state";
 import { LoadingState } from "@/features/gemstones/components/loading-state";
+import { PaginationControls } from "@/features/gemstones/components/pagination-controls";
 
 // Admin-specific components
 import { BulkEditModal } from "./bulk-edit-modal";
-import { GemstoneDetailView } from "./gemstone-detail-view";
 import { GemstoneActionsMenu } from "./gemstone-actions-menu";
+import { GemstoneDetailView } from "./gemstone-detail-view";
 
 // Services
 import { ExportService } from "../services/export-service";
@@ -74,11 +73,13 @@ export function GemstoneListRefactored({
   const [currentPage, setCurrentPage] = useState(1);
 
   // Admin-specific state
-  const [selectedGemstones, setSelectedGemstones] = useState<Set<string>>(new Set());
+  const [selectedGemstones, setSelectedGemstones] = useState<Set<string>>(
+    new Set()
+  );
   const [bulkEditOpen, setBulkEditOpen] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [detailViewOpen, setDetailViewOpen] = useState(false);
-  const [selectedGemstoneForView, setSelectedGemstoneForView] = 
+  const [selectedGemstoneForView, setSelectedGemstoneForView] =
     useState<GemstoneWithRelations | null>(null);
 
   // React Query: Fetch gemstones
@@ -142,7 +143,9 @@ export function GemstoneListRefactored({
           : gemstones;
 
       await ExportService.exportToCSV(gemstonesToExport, {
-        filename: `gemstones-export-${new Date().toISOString().split("T")[0]}.csv`,
+        filename: `gemstones-export-${
+          new Date().toISOString().split("T")[0]
+        }.csv`,
       });
     } catch (error) {
       console.error("Export failed:", error);
@@ -292,7 +295,10 @@ export function GemstoneListRefactored({
                   : t("selectAll")}
               </Button>
               <span className="text-sm text-muted-foreground">
-                {pagination && `${t("page")} ${pagination.page} ${t("of")} ${pagination.totalPages}`}
+                {pagination &&
+                  `${t("page")} ${pagination.page} ${t("of")} ${
+                    pagination.totalPages
+                  }`}
               </span>
             </div>
           )}
@@ -335,7 +341,8 @@ export function GemstoneListRefactored({
                           {gemstone.name} - {gemstone.weight_carats}ct
                         </h3>
                         <p className="text-sm text-muted-foreground">
-                          {gemstone.serial_number} • {gemstone.color} • {gemstone.cut}
+                          {gemstone.serial_number} • {gemstone.color} •{" "}
+                          {gemstone.cut}
                         </p>
                       </div>
                     </div>
