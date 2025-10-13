@@ -14,6 +14,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useRouter } from "@/i18n/navigation";
+import { useTypeSafeRouter } from "@/lib/navigation/type-safe-router";
 import { useSearchSuggestionsQuery } from "../hooks/use-search-suggestions-query";
 import { useTranslations } from "next-intl";
 
@@ -35,7 +36,7 @@ export function SearchInput({
   defaultValue = "",
 }: SearchInputProps) {
   const t = useTranslations("search");
-  const router = useRouter();
+  const router = useTypeSafeRouter();
 
   const [query, setQuery] = useState(defaultValue);
   const [debouncedQuery, setDebouncedQuery] = useState(defaultValue);
@@ -78,7 +79,7 @@ export function SearchInput({
         onSearch(trimmed);
       } else {
         // Navigate to search results page
-        router.push(`/search?q=${encodeURIComponent(trimmed)}` as any);
+        router.pushDynamic(`/search?q=${encodeURIComponent(trimmed)}`);
       }
     },
     [onSearch, router]

@@ -11,6 +11,7 @@
 
 import { useEffect, useRef } from "react";
 import { usePathname, useRouter } from "@/i18n/navigation";
+import { useTypeSafeRouter } from "@/lib/navigation/type-safe-router";
 
 import type { AdvancedGemstoneFilters } from "../types/filter.types";
 import { filtersToQueryString } from "../utils/filter-url.utils";
@@ -42,7 +43,7 @@ export function useFilterUrlSync(
 ) {
   const { enabled = true, debounceMs = 100 } = options;
 
-  const router = useRouter();
+  const router = useTypeSafeRouter();
   const pathname = usePathname();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -63,7 +64,7 @@ export function useFilterUrlSync(
       if (queryString !== currentQuery) {
         const newUrl = queryString ? `${pathname}?${queryString}` : pathname;
 
-        router.replace(newUrl as any, { scroll: false });
+        router.replaceDynamic(newUrl, { scroll: false });
       }
     }, debounceMs);
 

@@ -5,7 +5,18 @@
  * Single source of truth for URL state management.
  */
 
-import type { AdvancedGemstoneFilters, MutableAdvancedGemstoneFilters } from "../types/filter.types";
+import type {
+  AdvancedGemstoneFilters,
+  MutableAdvancedGemstoneFilters,
+} from "../types/filter.types";
+import {
+  parseGemstoneTypes,
+  parseGemColors,
+  parseGemCuts,
+  parseGemClarities,
+  parseSortBy,
+  parseSortDirection,
+} from "@/lib/validators/enum-parser";
 
 export class QueryBuilderService {
   /**
@@ -85,22 +96,22 @@ export class QueryBuilderService {
     // Categorical filters
     const gemstoneTypes = query.get("gemstoneTypes");
     if (gemstoneTypes) {
-      result.gemstoneTypes = gemstoneTypes.split(",") as any;
+      result.gemstoneTypes = parseGemstoneTypes(gemstoneTypes);
     }
 
     const colors = query.get("colors");
     if (colors) {
-      result.colors = colors.split(",") as any;
+      result.colors = parseGemColors(colors);
     }
 
     const cuts = query.get("cuts");
     if (cuts) {
-      result.cuts = cuts.split(",") as any;
+      result.cuts = parseGemCuts(cuts);
     }
 
     const clarities = query.get("clarities");
     if (clarities) {
-      result.clarities = clarities.split(",") as any;
+      result.clarities = parseGemClarities(clarities);
     }
 
     const origins = query.get("origins");
@@ -145,11 +156,11 @@ export class QueryBuilderService {
     // Sorting
     const sortBy = query.get("sortBy");
     if (sortBy) {
-      result.sortBy = sortBy as any;
+      result.sortBy = parseSortBy(sortBy);
     }
     const sortDirection = query.get("sortDirection");
     if (sortDirection) {
-      result.sortDirection = sortDirection as any;
+      result.sortDirection = parseSortDirection(sortDirection);
     }
 
     // Return as read-only AdvancedGemstoneFilters
