@@ -1,6 +1,6 @@
 /**
  * Search Types
- * 
+ *
  * TypeScript types for search functionality
  */
 
@@ -25,18 +25,18 @@ export interface SearchFilters {
   // Price range
   minPrice?: number;
   maxPrice?: number;
-  
+
   // Weight range
   minWeight?: number;
   maxWeight?: number;
-  
+
   // Array filters
   gemstoneTypes?: string[];
   colors?: string[];
   cuts?: string[];
   clarities?: string[];
   origins?: string[];
-  
+
   // Boolean filters
   inStockOnly?: boolean;
   hasImages?: boolean;
@@ -74,7 +74,7 @@ export interface SearchResponse {
  */
 export interface SearchSuggestion {
   suggestion: string;
-  category: 'serial_number' | 'type' | 'color' | 'origin';
+  category: "serial_number" | "type" | "color" | "origin";
   relevance: number;
 }
 
@@ -96,4 +96,3 @@ export interface SearchAnalyticsEvent {
   session_id: string;
   created_at: string;
 }
-

@@ -5,7 +5,7 @@
  * Uses Supabase RPC functions for database queries.
  */
 
-import { createClient } from "@/utils/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase";
 import type {
   SearchRequest,
   SearchResponse,
@@ -21,7 +21,11 @@ export class SearchService {
   static async searchGemstones(
     request: SearchRequest
   ): Promise<SearchResponse> {
-    const supabase = await createClient();
+    if (!supabaseAdmin) {
+      throw new Error("Database connection failed");
+    }
+    
+    const supabase = supabaseAdmin;
     
     const { query, page, pageSize, filters } = request;
     
@@ -98,7 +102,11 @@ export class SearchService {
     query: string,
     limit: number = 10
   ): Promise<SearchSuggestionsResponse> {
-    const supabase = await createClient();
+    if (!supabaseAdmin) {
+      throw new Error("Database connection failed");
+    }
+    
+    const supabase = supabaseAdmin;
     
     // Call the get_search_suggestions RPC function
     const { data, error } = await supabase.rpc("get_search_suggestions", {
