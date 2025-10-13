@@ -4,7 +4,7 @@
  * TypeScript types for search functionality
  */
 
-import type { Database } from "@/types/database";
+import type { Database } from "@/shared/types/database";
 
 // Gemstone type from database
 type DbGemstone = Database["public"]["Tables"]["gemstones"]["Row"];
