@@ -1,12 +1,11 @@
 <!-- d65de335-3352-46a7-8f35-db87182d5180 2874e8b9-529c-44f0-9c5c-cad958d21096 -->
-
 # Advanced Search Optimization - Complete Project Plan
 
 ## Project Overview
 
 Comprehensive search system optimization with clean architecture refactoring across 6 phases. Implements modern search features (full-text, autocomplete, fuzzy matching, analytics) while maintaining zero regressions and following best practices (SRP, DRY, SSOT).
 
-**Status:** Phase 0 Complete ✅, Phase 1 Complete ✅, Phase 2 Complete ✅, Phase 3 Complete ✅
+**Status:** Phase 0 Complete, Phase 1 In Progress
 
 ---
 
@@ -26,23 +25,11 @@ Comprehensive search system optimization with clean architecture refactoring acr
 
 ---
 
-## Phase 1: Filter System Refactoring + React Query Integration ✅ COMPLETE
+## Phase 1: Filter System Refactoring + React Query Integration
 
 **Goal:** Clean up filter architecture and integrate React Query for intelligent caching
 
-**Duration:** ~7 hours (actual) / ~10 hours (estimated)
-
-**Status:** ✅ **COMPLETE** - See `PHASE_1_COMPLETION_SUMMARY.md` for full details
-
-**What Was Achieved:**
-
-- React Query integrated with intelligent caching
-- Filter architecture completely refactored to controlled components
-- Catalog refactored: 708 → 208 LOC (-71%)
-- Admin refactored: 831 → 393 LOC (-53%)
-- 15 unit tests created, all passing
-- Zero regressions, all features preserved
-- **Total:** 938 LOC removed (-61%)
+**Duration:** ~10 hours (2-3 work sessions)
 
 ### Current Problems
 
@@ -109,8 +96,7 @@ export function useGemstoneQuery(
 ) {
   return useQuery({
     queryKey: queryKeys.gemstones.list(filters, page, pageSize),
-    queryFn: () =>
-      GemstoneFetchService.fetchGemstones({ filters, page, pageSize }),
+    queryFn: () => GemstoneFetchService.fetchGemstones({ filters, page, pageSize }),
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
   });
@@ -198,37 +184,24 @@ export function useGemstoneQuery(
 - `FILTER_REFACTORING_CLEANUP.md` - Migration guide, before/after diagrams
 - Update `PHASE_0_CLEANUP_PLAN.md` with Phase 1 entries
 
-### Phase 1 Success Criteria ✅ ALL MET
+### Phase 1 Success Criteria
 
-- [x] All filters work identically to current behavior
-- [x] URL sync preserves filter state on refresh
-- [x] React Query cache reduces API calls by >50%
-- [x] Filter components are <400 LOC each (controlled)
-- [x] No internal state in filter components
-- [x] Unit tests passing (15/15)
-- [x] React Query Devtools shows correct cache hits
-- [x] Zero regressions in production
+- [ ] All filters work identically to current behavior
+- [ ] URL sync preserves filter state on refresh
+- [ ] React Query cache reduces API calls by >50%
+- [ ] Filter components are <150 LOC each
+- [ ] No internal state in filter components
+- [ ] All E2E tests pass
+- [ ] React Query Devtools shows correct cache hits
+- [ ] Zero regressions in production
 
 ---
 
-## Phase 2: Database & Full-Text Search ✅ COMPLETE
+## Phase 2: Database & Full-Text Search
 
 **Goal:** Implement PostgreSQL full-text search with relevance ranking
 
-**Duration:** ~4 hours (actual) / ~6 hours (estimated)
-
-**Status:** ✅ **COMPLETE** - See `PHASE_2_COMPLETION_SUMMARY.md` and `PHASE_2_QUESTIONS_ANSWERED.md`
-
-**What Was Achieved:**
-
-- ✅ pg_trgm extension enabled for fuzzy search
-- ✅ GIN indexes created (full-text + trigram)
-- ✅ RPC functions: `search_gemstones_fulltext`, `get_search_suggestions`
-- ✅ Database-first principle strictly maintained
-- ✅ All enum columns properly handled (cast to text where needed)
-- ✅ API routes with Zod validation (`/api/search`, `/api/search/suggestions`)
-- ✅ SearchService with 100% test coverage (20/20 tests passing)
-- ✅ TypeScript types regenerated from database schema
+**Duration:** ~6 hours
 
 ### Database Migrations
 
@@ -493,7 +466,7 @@ gcTime: 7 * 24 * 60 * 60 * 1000, // 7 days
 
 - [ ] All files <300 LOC
 - [ ] 100% TypeScript strict mode
-- [ ] > 85% test coverage
+- [ ] >85% test coverage
 - [ ] Zero linting errors
 
 **User Experience:**
@@ -537,31 +510,23 @@ gcTime: 7 * 24 * 60 * 60 * 1000, // 7 days
 
 ---
 
-## Current Status: Phase 1 Complete ✅
+## Current Status: Phase 1 In Progress
 
 **Completed:**
 
-- [x] React Query installed and configured
-- [x] Query client and provider created
-- [x] Query keys factory created
-- [x] React Query hooks for gemstones
-- [x] Simplified filter state hooks
-- [x] Controlled filter components
-- [x] Catalog component refactored
-- [x] Admin component refactored
-- [x] Comprehensive testing (15 unit tests)
-- [x] Documentation complete
+- React Query installed
+- Query client configured
+- Query keys factory created
 
-**Next Phase:**
+**Next Steps:**
 
-**Phase 2: Database & Full-Text Search** (~6 hours)
-
-1. Create PostgreSQL full-text search functions
-2. Implement relevance ranking with ts_rank_cd
-3. Create unified /api/search endpoint
-4. Add Zod validation schemas
-5. Unit and E2E tests
-6. Documentation
+1. Create QueryProvider and add to layout
+2. Create React Query hooks for gemstones
+3. Create simplified filter state hooks
+4. Refactor filter components to be controlled
+5. Update catalog and admin components
+6. Comprehensive testing
+7. Cleanup and documentation
 
 ### To-dos
 

@@ -10,11 +10,11 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { usePathname, useRouter } from "@/i18n/navigation";
-import { useTypeSafeRouter } from "@/lib/navigation/type-safe-router";
 
 import type { AdvancedGemstoneFilters } from "../types/filter.types";
 import { filtersToQueryString } from "../utils/filter-url.utils";
+import { usePathname } from "@/i18n/navigation";
+import { useTypeSafeRouter } from "@/lib/navigation/type-safe-router";
 
 export interface UseFilterUrlSyncOptions {
   enabled?: boolean;

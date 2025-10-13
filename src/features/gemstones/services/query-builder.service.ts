@@ -10,10 +10,10 @@ import type {
   MutableAdvancedGemstoneFilters,
 } from "../types/filter.types";
 import {
-  parseGemstoneTypes,
+  parseGemClarities,
   parseGemColors,
   parseGemCuts,
-  parseGemClarities,
+  parseGemstoneTypes,
   parseSortBy,
   parseSortDirection,
 } from "@/lib/validators/enum-parser";

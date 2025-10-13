@@ -47,7 +47,6 @@ DECLARE
   colors text[];
   cuts text[];
   clarities text[];
-  origins text[];
   in_stock_only boolean;
   has_images boolean;
   has_certification_filter boolean;
@@ -75,7 +74,7 @@ BEGIN
   colors := ARRAY(SELECT jsonb_array_elements_text(filters->'colors'));
   cuts := ARRAY(SELECT jsonb_array_elements_text(filters->'cuts'));
   clarities := ARRAY(SELECT jsonb_array_elements_text(filters->'clarities'));
-  origins := ARRAY(SELECT jsonb_array_elements_text(filters->'origins'));
+  -- Note: origins filter omitted - requires JOIN with origins table
   
   -- Extract boolean filters
   in_stock_only := (filters->>'inStockOnly')::boolean;
@@ -117,13 +116,11 @@ BEGIN
       -- Gemstone type filter (name column is gemstone_type enum)
       AND (types IS NULL OR cardinality(types) = 0 OR g.name::text = ANY(types))
       -- Color filter
-      AND (colors IS NULL OR cardinality(colors) = 0 OR g.color = ANY(colors))
+      AND (colors IS NULL OR cardinality(colors) = 0 OR g.color::text = ANY(colors))
       -- Cut filter
-      AND (cuts IS NULL OR cardinality(cuts) = 0 OR g.cut = ANY(cuts))
+      AND (cuts IS NULL OR cardinality(cuts) = 0 OR g.cut::text = ANY(cuts))
       -- Clarity filter
-      AND (clarities IS NULL OR cardinality(clarities) = 0 OR g.clarity = ANY(clarities))
-      -- Origin filter
-      AND (origins IS NULL OR cardinality(origins) = 0 OR g.origin = ANY(origins))
+      AND (clarities IS NULL OR cardinality(clarities) = 0 OR g.clarity::text = ANY(clarities))
       -- Stock filter (price > 0 means in stock)
       AND (in_stock_only IS NULL OR NOT in_stock_only OR g.price_amount > 0)
       -- Images filter

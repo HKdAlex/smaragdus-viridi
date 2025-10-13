@@ -13,10 +13,9 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { useRouter } from "@/i18n/navigation";
-import { useTypeSafeRouter } from "@/lib/navigation/type-safe-router";
 import { useSearchSuggestionsQuery } from "../hooks/use-search-suggestions-query";
 import { useTranslations } from "next-intl";
+import { useTypeSafeRouter } from "@/lib/navigation/type-safe-router";
 
 export interface SearchInputProps {
   placeholder?: string;
