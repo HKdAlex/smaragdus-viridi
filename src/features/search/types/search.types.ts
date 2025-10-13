@@ -7,7 +7,7 @@
 import type { Database } from "@/shared/types/database";
 
 // Gemstone type from database
-type DbGemstone = Database["public"]["Tables"]["gemstones"]["Row"];
+type DbGemstone = Database['public']['Tables']['gemstones']['Row'];
 
 /**
  * Gemstone with Search Metadata
