@@ -27,7 +27,7 @@ import { useTranslations } from "next-intl";
 
 // ===== COMPONENT =====
 
-export function GemstoneCatalogRefactored() {
+export function GemstoneCatalogOptimized() {
   const t = useTranslations("catalog");
 
   // State
