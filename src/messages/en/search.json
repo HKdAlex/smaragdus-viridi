@@ -12,5 +12,13 @@
   "tryDifferent": "Try different keywords or adjust your filters",
   "enterSearch": "Enter a search query",
   "searchPrompt": "Use the search box above to find gemstones",
-  "error": "Search error"
+  "error": "Search error",
+  "fuzzySearch": {
+    "noExactMatches": "No exact matches found for your search.",
+    "showingSimilar": "Showing similar results based on approximate matching.",
+    "didYouMean": "Did you mean:",
+    "andMore": "and {count} more suggestions",
+    "approximateMatches": "Approximate matches:",
+    "noExactMatch": "Your search term didn't match exactly, showing similar results."
+  }
 }

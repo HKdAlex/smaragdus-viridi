@@ -1185,6 +1185,14 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: number
       }
+      fuzzy_search_suggestions: {
+        Args: { search_term: string; suggestion_limit?: number }
+        Returns: {
+          match_type: string
+          similarity_score: number
+          suggestion: string
+        }[]
+      }
       get_batch_statistics: {
         Args: { batch_uuid: string }
         Returns: Json

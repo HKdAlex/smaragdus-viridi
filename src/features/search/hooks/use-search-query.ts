@@ -45,6 +45,7 @@ export interface SearchResponse {
     hasNextPage: boolean;
     hasPrevPage: boolean;
   };
+  usedFuzzySearch?: boolean;
 }
 
 /**

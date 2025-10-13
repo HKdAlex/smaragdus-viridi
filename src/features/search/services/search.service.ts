@@ -5,7 +5,6 @@
  * Uses Supabase RPC functions for database queries.
  */
 
-import { supabaseAdmin } from "@/lib/supabase";
 import type {
   SearchRequest,
   SearchResponse,
@@ -13,9 +12,11 @@ import type {
   SearchSuggestionsResponse,
 } from "../types/search.types";
 
+import { supabaseAdmin } from "@/lib/supabase";
+
 export class SearchService {
   /**
-   * Full-text search with relevance ranking
+   * Full-text search with relevance ranking and fuzzy fallback
    */
   static async searchGemstones(
     request: SearchRequest
@@ -28,7 +29,7 @@ export class SearchService {
 
     const { query, page, pageSize, filters } = request;
 
-    // Call the search_gemstones_fulltext RPC function
+    // Try exact search first
     const { data, error } = await supabase.rpc("search_gemstones_fulltext", {
       search_query: query || "",
       filters: (filters || {}) as any,
@@ -39,6 +40,38 @@ export class SearchService {
     if (error) {
       console.error("[SearchService] Full-text search error:", error);
       throw new Error(`Search failed: ${error.message}`);
+    }
+
+    // If exact search returns no results, try fuzzy search
+    if ((!data || data.length === 0) && query && query.trim().length > 0) {
+      console.log(
+        `[SearchService] No exact matches for "${query}", trying fuzzy search...`
+      );
+
+      const fuzzyFilters = {
+        ...(filters || {}),
+        useFuzzy: true,
+      };
+
+      const { data: fuzzyData, error: fuzzyError } = await supabase.rpc(
+        "search_gemstones_fulltext",
+        {
+          search_query: query,
+          filters: fuzzyFilters as any,
+          page_num: page,
+          page_size: pageSize,
+        }
+      );
+
+      if (fuzzyError) {
+        console.error("[SearchService] Fuzzy search error:", fuzzyError);
+        // Don't throw, just return empty results
+      } else if (fuzzyData && fuzzyData.length > 0) {
+        console.log(
+          `[SearchService] Fuzzy search found ${fuzzyData.length} results`
+        );
+        return this.buildSearchResponse(fuzzyData, page, pageSize, true);
+      }
     }
 
     if (!data || data.length === 0) {
@@ -52,9 +85,22 @@ export class SearchService {
           hasNextPage: false,
           hasPrevPage: false,
         },
+        usedFuzzySearch: false,
       };
     }
 
+    return this.buildSearchResponse(data, page, pageSize, false);
+  }
+
+  /**
+   * Build search response from raw data
+   */
+  private static buildSearchResponse(
+    data: any[],
+    page: number,
+    pageSize: number,
+    usedFuzzy: boolean
+  ): SearchResponse {
     // Extract total count from first row
     const totalCount = data[0]?.total_count || 0;
     const totalPages = Math.ceil(totalCount / pageSize);
@@ -91,7 +137,39 @@ export class SearchService {
         hasNextPage: page < totalPages,
         hasPrevPage: page > 1,
       },
+      usedFuzzySearch: usedFuzzy,
     };
+  }
+
+  /**
+   * Get fuzzy search suggestions for "Did you mean?"
+   */
+  static async getFuzzySuggestions(
+    query: string,
+    limit: number = 5
+  ): Promise<Array<{ suggestion: string; score: number; type: string }>> {
+    if (!supabaseAdmin) {
+      throw new Error("Database connection failed");
+    }
+
+    const supabase = supabaseAdmin;
+
+    // Call the fuzzy_search_suggestions RPC function
+    const { data, error } = await supabase.rpc("fuzzy_search_suggestions", {
+      search_term: query,
+      suggestion_limit: limit,
+    });
+
+    if (error) {
+      console.error("[SearchService] Fuzzy suggestions error:", error);
+      return [];
+    }
+
+    return (data || []).map((row: any) => ({
+      suggestion: row.suggestion,
+      score: row.similarity_score,
+      type: row.match_type,
+    }));
   }
 
   /**
