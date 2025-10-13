@@ -1,0 +1,25 @@
+---
+description: "Comprehensive testing requirements including unit tests with Vitest, end-to-end tests with Playwright, CI pipeline expectations, and code coverage targets to ensure reliable, maintainable software delivery."
+alwaysApply: false
+---
+
+# TESTING — Make it pass, and prove it
+
+Unit (Vitest):
+
+- Every new function gets tests: happy path + edge cases + failure modes.
+- Mock Supabase where feasible; integration tests can use a test schema.
+
+E2E (Playwright):
+
+- User-visible flows require E2E: auth, CRUD, error states.
+- Tests live under tests/e2e/\*.spec.ts and run headless in CI.
+
+CI expectations:
+
+- 'pnpm lint', 'pnpm typecheck', 'pnpm test', 'pnpm build' must pass.
+- Provide minimal CI config snippet when adding new test suites.
+
+Coverage:
+
+- Aim >80% for new/changed code. Don’t chase 100% at cost of clarity.

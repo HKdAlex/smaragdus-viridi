@@ -1,0 +1,28 @@
+---
+alwaysApply: false
+description: "Non-negotiable security requirements including secret management, authentication checks, Row Level Security policies, input validation, and data protection practices to ensure system security and user privacy."
+---
+
+# SECURITY — Non-negotiables
+
+Secrets:
+
+- Never place service_role key in client or public files.
+- Use server-only envs: NEXT*PUBLIC*\* is allowed for non-secrets only.
+
+Auth:
+
+- Always check auth in server actions/route handlers (getUser/session).
+- For multi-tenant data, scope by user/org id at the query level and in RLS.
+
+RLS & Policies:
+
+- Do not propose disabling policies. Propose policies explicitly:
+  - SELECT limited to owner/org
+  - INSERT limited to authenticated user with constraints
+  - UPDATE/DELETE owner-only or role-based
+- Include policy drafts in PLAN when data writes are introduced.
+
+Validation:
+
+- All external inputs pass zod.parse. Reject early with 400 + helpful message.

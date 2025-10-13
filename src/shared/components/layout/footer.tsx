@@ -42,7 +42,7 @@ export function Footer() {
             {/* Company Info */}
             <div className="lg:col-span-2">
               <div className="flex items-center space-x-3 mb-4">
-                <Logo variant="inline" size="xl" showText={false} />
+                <Logo variant="inline" size="xxl" showText={false} />
                 {/* <span className="font-bold text-xl text-foreground">
                   {t("company.name")}
                 </span> */}

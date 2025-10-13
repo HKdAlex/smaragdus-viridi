@@ -1,0 +1,68 @@
+---
+alwaysApply: false
+description: "Architectural guardrails for Next.js App Router and Supabase integration, enforcing Server Components by default, proper secret handling, RLS policies, parameterized queries, TypeScript type generation, data access layering, and explicit caching strategies."
+---
+
+# ARCH — Next.js + Supabase guardrails
+
+Next.js (App Router):
+
+- Prefer Server Components by default. Switch to "use client" only for interactive UI.
+- Server-only operations (secrets, service role, RLS-bypassing) MUST live in:
+  - app/api/\* route handlers, or
+  - server actions (if explicitly allowed), or
+  - supabase Edge Functions (for elevated ops with service key on the server side only).
+- Never access process.env.\* in client components.
+- Put cross-feature logic in /lib/\* (pure, typed, reusable).
+- Route Handler pattern: validate -> authorize -> act -> return typed JSON.
+
+Supabase:
+
+- RLS must remain ON for all tables.
+- Client-side supabase: use anon key only. All writes must pass RLS policies.
+- Privileged logic = Edge Function or server route -> use service role there only.
+- Prefer parameterized SQL via RPC or supabase-js query builders.
+- Derive TS types from DB:
+  - `supabase gen types typescript --project-id ... > types/database.ts`
+  - Use these types in db modules. Avoid stringly-typed columns.
+
+Data access layering:
+
+- /lib/db/<feature>.ts = thin wrappers for queries/mutations. No UI, no fetch in components.
+- /lib/validators/<feature>.ts = zod schemas for inputs/outputs.
+
+Caching:
+
+- Explicitly annotate caching in fetches (Next.js cache, revalidate tags) and document in PLAN.
+
+# ARCH — Next.js + Supabase guardrails
+
+Next.js (App Router):
+
+- Prefer Server Components by default. Switch to "use client" only for interactive UI.
+- Server-only operations (secrets, service role, RLS-bypassing) MUST live in:
+  - app/api/\* route handlers, or
+  - server actions (if explicitly allowed), or
+  - supabase Edge Functions (for elevated ops with service key on the server side only).
+- Never access process.env.\* in client components.
+- Put cross-feature logic in /lib/\* (pure, typed, reusable).
+- Route Handler pattern: validate -> authorize -> act -> return typed JSON.
+
+Supabase:
+
+- RLS must remain ON for all tables.
+- Client-side supabase: use anon key only. All writes must pass RLS policies.
+- Privileged logic = Edge Function or server route -> use service role there only.
+- Prefer parameterized SQL via RPC or supabase-js query builders.
+- Derive TS types from DB:
+  - `supabase gen types typescript --project-id ... > types/database.ts`
+  - Use these types in db modules. Avoid stringly-typed columns.
+
+Data access layering:
+
+- /lib/db/<feature>.ts = thin wrappers for queries/mutations. No UI, no fetch in components.
+- /lib/validators/<feature>.ts = zod schemas for inputs/outputs.
+
+Caching:
+
+- Explicitly annotate caching in fetches (Next.js cache, revalidate tags) and document in PLAN.

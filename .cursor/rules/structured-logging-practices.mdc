@@ -1,97 +1,108 @@
 ---
-description: 
-globs: 
-alwaysApply: true
+description:
+globs:
+alwaysApply: false
 ---
+
 # Structured Logging Practices - Smaragdus Viridi
 
 ## Logging Strategy
+
 Implement comprehensive structured logging for the gemstone e-commerce platform to track user behavior, system performance, and business metrics.
 
 ## Log Levels and Usage
+
 - **ERROR**: System errors, failed transactions, API failures
 - **WARN**: Unexpected conditions, deprecated features, rate limiting
 - **INFO**: User actions, business events, system state changes
 - **DEBUG**: Detailed execution flow, development diagnostics
 
 ## Logger Configuration
+
 ```typescript
 // lib/logger.ts
-import pino from 'pino'
+import pino from "pino";
 
-const isDevelopment = process.env.NODE_ENV === 'development'
+const isDevelopment = process.env.NODE_ENV === "development";
 
 export const logger = pino({
-  level: isDevelopment ? 'debug' : 'info',
+  level: isDevelopment ? "debug" : "info",
   formatters: {
     level: (label) => ({ level: label }),
     bindings: (bindings) => ({
       pid: bindings.pid,
       hostname: bindings.hostname,
-      service: 'smaragdus-viridi'
-    })
+      service: "smaragdus-viridi",
+    }),
   },
   timestamp: pino.stdTimeFunctions.isoTime,
-  redact: ['password', 'token', 'authorization', 'cookie'],
+  redact: ["password", "token", "authorization", "cookie"],
   ...(isDevelopment && {
     transport: {
-      target: 'pino-pretty',
-      options: { colorize: true }
-    }
-  })
-})
+      target: "pino-pretty",
+      options: { colorize: true },
+    },
+  }),
+});
 
 // Context-aware logging
 export const createContextLogger = (context: string) => {
-  return logger.child({ context })
-}
+  return logger.child({ context });
+};
 ```
 
 ## Business Domain Logging
 
 ### Stone Catalog Events
+
 ```typescript
 // features/catalog/services/catalogLogger.ts
-import { createContextLogger } from '@/lib/logger'
+import { createContextLogger } from "@/lib/logger";
 
-const catalogLogger = createContextLogger('catalog')
+const catalogLogger = createContextLogger("catalog");
 
-export const logCatalogView = (filters: CatalogFilters, resultCount: number) => {
-  catalogLogger.info('catalog_viewed', {
-    event: 'catalog_viewed',
+export const logCatalogView = (
+  filters: CatalogFilters,
+  resultCount: number
+) => {
+  catalogLogger.info("catalog_viewed", {
+    event: "catalog_viewed",
     filters: {
       cut: filters.cut,
       color: filters.color,
-      price_range: filters.price_min && filters.price_max 
-        ? `${filters.price_min}-${filters.price_max}` 
-        : null,
-      weight_range: filters.weight_min && filters.weight_max
-        ? `${filters.weight_min}-${filters.weight_max}`
-        : null
+      price_range:
+        filters.price_min && filters.price_max
+          ? `${filters.price_min}-${filters.price_max}`
+          : null,
+      weight_range:
+        filters.weight_min && filters.weight_max
+          ? `${filters.weight_min}-${filters.weight_max}`
+          : null,
     },
     result_count: resultCount,
-    timestamp: new Date().toISOString()
-  })
-}
+    timestamp: new Date().toISOString(),
+  });
+};
 
 export const logStoneSearch = (query: string, resultCount: number) => {
-  catalogLogger.info('stone_search', {
-    event: 'stone_search',
+  catalogLogger.info("stone_search", {
+    event: "stone_search",
     search_query: query,
     result_count: resultCount,
-    timestamp: new Date().toISOString()
-  })
-}
+    timestamp: new Date().toISOString(),
+  });
+};
 ```
 
 ### User Behavior Tracking
+
 ```typescript
 // features/product/services/productLogger.ts
-const productLogger = createContextLogger('product')
+const productLogger = createContextLogger("product");
 
 export const logStoneView = (stone: Stone, userId?: string) => {
-  productLogger.info('stone_viewed', {
-    event: 'stone_viewed',
+  productLogger.info("stone_viewed", {
+    event: "stone_viewed",
     stone_id: stone.id,
     stone_title: stone.title,
     stone_weight: stone.weight,
@@ -99,159 +110,167 @@ export const logStoneView = (stone: Stone, userId?: string) => {
     stone_color: stone.color,
     stone_price: stone.price_regular,
     user_id: userId,
-    timestamp: new Date().toISOString()
-  })
-}
+    timestamp: new Date().toISOString(),
+  });
+};
 
 export const logMediaDownload = (
-  stoneId: string, 
-  mediaType: 'image' | 'video', 
+  stoneId: string,
+  mediaType: "image" | "video",
   userId: string
 ) => {
-  productLogger.info('media_downloaded', {
-    event: 'media_downloaded',
+  productLogger.info("media_downloaded", {
+    event: "media_downloaded",
     stone_id: stoneId,
     media_type: mediaType,
     user_id: userId,
-    timestamp: new Date().toISOString()
-  })
-}
+    timestamp: new Date().toISOString(),
+  });
+};
 ```
 
 ### E-commerce Events
+
 ```typescript
 // features/cart/services/cartLogger.ts
-const cartLogger = createContextLogger('cart')
+const cartLogger = createContextLogger("cart");
 
-export const logAddToCart = (stoneId: string, userId: string, price: number) => {
-  cartLogger.info('item_added_to_cart', {
-    event: 'item_added_to_cart',
+export const logAddToCart = (
+  stoneId: string,
+  userId: string,
+  price: number
+) => {
+  cartLogger.info("item_added_to_cart", {
+    event: "item_added_to_cart",
     stone_id: stoneId,
     user_id: userId,
     price: price,
-    timestamp: new Date().toISOString()
-  })
-}
+    timestamp: new Date().toISOString(),
+  });
+};
 
 export const logCartAbandonment = (
-  userId: string, 
-  cartValue: number, 
+  userId: string,
+  cartValue: number,
   itemCount: number
 ) => {
-  cartLogger.warn('cart_abandoned', {
-    event: 'cart_abandoned',
+  cartLogger.warn("cart_abandoned", {
+    event: "cart_abandoned",
     user_id: userId,
     cart_value: cartValue,
     item_count: itemCount,
-    timestamp: new Date().toISOString()
-  })
-}
+    timestamp: new Date().toISOString(),
+  });
+};
 
 // features/orders/services/orderLogger.ts
-const orderLogger = createContextLogger('orders')
+const orderLogger = createContextLogger("orders");
 
 export const logOrderCreated = (order: Order) => {
-  orderLogger.info('order_created', {
-    event: 'order_created',
+  orderLogger.info("order_created", {
+    event: "order_created",
     order_id: order.id,
     user_id: order.user_id,
     total_amount: order.total_amount,
     currency: order.currency_code,
     payment_type: order.payment_type,
     item_count: order.items?.length || 0,
-    timestamp: new Date().toISOString()
-  })
-}
+    timestamp: new Date().toISOString(),
+  });
+};
 
 export const logOrderStatusChange = (
-  orderId: string, 
-  oldStatus: string, 
+  orderId: string,
+  oldStatus: string,
   newStatus: string
 ) => {
-  orderLogger.info('order_status_changed', {
-    event: 'order_status_changed',
+  orderLogger.info("order_status_changed", {
+    event: "order_status_changed",
     order_id: orderId,
     old_status: oldStatus,
     new_status: newStatus,
-    timestamp: new Date().toISOString()
-  })
-}
+    timestamp: new Date().toISOString(),
+  });
+};
 ```
 
 ## Performance Monitoring
+
 ```typescript
 // shared/utils/performanceLogger.ts
-const performanceLogger = createContextLogger('performance')
+const performanceLogger = createContextLogger("performance");
 
 export const logPageLoad = (page: string, loadTime: number) => {
-  performanceLogger.info('page_load', {
-    event: 'page_load',
+  performanceLogger.info("page_load", {
+    event: "page_load",
     page: page,
     load_time_ms: loadTime,
-    timestamp: new Date().toISOString()
-  })
-}
+    timestamp: new Date().toISOString(),
+  });
+};
 
 export const logApiCall = (
-  endpoint: string, 
-  method: string, 
-  responseTime: number, 
+  endpoint: string,
+  method: string,
+  responseTime: number,
   status: number
 ) => {
-  const level = status >= 400 ? 'error' : status >= 300 ? 'warn' : 'info'
-  
-  performanceLogger[level]('api_call', {
-    event: 'api_call',
+  const level = status >= 400 ? "error" : status >= 300 ? "warn" : "info";
+
+  performanceLogger[level]("api_call", {
+    event: "api_call",
     endpoint: endpoint,
     method: method,
     response_time_ms: responseTime,
     status_code: status,
-    timestamp: new Date().toISOString()
-  })
-}
+    timestamp: new Date().toISOString(),
+  });
+};
 
 // Performance hook for components
 export const usePerformanceLogging = (componentName: string) => {
   useEffect(() => {
-    const startTime = performance.now()
-    
+    const startTime = performance.now();
+
     return () => {
-      const renderTime = performance.now() - startTime
-      if (renderTime > 100) { // Log slow renders
-        performanceLogger.warn('slow_component_render', {
-          event: 'slow_component_render',
+      const renderTime = performance.now() - startTime;
+      if (renderTime > 100) {
+        // Log slow renders
+        performanceLogger.warn("slow_component_render", {
+          event: "slow_component_render",
           component: componentName,
           render_time_ms: renderTime,
-          timestamp: new Date().toISOString()
-        })
+          timestamp: new Date().toISOString(),
+        });
       }
-    }
-  }, [componentName])
-}
+    };
+  }, [componentName]);
+};
 ```
 
 ## Error Logging
+
 ```typescript
 // shared/utils/errorLogger.ts
-const errorLogger = createContextLogger('errors')
+const errorLogger = createContextLogger("errors");
 
 export const logError = (
-  error: Error, 
-  context: string, 
+  error: Error,
+  context: string,
   userId?: string,
   additionalData?: Record<string, any>
 ) => {
-  errorLogger.error('application_error', {
-    event: 'application_error',
+  errorLogger.error("application_error", {
+    event: "application_error",
     error_name: error.name,
     error_message: error.message,
     error_stack: error.stack,
     context: context,
     user_id: userId,
     additional_data: additionalData,
-    timestamp: new Date().toISOString()
-  })
-}
+    timestamp: new Date().toISOString(),
+  });
+};
 
 export const logApiError = (
   endpoint: string,
@@ -260,50 +279,54 @@ export const logApiError = (
   errorMessage: string,
   userId?: string
 ) => {
-  errorLogger.error('api_error', {
-    event: 'api_error',
+  errorLogger.error("api_error", {
+    event: "api_error",
     endpoint: endpoint,
     method: method,
     status_code: status,
     error_message: errorMessage,
     user_id: userId,
-    timestamp: new Date().toISOString()
-  })
-}
+    timestamp: new Date().toISOString(),
+  });
+};
 
 // Error boundary logging
-export const ErrorBoundaryLogger = ({ error, errorInfo }: {
-  error: Error
-  errorInfo: React.ErrorInfo
+export const ErrorBoundaryLogger = ({
+  error,
+  errorInfo,
+}: {
+  error: Error;
+  errorInfo: React.ErrorInfo;
 }) => {
   useEffect(() => {
-    logError(error, 'react_error_boundary', undefined, {
-      component_stack: errorInfo.componentStack
-    })
-  }, [error, errorInfo])
-  
-  return null
-}
+    logError(error, "react_error_boundary", undefined, {
+      component_stack: errorInfo.componentStack,
+    });
+  }, [error, errorInfo]);
+
+  return null;
+};
 ```
 
 ## Security & Audit Logging
+
 ```typescript
 // features/auth/services/authLogger.ts
-const authLogger = createContextLogger('auth')
+const authLogger = createContextLogger("auth");
 
 export const logLoginAttempt = (
-  email: string, 
-  success: boolean, 
+  email: string,
+  success: boolean,
   ipAddress?: string
 ) => {
-  authLogger.info('login_attempt', {
-    event: 'login_attempt',
+  authLogger.info("login_attempt", {
+    event: "login_attempt",
     email: email,
     success: success,
     ip_address: ipAddress,
-    timestamp: new Date().toISOString()
-  })
-}
+    timestamp: new Date().toISOString(),
+  });
+};
 
 export const logPrivilegedAction = (
   userId: string,
@@ -311,15 +334,15 @@ export const logPrivilegedAction = (
   resourceId?: string,
   resourceType?: string
 ) => {
-  authLogger.info('privileged_action', {
-    event: 'privileged_action',
+  authLogger.info("privileged_action", {
+    event: "privileged_action",
     user_id: userId,
     action: action,
     resource_id: resourceId,
     resource_type: resourceType,
-    timestamp: new Date().toISOString()
-  })
-}
+    timestamp: new Date().toISOString(),
+  });
+};
 
 // Admin action logging
 export const logAdminAction = (
@@ -329,38 +352,39 @@ export const logAdminAction = (
   targetId: string,
   changes?: Record<string, any>
 ) => {
-  authLogger.info('admin_action', {
-    event: 'admin_action',
+  authLogger.info("admin_action", {
+    event: "admin_action",
     admin_id: adminId,
     action: action,
     target_resource: targetResource,
     target_id: targetId,
     changes: changes,
-    timestamp: new Date().toISOString()
-  })
-}
+    timestamp: new Date().toISOString(),
+  });
+};
 ```
 
 ## Business Intelligence Logging
+
 ```typescript
 // shared/utils/analyticsLogger.ts
-const analyticsLogger = createContextLogger('analytics')
+const analyticsLogger = createContextLogger("analytics");
 
 export const logConversionFunnel = (
   userId: string,
-  step: 'view' | 'interest' | 'cart' | 'checkout' | 'purchase',
+  step: "view" | "interest" | "cart" | "checkout" | "purchase",
   stoneId?: string,
   value?: number
 ) => {
-  analyticsLogger.info('conversion_funnel', {
-    event: 'conversion_funnel',
+  analyticsLogger.info("conversion_funnel", {
+    event: "conversion_funnel",
     user_id: userId,
     funnel_step: step,
     stone_id: stoneId,
     value: value,
-    timestamp: new Date().toISOString()
-  })
-}
+    timestamp: new Date().toISOString(),
+  });
+};
 
 export const logRevenueEvent = (
   orderId: string,
@@ -369,44 +393,48 @@ export const logRevenueEvent = (
   currency: string,
   stoneIds: string[]
 ) => {
-  analyticsLogger.info('revenue_generated', {
-    event: 'revenue_generated',
+  analyticsLogger.info("revenue_generated", {
+    event: "revenue_generated",
     order_id: orderId,
     user_id: userId,
     revenue: revenue,
     currency: currency,
     stone_count: stoneIds.length,
     stone_ids: stoneIds,
-    timestamp: new Date().toISOString()
-  })
-}
+    timestamp: new Date().toISOString(),
+  });
+};
 ```
 
 ## Log Aggregation and Monitoring
+
 ```typescript
 // lib/logAggregation.ts
 export const setupLogAggregation = () => {
   // Send logs to external services in production
-  if (process.env.NODE_ENV === 'production') {
-    logger.info('log_aggregation_started', {
-      service: 'smaragdus-viridi',
-      environment: 'production',
-      timestamp: new Date().toISOString()
-    })
+  if (process.env.NODE_ENV === "production") {
+    logger.info("log_aggregation_started", {
+      service: "smaragdus-viridi",
+      environment: "production",
+      timestamp: new Date().toISOString(),
+    });
   }
-}
+};
 
 // Health check logging
-export const logHealthCheck = (status: 'healthy' | 'degraded' | 'unhealthy') => {
-  logger.info('health_check', {
-    event: 'health_check',
+export const logHealthCheck = (
+  status: "healthy" | "degraded" | "unhealthy"
+) => {
+  logger.info("health_check", {
+    event: "health_check",
     status: status,
-    timestamp: new Date().toISOString()
-  })
-}
+    timestamp: new Date().toISOString(),
+  });
+};
 ```
 
 ## Best Practices
+
 - Always include timestamps in ISO format
 - Use consistent event naming conventions (snake_case)
 - Include user context when available

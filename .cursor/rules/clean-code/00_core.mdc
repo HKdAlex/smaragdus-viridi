@@ -1,0 +1,100 @@
+---
+alwaysApply: false
+description: "Mandatory core contract requiring PLAN-FIRST approach with structured planning sections, chunked execution, single responsibility principle, strict type safety, comprehensive testing, diff hygiene, security practices, and clear stop conditions for AI engineering work."
+---
+
+# CORE — Planning-Then-Execution Contract (MANDATORY)
+
+You are an AI engineer constrained by this contract:
+
+1. PLAN-FIRST: Before proposing code or diffs, produce a PLAN section with:
+
+   - Goals & assumptions
+   - File-by-file changes (full paths)
+   - Public interfaces (function signatures, types, zod schemas)
+   - Test strategy (unit/e2e) and acceptance criteria
+   - Data model impact (tables, RLS, policies, RPC/Edge Functions)
+     Do NOT write implementation code until the PLAN is approved.
+
+2. CHUNKED EXECUTION:
+
+   - Implement the PLAN in small, verifiable steps.
+   - After each step: show DIFF + TESTS and stop for review.
+
+3. SINGLE RESPONSIBILITY:
+
+   - Keep functions small, pure where possible, with explicit inputs/outputs.
+   - Avoid “god files.” If a file exceeds 200–300 LOC or does >1 thing, split it.
+
+4. TYPE SAFETY:
+
+   - TypeScript strict mode. No implicit any. Prefer exact types over generics.
+   - Validate all external input with zod before use.
+
+5. TESTS ARE NOT OPTIONAL:
+
+   - For new code: create/extend tests first (Vitest) + E2E (Playwright) if user-facing.
+   - Show how tests fail before code, then make them pass.
+
+6. DIFF HYGIENE:
+
+   - Only edit files listed in PLAN. No drive-by refactors unless the PLAN is amended.
+   - Explain each change briefly in a “Rationale” block per diff.
+
+7. SECURITY & PRIVACY:
+
+   - Never expose service-role keys in client code.
+   - Do not propose disabling RLS. Use RPC/Edge Functions for privileged ops.
+   - Never log secrets or PII. Scrub sensitive fields in logs.
+
+8. STOP CONDITIONS:
+   - If requirements are ambiguous, pause and ask targeted questions inside PLAN->“Open Questions.”
+   - If tests or types fail, stop and report; don’t keep coding blindly.
+
+# CORE — Planning-Then-Execution Contract (MANDATORY)
+
+You are an AI engineer constrained by this contract:
+
+1. PLAN-FIRST: Before proposing code or diffs, produce a PLAN section with:
+
+   - Goals & assumptions
+   - File-by-file changes (full paths)
+   - Public interfaces (function signatures, types, zod schemas)
+   - Test strategy (unit/e2e) and acceptance criteria
+   - Data model impact (tables, RLS, policies, RPC/Edge Functions)
+     Do NOT write implementation code until the PLAN is approved.
+
+2. CHUNKED EXECUTION:
+
+   - Implement the PLAN in small, verifiable steps.
+   - After each step: show DIFF + TESTS and stop for review.
+
+3. SINGLE RESPONSIBILITY:
+
+   - Keep functions small, pure where possible, with explicit inputs/outputs.
+   - Avoid “god files.” If a file exceeds 200–300 LOC or does >1 thing, split it.
+
+4. TYPE SAFETY:
+
+   - TypeScript strict mode. No implicit any. Prefer exact types over generics.
+   - Validate all external input with zod before use.
+
+5. TESTS ARE NOT OPTIONAL:
+
+   - For new code: create/extend tests first (Vitest) + E2E (Playwright) if user-facing.
+   - Show how tests fail before code, then make them pass.
+
+6. DIFF HYGIENE:
+
+   - Only edit files listed in PLAN. No drive-by refactors unless the PLAN is amended.
+   - Explain each change briefly in a “Rationale” block per diff.
+
+7. SECURITY & PRIVACY:
+
+   - Never expose service-role keys in client code.
+   - Do not propose disabling RLS. Use RPC/Edge Functions for privileged ops.
+   - Never log secrets or PII. Scrub sensitive fields in logs.
+
+8. STOP CONDITIONS:
+   - If requirements are ambiguous, pause and ask targeted questions inside PLAN->“Open Questions.”
+   - If tests or types fail, stop and report; don’t keep coding blindly.

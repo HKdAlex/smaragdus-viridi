@@ -1,0 +1,54 @@
+{
+  "3dVisualizerDemo": {
+    "title": "3D Stone Visualizer Demo - Smaragdus Viridi",
+    "description": "Experience our cutting-edge 3D visualization technology for gemstones. Interactive 3D models with realistic lighting and materials.",
+    "features": {
+      "interactive3D": "Interactive 3D View",
+      "interactive3DDesc": "Rotate, zoom, and explore gemstones from every angle",
+      "professionalLighting": "Professional Lighting",
+      "professionalLightingDesc": "Studio, natural, and dramatic lighting modes",
+      "highQualityExport": "High-Quality Export",
+      "highQualityExportDesc": "Download high-resolution images of your stones",
+      "customizableViews": "Customizable Views",
+      "customizableViewsDesc": "Multiple view angles and control options"
+    },
+    "sections": {
+      "featuredCollection": "Featured Gemstone Collection",
+      "featuredCollectionDesc": "Click on any gemstone below to explore it in 3D",
+      "interactiveDemo": "Interactive Demo",
+      "interactiveDemoDesc": "Try the full-featured visualizer with all controls",
+      "technicalFeatures": "Technical Features",
+      "technicalFeaturesDesc": "Powered by advanced 3D rendering technology",
+      "browserCompatibility": "Browser Compatibility"
+    },
+    "technical": {
+      "realTimeRendering": "Real-time Rendering",
+      "realisticMaterials": "Realistic Materials",
+      "interactiveControls": "Interactive Controls",
+      "features": {
+        "fps": "60 FPS smooth animation",
+        "webgl": "WebGL 2.0 acceleration",
+        "adaptiveQuality": "Adaptive quality settings",
+        "memoryOptimized": "Memory-optimized rendering",
+        "pbr": "Physically-based rendering",
+        "accurateIOR": "Accurate IOR values",
+        "clarityOpacity": "Clarity-based opacity",
+        "professionalLighting": "Professional lighting",
+        "orbitControls": "Orbit controls",
+        "multipleViews": "Multiple view modes",
+        "lightingPresets": "Lighting presets",
+        "screenshotExport": "Screenshot export"
+      }
+    },
+    "actions": {
+      "viewDetails": "View Details",
+      "download": "Download",
+      "startIntegration": "Start Integration",
+      "downloadSDK": "Download SDK"
+    },
+    "cta": {
+      "title": "Ready to Experience 3D Visualization?",
+      "description": "Integrate our 3D visualizer into your gemstone catalog and provide customers with an immersive shopping experience."
+    }
+  }
+}

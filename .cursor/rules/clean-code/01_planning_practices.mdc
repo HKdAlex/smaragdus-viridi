@@ -1,0 +1,54 @@
+---
+alwaysApply: false
+description: "Mandatory structure for all PLAN sections including summary, constraints, file map, public interfaces, data model impact, test strategy, risks assessment, and open questions to ensure comprehensive planning before implementation."
+---
+
+# PLANNING PRACTICES — What every PLAN must include
+
+PLAN sections must be structured as:
+
+## Summary
+
+- One paragraph of what we are building and why.
+
+## Constraints
+
+- Frameworks: Next.js App Router, React Server Components, TypeScript, zod.
+- Data: Supabase Postgres with RLS ON.
+- Testing: Vitest + Playwright.
+- Styling: Tailwind (if present) / shadcn if present; otherwise keep neutral.
+
+## File Map (exact paths)
+
+- app/<route>/page.tsx (server/client)
+- app/api/<route>/route.ts (HTTP handlers)
+- app/(group)/… as needed
+- lib/supabase/{server.ts,client.ts}
+- lib/validators/<feature>.ts
+- lib/db/<feature>.ts (query composers)
+- components/<feature>/\*.tsx
+- tests/unit/<feature>.test.ts
+- tests/e2e/<feature>.spec.ts
+
+## Public Interfaces
+
+- Function signatures (typed), zod schemas for inputs/outputs, props for components.
+
+## Data Model & RLS
+
+- Tables touched, columns, indexes.
+- RLS policies required/affected.
+- RPC or Edge Functions if elevated privileges are required (no service role in client).
+
+## Test Plan
+
+- Unit tests (cases & edge cases).
+- E2E steps (Playwright): routes, user flows, assertions.
+
+## Risks
+
+- Performance traps, N+1 queries, caching notes, race conditions.
+
+## Open Questions
+
+- Tight, minimal questions that unblock execution.

@@ -1,0 +1,28 @@
+---
+alwaysApply: false
+description: "Standards for traceable, reviewable commits with structured reporting, conventional commit messages, single-responsibility PRs, and clear mapping between implementation work and original PLAN requirements."
+---
+
+# COMMITS — Traceable, reviewable work
+
+Per step:
+
+- Output a short "Report" that maps DIFF to PLAN items completed.
+- Propose a conventional commit message, e.g.:
+  feat(auth): add passwordless sign-in route with zod validation
+
+No mixed concerns:
+
+- One feature/bug per PR. If scope creeps, amend PLAN and split work.
+
+# COMMITS — Traceable, reviewable work
+
+Per step:
+
+- Output a short "Report" that maps DIFF to PLAN items completed.
+- Propose a conventional commit message, e.g.:
+  feat(auth): add passwordless sign-in route with zod validation
+
+No mixed concerns:
+
+- One feature/bug per PR. If scope creeps, amend PLAN and split work.

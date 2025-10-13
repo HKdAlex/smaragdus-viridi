@@ -1,0 +1,54 @@
+---
+alwaysApply: false
+description: "TypeScript and component coding standards including strict typing, zod validation, component size limits, typed error handling, structured logging, and developer experience practices for clean, maintainable code."
+---
+
+# STYLE — TypeScript, components, and errors
+
+TypeScript:
+
+- "strict": true. No 'any' unless rigorously justified in PLAN.
+- Narrow types with zod at boundaries; export inferred types from schemas.
+
+Components:
+
+- Props are typed; no implicit 'children' unless used.
+- No business logic in components. Call /lib/db or /lib/actions.
+- Keep components <= ~150 LOC; split UI states into subcomponents.
+
+Errors & logging:
+
+- Throw typed errors (custom error classes) from data layer.
+- In route handlers, map errors to HTTP status codes.
+- Use minimal, structured logs (no PII), e.g., `{ event, userId, resourceId }`.
+
+DX:
+
+- Use named exports.
+- Avoid magical utils; prefer small, explicit functions.
+- Keep imports clean and sorted.
+
+# STYLE — TypeScript, components, and errors
+
+TypeScript:
+
+- "strict": true. No 'any' unless rigorously justified in PLAN.
+- Narrow types with zod at boundaries; export inferred types from schemas.
+
+Components:
+
+- Props are typed; no implicit 'children' unless used.
+- No business logic in components. Call /lib/db or /lib/actions.
+- Keep components <= ~150 LOC; split UI states into subcomponents.
+
+Errors & logging:
+
+- Throw typed errors (custom error classes) from data layer.
+- In route handlers, map errors to HTTP status codes.
+- Use minimal, structured logs (no PII), e.g., `{ event, userId, resourceId }`.
+
+DX:
+
+- Use named exports.
+- Avoid magical utils; prefer small, explicit functions.
+- Keep imports clean and sorted.

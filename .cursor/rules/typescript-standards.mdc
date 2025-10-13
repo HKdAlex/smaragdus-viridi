@@ -1,8 +1,9 @@
 ---
-description: 
-globs: 
-alwaysApply: true
+description:
+globs:
+alwaysApply: false
 ---
+
 # TypeScript Standards - Smaragdus Viridi
 
 ## 🚨 TYPE MANAGEMENT - CRITICAL RULES
@@ -15,7 +16,7 @@ alwaysApply: true
 
 ```
 1. Supabase Database Schema (SOURCE OF TRUTH)
-   ↓ 
+   ↓
 2. Generated Types (src/shared/types/database.ts) - NEVER EDIT MANUALLY
    ↓
 3. Application Extensions (src/shared/types/index.ts) - Import + Extend Only
@@ -27,20 +28,20 @@ alwaysApply: true
 
 ```typescript
 // ✅ DO: Import from shared types
-import type { GemstoneType, GemColor, DatabaseGemstone } from '@/shared/types'
+import type { GemstoneType, GemColor, DatabaseGemstone } from "@/shared/types";
 
 // ✅ DO: Extend database types for business logic
 interface EnhancedGemstone extends DatabaseGemstone {
-  readonly computed_value: number
+  readonly computed_value: number;
 }
 
 // ✅ DO: Use database enum types
-export type GemstoneType = Database['public']['Enums']['gemstone_type']
+export type GemstoneType = Database["public"]["Enums"]["gemstone_type"];
 ```
 
 ### ❌ FORBIDDEN Type Practices:
 
-```typescript
+````typescript
 // ❌ NEVER: Manual enum definitions
 ## Type Organization
 - Domain-specific types in `src/types/` directory
@@ -54,13 +55,13 @@ export type GemstoneType = Database['public']['Enums']['gemstone_type']
 const gemstone: any = { color: "red", cut: "oval" }; // NEVER DO THIS!
 
 // ✅ REQUIRED: Strict gemstone typing
-export type GemstoneType = 
-  | 'diamond' 
-  | 'emerald' 
-  | 'ruby' 
-  | 'sapphire' 
-  | 'amethyst' 
-  | 'topaz' 
+export type GemstoneType =
+  | 'diamond'
+  | 'emerald'
+  | 'ruby'
+  | 'sapphire'
+  | 'amethyst'
+  | 'topaz'
   | 'garnet'
   | 'peridot'
   | 'citrine'
@@ -68,7 +69,7 @@ export type GemstoneType =
 
 export type GemColor =
   | 'red'
-  | 'blue' 
+  | 'blue'
   | 'green'
   | 'yellow'
   | 'pink'
@@ -76,8 +77,8 @@ export type GemColor =
   | 'black'
   | 'colorless'
   | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J' | 'K' | 'L' | 'M'
-  | 'fancy-yellow' 
-  | 'fancy-blue' 
+  | 'fancy-yellow'
+  | 'fancy-blue'
   | 'fancy-pink'
   | 'fancy-green'
 
@@ -92,7 +93,7 @@ export type GemCut =
   | 'radiant'
   | 'fantasy'
 
-export type GemClarity = 
+export type GemClarity =
   | 'FL' | 'IF' | 'VVS1' | 'VVS2' | 'VS1' | 'VS2' | 'SI1' | 'SI2' | 'I1'
 
 export type GemOrigin = string // Will be populated from database
@@ -108,7 +109,7 @@ export interface Money {
 
 export interface GemDimensions {
   readonly length_mm: number
-  readonly width_mm: number  
+  readonly width_mm: number
   readonly depth_mm: number
 }
 
@@ -140,56 +141,59 @@ export interface Gemstone {
   readonly created_at: string
   readonly updated_at: string
 }
-```
+````
 
 ## API Response Types
+
 ```typescript
 // api.types.ts
 export interface ApiResponse<T> {
-  data: T | null
-  error: string | null
-  success: boolean
+  data: T | null;
+  error: string | null;
+  success: boolean;
 }
 
 export interface PaginatedResponse<T> {
-  data: T[]
-  count: number
-  page: number
-  per_page: number
-  total_pages: number
+  data: T[];
+  count: number;
+  page: number;
+  per_page: number;
+  total_pages: number;
 }
 
 export type StoneFilters = {
-  cut?: StoneCut[]
-  color?: StoneColor[]
-  clarity?: StoneClarity[]
-  price_min?: number
-  price_max?: number
-  weight_min?: number
-  weight_max?: number
-  available?: boolean
-  origin?: string[]
-}
+  cut?: StoneCut[];
+  color?: StoneColor[];
+  clarity?: StoneClarity[];
+  price_min?: number;
+  price_max?: number;
+  weight_min?: number;
+  weight_max?: number;
+  available?: boolean;
+  origin?: string[];
+};
 ```
 
 ## Component Props Types
+
 ```typescript
 // Component prop interfaces
 export interface CatalogCardProps {
-  stone: Stone
-  onFavoriteToggle: (stoneId: string) => void
-  onAddToCart: (stoneId: string) => void
-  showQuickActions?: boolean
+  stone: Stone;
+  onFavoriteToggle: (stoneId: string) => void;
+  onAddToCart: (stoneId: string) => void;
+  showQuickActions?: boolean;
 }
 
 export interface ProductDetailProps {
-  stone: Stone
-  relatedStones: Stone[]
-  onMediaDownload: (mediaId: string) => void
+  stone: Stone;
+  relatedStones: Stone[];
+  onMediaDownload: (mediaId: string) => void;
 }
 ```
 
 ## Strict TypeScript Configuration
+
 ```json
 // tsconfig.json key settings
 {
@@ -205,87 +209,92 @@ export interface ProductDetailProps {
 ```
 
 ## Error Handling Types
-```typescript
-export type Result<T, E = Error> = 
-  | { success: true; data: T }
-  | { success: false; error: E }
 
-export type AsyncResult<T, E = Error> = Promise<Result<T, E>>
+```typescript
+export type Result<T, E = Error> =
+  | { success: true; data: T }
+  | { success: false; error: E };
+
+export type AsyncResult<T, E = Error> = Promise<Result<T, E>>;
 
 // Usage example
 export const fetchStone = async (id: string): AsyncResult<Stone> => {
   try {
     const { data, error } = await supabase
-      .from('stones')
-      .select('*')
-      .eq('id', id)
-      .single()
-    
-    if (error) return { success: false, error }
-    return { success: true, data }
+      .from("stones")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (error) return { success: false, error };
+    return { success: true, data };
   } catch (error) {
-    return { success: false, error: error as Error }
+    return { success: false, error: error as Error };
   }
-}
+};
 ```
 
 ## Form Validation Types
+
 ```typescript
 // Form schemas with Zod
-import { z } from 'zod'
+import { z } from "zod";
 
 export const StoneFormSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  weight: z.number().positive('Weight must be positive'),
-  cut: z.enum(['round', 'princess', 'emerald', 'oval']),
-  color: z.enum(['D', 'E', 'F', 'G', 'H', 'I', 'J']),
-  price_regular: z.number().positive('Price must be positive'),
-  available: z.boolean().default(true)
-})
+  title: z.string().min(1, "Title is required"),
+  weight: z.number().positive("Weight must be positive"),
+  cut: z.enum(["round", "princess", "emerald", "oval"]),
+  color: z.enum(["D", "E", "F", "G", "H", "I", "J"]),
+  price_regular: z.number().positive("Price must be positive"),
+  available: z.boolean().default(true),
+});
 
-export type StoneFormData = z.infer<typeof StoneFormSchema>
+export type StoneFormData = z.infer<typeof StoneFormSchema>;
 ```
 
 ## Utility Types
+
 ```typescript
 // Common utility types for the gemstone domain
-export type StoneProperty = keyof Stone
-export type StoneSortField = 'price_regular' | 'weight' | 'created_at'
-export type SortDirection = 'asc' | 'desc'
+export type StoneProperty = keyof Stone;
+export type StoneSortField = "price_regular" | "weight" | "created_at";
+export type SortDirection = "asc" | "desc";
 
 export interface SortConfig {
-  field: StoneSortField
-  direction: SortDirection
+  field: StoneSortField;
+  direction: SortDirection;
 }
 
 // Conditional types for admin features
 export type AdminOnlyProps<T> = T & {
-  isAdmin: true
-}
+  isAdmin: true;
+};
 
-export type UserRole = 'guest' | 'user' | 'VIP' | 'admin'
+export type UserRole = "guest" | "user" | "VIP" | "admin";
 ```
 
 ## Type Guards
+
 ```typescript
 // Type guards for runtime type checking
 export const isValidStone = (obj: unknown): obj is Stone => {
   return (
-    typeof obj === 'object' &&
+    typeof obj === "object" &&
     obj !== null &&
-    'id' in obj &&
-    'title' in obj &&
-    'weight' in obj &&
-    typeof (obj as Record<string, unknown>).weight === 'number'
-  )
-}
+    "id" in obj &&
+    "title" in obj &&
+    "weight" in obj &&
+    typeof (obj as Record<string, unknown>).weight === "number"
+  );
+};
 
-export const isAdmin = (role: UserRole): role is 'admin' => {
-  return role === 'admin'
-}
+export const isAdmin = (role: UserRole): role is "admin" => {
+  return role === "admin";
+};
 ```
 
 ## Best Practices
+
 - Use strict null checks everywhere
 - Prefer `interface` over `type` for object shapes
 - Use `type` for unions and computed types

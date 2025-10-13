@@ -1,13 +1,15 @@
 ---
-description: 
-globs: 
-alwaysApply: true
+description:
+globs:
+alwaysApply: false
 ---
+
 # Build Quality Standards - Smaragdus Viridi
 
 ## 🚫 CRITICAL: Lessons from Profitronic - What NOT to Do
 
 ### Build Quality Rules (MANDATORY)
+
 - **NEVER write more than 3 files without running `npm run build`**
 - **NEVER commit code that doesn't compile with zero errors**
 - **NEVER use `any` types - jewelry data is complex and needs strict typing**
@@ -15,9 +17,11 @@ alwaysApply: true
 - **NEVER use JSONB for structured jewelry data (cut, clarity, origin, etc.)**
 
 ## Code Quality Requirements
+
 Maintain high code quality standards for the gemstone e-commerce platform to ensure maintainability, reliability, and performance.
 
 ## TypeScript Configuration
+
 ```json
 // tsconfig.json
 {
@@ -47,6 +51,7 @@ Maintain high code quality standards for the gemstone e-commerce platform to ens
 ```
 
 ## ESLint Configuration
+
 ```json
 // .eslintrc.json
 {
@@ -61,15 +66,26 @@ Maintain high code quality standards for the gemstone e-commerce platform to ens
     "@typescript-eslint/prefer-nullish-coalescing": "error",
     "@typescript-eslint/prefer-optional-chain": "error",
     "react-hooks/exhaustive-deps": "error",
-    "import/order": ["error", {
-      "groups": ["builtin", "external", "internal", "parent", "sibling", "index"],
-      "newlines-between": "always"
-    }]
+    "import/order": [
+      "error",
+      {
+        "groups": [
+          "builtin",
+          "external",
+          "internal",
+          "parent",
+          "sibling",
+          "index"
+        ],
+        "newlines-between": "always"
+      }
+    ]
   }
 }
 ```
 
 ## Testing Standards
+
 - Minimum 80% code coverage for critical business logic
 - Unit tests for all utility functions and business logic
 - Integration tests for API endpoints and database operations
@@ -77,29 +93,31 @@ Maintain high code quality standards for the gemstone e-commerce platform to ens
 
 ```typescript
 // Testing example with Vitest
-import { describe, it, expect } from 'vitest'
-import { calculateStonePrice } from '@/features/catalog/utils/priceCalculator'
+import { describe, it, expect } from "vitest";
+import { calculateStonePrice } from "@/features/catalog/utils/priceCalculator";
 
-describe('Stone Price Calculator', () => {
-  it('applies VIP discount correctly', () => {
-    const result = calculateStonePrice(1000, 'VIP')
-    expect(result).toBe(900) // 10% VIP discount
-  })
-  
-  it('handles currency conversion', () => {
-    const result = calculateStonePrice(1000, 'user', 'EUR', 0.85)
-    expect(result).toBe(850)
-  })
-})
+describe("Stone Price Calculator", () => {
+  it("applies VIP discount correctly", () => {
+    const result = calculateStonePrice(1000, "VIP");
+    expect(result).toBe(900); // 10% VIP discount
+  });
+
+  it("handles currency conversion", () => {
+    const result = calculateStonePrice(1000, "user", "EUR", 0.85);
+    expect(result).toBe(850);
+  });
+});
 ```
 
 ## Performance Standards
+
 - Lighthouse scores: Performance >90, Accessibility >95, Best Practices >90, SEO >90
 - Core Web Vitals: LCP <2.5s, FID <100ms, CLS <0.1
 - Bundle size: Critical path <250KB gzipped
 - Image optimization: All images served via Next.js Image component
 
 ## Security Requirements
+
 - All database queries use parameterized statements
 - Row Level Security (RLS) enabled on all Supabase tables
 - Input validation using Zod schemas
@@ -107,6 +125,7 @@ describe('Stone Price Calculator', () => {
 - CSRF protection for state-changing operations
 
 ## Dependency Management
+
 ```json
 // package.json - Lock major versions
 {
@@ -120,6 +139,7 @@ describe('Stone Price Calculator', () => {
 ```
 
 ## Pre-commit Hooks
+
 ```json
 // .husky/pre-commit
 #!/usr/bin/env sh
@@ -131,6 +151,7 @@ npm run test:coverage
 ```
 
 ## CI/CD Pipeline Requirements
+
 - Automated testing on all pull requests
 - TypeScript compilation check
 - Security vulnerability scanning
@@ -138,6 +159,7 @@ npm run test:coverage
 - Automated deployment to staging environment
 
 ## Code Review Checklist
+
 - [ ] TypeScript types are properly defined
 - [ ] Error handling is implemented
 - [ ] Performance considerations addressed

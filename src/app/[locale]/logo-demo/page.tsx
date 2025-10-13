@@ -1,11 +1,13 @@
-import { Logo } from '@/shared/components/ui/logo'
+import { Logo } from "@/shared/components/ui/logo";
 
 export default function LogoDemoPage() {
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-6xl mx-auto px-4">
-        <h1 className="text-3xl font-bold text-center mb-12">Crystallique Logo Demo</h1>
-        
+        <h1 className="text-3xl font-bold text-center mb-12">
+          Crystallique Logo Demo
+        </h1>
+
         {/* Size Variations */}
         <section className="mb-12">
           <h2 className="text-2xl font-semibold mb-6">Size Variations</h2>
@@ -44,12 +46,16 @@ export default function LogoDemoPage() {
             <div className="text-center p-6 bg-white rounded-lg shadow">
               <Logo variant="block" size="lg" showText={false} />
               <h3 className="mt-4 text-lg font-medium">Block Logo</h3>
-              <p className="text-sm text-gray-600">For headers, footers, and prominent placement</p>
+              <p className="text-sm text-gray-600">
+                For headers, footers, and prominent placement
+              </p>
             </div>
             <div className="text-center p-6 bg-white rounded-lg shadow">
               <Logo variant="inline" size="lg" showText={false} />
               <h3 className="mt-4 text-lg font-medium">Inline Logo</h3>
-              <p className="text-sm text-gray-600">For navigation bars and compact spaces</p>
+              <p className="text-sm text-gray-600">
+                For navigation bars and compact spaces
+              </p>
             </div>
           </div>
         </section>
@@ -75,17 +81,30 @@ export default function LogoDemoPage() {
               <div className="flex items-center justify-between border-b pb-4">
                 <Logo variant="inline" size="md" showText={true} />
                 <nav className="space-x-4">
-                  <a href="#" className="text-gray-600 hover:text-gray-900">Catalog</a>
-                  <a href="#" className="text-gray-600 hover:text-gray-900">About</a>
-                  <a href="#" className="text-gray-600 hover:text-gray-900">Contact</a>
+                  <a href="#" className="text-gray-600 hover:text-gray-900">
+                    Catalog
+                  </a>
+                  <a href="#" className="text-gray-600 hover:text-gray-900">
+                    About
+                  </a>
+                  <a href="#" className="text-gray-600 hover:text-gray-900">
+                    Contact
+                  </a>
                 </nav>
               </div>
             </div>
 
             {/* Hero Example */}
             <div className="bg-gradient-to-r from-emerald-50 to-green-50 rounded-lg shadow p-8 text-center">
-              <Logo variant="block" size="xxl" showText={false} className="mx-auto mb-4" />
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">Crystallique</h3>
+              <Logo
+                variant="block"
+                size="xxl"
+                showText={false}
+                className="mx-auto mb-4"
+              />
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                Crystallique
+              </h3>
               <p className="text-gray-600">Premium Gemstones & Jewelry</p>
             </div>
 
@@ -126,5 +145,5 @@ export default function LogoDemoPage() {
         </section>
       </div>
     </div>
-  )
+  );
 }

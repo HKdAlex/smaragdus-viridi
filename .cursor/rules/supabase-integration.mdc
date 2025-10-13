@@ -1,8 +1,9 @@
 ---
-description: 
-globs: 
-alwaysApply: true
+description:
+globs:
+alwaysApply: false
 ---
+
 # Supabase Integration - Smaragdus Viridi
 
 ## 🚀 CRITICAL: Use Supabase MCP Tool During Development
@@ -10,6 +11,7 @@ alwaysApply: true
 **ALWAYS interact with Supabase during development using the Supabase MCP tool available in this environment.**
 
 ### Available MCP Commands for Development:
+
 - `mcp_supabase_list_projects` - List all Supabase projects
 - `mcp_supabase_get_project` - Get project details
 - `mcp_supabase_list_tables` - List database tables
@@ -21,14 +23,17 @@ alwaysApply: true
 - `mcp_supabase_generate_typescript_types` - Generate TypeScript types
 
 ### Development Workflow with MCP:
+
 1. **Use MCP tools to inspect database structure** instead of CLI
-2. **Execute SQL queries through MCP** for testing and debugging  
+2. **Execute SQL queries through MCP** for testing and debugging
 3. **Apply migrations via MCP** for schema changes
 4. **Generate TypeScript types automatically** using MCP
 5. **Deploy and test Edge Functions** through MCP
 
 ## Database Schema Overview
+
 The gemstone e-commerce platform uses Supabase PostgreSQL with the following core tables:
+
 - `gemstones` - Gemstone inventory with properties like weight, cut, color, origin
 - `user_profiles` - Customer and admin user management
 - `favorites` - User favorite stones
@@ -42,29 +47,30 @@ The gemstone e-commerce platform uses Supabase PostgreSQL with the following cor
 **CRITICAL: Use @supabase/ssr package, NOT deprecated auth-helpers**
 
 ### Current Supabase Client Setup (2025):
+
 ```typescript
 // lib/supabase.ts
-import { createClient } from '@supabase/supabase-js'
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+import { createClient } from "@supabase/supabase-js";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 
 // Client-side Supabase client
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Server-side Supabase client for use in Server Components and Route Handlers
 export const createServerSupabaseClient = async () => {
-  const cookieStore = await cookies()
+  const cookieStore = await cookies();
 
   return createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
       getAll() {
-        return cookieStore.getAll()
+        return cookieStore.getAll();
       },
       setAll(cookiesToSet) {
         try {
           cookiesToSet.forEach(({ name, value, options }) =>
             cookieStore.set(name, value, options)
-          )
+          );
         } catch {
           // The `setAll` method was called from a Server Component.
           // This can be ignored if you have middleware refreshing
@@ -72,26 +78,29 @@ export const createServerSupabaseClient = async () => {
         }
       },
     },
-  })
-}
+  });
+};
 ```
 
 ### Role-based Access:
+
 - `guest`, `regular_customer`, `premium_customer`, `admin`
 - Implement proper session management for gemstone transactions
 
 ### Auth Hook Pattern:
+
 ```typescript
 // features/auth/hooks/use-auth.ts
 export const useAuth = () => {
-  const [user, setUser] = useState<User | null>(null)
-  const [role, setRole] = useState<UserRole>('guest')
-  
+  const [user, setUser] = useState<User | null>(null);
+  const [role, setRole] = useState<UserRole>("guest");
+
   // Auth state management with @supabase/ssr
-}
+};
 ```
 
 ## Row Level Security (RLS)
+
 - Enable RLS on all tables
 - Stones: Public read, admin-only write
 - User data: User can only access their own records
@@ -100,16 +109,17 @@ export const useAuth = () => {
 
 ```sql
 -- Example RLS policy for stones
-CREATE POLICY "Stones are viewable by everyone" 
-ON stones FOR SELECT 
+CREATE POLICY "Stones are viewable by everyone"
+ON stones FOR SELECT
 USING (true);
 
-CREATE POLICY "Only admins can modify stones" 
-ON stones FOR ALL 
+CREATE POLICY "Only admins can modify stones"
+ON stones FOR ALL
 USING (auth.role() = 'admin');
 ```
 
 ## Real-time Features
+
 - Live chat between customers and admins
 - Real-time inventory updates for stone availability
 - Order status updates
@@ -117,16 +127,21 @@ USING (auth.role() = 'admin');
 ```typescript
 // Real-time chat subscription
 const chatChannel = supabase
-  .channel('chat')
-  .on('postgres_changes', {
-    event: 'INSERT',
-    schema: 'public',
-    table: 'chat_messages'
-  }, handleNewMessage)
-  .subscribe()
+  .channel("chat")
+  .on(
+    "postgres_changes",
+    {
+      event: "INSERT",
+      schema: "public",
+      table: "chat_messages",
+    },
+    handleNewMessage
+  )
+  .subscribe();
 ```
 
 ## File Storage Patterns
+
 - Store gemstone images/videos in Supabase Storage
 - Use signed URLs for protected downloads
 - Implement watermarking for high-resolution images
@@ -135,21 +150,23 @@ const chatChannel = supabase
 ```typescript
 // Storage helper functions
 export const uploadStoneMedia = async (file: File, stoneId: string) => {
-  const filePath = `stones/${stoneId}/${file.name}`
+  const filePath = `stones/${stoneId}/${file.name}`;
   const { data, error } = await supabase.storage
-    .from('gemstone-media')
-    .upload(filePath, file)
-  return { data, error }
-}
+    .from("gemstone-media")
+    .upload(filePath, file);
+  return { data, error };
+};
 ```
 
 ## Edge Functions
+
 - `POST /checkout` - Process gemstone orders
 - `POST /chat/send` - Store chat messages
 - `GET /visualizer/data` - Return stone visualization data
 - `POST /media/log-download` - Log high-res downloads
 
 ## Type Safety
+
 - Generate TypeScript types from Supabase schema
 - Use proper typing for gemstone properties
 - Define enums for stone cuts, colors, origins
@@ -157,26 +174,28 @@ export const uploadStoneMedia = async (file: File, stoneId: string) => {
 ```typescript
 // Generated types
 export interface Stone {
-  id: string
-  title: string
-  weight: number
-  dimensions: string
-  cut: StoneCut
-  color: StoneColor
-  origin: string
-  available: boolean
-  price_regular: number
-  price_discounted?: number
-  cert_url?: string
+  id: string;
+  title: string;
+  weight: number;
+  dimensions: string;
+  cut: StoneCut;
+  color: StoneColor;
+  origin: string;
+  available: boolean;
+  price_regular: number;
+  price_discounted?: number;
+  cert_url?: string;
 }
 ```
 
 ## Error Handling
+
 - Proper error handling for database operations
 - User-friendly messages for gemstone transactions
 - Logging for admin debugging
 
 ## Performance Optimization
+
 - Use appropriate indexes for stone filtering queries
 - Implement pagination for large gemstone catalogs
 - Cache frequently accessed data

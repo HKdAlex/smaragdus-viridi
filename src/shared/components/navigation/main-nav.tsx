@@ -3,12 +3,12 @@
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { useMemo, useRef, useState } from "react";
 
-import { Button } from "@/shared/components/ui/button";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import { Logo } from "@/shared/components/ui/logo";
-import { ThemeToggle } from "@/shared/components/ui/theme-toggle";
 import { useAuth } from "@/features/auth/context/auth-context";
 import { useCartContext } from "@/features/cart/context/cart-context";
+import { Button } from "@/shared/components/ui/button";
+import { Logo } from "@/shared/components/ui/logo";
+import { ThemeToggle } from "@/shared/components/ui/theme-toggle";
 import { useTranslations } from "next-intl";
 
 // Safe admin status hook that doesn't throw if AdminProvider is not available
@@ -147,7 +147,7 @@ export function MainNav() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <div className="flex items-center">
-            <Logo variant="inline" size="lg" href="/" showText={false} />
+            <Logo variant="inline" size="xl" href="/" showText={false} />
           </div>
 
           {/* Desktop Navigation */}

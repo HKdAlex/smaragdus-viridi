@@ -1,11 +1,13 @@
 ---
-description: 
-globs: 
-alwaysApply: true
+description:
+globs:
+alwaysApply: false
 ---
+
 # Git Commit & Terminal Best Practices - Smaragdus Viridi
 
 ## Commit Message Format
+
 Use conventional commits format for clear, semantic commit messages:
 
 ```
@@ -17,6 +19,7 @@ Use conventional commits format for clear, semantic commit messages:
 ```
 
 ## Commit Types
+
 - `feat`: New feature (stone catalog, payment processing)
 - `fix`: Bug fix (cart calculation, image loading)
 - `docs`: Documentation changes
@@ -29,6 +32,7 @@ Use conventional commits format for clear, semantic commit messages:
 - `chore`: Maintenance tasks
 
 ## Commit Examples
+
 ```bash
 # Feature commits
 git commit -m "feat(catalog): add stone filtering by cut and color"
@@ -45,6 +49,7 @@ git commit -m "perf(db): add indexes for stone filtering queries"
 ```
 
 ## Branch Naming Convention
+
 ```bash
 # Feature branches
 feature/stone-catalog-filters
@@ -61,6 +66,7 @@ hotfix/critical-payment-bug
 ```
 
 ## Terminal Workflow
+
 ```bash
 # Starting new feature
 git checkout main
@@ -83,6 +89,7 @@ git rebase -i HEAD~3  # Clean up last 3 commits
 ```
 
 ## Useful Git Aliases
+
 ```bash
 # Add to ~/.gitconfig
 [alias]
@@ -103,6 +110,7 @@ git rebase -i HEAD~3  # Clean up last 3 commits
 ```
 
 ## Development Environment Setup
+
 ```bash
 # Node.js version management with fnm
 fnm use 20.x.x
@@ -135,32 +143,34 @@ npm run test:coverage
 **ALWAYS use the available Supabase MCP tools during development instead of Supabase CLI commands.**
 
 ### MCP Tools for Supabase Development:
+
 ```typescript
 // Use these MCP tools instead of CLI commands:
 
 // List projects (instead of supabase projects list)
-mcp_supabase_list_projects()
+mcp_supabase_list_projects();
 
 // Get project details (instead of supabase status)
-mcp_supabase_get_project(project_id)
+mcp_supabase_get_project(project_id);
 
 // Execute SQL (instead of supabase db sql)
-mcp_supabase_execute_sql(project_id, query)
+mcp_supabase_execute_sql(project_id, query);
 
 // Apply migrations (instead of supabase db push)
-mcp_supabase_apply_migration(project_id, name, query)
+mcp_supabase_apply_migration(project_id, name, query);
 
 // Generate types (instead of supabase gen types)
-mcp_supabase_generate_typescript_types(project_id)
+mcp_supabase_generate_typescript_types(project_id);
 
 // Deploy functions (instead of supabase functions deploy)
-mcp_supabase_deploy_edge_function(project_id, name, files)
+mcp_supabase_deploy_edge_function(project_id, name, files);
 
 // Get logs for debugging (instead of supabase functions logs)
-mcp_supabase_get_logs(project_id, service)
+mcp_supabase_get_logs(project_id, service);
 ```
 
 ### Legacy Supabase CLI Commands (Use MCP Instead)
+
 ```bash
 # ❌ DON'T USE CLI - Use MCP tools above instead
 # supabase login
@@ -173,6 +183,7 @@ mcp_supabase_get_logs(project_id, service)
 ```
 
 ## Database Management
+
 ```bash
 # Connect to local database
 psql postgresql://postgres:postgres@localhost:54322/postgres
@@ -190,6 +201,7 @@ SELECT * FROM stones WHERE available = true LIMIT 10;
 ```
 
 ## Performance Monitoring
+
 ```bash
 # Bundle analysis
 npm run analyze
@@ -205,6 +217,7 @@ EXPLAIN ANALYZE SELECT * FROM stones WHERE cut = 'round';
 ```
 
 ## Security Checks
+
 ```bash
 # Audit dependencies
 npm audit
@@ -218,6 +231,7 @@ grep -r "process.env" src/ --include="*.ts" --include="*.tsx"
 ```
 
 ## Best Practices
+
 - Always pull before pushing
 - Use descriptive commit messages
 - Keep commits atomic (one logical change per commit)
