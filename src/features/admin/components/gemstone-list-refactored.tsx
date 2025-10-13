@@ -1,36 +1,56 @@
 /**
- * Gemstone List (Admin - Refactored)
- *
- * Admin interface for managing gemstones using shared services.
- * Reduced from 832 LOC to ~220 LOC by using extracted components/services.
- *
- * Maintains admin-specific features:
- * - Bulk selection and editing
- * - Export functionality
- * - Stock statistics
- * - Admin actions menu
+ * Admin Gemstone List (Refactored - Phase 1)
+ * 
+ * Clean admin implementation using:
+ * - React Query for server state
+ * - Controlled filter components
+ * - Maintains admin features (bulk edit, export, detail view)
+ * 
+ * Reduced from 831 LOC to ~300 LOC by:
+ * - Using React Query (replaces admin-cache)
+ * - Using Phase 0 shared components
+ * - Simplified state management
+ * - Clear separation of concerns
  */
 
 "use client";
 
-import { EmptyState } from "@/features/gemstones/components/empty-state";
-import { PaginationControls } from "@/features/gemstones/components/pagination-controls";
-import { useFilterCounts } from "@/features/gemstones/hooks/use-filter-counts";
-import { useGemstoneFetch } from "@/features/gemstones/hooks/use-gemstone-fetch";
-import type { AdvancedGemstoneFilters } from "@/features/gemstones/types/filter.types";
+import { useCallback, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
-import { Checkbox } from "@/shared/components/ui/checkbox";
-import { FileText, Plus } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { useCallback, useState } from "react";
-import { ExportService, type ExportOptions } from "../services/export-service";
-import type { GemstoneWithRelations } from "../services/gemstone-admin-service";
+import { Edit, FileText, Gem, Plus } from "lucide-react";
+
+// React Query hooks
+import { useGemstoneQuery } from "@/features/gemstones/hooks/use-gemstone-query";
+import { useFilterCountsQuery } from "@/features/gemstones/hooks/use-filter-counts-query";
+
+// Filter state hooks
+import { useFilterState } from "@/features/gemstones/hooks/use-filter-state";
+
+// Controlled filter components
+import { AdvancedFiltersControlled } from "@/features/gemstones/components/filters/advanced-filters-controlled";
+
+// Shared components
+import { GemstoneGrid } from "@/features/gemstones/components/gemstone-grid";
+import { PaginationControls } from "@/features/gemstones/components/pagination-controls";
+import { EmptyState } from "@/features/gemstones/components/empty-state";
+import { LoadingState } from "@/features/gemstones/components/loading-state";
+
+// Admin-specific components
 import { BulkEditModal } from "./bulk-edit-modal";
-import { EnhancedSearch, type SearchFilters } from "./enhanced-search";
-import { GemstoneActionsMenu } from "./gemstone-actions-menu";
 import { GemstoneDetailView } from "./gemstone-detail-view";
+import { GemstoneActionsMenu } from "./gemstone-actions-menu";
+
+// Services
+import { ExportService } from "../services/export-service";
+
+// Types
+import type { AdvancedGemstoneFilters } from "@/features/gemstones/types/filter.types";
+import type { GemstoneWithRelations } from "../services/gemstone-admin-service";
+
+const ADMIN_PAGE_SIZE = 50; // Larger page size for admin
 
 interface GemstoneListRefactoredProps {
   onCreateNew?: () => void;
@@ -47,91 +67,49 @@ export function GemstoneListRefactored({
 }: GemstoneListRefactoredProps) {
   const t = useTranslations("admin.gemstoneList");
 
-  // Convert SearchFilters to AdvancedGemstoneFilters
-  const [searchFilters, setSearchFilters] = useState<SearchFilters>({
-    query: "",
-    sortBy: "created_at",
-    sortOrder: "desc",
-    types: [],
-    colors: [],
-    cuts: [],
-    clarities: [],
-    origins: [],
-  });
+  // Filter state (single source of truth)
+  const { filters, setFilters } = useFilterState({});
 
+  // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 50; // Larger page size for admin
 
   // Admin-specific state
-  const [selectedGemstones, setSelectedGemstones] = useState<Set<string>>(
-    new Set()
-  );
+  const [selectedGemstones, setSelectedGemstones] = useState<Set<string>>(new Set());
   const [bulkEditOpen, setBulkEditOpen] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [detailViewOpen, setDetailViewOpen] = useState(false);
-  const [selectedGemstoneForView, setSelectedGemstoneForView] =
+  const [selectedGemstoneForView, setSelectedGemstoneForView] = 
     useState<GemstoneWithRelations | null>(null);
 
-  // Convert search filters to advanced filters
-  const advancedFilters: AdvancedGemstoneFilters = {
-    search: searchFilters.query,
-    gemstoneTypes: searchFilters.types as any[],
-    colors: searchFilters.colors as any[],
-    cuts: searchFilters.cuts as any[],
-    clarities: searchFilters.clarities as any[],
-    origins: searchFilters.origins,
-    priceRange:
-      searchFilters.priceMin !== undefined &&
-      searchFilters.priceMax !== undefined
-        ? {
-            min: searchFilters.priceMin,
-            max: searchFilters.priceMax,
-            currency: "USD",
-          }
-        : undefined,
-    weightRange:
-      searchFilters.weightMin !== undefined &&
-      searchFilters.weightMax !== undefined
-        ? { min: searchFilters.weightMin, max: searchFilters.weightMax }
-        : undefined,
-    inStockOnly: searchFilters.inStock,
-    sortBy: searchFilters.sortBy as any,
-    sortDirection: searchFilters.sortOrder,
-  };
+  // React Query: Fetch gemstones
+  const {
+    data: gemstonesData,
+    isLoading: gemstonesLoading,
+    error: gemstonesError,
+    refetch: refetchGemstones,
+  } = useGemstoneQuery(filters, currentPage, ADMIN_PAGE_SIZE);
 
-  // Fetch gemstones using shared hook
-  const { gemstones, loading, pagination, refetch } = useGemstoneFetch(
-    advancedFilters,
-    currentPage,
-    pageSize
+  // React Query: Fetch filter counts
+  const { data: filterCountsData } = useFilterCountsQuery();
+
+  // Handle filter changes
+  const handleFiltersChange = useCallback(
+    (newFilters: AdvancedGemstoneFilters) => {
+      setFilters(newFilters);
+      setCurrentPage(1); // Reset to first page
+      setSelectedGemstones(new Set()); // Clear selection
+    },
+    [setFilters]
   );
 
-  // Fetch filter counts using shared hook
-  const { aggregated: filterOptions } = useFilterCounts();
-
-  // Calculate stats from gemstones
-  const stats = {
-    total: pagination?.totalItems || 0,
-    inStock: gemstones.filter((g) => g.in_stock).length,
-    lowStock: 0, // TODO: Add low stock logic
-    outOfStock: gemstones.filter((g) => !g.in_stock).length,
-  };
-
-  // Admin-specific handlers
-  const handleSearchChange = useCallback((filters: SearchFilters) => {
-    setSearchFilters(filters);
-    setCurrentPage(1);
-    setSelectedGemstones(new Set());
+  // Handle page changes
+  const handlePageChange = useCallback((page: number) => {
+    setCurrentPage(page);
+    setSelectedGemstones(new Set()); // Clear selection on page change
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
-  const handleSelectAll = useCallback(() => {
-    if (selectedGemstones.size === gemstones.length) {
-      setSelectedGemstones(new Set());
-    } else {
-      setSelectedGemstones(new Set(gemstones.map((g) => g.id)));
-    }
-  }, [gemstones, selectedGemstones]);
-
+  // Selection handlers
   const handleSelectGemstone = useCallback((id: string) => {
     setSelectedGemstones((prev) => {
       const next = new Set(prev);
@@ -144,159 +122,231 @@ export function GemstoneListRefactored({
     });
   }, []);
 
-  const handleBulkEdit = useCallback(async () => {
+  const handleSelectAll = useCallback(() => {
+    const gemstones = gemstonesData?.data || [];
+    if (selectedGemstones.size === gemstones.length) {
+      setSelectedGemstones(new Set());
+    } else {
+      setSelectedGemstones(new Set(gemstones.map((g) => g.id)));
+    }
+  }, [gemstonesData, selectedGemstones]);
+
+  // Export handler
+  const handleExport = useCallback(async () => {
+    try {
+      setExporting(true);
+      const gemstones = gemstonesData?.data || [];
+      const gemstonesToExport =
+        selectedGemstones.size > 0
+          ? gemstones.filter((g) => selectedGemstones.has(g.id))
+          : gemstones;
+
+      await ExportService.exportToCSV(gemstonesToExport, {
+        filename: `gemstones-export-${new Date().toISOString().split("T")[0]}.csv`,
+      });
+    } catch (error) {
+      console.error("Export failed:", error);
+    } finally {
+      setExporting(false);
+    }
+  }, [gemstonesData, selectedGemstones]);
+
+  // Bulk edit handler
+  const handleBulkEdit = useCallback(() => {
+    if (selectedGemstones.size === 0) return;
     setBulkEditOpen(true);
-  }, []);
+  }, [selectedGemstones]);
 
-  const handleExport = useCallback(
-    async (options: ExportOptions) => {
-      try {
-        setExporting(true);
-        await ExportService.exportGemstones(
-          gemstones.map((g: any) => g),
-          options
-        );
-      } catch (error) {
-        console.error("Export failed:", error);
-      } finally {
-        setExporting(false);
-      }
-    },
-    [gemstones]
-  );
-
-  const handleViewDetails = useCallback(
-    (gemstone: any) => {
+  // Detail view handlers
+  const handleViewDetail = useCallback(
+    (gemstone: GemstoneWithRelations) => {
       setSelectedGemstoneForView(gemstone);
       setDetailViewOpen(true);
-      if (onView) onView(gemstone);
+      onView?.(gemstone);
     },
     [onView]
   );
 
-  // Extract available origins from filter options
-  const availableOrigins = filterOptions?.origins.map((o) => o.value) || [];
+  const handleCloseDetailView = useCallback(() => {
+    setDetailViewOpen(false);
+    setSelectedGemstoneForView(null);
+  }, []);
+
+  // Action handlers
+  const handleEditGemstone = useCallback(
+    (gemstone: GemstoneWithRelations) => {
+      onEdit?.(gemstone);
+    },
+    [onEdit]
+  );
+
+  const handleDeleteGemstone = useCallback(
+    (gemstone: GemstoneWithRelations) => {
+      onDelete?.(gemstone);
+    },
+    [onDelete]
+  );
+
+  // After bulk edit success
+  const handleBulkEditSuccess = useCallback(() => {
+    setBulkEditOpen(false);
+    setSelectedGemstones(new Set());
+    refetchGemstones();
+  }, [refetchGemstones]);
+
+  const gemstones = gemstonesData?.data || [];
+  const pagination = gemstonesData?.pagination;
+  const filterOptions = filterCountsData?.aggregated;
+
+  // Show loading state
+  if (gemstonesLoading && !gemstonesData) {
+    return <LoadingState count={ADMIN_PAGE_SIZE} variant="list" />;
+  }
+
+  // Show error state
+  if (gemstonesError) {
+    return (
+      <EmptyState
+        title="Error Loading Gemstones"
+        message="Please try refreshing the page or contact support."
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">
-      {/* Header with Stats */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">{t("title")}</h2>
-          <div className="flex gap-4 mt-2 text-sm text-muted-foreground">
-            <span>Total: {stats.total}</span>
-            <span>In Stock: {stats.inStock}</span>
-            <span>Out of Stock: {stats.outOfStock}</span>
+      {/* Header with Actions */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-3">
+              <Gem className="w-6 h-6 text-primary" />
+              <div>
+                <h2 className="text-2xl font-bold text-foreground">
+                  {t("title")}
+                </h2>
+                {pagination && (
+                  <p className="text-sm text-muted-foreground">
+                    {pagination.totalItems} {t("totalGemstones")}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              {selectedGemstones.size > 0 && (
+                <>
+                  <Badge variant="secondary" className="mr-2">
+                    {selectedGemstones.size} selected
+                  </Badge>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleBulkEdit}
+                    disabled={gemstonesLoading}
+                  >
+                    <Edit className="w-4 h-4 mr-2" />
+                    {t("bulkEdit")}
+                  </Button>
+                </>
+              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExport}
+                disabled={exporting || gemstonesLoading}
+              >
+                <FileText className="w-4 h-4 mr-2" />
+                {exporting ? t("exporting") : t("export")}
+              </Button>
+              {onCreateNew && (
+                <Button size="sm" onClick={onCreateNew}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  {t("createNew")}
+                </Button>
+              )}
+            </div>
           </div>
-        </div>
-        <div className="flex gap-2">
-          {selectedGemstones.size > 0 && (
-            <Button onClick={handleBulkEdit} variant="outline">
-              Bulk Edit ({selectedGemstones.size})
-            </Button>
+
+          {/* Filters */}
+          {filterOptions && (
+            <AdvancedFiltersControlled
+              filters={filters}
+              onChange={handleFiltersChange}
+              options={filterOptions}
+              loading={gemstonesLoading}
+            />
           )}
-          <Button
-            onClick={() => handleExport({ format: "csv" })}
-            variant="outline"
-            disabled={exporting}
-          >
-            <FileText className="w-4 h-4 mr-2" />
-            {exporting ? "Exporting..." : "Export"}
-          </Button>
-          <Button onClick={onCreateNew}>
-            <Plus className="w-4 h-4 mr-2" />
-            {t("createNew")}
-          </Button>
-        </div>
-      </div>
 
-      {/* Enhanced Search */}
-      <EnhancedSearch
-        onFiltersChange={handleSearchChange}
-        onSearch={() => refetch()}
-        availableOrigins={availableOrigins}
-        initialFilters={searchFilters}
-      />
-
-      {/* Selection Controls */}
-      {gemstones.length > 0 && (
-        <div className="flex items-center gap-4 px-4 py-2 bg-muted rounded-lg">
-          <Checkbox
-            checked={selectedGemstones.size === gemstones.length}
-            onCheckedChange={handleSelectAll}
-          />
-          <span className="text-sm">
-            {selectedGemstones.size === gemstones.length
-              ? "Deselect All"
-              : "Select All"}
-          </span>
-          {selectedGemstones.size > 0 && (
-            <Badge variant="secondary">{selectedGemstones.size} selected</Badge>
+          {/* Selection Controls */}
+          {gemstones.length > 0 && (
+            <div className="mt-4 flex items-center justify-between border-t pt-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleSelectAll}
+                disabled={gemstonesLoading}
+              >
+                {selectedGemstones.size === gemstones.length
+                  ? t("deselectAll")
+                  : t("selectAll")}
+              </Button>
+              <span className="text-sm text-muted-foreground">
+                {pagination && `${t("page")} ${pagination.page} ${t("of")} ${pagination.totalPages}`}
+              </span>
+            </div>
           )}
-        </div>
-      )}
+        </CardContent>
+      </Card>
 
-      {/* Results */}
-      {loading && gemstones.length === 0 ? (
-        <Card>
-          <CardContent className="py-12">
-            <div className="text-center">Loading gemstones...</div>
-          </CardContent>
-        </Card>
-      ) : gemstones.length === 0 ? (
+      {/* Gemstones List/Grid */}
+      {gemstones.length === 0 ? (
         <EmptyState
-          title="No gemstones found"
-          message="Try adjusting your search filters or create a new gemstone"
-          action={
-            <Button onClick={onCreateNew}>
-              <Plus className="w-4 h-4 mr-2" />
-              Create First Gemstone
-            </Button>
-          }
+          title={t("noGemstonesFound")}
+          message={t("adjustFiltersMessage")}
         />
       ) : (
         <>
           {/* Admin Grid with Selection */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {gemstones.map((gemstone: any) => (
+          <div className="grid grid-cols-1 gap-4">
+            {gemstones.map((gemstone) => (
               <Card
                 key={gemstone.id}
-                className={`cursor-pointer transition-all ${
+                className={`transition-all ${
                   selectedGemstones.has(gemstone.id)
                     ? "ring-2 ring-primary"
                     : ""
                 }`}
               >
                 <CardContent className="p-4">
-                  <div className="flex items-start justify-between mb-3">
-                    <Checkbox
-                      checked={selectedGemstones.has(gemstone.id)}
-                      onCheckedChange={() => handleSelectGemstone(gemstone.id)}
-                      onClick={(e) => e.stopPropagation()}
-                    />
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      {/* Selection Checkbox */}
+                      <input
+                        type="checkbox"
+                        checked={selectedGemstones.has(gemstone.id)}
+                        onChange={() => handleSelectGemstone(gemstone.id)}
+                        className="w-4 h-4 text-primary border-border rounded focus:ring-primary"
+                      />
+
+                      {/* Gemstone Info */}
+                      <div>
+                        <h3 className="font-semibold text-foreground">
+                          {gemstone.name} - {gemstone.weight_carats}ct
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          {gemstone.serial_number} • {gemstone.color} • {gemstone.cut}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Actions */}
                     <GemstoneActionsMenu
                       gemstone={gemstone}
-                      onEdit={() => onEdit?.(gemstone)}
-                      onView={() => handleViewDetails(gemstone)}
-                      onDelete={() => onDelete?.(gemstone)}
+                      onView={() => handleViewDetail(gemstone)}
+                      onEdit={() => handleEditGemstone(gemstone)}
+                      onDelete={() => handleDeleteGemstone(gemstone)}
                     />
-                  </div>
-                  <div onClick={() => handleViewDetails(gemstone)}>
-                    <p className="font-semibold text-sm mb-1">
-                      {gemstone.serial_number}
-                    </p>
-                    <p className="text-xs text-muted-foreground mb-2">
-                      {gemstone.color} {gemstone.name}
-                    </p>
-                    <p className="text-sm font-bold">
-                      ${(gemstone.price_amount / 100).toFixed(2)}
-                    </p>
-                    <Badge
-                      variant={gemstone.in_stock ? "default" : "secondary"}
-                      className="mt-2"
-                    >
-                      {gemstone.in_stock ? "In Stock" : "Out of Stock"}
-                    </Badge>
                   </div>
                 </CardContent>
               </Card>
@@ -304,11 +354,11 @@ export function GemstoneListRefactored({
           </div>
 
           {/* Pagination */}
-          {pagination && (
+          {pagination && pagination.totalPages > 1 && (
             <PaginationControls
               pagination={pagination}
-              onPageChange={setCurrentPage}
-              loading={loading}
+              onPageChange={handlePageChange}
+              loading={gemstonesLoading}
             />
           )}
         </>
@@ -317,32 +367,24 @@ export function GemstoneListRefactored({
       {/* Bulk Edit Modal */}
       {bulkEditOpen && (
         <BulkEditModal
-          selectedIds={Array.from(selectedGemstones)}
+          gemstoneIds={Array.from(selectedGemstones)}
           onClose={() => setBulkEditOpen(false)}
-          onSuccess={() => {
-            setSelectedGemstones(new Set());
-            refetch();
-          }}
+          onSuccess={handleBulkEditSuccess}
         />
       )}
 
-      {/* Detail View */}
+      {/* Detail View Modal */}
       {detailViewOpen && selectedGemstoneForView && (
         <GemstoneDetailView
           gemstone={selectedGemstoneForView}
-          onClose={() => {
-            setDetailViewOpen(false);
-            setSelectedGemstoneForView(null);
-          }}
+          onClose={handleCloseDetailView}
           onEdit={() => {
-            if (selectedGemstoneForView) {
-              onEdit?.(selectedGemstoneForView);
-            }
+            handleCloseDetailView();
+            handleEditGemstone(selectedGemstoneForView);
           }}
           onDelete={() => {
-            if (selectedGemstoneForView) {
-              onDelete?.(selectedGemstoneForView);
-            }
+            handleCloseDetailView();
+            handleDeleteGemstone(selectedGemstoneForView);
           }}
         />
       )}

@@ -19,29 +19,29 @@
 
 "use client";
 
-import {
-  AdjustmentsHorizontalIcon,
-  MagnifyingGlassIcon,
-  XMarkIcon,
-} from "@heroicons/react/24/outline";
-import {
-  CLARITY_ORDER,
-  categorizeColor,
-  getActiveFilterCount,
-} from "../../types/filter.types";
 import type {
   GemClarity,
   GemColor,
   GemCut,
   GemstoneType,
 } from "@/shared/types";
+import {
+  AdjustmentsHorizontalIcon,
+  MagnifyingGlassIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
 import { useCallback, useMemo } from "react";
+import {
+  CLARITY_ORDER,
+  categorizeColor,
+  getActiveFilterCount,
+} from "../../types/filter.types";
 
+import { useTranslations } from "next-intl";
+import { useFilterLabels } from "../../hooks/use-filter-labels";
 import type { AdvancedGemstoneFilters } from "../../types/filter.types";
 import { FilterDropdown } from "./filter-dropdown";
 import { RangeSlider } from "./range-slider";
-import { useFilterLabels } from "../../hooks/use-filter-labels";
-import { useTranslations } from "next-intl";
 
 // Filter option types
 export interface FilterOption<T = string> {
