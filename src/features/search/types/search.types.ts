@@ -58,11 +58,11 @@ export interface SearchRequest {
  * Search Response
  */
 export interface SearchResponse {
-  data: GemstoneSearchResult[];
+  results: GemstoneSearchResult[];
   pagination: {
     page: number;
     pageSize: number;
-    totalItems: number;
+    totalCount: number;
     totalPages: number;
     hasNextPage: boolean;
     hasPrevPage: boolean;

@@ -8,17 +8,17 @@
 
 import { useMemo, useState } from "react";
 
-import { AdvancedFiltersControlled } from "@/features/gemstones/components/filters/advanced-filters-controlled";
 import { EmptyState } from "@/features/gemstones/components/empty-state";
+import { AdvancedFiltersControlled } from "@/features/gemstones/components/filters/advanced-filters-controlled";
 import { GemstoneGrid } from "@/features/gemstones/components/gemstone-grid";
 import { LoadingState } from "@/features/gemstones/components/loading-state";
 import { PaginationControls } from "@/features/gemstones/components/pagination-controls";
-import { SearchInput } from "./search-input";
 import { useFilterCountsQuery } from "@/features/gemstones/hooks/use-filter-counts-query";
 import { useFilterState } from "@/features/gemstones/hooks/use-filter-state";
+import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useSearchQuery } from "../hooks/use-search-query";
-import { useTranslations } from "next-intl";
+import { SearchInput } from "./search-input";
 
 const PAGE_SIZE = 24;
 
@@ -145,12 +145,16 @@ export function SearchResults() {
           {/* Pagination */}
           {totalPages > 1 && data?.pagination && (
             <div className="mt-8">
-              <PaginationControls 
+              <PaginationControls
                 pagination={{
-                  ...data.pagination,
+                  page: data.pagination.page,
+                  pageSize: data.pagination.pageSize,
                   totalItems: data.pagination.totalCount,
-                }} 
-                onPageChange={handlePageChange} 
+                  totalPages: data.pagination.totalPages,
+                  hasNextPage: data.pagination.hasNextPage,
+                  hasPrevPage: data.pagination.hasPrevPage,
+                }}
+                onPageChange={handlePageChange}
               />
             </div>
           )}

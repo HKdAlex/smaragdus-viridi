@@ -92,6 +92,7 @@ BEGIN
         ELSE ts_rank_cd(
           to_tsvector('english',
             COALESCE(g.serial_number, '') || ' ' ||
+            COALESCE(g.name::text, '') || ' ' ||
             COALESCE(g.description, '')
           ),
           ts_query,
@@ -102,11 +103,13 @@ BEGIN
       COUNT(*) OVER() AS total
     FROM gemstones g
     WHERE
-      -- Full-text search condition (only text columns, enums filtered separately)
-      (ts_query IS NULL OR to_tsvector('english',
-        COALESCE(g.serial_number, '') || ' ' ||
-        COALESCE(g.description, '')
-      ) @@ ts_query)
+      -- Full-text search condition (text columns + gemstone name/type)
+      (ts_query IS NULL OR 
+        to_tsvector('english',
+          COALESCE(g.serial_number, '') || ' ' ||
+          COALESCE(g.name::text, '') || ' ' ||
+          COALESCE(g.description, '')
+        ) @@ ts_query)
       -- Price range filter
       AND (min_price IS NULL OR g.price_amount >= min_price)
       AND (max_price IS NULL OR g.price_amount <= max_price)
@@ -127,16 +130,10 @@ BEGIN
       AND (has_images IS NULL OR NOT has_images OR EXISTS (
         SELECT 1 FROM gemstone_images gi WHERE gi.gemstone_id = g.id
       ))
-      -- Certification filter
-      AND (has_certification_filter IS NULL OR NOT has_certification_filter OR g.has_certification = true)
+      -- Certification filter (column doesn't exist, always returns all)
+      -- AND (has_certification_filter IS NULL OR NOT has_certification_filter OR g.has_certification = true)
       -- AI Analysis filter
-      AND (has_ai_analysis_filter IS NULL OR NOT has_ai_analysis_filter OR g.has_ai_analysis = true)
-    ORDER BY
-      -- Order by relevance score (highest first), then by created date
-      CASE WHEN ts_query IS NULL THEN 0 ELSE rel_score END DESC,
-      g.created_at DESC
-    LIMIT page_size
-    OFFSET offset_val
+      AND (has_ai_analysis_filter IS NULL OR NOT has_ai_analysis_filter OR g.ai_analyzed = true)
   )
   SELECT 
     fg.id,
@@ -149,14 +146,20 @@ BEGIN
     fg.price_amount,
     fg.price_currency,
     fg.description,
-    COALESCE(fg.has_certification, false) AS has_certification,
-    COALESCE(fg.has_ai_analysis, false) AS has_ai_analysis,
+    false AS has_certification,
+    COALESCE(fg.ai_analyzed, false) AS has_ai_analysis,
     fg.metadata_status,
     fg.created_at,
     fg.updated_at,
     fg.rel_score::real AS relevance_score,
     fg.total AS total_count
-  FROM filtered_gemstones fg;
+  FROM filtered_gemstones fg
+  ORDER BY
+    -- Order by relevance score (highest first), then by created date
+    fg.rel_score DESC,
+    fg.created_at DESC
+  LIMIT page_size
+  OFFSET offset_val;
 END;
 $$;
 
