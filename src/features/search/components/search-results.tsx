@@ -1,37 +1,39 @@
 /**
  * Search Results Component
- * 
+ *
  * Displays paginated search results with filters.
  */
 
-'use client';
+"use client";
 
-import { useSearchParams } from 'next/navigation';
-import { useTranslations } from 'next-intl';
-import { useState, useMemo } from 'react';
-import { useSearchQuery } from '../hooks/use-search-query';
-import { SearchInput } from './search-input';
-import { GemstoneGrid } from '@/features/gemstones/components/gemstone-grid';
-import { PaginationControls } from '@/features/gemstones/components/pagination-controls';
-import { EmptyState } from '@/features/gemstones/components/empty-state';
-import { LoadingState } from '@/features/gemstones/components/loading-state';
-import { AdvancedFiltersControlled } from '@/features/gemstones/components/filters/advanced-filters-controlled';
-import { useFilterState } from '@/features/gemstones/hooks/use-filter-state';
-import { useFilterCountsQuery } from '@/features/gemstones/hooks/use-filter-counts-query';
+import { useMemo, useState } from "react";
+
+import { AdvancedFiltersControlled } from "@/features/gemstones/components/filters/advanced-filters-controlled";
+import { EmptyState } from "@/features/gemstones/components/empty-state";
+import { GemstoneGrid } from "@/features/gemstones/components/gemstone-grid";
+import { LoadingState } from "@/features/gemstones/components/loading-state";
+import { PaginationControls } from "@/features/gemstones/components/pagination-controls";
+import { SearchInput } from "./search-input";
+import { useFilterCountsQuery } from "@/features/gemstones/hooks/use-filter-counts-query";
+import { useFilterState } from "@/features/gemstones/hooks/use-filter-state";
+import { useSearchParams } from "next/navigation";
+import { useSearchQuery } from "../hooks/use-search-query";
+import { useTranslations } from "next-intl";
 
 const PAGE_SIZE = 24;
 
 export function SearchResults() {
-  const t = useTranslations('search');
-  const tCatalog = useTranslations('catalog');
+  const t = useTranslations("search");
+  const tCatalog = useTranslations("catalog");
   const searchParams = useSearchParams();
-  
+
   // Get search query from URL
-  const query = searchParams.get('q') || '';
-  
+  const query = searchParams.get("q") || "";
+
   // Filter state
-  const { filters, updateFilters, resetFilters, filterCount } = useFilterState();
-  
+  const { filters, updateFilters, resetFilters, filterCount } =
+    useFilterState();
+
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -55,7 +57,7 @@ export function SearchResults() {
   // Handle page change
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   // Handle filter change
@@ -85,7 +87,8 @@ export function SearchResults() {
         </div>
         <div className="text-center py-12">
           <p className="text-red-600 dark:text-red-400">
-            {t('error')}: {error instanceof Error ? error.message : 'Unknown error'}
+            {t("error")}:{" "}
+            {error instanceof Error ? error.message : "Unknown error"}
           </p>
         </div>
       </div>
@@ -107,14 +110,14 @@ export function SearchResults() {
         <h1 className="text-2xl font-bold mb-2">
           {query ? (
             <>
-              {t('resultsFor')} "{query}"
+              {t("resultsFor")} "{query}"
             </>
           ) : (
-            t('searchResults')
+            t("searchResults")
           )}
         </h1>
         <p className="text-gray-600 dark:text-gray-400">
-          {totalCount} {tCatalog('gemstonesFound')}
+          {totalCount} {tCatalog("gemstonesFound")}
         </p>
       </div>
 
@@ -134,13 +137,13 @@ export function SearchResults() {
       {/* Results */}
       {results.length === 0 ? (
         <EmptyState
-          title={query ? t('noResults') : t('enterSearch')}
-          message={query ? t('tryDifferent') : t('searchPrompt')}
+          title={query ? t("noResults") : t("enterSearch")}
+          message={query ? t("tryDifferent") : t("searchPrompt")}
         />
       ) : (
         <>
           <GemstoneGrid gemstones={results} />
-          
+
           {/* Pagination */}
           {totalPages > 1 && (
             <div className="mt-8">
@@ -156,4 +159,3 @@ export function SearchResults() {
     </div>
   );
 }
-

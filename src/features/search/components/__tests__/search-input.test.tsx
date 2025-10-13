@@ -2,14 +2,15 @@
  * SearchInput Component Tests
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { SearchInput } from '../search-input';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { NextIntlClientProvider } from 'next-intl';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+
+import { NextIntlClientProvider } from "next-intl";
+import { SearchInput } from "../search-input";
 
 // Mock next-intl navigation
-vi.mock('@/i18n/navigation', () => ({
+vi.mock("@/i18n/navigation", () => ({
   useRouter: () => ({
     push: vi.fn(),
     replace: vi.fn(),
@@ -19,13 +20,13 @@ vi.mock('@/i18n/navigation', () => ({
 // Mock translations
 const messages = {
   search: {
-    placeholder: 'Search gemstones...',
-    search: 'Search',
-    loading: 'Loading...',
-    noSuggestions: 'No suggestions',
-    serialNumber: 'Serial Number',
-    type: 'Type',
-    color: 'Color',
+    placeholder: "Search gemstones...",
+    search: "Search",
+    loading: "Loading...",
+    noSuggestions: "No suggestions",
+    serialNumber: "Serial Number",
+    type: "Type",
+    color: "Color",
   },
 };
 
@@ -48,128 +49,135 @@ function renderWithProviders(ui: React.ReactElement) {
   );
 }
 
-describe('SearchInput', () => {
+describe("SearchInput", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('renders search input with placeholder', () => {
+  it("renders search input with placeholder", () => {
     renderWithProviders(<SearchInput />);
-    
-    const input = screen.getByPlaceholderText('Search gemstones...');
+
+    const input = screen.getByPlaceholderText("Search gemstones...");
     expect(input).toBeInTheDocument();
   });
 
-  it('accepts custom placeholder', () => {
+  it("accepts custom placeholder", () => {
     renderWithProviders(<SearchInput placeholder="Custom placeholder" />);
-    
-    const input = screen.getByPlaceholderText('Custom placeholder');
+
+    const input = screen.getByPlaceholderText("Custom placeholder");
     expect(input).toBeInTheDocument();
   });
 
-  it('updates input value when typing', () => {
+  it("updates input value when typing", () => {
     renderWithProviders(<SearchInput />);
-    
-    const input = screen.getByPlaceholderText('Search gemstones...') as HTMLInputElement;
-    
-    fireEvent.change(input, { target: { value: 'ruby' } });
-    
-    expect(input.value).toBe('ruby');
+
+    const input = screen.getByPlaceholderText(
+      "Search gemstones..."
+    ) as HTMLInputElement;
+
+    fireEvent.change(input, { target: { value: "ruby" } });
+
+    expect(input.value).toBe("ruby");
   });
 
-  it('shows search icon button', () => {
+  it("shows search icon button", () => {
     renderWithProviders(<SearchInput />);
-    
-    const searchButton = screen.getByLabelText('Search');
+
+    const searchButton = screen.getByLabelText("Search");
     expect(searchButton).toBeInTheDocument();
   });
 
-  it('calls onSearch when Enter is pressed', () => {
+  it("calls onSearch when Enter is pressed", () => {
     const onSearch = vi.fn();
     renderWithProviders(<SearchInput onSearch={onSearch} />);
-    
-    const input = screen.getByPlaceholderText('Search gemstones...');
-    
-    fireEvent.change(input, { target: { value: 'ruby' } });
-    fireEvent.keyDown(input, { key: 'Enter' });
-    
-    expect(onSearch).toHaveBeenCalledWith('ruby');
+
+    const input = screen.getByPlaceholderText("Search gemstones...");
+
+    fireEvent.change(input, { target: { value: "ruby" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+
+    expect(onSearch).toHaveBeenCalledWith("ruby");
   });
 
-  it('calls onSearch when search button is clicked', () => {
+  it("calls onSearch when search button is clicked", () => {
     const onSearch = vi.fn();
     renderWithProviders(<SearchInput onSearch={onSearch} />);
-    
-    const input = screen.getByPlaceholderText('Search gemstones...');
-    const searchButton = screen.getByLabelText('Search');
-    
-    fireEvent.change(input, { target: { value: 'sapphire' } });
+
+    const input = screen.getByPlaceholderText("Search gemstones...");
+    const searchButton = screen.getByLabelText("Search");
+
+    fireEvent.change(input, { target: { value: "sapphire" } });
     fireEvent.click(searchButton);
-    
-    expect(onSearch).toHaveBeenCalledWith('sapphire');
+
+    expect(onSearch).toHaveBeenCalledWith("sapphire");
   });
 
-  it('does not call onSearch with empty query', () => {
+  it("does not call onSearch with empty query", () => {
     const onSearch = vi.fn();
     renderWithProviders(<SearchInput onSearch={onSearch} />);
-    
-    const input = screen.getByPlaceholderText('Search gemstones...');
-    
-    fireEvent.keyDown(input, { key: 'Enter' });
-    
+
+    const input = screen.getByPlaceholderText("Search gemstones...");
+
+    fireEvent.keyDown(input, { key: "Enter" });
+
     expect(onSearch).not.toHaveBeenCalled();
   });
 
-  it('trims whitespace from search query', () => {
+  it("trims whitespace from search query", () => {
     const onSearch = vi.fn();
     renderWithProviders(<SearchInput onSearch={onSearch} />);
-    
-    const input = screen.getByPlaceholderText('Search gemstones...');
-    
-    fireEvent.change(input, { target: { value: '  emerald  ' } });
-    fireEvent.keyDown(input, { key: 'Enter' });
-    
-    expect(onSearch).toHaveBeenCalledWith('emerald');
+
+    const input = screen.getByPlaceholderText("Search gemstones...");
+
+    fireEvent.change(input, { target: { value: "  emerald  " } });
+    fireEvent.keyDown(input, { key: "Enter" });
+
+    expect(onSearch).toHaveBeenCalledWith("emerald");
   });
 
-  it('supports defaultValue prop', () => {
+  it("supports defaultValue prop", () => {
     renderWithProviders(<SearchInput defaultValue="diamond" />);
-    
-    const input = screen.getByPlaceholderText('Search gemstones...') as HTMLInputElement;
-    
-    expect(input.value).toBe('diamond');
+
+    const input = screen.getByPlaceholderText(
+      "Search gemstones..."
+    ) as HTMLInputElement;
+
+    expect(input.value).toBe("diamond");
   });
 
-  it('applies custom className', () => {
+  it("applies custom className", () => {
     renderWithProviders(<SearchInput className="custom-class" />);
-    
-    const container = screen.getByPlaceholderText('Search gemstones...').closest('.custom-class');
-    
+
+    const container = screen
+      .getByPlaceholderText("Search gemstones...")
+      .closest(".custom-class");
+
     expect(container).toBeInTheDocument();
   });
 
-  it('does not show suggestions when showSuggestions is false', () => {
+  it("does not show suggestions when showSuggestions is false", () => {
     renderWithProviders(<SearchInput showSuggestions={false} />);
-    
-    const input = screen.getByPlaceholderText('Search gemstones...');
-    
-    fireEvent.change(input, { target: { value: 'ruby' } });
-    
+
+    const input = screen.getByPlaceholderText("Search gemstones...");
+
+    fireEvent.change(input, { target: { value: "ruby" } });
+
     // Wait a bit for debounce
     waitFor(() => {
       // Suggestions dropdown should not appear
-      expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+      expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
     });
   });
 
-  it('focuses input when autoFocus is true', () => {
+  it("focuses input when autoFocus is true", () => {
     renderWithProviders(<SearchInput autoFocus />);
-    
-    const input = screen.getByPlaceholderText('Search gemstones...') as HTMLInputElement;
-    
+
+    const input = screen.getByPlaceholderText(
+      "Search gemstones..."
+    ) as HTMLInputElement;
+
     // Note: This test might fail in JSDOM as autoFocus behavior is tricky
     // In real browsers, autoFocus will work correctly
     expect(input).toBeInTheDocument();
   });
 });
-

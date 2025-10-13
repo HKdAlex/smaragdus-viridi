@@ -1,6 +1,6 @@
 /**
  * Search Input Component with Autocomplete
- * 
+ *
  * Features:
  * - Real-time autocomplete suggestions
  * - Keyboard navigation (Arrow keys, Enter, Escape)
@@ -9,12 +9,13 @@
  * - Category-based suggestions
  */
 
-'use client';
+"use client";
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useRouter } from '@/i18n/navigation';
-import { useTranslations } from 'next-intl';
-import { useSearchSuggestionsQuery } from '../hooks/use-search-suggestions-query';
+import { useCallback, useEffect, useRef, useState } from "react";
+
+import { useRouter } from "@/i18n/navigation";
+import { useSearchSuggestionsQuery } from "../hooks/use-search-suggestions-query";
+import { useTranslations } from "next-intl";
 
 export interface SearchInputProps {
   placeholder?: string;
@@ -27,20 +28,20 @@ export interface SearchInputProps {
 
 export function SearchInput({
   placeholder,
-  className = '',
+  className = "",
   onSearch,
   autoFocus = false,
   showSuggestions = true,
-  defaultValue = '',
+  defaultValue = "",
 }: SearchInputProps) {
-  const t = useTranslations('search');
+  const t = useTranslations("search");
   const router = useRouter();
-  
+
   const [query, setQuery] = useState(defaultValue);
   const [debouncedQuery, setDebouncedQuery] = useState(defaultValue);
   const [showDropdown, setShowDropdown] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
-  
+
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -72,7 +73,7 @@ export function SearchInput({
       if (!trimmed) return;
 
       setShowDropdown(false);
-      
+
       if (onSearch) {
         onSearch(trimmed);
       } else {
@@ -96,26 +97,26 @@ export function SearchInput({
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (!showDropdown) {
-        if (e.key === 'Enter') {
+        if (e.key === "Enter") {
           handleSearch(query);
         }
         return;
       }
 
       switch (e.key) {
-        case 'ArrowDown':
+        case "ArrowDown":
           e.preventDefault();
           setSelectedIndex((prev) =>
             prev < suggestions.length - 1 ? prev + 1 : prev
           );
           break;
 
-        case 'ArrowUp':
+        case "ArrowUp":
           e.preventDefault();
           setSelectedIndex((prev) => (prev > 0 ? prev - 1 : -1));
           break;
 
-        case 'Enter':
+        case "Enter":
           e.preventDefault();
           if (selectedIndex >= 0 && selectedIndex < suggestions.length) {
             handleSelectSuggestion(suggestions[selectedIndex].suggestion);
@@ -124,7 +125,7 @@ export function SearchInput({
           }
           break;
 
-        case 'Escape':
+        case "Escape":
           e.preventDefault();
           setShowDropdown(false);
           setSelectedIndex(-1);
@@ -132,7 +133,14 @@ export function SearchInput({
           break;
       }
     },
-    [showDropdown, query, suggestions, selectedIndex, handleSearch, handleSelectSuggestion]
+    [
+      showDropdown,
+      query,
+      suggestions,
+      selectedIndex,
+      handleSearch,
+      handleSelectSuggestion,
+    ]
   );
 
   // Close dropdown when clicking outside
@@ -149,16 +157,19 @@ export function SearchInput({
       }
     }
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // Category badge styling
   const getCategoryBadge = (category: string) => {
     const badges = {
-      serial_number: { label: t('serialNumber'), color: 'bg-blue-100 text-blue-800' },
-      type: { label: t('type'), color: 'bg-purple-100 text-purple-800' },
-      color: { label: t('color'), color: 'bg-green-100 text-green-800' },
+      serial_number: {
+        label: t("serialNumber"),
+        color: "bg-blue-100 text-blue-800",
+      },
+      type: { label: t("type"), color: "bg-purple-100 text-purple-800" },
+      color: { label: t("color"), color: "bg-green-100 text-green-800" },
     };
     return badges[category as keyof typeof badges] || badges.type;
   };
@@ -178,16 +189,16 @@ export function SearchInput({
               setShowDropdown(true);
             }
           }}
-          placeholder={placeholder || t('placeholder')}
+          placeholder={placeholder || t("placeholder")}
           autoFocus={autoFocus}
           className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-800 dark:border-gray-600 dark:text-white"
         />
-        
+
         {/* Search Icon */}
         <button
           onClick={() => handleSearch(query)}
           className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-          aria-label={t('search')}
+          aria-label={t("search")}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -214,30 +225,34 @@ export function SearchInput({
         >
           {isLoading ? (
             <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
-              {t('loading')}
+              {t("loading")}
             </div>
           ) : suggestions.length === 0 ? (
             <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
-              {t('noSuggestions')}
+              {t("noSuggestions")}
             </div>
           ) : (
             <ul className="py-1">
               {suggestions.map((suggestion, index) => {
                 const badge = getCategoryBadge(suggestion.category);
                 const isSelected = index === selectedIndex;
-                
+
                 return (
                   <li key={`${suggestion.suggestion}-${index}`}>
                     <button
-                      onClick={() => handleSelectSuggestion(suggestion.suggestion)}
+                      onClick={() =>
+                        handleSelectSuggestion(suggestion.suggestion)
+                      }
                       className={`w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between ${
-                        isSelected ? 'bg-gray-100 dark:bg-gray-700' : ''
+                        isSelected ? "bg-gray-100 dark:bg-gray-700" : ""
                       }`}
                     >
                       <span className="text-sm text-gray-900 dark:text-gray-100">
                         {suggestion.suggestion}
                       </span>
-                      <span className={`text-xs px-2 py-1 rounded-full ${badge.color}`}>
+                      <span
+                        className={`text-xs px-2 py-1 rounded-full ${badge.color}`}
+                      >
                         {badge.label}
                       </span>
                     </button>
@@ -251,4 +266,3 @@ export function SearchInput({
     </div>
   );
 }
-

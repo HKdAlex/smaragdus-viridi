@@ -124,7 +124,7 @@ export class QueryBuilderService {
    * Used for URL state restoration
    */
   static parseQueryToFilters(query: URLSearchParams): AdvancedGemstoneFilters {
-    const filters: AdvancedGemstoneFilters = {};
+    const filters: Partial<AdvancedGemstoneFilters> = {};
 
     // Text search
     const search = query.get("search");

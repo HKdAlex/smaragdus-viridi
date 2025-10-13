@@ -1,6 +1,6 @@
 /**
  * Search Results Page
- * 
+ *
  * Displays full-text search results with relevance ranking.
  * Features:
  * - Server-side searchParams reading
@@ -9,9 +9,9 @@
  * - Pagination
  */
 
-import { Suspense } from 'react';
-import { SearchResults } from '@/features/search/components/search-results';
-import { LoadingState } from '@/features/gemstones/components/loading-state';
+import { LoadingState } from "@/features/gemstones/components/loading-state";
+import { SearchResults } from "@/features/search/components/search-results";
+import { Suspense } from "react";
 
 export default function SearchPage() {
   return (
@@ -24,4 +24,3 @@ export default function SearchPage() {
     </div>
   );
 }
-

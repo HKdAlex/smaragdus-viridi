@@ -15,39 +15,37 @@
 
 "use client";
 
-import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Edit, FileText, Gem, Plus } from "lucide-react";
-import { useTranslations } from "next-intl";
 import { useCallback, useState } from "react";
-
-// React Query hooks
-import { useFilterCountsQuery } from "@/features/gemstones/hooks/use-filter-counts-query";
-import { useGemstoneQuery } from "@/features/gemstones/hooks/use-gemstone-query";
-
-// Filter state hooks
-import { useFilterState } from "@/features/gemstones/hooks/use-filter-state";
 
 // Controlled filter components
 import { AdvancedFiltersControlled } from "@/features/gemstones/components/filters/advanced-filters-controlled";
-
-// Shared components
-import { EmptyState } from "@/features/gemstones/components/empty-state";
-import { LoadingState } from "@/features/gemstones/components/loading-state";
-import { PaginationControls } from "@/features/gemstones/components/pagination-controls";
-
-// Admin-specific components
-import { BulkEditModal } from "./bulk-edit-modal";
-import { GemstoneActionsMenu } from "./gemstone-actions-menu";
-import { GemstoneDetailView } from "./gemstone-detail-view";
-
-// Services
-import { ExportService } from "../services/export-service";
-
 // Types
 import type { AdvancedGemstoneFilters } from "@/features/gemstones/types/filter.types";
+import { Badge } from "@/shared/components/ui/badge";
+import { BulkEditModal } from "./bulk-edit-modal";
+// Admin-specific components
+import { Button } from "@/shared/components/ui/button";
+// Types
+import type { CatalogGemstone } from "@/features/gemstones/services/gemstone-fetch.service";
+// Shared components
+import { EmptyState } from "@/features/gemstones/components/empty-state";
+import { ExportService } from "../services/export-service";
+import { GemstoneActionsMenu } from "./gemstone-actions-menu";
+import { GemstoneDetailView } from "./gemstone-detail-view";
 import type { GemstoneWithRelations } from "../services/gemstone-admin-service";
+// Services
+import { LoadingState } from "@/features/gemstones/components/loading-state";
+import { PaginationControls } from "@/features/gemstones/components/pagination-controls";
+import { queryKeys } from "@/lib/react-query/query-keys";
+// React Query hooks
+import { useFilterCountsQuery } from "@/features/gemstones/hooks/use-filter-counts-query";
+// Filter state hooks
+import { useFilterState } from "@/features/gemstones/hooks/use-filter-state";
+import { useGemstoneQuery } from "@/features/gemstones/hooks/use-gemstone-query";
+import { useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 
 const ADMIN_PAGE_SIZE = 50; // Larger page size for admin
 
@@ -65,6 +63,7 @@ export function GemstoneListRefactored({
   onDelete,
 }: GemstoneListRefactoredProps) {
   const t = useTranslations("admin.gemstoneList");
+  const queryClient = useQueryClient();
 
   // Filter state (single source of truth)
   const { filters, setFilters } = useFilterState({});
@@ -143,9 +142,9 @@ export function GemstoneListRefactored({
           : gemstones;
 
       await ExportService.exportToCSV(gemstonesToExport, {
-        filename: `gemstones-export-${
-          new Date().toISOString().split("T")[0]
-        }.csv`,
+        format: "csv",
+        includeImages: false,
+        includeMetadata: true,
       });
     } catch (error) {
       console.error("Export failed:", error);
@@ -162,10 +161,10 @@ export function GemstoneListRefactored({
 
   // Detail view handlers
   const handleViewDetail = useCallback(
-    (gemstone: GemstoneWithRelations) => {
-      setSelectedGemstoneForView(gemstone);
+    (gemstone: CatalogGemstone | GemstoneWithRelations) => {
+      setSelectedGemstoneForView(gemstone as GemstoneWithRelations);
       setDetailViewOpen(true);
-      onView?.(gemstone);
+      onView?.(gemstone as GemstoneWithRelations);
     },
     [onView]
   );
@@ -177,25 +176,32 @@ export function GemstoneListRefactored({
 
   // Action handlers
   const handleEditGemstone = useCallback(
-    (gemstone: GemstoneWithRelations) => {
-      onEdit?.(gemstone);
+    (gemstone: CatalogGemstone | GemstoneWithRelations) => {
+      onEdit?.(gemstone as GemstoneWithRelations);
     },
     [onEdit]
   );
 
   const handleDeleteGemstone = useCallback(
-    (gemstone: GemstoneWithRelations) => {
-      onDelete?.(gemstone);
+    (gemstone: CatalogGemstone | GemstoneWithRelations) => {
+      onDelete?.(gemstone as GemstoneWithRelations);
     },
     [onDelete]
   );
 
   // After bulk edit success
-  const handleBulkEditSuccess = useCallback(() => {
-    setBulkEditOpen(false);
-    setSelectedGemstones(new Set());
-    refetchGemstones();
-  }, [refetchGemstones]);
+  const handleBulkEditSuccess = useCallback(
+    (updatedCount: number) => {
+      console.log(`Bulk edit success: ${updatedCount} gemstones updated`);
+      setBulkEditOpen(false);
+      setSelectedGemstones(new Set());
+      // Invalidate queries
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.gemstones.all,
+      });
+    },
+    [queryClient]
+  );
 
   const gemstones = gemstonesData?.data || [];
   const pagination = gemstonesData?.pagination;
@@ -374,7 +380,8 @@ export function GemstoneListRefactored({
       {/* Bulk Edit Modal */}
       {bulkEditOpen && (
         <BulkEditModal
-          gemstoneIds={Array.from(selectedGemstones)}
+          isOpen={bulkEditOpen}
+          selectedGemstones={selectedGemstones}
           onClose={() => setBulkEditOpen(false)}
           onSuccess={handleBulkEditSuccess}
         />
@@ -384,15 +391,8 @@ export function GemstoneListRefactored({
       {detailViewOpen && selectedGemstoneForView && (
         <GemstoneDetailView
           gemstone={selectedGemstoneForView}
+          isOpen={detailViewOpen}
           onClose={handleCloseDetailView}
-          onEdit={() => {
-            handleCloseDetailView();
-            handleEditGemstone(selectedGemstoneForView);
-          }}
-          onDelete={() => {
-            handleCloseDetailView();
-            handleDeleteGemstone(selectedGemstoneForView);
-          }}
         />
       )}
     </div>

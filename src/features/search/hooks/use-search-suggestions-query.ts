@@ -1,18 +1,17 @@
 /**
  * Search Suggestions Query Hook
- * 
+ *
  * React Query hook for fetching autocomplete suggestions.
  * Uses debouncing to avoid excessive API calls.
  */
 
-'use client';
+"use client";
 
-import { useQuery } from '@tanstack/react-query';
-import { queryKeys } from '@/lib/react-query/query-keys';
+import { useQuery } from "@tanstack/react-query";
 
 export interface SearchSuggestion {
   suggestion: string;
-  category: 'serial_number' | 'type' | 'color';
+  category: "serial_number" | "type" | "color";
   relevance: number;
 }
 
@@ -47,12 +46,12 @@ async function fetchSearchSuggestions(
 
 /**
  * React Query hook for search suggestions
- * 
+ *
  * Features:
  * - Automatic caching (5 min stale time)
  * - Disabled when query is too short
  * - Returns empty array immediately for short queries
- * 
+ *
  * @param query - Search query (minimum 2 characters)
  * @param options - Query options
  */
@@ -70,7 +69,7 @@ export function useSearchSuggestionsQuery(
   const isQueryValid = normalizedQuery.length >= 2;
 
   return useQuery({
-    queryKey: ['searchSuggestions', normalizedQuery, limit],
+    queryKey: ["searchSuggestions", normalizedQuery, limit],
     queryFn: () => fetchSearchSuggestions(normalizedQuery, limit),
     enabled: enabled && isQueryValid,
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -78,4 +77,3 @@ export function useSearchSuggestionsQuery(
     placeholderData: { suggestions: [] }, // Show empty while loading
   });
 }
-

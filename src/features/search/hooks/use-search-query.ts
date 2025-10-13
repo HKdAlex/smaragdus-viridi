@@ -1,13 +1,13 @@
 /**
  * Search Query Hook
- * 
+ *
  * React Query hook for full-text search with filters and pagination.
  */
 
-'use client';
+"use client";
 
-import { useQuery } from '@tanstack/react-query';
-import type { AdvancedGemstoneFilters } from '@/features/gemstones/types/filter.types';
+import type { AdvancedGemstoneFilters } from "@/features/gemstones/types/filter.types";
+import { useQuery } from "@tanstack/react-query";
 
 export interface SearchQueryParams {
   query: string;
@@ -55,10 +55,10 @@ async function fetchSearchResults(
 ): Promise<SearchResponse> {
   const { query, filters = {}, page = 1, pageSize = 24 } = params;
 
-  const response = await fetch('/api/search', {
-    method: 'POST',
+  const response = await fetch("/api/search", {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({
       query,
@@ -77,23 +77,22 @@ async function fetchSearchResults(
 
 /**
  * React Query hook for full-text search
- * 
+ *
  * Features:
  * - Intelligent caching (5 min stale time)
  * - Automatic refetch on filter/page changes
  * - Loading and error states
- * 
+ *
  * @param params - Search parameters
  */
 export function useSearchQuery(params: SearchQueryParams) {
   const { query, filters = {}, page = 1, pageSize = 24 } = params;
 
   return useQuery({
-    queryKey: ['search', query, filters, page, pageSize],
+    queryKey: ["search", query, filters, page, pageSize],
     queryFn: () => fetchSearchResults(params),
     enabled: query.length > 0, // Only search if query exists
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
   });
 }
-

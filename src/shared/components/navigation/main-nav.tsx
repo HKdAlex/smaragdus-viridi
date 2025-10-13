@@ -3,13 +3,13 @@
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { useMemo, useRef, useState } from "react";
 
+import { Button } from "@/shared/components/ui/button";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { Logo } from "@/shared/components/ui/logo";
+import { SearchInput } from "@/features/search/components/search-input";
+import { ThemeToggle } from "@/shared/components/ui/theme-toggle";
 import { useAuth } from "@/features/auth/context/auth-context";
 import { useCartContext } from "@/features/cart/context/cart-context";
-import { Button } from "@/shared/components/ui/button";
-import { Logo } from "@/shared/components/ui/logo";
-import { ThemeToggle } from "@/shared/components/ui/theme-toggle";
-import { SearchInput } from "@/features/search/components/search-input";
 import { useTranslations } from "next-intl";
 
 // Safe admin status hook that doesn't throw if AdminProvider is not available
@@ -229,8 +229,14 @@ export function MainNav() {
                   </svg>
                 </button>
               ) : (
-                <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm" onClick={() => setSearchOpen(false)}>
-                  <div className="fixed left-1/2 top-1/4 -translate-x-1/2 w-full max-w-2xl px-4" onClick={(e) => e.stopPropagation()}>
+                <div
+                  className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
+                  onClick={() => setSearchOpen(false)}
+                >
+                  <div
+                    className="fixed left-1/2 top-1/4 -translate-x-1/2 w-full max-w-2xl px-4"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <SearchInput
                       autoFocus
                       className="w-full shadow-2xl"
