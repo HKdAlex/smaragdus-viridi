@@ -1,603 +1,983 @@
-<!-- 3cf690a3-ed1a-4fd4-8492-13d3b1102e8f aa555b62-1386-4dce-9903-45e9c587c993 -->
-# GPT-5 AI Gemstone Analysis Enhancement Plan
+<!-- 3cf690a3-ed1a-4fd4-8492-13d3b1102e8f a66fd637-cc70-48f4-b429-ccb5a66346eb -->
+# AI Analysis System Finalization Plan
 
-## Phase 1: Environment Configuration & Model Abstraction (30 min)
+## Overview
 
-### 1.1 Create Model Configuration System
+Finalize AI analysis by: (1) extracting structured data from AI responses to dedicated fields, (2) generating 3 types of multilingual descriptions, (3) creating admin/user dual UI display.
 
-**File: `scripts/ai-analysis/model-config.mjs`**
+## Phase 1: Database Schema Enhancement (30 min)
 
-Create centralized model configuration with pricing and capabilities:
+### 1.1 Create Data Extraction Migration
 
-```javascript
-export const AI_MODELS = {
-  'gpt-5': {
-    name: 'gpt-5',
-    capabilities: ['vision', 'structured_output', 'high_quality_ocr'],
-    pricing: { input_per_1k: 0.010, output_per_1k: 0.030 }, // Estimated
-    max_tokens: 8000,
-    use_for: ['vision_analysis', 'description_generation']
-  },
-  'gpt-5-mini': {
-    name: 'gpt-5-mini',
-    capabilities: ['vision', 'structured_output'],
-    pricing: { input_per_1k: 0.003, output_per_1k: 0.010 }, // Estimated
-    max_tokens: 4000,
-    use_for: ['description_generation']
-  },
-  'gpt-4o': {
-    name: 'gpt-4o',
-    capabilities: ['vision', 'structured_output'],
-    pricing: { input_per_1k: 0.005, output_per_1k: 0.015 },
-    max_tokens: 4000,
-    use_for: ['vision_analysis', 'description_generation']
-  }
-};
+**File: `migrations/20251015_add_ai_extracted_fields.sql`**
 
-export function getModelConfig(modelName) {
-  const model = AI_MODELS[modelName];
-  if (!model) {
-    throw new Error(`Unknown model: ${modelName}. Available: ${Object.keys(AI_MODELS).join(', ')}`);
-  }
-  return model;
-}
-
-export function calculateActualCost(modelName, promptTokens, completionTokens) {
-  const model = getModelConfig(modelName);
-  const inputCost = (promptTokens / 1000) * model.pricing.input_per_1k;
-  const outputCost = (completionTokens / 1000) * model.pricing.output_per_1k;
-  return inputCost + outputCost;
-}
-```
-
-**Environment Variables:**
-
-Add to `.env.local.example` (create if doesn't exist):
-
-```bash
-# AI Model Selection (gpt-5, gpt-5-mini, gpt-4o)
-OPENAI_VISION_MODEL=gpt-5
-OPENAI_DESCRIPTION_MODEL=gpt-5-mini
-OPENAI_API_KEY=your_openai_api_key_here
-```
-
-### 1.2 Update Multi-Image Processor
-
-**File: `scripts/ai-analysis/multi-image-processor.mjs`**
-
-Replace hardcoded "gpt-4o" on line 81 with configurable model:
-
-```javascript
-// Import model config
-import { getModelConfig, calculateActualCost } from './model-config.mjs';
-
-// At top of file, get model from env with fallback
-const VISION_MODEL = process.env.OPENAI_VISION_MODEL || 'gpt-5';
-
-// In analyzeGemstoneBatch function, replace line 80-90:
-const modelConfig = getModelConfig(VISION_MODEL);
-console.log(`  🤖 Using model: ${VISION_MODEL}`);
-
-const response = await openai.chat.completions.create({
-  model: VISION_MODEL,
-  messages: [
-    {
-      role: "user",
-      content: content,
-    },
-  ],
-  max_tokens: modelConfig.max_tokens,
-  temperature: 0.1,
-  response_format: { type: "json_object" }, // Enforce JSON output
-});
-```
-
-Replace `calculateCost` function (lines 449-459) with actual token accounting:
-
-```javascript
-function calculateCost(totalTokens, usage) {
-  if (usage?.prompt_tokens && usage?.completion_tokens) {
-    // Use actual token counts from API
-    return calculateActualCost(VISION_MODEL, usage.prompt_tokens, usage.completion_tokens);
-  }
-  // Fallback estimation
-  const model = getModelConfig(VISION_MODEL);
-  const inputTokens = totalTokens * 0.8;
-  const outputTokens = totalTokens * 0.2;
-  return (inputTokens / 1000) * model.pricing.input_per_1k + 
-         (outputTokens / 1000) * model.pricing.output_per_1k;
-}
-```
-
-Update line 93 to pass usage:
-
-```javascript
-const cost = calculateCost(response.usage?.total_tokens || 0, response.usage);
-```
-
-Update line 252 (ai_model_version):
-
-```javascript
-ai_model_version: VISION_MODEL,
-```
-
----
-
-## Phase 2: Image Optimization with Sharp (45 min)
-
-### 2.1 Install Dependencies
-
-Sharp is already in package.json, verify installation:
-
-```bash
-npm list sharp
-```
-
-### 2.2 Enhance Image Utils
-
-**File: `scripts/ai-analysis/image-utils.mjs`**
-
-Add image optimization function after line 93:
-
-```javascript
-import sharp from 'sharp';
-
-/**
- * Optimize image for AI analysis - downscale and compress
- */
-export async function optimizeImageForAI(imageBuffer, maxDimension = 1536, quality = 82) {
-  try {
-    const optimized = await sharp(imageBuffer)
-      .rotate() // Auto-rotate based on EXIF
-      .resize({
-        width: maxDimension,
-        height: maxDimension,
-        fit: 'inside',
-        withoutEnlargement: true
-      })
-      .jpeg({ quality })
-      .toBuffer();
-    
-    const originalSize = (imageBuffer.length / 1024).toFixed(2);
-    const optimizedSize = (optimized.length / 1024).toFixed(2);
-    const savings = ((1 - optimized.length / imageBuffer.length) * 100).toFixed(1);
-    
-    console.log(`    📉 Optimized: ${originalSize}KB → ${optimizedSize}KB (${savings}% reduction)`);
-    
-    return optimized;
-  } catch (error) {
-    console.warn(`    ⚠️ Optimization failed, using original: ${error.message}`);
-    return imageBuffer;
-  }
-}
-```
-
-Update `downloadImageAsBase64` function (lines 36-93) to include optimization:
-
-```javascript
-export async function downloadImageAsBase64(imageUrl, optimize = true) {
-  return new Promise((resolve, reject) => {
-    const url = new URL(imageUrl);
-
-    const options = {
-      hostname: url.hostname,
-      path: url.pathname + url.search,
-      method: "GET",
-      rejectUnauthorized: true, // Keep TLS checks on (security fix)
-      timeout: 30000,
-      headers: {
-        "User-Agent": "Smaragdus-Viridi-AI-Analysis/3.1",
-      },
-    };
-
-    https
-      .get(options, (response) => {
-        if (response.statusCode !== 200) {
-          reject(
-            new Error(`Failed to download image: HTTP ${response.statusCode}`)
-          );
-          return;
-        }
-
-        const chunks = [];
-
-        response.on("data", (chunk) => {
-          chunks.push(chunk);
-        });
-
-        response.on("end", async () => {
-          try {
-            let buffer = Buffer.concat(chunks);
-            
-            // Optimize if enabled
-            if (optimize) {
-              buffer = await optimizeImageForAI(buffer);
-            }
-
-            // Determine MIME type from URL or default to JPEG
-            const mimeType = imageUrl.toLowerCase().includes(".png")
-              ? "image/png"
-              : "image/jpeg";
-            const base64String = buffer.toString("base64");
-            const dataUrl = `data:${mimeType};base64,${base64String}`;
-
-            resolve(dataUrl);
-          } catch (error) {
-            reject(
-              new Error(`Failed to convert image to base64: ${error.message}`)
-            );
-          }
-        });
-
-        response.on("error", (error) => {
-          reject(error);
-        });
-      })
-      .on("error", (error) => {
-        reject(error);
-      });
-  });
-}
-```
-
----
-
-## Phase 3: Enhanced Prompts for Descriptions (1 hour)
-
-### 3.1 Create V4 Prompts with Multilingual Descriptions
-
-**File: `scripts/ai-analysis/prompts-v4.mjs`**
-
-Create comprehensive prompt system for three description types:
-
-```javascript
-/**
- * Enhanced AI Prompts v4.0 - Multilingual Descriptions
- * Supports: Technical, Emotional, and Narrative descriptions
- */
-
-export const DESCRIPTION_GENERATION_PROMPT = `You are a master gemologist and storyteller specializing in precious stones. Generate comprehensive, multilingual descriptions for a gemstone based on its analysis data.
-
-**INPUT DATA:** You will receive consolidated gemstone analysis including:
-- Physical properties (weight, dimensions, color, clarity, cut)
-- Visual assessment and quality grades
-- Origin information (if available)
-- Any certification data
-
-**OUTPUT REQUIREMENTS:** Generate THREE distinct description types in Russian (primary) and English (secondary):
-
-### 1. TECHNICAL DESCRIPTION (Техническое описание)
-**Target Audience:** Professional buyers, collectors, jewelers, B2B clients
-**Style:** Precise, gemological, objective, industry-standard terminology
-**Language:** Russian primary, English secondary
-**Length:** 100-150 words per language
-
-**Content Requirements:**
-- Exact physical specifications (weight in carats, dimensions in mm)
-- Cut type and quality assessment
-- Color grade with precise description
-- Clarity grade with inclusion details (if known)
-- Origin information (if available)
-- Treatment status (natural, heated, etc.) if determinable
-- Professional quality assessment
-
-**Example Structure:**
-"Природный {тип камня} весом {X.XX} карата с огранкой {тип}. Камень демонстрирует {описание цвета} с показателем чистоты {grade}. Размеры: {L}×{W}×{D} мм. {Качественная оценка}."
-
-### 2. EMOTIONAL DESCRIPTION (Эмоциональное описание)
-**Target Audience:** Retail customers, gift buyers, emotional purchasers
-**Style:** Evocative, sensory, aspirational, emotionally resonant
-**Language:** Russian primary, English secondary
-**Length:** 150-200 words per language
-
-**Tone Variations:**
-- **For Women:** Romantic, empowering, elegant, transformative
-  - Themes: Beauty, grace, empowerment, personal significance, life moments
-- **For Men:** Strong, sophisticated, legacy-focused, achievement-oriented
-  - Themes: Success, heritage, craftsmanship, timeless value, accomplishment
-
-**Content Requirements:**
-- Sensory descriptions (how it looks, feels, catches light)
-- Emotional resonance (what feelings it evokes)
-- Lifestyle connection (how it complements life moments)
-- Value proposition (why it matters beyond price)
-- Aspirational imagery (what owning it represents)
-
-**Avoid:** Generic phrases, clichés like "жемчужина коллекции", over-promising
-
-### 3. NARRATIVE STORY (История камня)
-**Target Audience:** Gift buyers, romantic occasions, collectors seeking meaning
-**Style:** Unique fictional narrative, literary, memorable
-**Language:** Russian primary, English secondary
-**Length:** 250-300 words per language
-
-**CRITICAL REQUIREMENT:** Each stone MUST receive a completely unique story - NO templates or repeated narratives
-
-**Story Structure:**
-- **Beginning (Discovery):** How this stone came into being or was found
-- **Middle (Journey):** The stone's symbolic or fictional journey
-- **End (Significance):** What this stone represents or means today
-
-**Narrative Themes (choose ONE, make it unique):**
-- Love and romance (but make it SPECIFIC to this stone's properties)
-- Legacy and heritage (tie to actual origin/color/characteristics)
-- Transformation and growth (metaphor based on stone's qualities)
-- Destiny and fate (unique story, not generic)
-- Nature and creation (based on geological or visual properties)
-
-**Quality Standards:**
-- UNIQUE: No two stories should be similar
-- SPECIFIC: Reference actual stone properties (color, cut, weight) in narrative
-- MEMORABLE: Create vivid imagery and emotional connection
-- AUTHENTIC: Feel genuine, not manufactured or templated
-
-**Avoid:** "Once upon a time", generic fairy tales, repeated story structures
-
----
-
-**JSON OUTPUT FORMAT:**
-
-{
-  "descriptions": {
-    "technical_ru": "Полное техническое описание на русском языке...",
-    "technical_en": "Complete technical description in English...",
-    "emotional_ru": "Эмоциональное описание на русском языке...",
-    "emotional_en": "Emotional description in English...",
-    "narrative_ru": "Уникальная история камня на русском языке...",
-    "narrative_en": "Unique stone narrative in English..."
-  },
-  "metadata": {
-    "narrative_theme": "love|legacy|transformation|destiny|nature",
-    "target_gender_emotional": "feminine|masculine|neutral",
-    "uniqueness_score": 0.95,
-    "generation_notes": "Brief notes on creative approach"
-  }
-}
-
-**VALIDATION CHECKLIST:**
-- All six description fields are complete and meet length requirements
-- Russian text is grammatically correct with proper Cyrillic
-- English translations are accurate and natural
-- Narrative story is unique and specific to this stone
-- No clichés or generic phrases in any description
-- Technical description includes all available data points`;
-
-export const COMPREHENSIVE_MULTI_IMAGE_PROMPT_V4 = `You are an expert gemstone analyst with specialized knowledge in jewelry and precious stones. I am providing you with {IMAGE_COUNT} high-quality images of a single gemstone for detailed analysis and data extraction.
-
-**ENHANCED ANALYSIS TASK: Process all {IMAGE_COUNT} images with strict JSON output**
-
-You will analyze exactly {IMAGE_COUNT} images of one gemstone. You MUST examine each image and extract relevant gemstone data.
-
-**CRITICAL: JSON Response Format**
-You MUST respond with ONLY valid JSON. No explanatory text before or after. Use this exact structure:
-
-${/* Include existing COMPREHENSIVE_MULTI_IMAGE_PROMPT structure but ensure response_format compatibility */}
-
-**Additional Requirements for GPT-5:**
-- Use structured output mode for guaranteed JSON compliance
-- Leverage enhanced OCR capabilities for Russian/Cyrillic text
-- Apply improved reasoning for gauge reading accuracy
-- Provide deterministic primary image scoring with sub-scores
-
-[... rest of existing prompt with validation requirements ...]`;
-
-// Export both prompts
-export { DESCRIPTION_GENERATION_PROMPT, COMPREHENSIVE_MULTI_IMAGE_PROMPT_V4 };
-```
-
----
-
-## Phase 4: Database Schema for Descriptions (30 min)
-
-### 4.1 Create Migration
-
-**File: `migrations/20251015_add_ai_descriptions.sql`**
+Add AI-prefixed fields to gemstones table for extracted data:
 
 ```sql
--- Add multilingual description fields to gemstones table
+-- Physical properties from AI
 ALTER TABLE gemstones
-ADD COLUMN IF NOT EXISTS description_technical_ru TEXT,
-ADD COLUMN IF NOT EXISTS description_technical_en TEXT,
-ADD COLUMN IF NOT EXISTS description_emotional_ru TEXT,
-ADD COLUMN IF NOT EXISTS description_emotional_en TEXT,
-ADD COLUMN IF NOT EXISTS narrative_story_ru TEXT,
-ADD COLUMN IF NOT EXISTS narrative_story_en TEXT,
-ADD COLUMN IF NOT EXISTS ai_description_model VARCHAR(50),
-ADD COLUMN IF NOT EXISTS ai_description_date TIMESTAMPTZ,
-ADD COLUMN IF NOT EXISTS ai_description_cost_usd NUMERIC(10,4);
+ADD COLUMN IF NOT EXISTS ai_weight_carats NUMERIC(10,4),
+ADD COLUMN IF NOT EXISTS ai_length_mm NUMERIC(10,2),
+ADD COLUMN IF NOT EXISTS ai_width_mm NUMERIC(10,2),
+ADD COLUMN IF NOT EXISTS ai_depth_mm NUMERIC(10,2),
+ADD COLUMN IF NOT EXISTS ai_color TEXT,
+ADD COLUMN IF NOT EXISTS ai_clarity TEXT,
+ADD COLUMN IF NOT EXISTS ai_cut TEXT,
+ADD COLUMN IF NOT EXISTS ai_origin TEXT,
+ADD COLUMN IF NOT EXISTS ai_treatment TEXT,
+ADD COLUMN IF NOT EXISTS ai_quality_grade TEXT,
+ADD COLUMN IF NOT EXISTS ai_extracted_date TIMESTAMPTZ,
+ADD COLUMN IF NOT EXISTS ai_extraction_confidence NUMERIC(4,3);
 
--- Add index for searching descriptions (optional, for future full-text search)
-CREATE INDEX IF NOT EXISTS idx_gemstones_description_technical_ru 
-ON gemstones USING gin(to_tsvector('russian', description_technical_ru));
+-- Metadata
+COMMENT ON COLUMN gemstones.ai_weight_carats IS 'AI-extracted weight in carats from image analysis';
+COMMENT ON COLUMN gemstones.ai_extraction_confidence IS 'Confidence score for AI-extracted data (0-1)';
 
--- Add metadata to track generation
-COMMENT ON COLUMN gemstones.description_technical_ru IS 'AI-generated technical description in Russian for professional buyers';
-COMMENT ON COLUMN gemstones.description_emotional_ru IS 'AI-generated emotional description in Russian for retail customers';
-COMMENT ON COLUMN gemstones.narrative_story_ru IS 'AI-generated unique narrative story in Russian';
+-- Create view for best-value fallback (manual > AI)
+CREATE OR REPLACE VIEW gemstones_with_best_data AS
+SELECT 
+  g.*,
+  COALESCE(g.weight_carats, g.ai_weight_carats) as best_weight_carats,
+  COALESCE(g.length_mm, g.ai_length_mm) as best_length_mm,
+  COALESCE(g.width_mm, g.ai_width_mm) as best_width_mm,
+  COALESCE(g.depth_mm, g.ai_depth_mm) as best_depth_mm,
+  COALESCE(g.color, g.ai_color) as best_color,
+  COALESCE(g.clarity, g.ai_clarity) as best_clarity,
+  COALESCE(g.cut, g.ai_cut) as best_cut,
+  COALESCE(g.origin, g.ai_origin) as best_origin,
+  CASE 
+    WHEN g.weight_carats IS NOT NULL THEN 'manual'
+    WHEN g.ai_weight_carats IS NOT NULL THEN 'ai'
+    ELSE NULL
+  END as weight_source
+FROM gemstones g;
+```
 
--- Add to ai_analysis_results for tracking description generation
-ALTER TABLE ai_analysis_results
-ADD COLUMN IF NOT EXISTS description_data JSONB;
+**Why:** Allows parallel manual/AI data without overwriting, enables quality comparison, provides fallback logic.
 
-COMMENT ON COLUMN ai_analysis_results.description_data IS 'Generated descriptions with metadata (theme, target audience, etc.)';
+---
+
+## Phase 2: Data Extraction Logic (1.5 hours)
+
+### 2.1 Create Data Extractor Service
+
+**File: `scripts/ai-analysis/data-extractor.mjs`**
+
+Extract structured data from AI analysis JSON:
+
+```javascript
+/**
+ * Extract gemstone properties from AI analysis result
+ */
+export function extractGemstoneData(consolidatedAnalysis) {
+  const data = consolidatedAnalysis;
+  
+  // Extract physical measurements from consolidated data
+  const measurements = data.consolidated_data?.measurement_summary || {};
+  const gaugeReadings = data.consolidated_data?.all_gauge_readings || [];
+  
+  // Find most confident measurements
+  const weightReading = gaugeReadings
+    .filter(r => r.measurement_type === 'weight')
+    .sort((a, b) => b.confidence - a.confidence)[0];
+    
+  const dimensionData = measurements.dimensions || {};
+  
+  return {
+    ai_weight_carats: weightReading?.reading_value || null,
+    ai_length_mm: dimensionData.length_mm || null,
+    ai_width_mm: dimensionData.width_mm || null,
+    ai_depth_mm: dimensionData.depth_mm || null,
+    ai_color: data.consolidated_data?.color_assessment?.primary_color || null,
+    ai_clarity: data.consolidated_data?.clarity_grade || null,
+    ai_cut: data.consolidated_data?.cut_quality?.cut_type || null,
+    ai_origin: data.consolidated_data?.lot_metadata?.origin || null,
+    ai_treatment: data.consolidated_data?.treatment_assessment || null,
+    ai_quality_grade: data.overall_metrics?.quality_grade || null,
+    ai_extraction_confidence: data.overall_confidence || 0,
+    ai_extracted_date: new Date().toISOString()
+  };
+}
+
+/**
+ * Validate extracted data doesn't overwrite better manual data
+ */
+export function shouldUpdateField(manualValue, aiValue, aiConfidence) {
+  // Never overwrite manual data
+  if (manualValue !== null && manualValue !== undefined) {
+    return false;
+  }
+  
+  // Only use AI data if confidence > 0.7
+  return aiValue !== null && aiConfidence > 0.7;
+}
+```
+
+### 2.2 Update Database Operations
+
+**File: `scripts/ai-analysis/database-operations.mjs`**
+
+After line 95 (after saving analysis result), add extraction:
+
+```javascript
+// Extract and save structured data to gemstone fields
+const { extractGemstoneData, shouldUpdateField } = await import('./data-extractor.mjs');
+const extractedData = extractGemstoneData(consolidatedAnalysis);
+
+// Fetch current gemstone data
+const { data: currentGemstone } = await supabase
+  .from('gemstones')
+  .select('weight_carats, length_mm, width_mm, depth_mm, color, clarity, cut, origin')
+  .eq('id', gemstoneId)
+  .single();
+
+// Build update object (only fields that should be updated)
+const updateFields = {};
+Object.entries(extractedData).forEach(([key, value]) => {
+  const manualField = key.replace('ai_', '');
+  const manualValue = currentGemstone?.[manualField];
+  
+  if (shouldUpdateField(manualValue, value, extractedData.ai_extraction_confidence)) {
+    updateFields[key] = value;
+  }
+});
+
+if (Object.keys(updateFields).length > 0) {
+  const { error: extractError } = await supabase
+    .from('gemstones')
+    .update(updateFields)
+    .eq('id', gemstoneId);
+    
+  if (extractError) {
+    console.warn(`⚠️ Failed to save extracted data: ${extractError.message}`);
+  } else {
+    console.log(`✅ Saved ${Object.keys(updateFields).length} extracted fields to gemstone`);
+  }
+}
 ```
 
 ---
 
-## Phase 5: Description Generation Script (1 hour)
+## Phase 3: Description Generation Enhancement (2 hours)
 
-### 5.1 Create Description Generator
+### 3.1 Update Prompt with Extracted Data Context
 
-**File: `scripts/ai-description-generator-v4.mjs`**
+**File: `scripts/ai-analysis/prompts-v4.mjs`** (already exists)
+
+Ensure prompt receives extracted data from previous analysis:
+
+```javascript
+// Add helper function at end of file
+export function buildDescriptionPrompt(gemstoneData, analysisData) {
+  const context = {
+    type: gemstoneData.name,
+    weight_carats: gemstoneData.ai_weight_carats || gemstoneData.weight_carats,
+    dimensions: {
+      length: gemstoneData.ai_length_mm || gemstoneData.length_mm,
+      width: gemstoneData.ai_width_mm || gemstoneData.width_mm,
+      depth: gemstoneData.ai_depth_mm || gemstoneData.depth_mm
+    },
+    color: gemstoneData.ai_color || gemstoneData.color,
+    cut: gemstoneData.ai_cut || gemstoneData.cut,
+    clarity: gemstoneData.ai_clarity || gemstoneData.clarity,
+    origin: gemstoneData.ai_origin || gemstoneData.origin,
+    quality_grade: gemstoneData.ai_quality_grade,
+    confidence: analysisData?.confidence_score || 0
+  };
+  
+  return `${DESCRIPTION_GENERATION_PROMPT}\n\n**GEMSTONE DATA:**\n${JSON.stringify(context, null, 2)}`;
+}
+```
+
+### 3.2 Update Description Generator
+
+**File: `scripts/ai-description-generator-v4.mjs`** (already exists)
+
+Modify to use extracted data (around line 455):
+
+```javascript
+async function generateDescriptions(gemstone, analysisData) {
+  console.log(`\n📝 Generating descriptions for: ${gemstone.serial_number}`);
+  
+  // Use buildDescriptionPrompt helper
+  const { buildDescriptionPrompt } = await import('./ai-analysis/prompts-v4.mjs');
+  const prompt = buildDescriptionPrompt(gemstone, analysisData);
+  
+  // ... rest of function
+}
+```
+
+Update main() to fetch with ai_analysis_results join:
+
+```javascript
+const { data: gemstones, error } = await supabase
+  .from('gemstones')
+  .select(`
+    *,
+    ai_analysis_results (
+      extracted_data,
+      confidence_score
+    )
+  `)
+  .eq('ai_analyzed', true)
+  .is('description_technical_ru', null)
+  .limit(limit);
+```
+
+---
+
+## Phase 4: Admin UI - Enhanced AI Analysis Display (2 hours)
+
+### 4.1 Add Extracted Data Tab
+
+**File: `src/features/gemstones/components/ai-analysis-display.tsx`**
+
+After line 50, add new tab state:
+
+```typescript
+const tabs = [
+  { id: 'overview', label: 'Overview', icon: Eye },
+  { id: 'extracted', label: 'Extracted Data', icon: Database }, // NEW
+  { id: 'measurements', label: 'Measurements', icon: Ruler },
+  { id: 'images', label: 'Image Analysis', icon: Camera },
+  { id: 'raw', label: 'Raw Data', icon: Code2 }
+];
+```
+
+Add new tab content after line 300:
+
+```typescript
+{activeTab === 'extracted' && (
+  <div className="space-y-4">
+    <div className="grid grid-cols-2 gap-4">
+      <DataComparisonCard
+        label="Weight (carats)"
+        manualValue={gemstone.weight_carats}
+        aiValue={gemstone.ai_weight_carats}
+        confidence={gemstone.ai_extraction_confidence}
+      />
+      <DataComparisonCard
+        label="Dimensions (mm)"
+        manualValue={gemstone.length_mm ? 
+          `${gemstone.length_mm} × ${gemstone.width_mm} × ${gemstone.depth_mm}` : null}
+        aiValue={gemstone.ai_length_mm ? 
+          `${gemstone.ai_length_mm} × ${gemstone.ai_width_mm} × ${gemstone.ai_depth_mm}` : null}
+        confidence={gemstone.ai_extraction_confidence}
+      />
+      <DataComparisonCard
+        label="Color"
+        manualValue={gemstone.color}
+        aiValue={gemstone.ai_color}
+        confidence={gemstone.ai_extraction_confidence}
+      />
+      <DataComparisonCard
+        label="Clarity"
+        manualValue={gemstone.clarity}
+        aiValue={gemstone.ai_clarity}
+        confidence={gemstone.ai_extraction_confidence}
+      />
+      <DataComparisonCard
+        label="Cut"
+        manualValue={gemstone.cut}
+        aiValue={gemstone.ai_cut}
+        confidence={gemstone.ai_extraction_confidence}
+      />
+      <DataComparisonCard
+        label="Origin"
+        manualValue={gemstone.origin}
+        aiValue={gemstone.ai_origin}
+        confidence={gemstone.ai_extraction_confidence}
+      />
+    </div>
+    
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-sm">Data Quality Assessment</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-2 text-sm">
+          <div className="flex justify-between">
+            <span>Extraction Confidence:</span>
+            <Badge variant={gemstone.ai_extraction_confidence > 0.8 ? 'default' : 'secondary'}>
+              {(gemstone.ai_extraction_confidence * 100).toFixed(0)}%
+            </Badge>
+          </div>
+          <div className="flex justify-between">
+            <span>Fields with Manual Data:</span>
+            <span>{/* count manual fields */}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Fields with AI Data Only:</span>
+            <span>{/* count AI-only fields */}</span>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  </div>
+)}
+```
+
+### 4.2 Create Data Comparison Component
+
+**File: `src/features/gemstones/components/data-comparison-card.tsx`**
+
+```typescript
+interface DataComparisonCardProps {
+  label: string;
+  manualValue: string | number | null;
+  aiValue: string | number | null;
+  confidence?: number;
+}
+
+export function DataComparisonCard({ label, manualValue, aiValue, confidence }: DataComparisonCardProps) {
+  const hasManual = manualValue !== null && manualValue !== undefined;
+  const hasAI = aiValue !== null && aiValue !== undefined;
+  
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-sm font-medium flex items-center justify-between">
+          {label}
+          {confidence && (
+            <Badge variant="outline" className="text-xs">
+              {(confidence * 100).toFixed(0)}%
+            </Badge>
+          )}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-2">
+        {hasManual && (
+          <div className="flex items-center gap-2">
+            <Badge variant="default" className="text-xs">Manual</Badge>
+            <span className="font-semibold">{manualValue}</span>
+          </div>
+        )}
+        {hasAI && (
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="text-xs">AI</Badge>
+            <span className={hasManual ? 'text-muted-foreground' : 'font-semibold'}>
+              {aiValue}
+            </span>
+          </div>
+        )}
+        {!hasManual && !hasAI && (
+          <span className="text-sm text-muted-foreground italic">No data</span>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+```
+
+---
+
+## Phase 5: User UI - Main Gemstone Detail View (2 hours)
+
+### 5.1 Add Description Display Component
+
+**File: `src/features/gemstones/components/gemstone-descriptions.tsx`**
+
+```typescript
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
+import { Languages, Award, BookOpen } from 'lucide-react';
+
+interface GemstoneDescriptionsProps {
+  technicalRu: string | null;
+  technicalEn: string | null;
+  emotionalRu: string | null;
+  emotionalEn: string | null;
+  narrativeRu: string | null;
+  narrativeEn: string | null;
+  locale?: string;
+}
+
+export function GemstoneDescriptions({
+  technicalRu, technicalEn, emotionalRu, emotionalEn,
+  narrativeRu, narrativeEn, locale = 'ru'
+}: GemstoneDescriptionsProps) {
+  
+  // Show nothing if no descriptions
+  if (!technicalRu && !emotionalRu && !narrativeRu) {
+    return null;
+  }
+  
+  const isRussian = locale === 'ru';
+  const technical = isRussian ? technicalRu : technicalEn;
+  const emotional = isRussian ? emotionalRu : emotionalEn;
+  const narrative = isRussian ? narrativeRu : narrativeEn;
+  
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Languages className="w-5 h-5" />
+          Описания
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Tabs defaultValue="emotional" className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="emotional" className="text-sm">
+              <Award className="w-4 h-4 mr-2" />
+              Описание
+            </TabsTrigger>
+            <TabsTrigger value="technical" className="text-sm">
+              Технические
+            </TabsTrigger>
+            <TabsTrigger value="narrative" className="text-sm">
+              <BookOpen className="w-4 h-4 mr-2" />
+              История
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="emotional" className="mt-4">
+            <div className="prose prose-sm max-w-none">
+              {emotional ? (
+                <p className="text-base leading-relaxed">{emotional}</p>
+              ) : (
+                <p className="text-muted-foreground italic">Описание скоро появится</p>
+              )}
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="technical" className="mt-4">
+            <div className="prose prose-sm max-w-none">
+              {technical ? (
+                <p className="text-sm leading-relaxed text-muted-foreground">{technical}</p>
+              ) : (
+                <p className="text-muted-foreground italic">Техническое описание скоро появится</p>
+              )}
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="narrative" className="mt-4">
+            <div className="prose prose-sm max-w-none">
+              {narrative ? (
+                <div className="text-center py-6">
+                  <p className="text-base leading-loose font-serif text-foreground/90">
+                    {narrative}
+                  </p>
+                </div>
+              ) : (
+                <p className="text-muted-foreground italic">История камня скоро появится</p>
+              )}
+            </div>
+          </TabsContent>
+        </Tabs>
+      </CardContent>
+    </Card>
+  );
+}
+```
+
+### 5.2 Integrate into Gemstone Detail
+
+**File: `src/features/gemstones/components/gemstone-detail.tsx`**
+
+After line 636 (after Origin card, before AI Analysis), add:
+
+```typescript
+{/* Gemstone Descriptions - User-Friendly Display */}
+<GemstoneDescriptions
+  technicalRu={gemstone.description_technical_ru}
+  technicalEn={gemstone.description_technical_en}
+  emotionalRu={gemstone.description_emotional_ru}
+  emotionalEn={gemstone.description_emotional_en}
+  narrativeRu={gemstone.narrative_story_ru}
+  narrativeEn={gemstone.narrative_story_en}
+  locale={locale}
+/>
+```
+
+Add import at top:
+
+```typescript
+import { GemstoneDescriptions } from './gemstone-descriptions';
+```
+
+### 5.3 Update Gemstone Card (List View)
+
+**File: `src/features/gemstones/components/gemstone-card.tsx`**
+
+Around line 150, add emotional description preview if available:
+
+```typescript
+{/* Show emotional description snippet if available */}
+{gemstone.description_emotional_ru && (
+  <p className="text-sm text-muted-foreground line-clamp-2 mt-2">
+    {gemstone.description_emotional_ru}
+  </p>
+)}
+```
+
+---
+
+## Phase 6: TypeScript Types Update (30 min)
+
+### 6.1 Regenerate Database Types
+
+Run after migration:
+
+```bash
+npm run types:generate
+```
+
+### 6.2 Update Gemstone Props Interface
+
+**File: `src/features/gemstones/types/gemstone.types.ts`** (if exists)
+
+Ensure interfaces include:
+
+```typescript
+interface GemstoneWithAIData extends Gemstone {
+  ai_weight_carats?: number | null;
+  ai_length_mm?: number | null;
+  ai_width_mm?: number | null;
+  ai_depth_mm?: number | null;
+  ai_color?: string | null;
+  ai_clarity?: string | null;
+  ai_cut?: string | null;
+  ai_origin?: string | null;
+  ai_extraction_confidence?: number | null;
+  description_technical_ru?: string | null;
+  description_technical_en?: string | null;
+  description_emotional_ru?: string | null;
+  description_emotional_en?: string | null;
+  narrative_story_ru?: string | null;
+  narrative_story_en?: string | null;
+}
+```
+
+---
+
+## Phase 7: Testing & Validation (1.5 hours)
+
+### 7.1 Create Test Script
+
+**File: `scripts/test-complete-ai-workflow.mjs`**
 
 ```javascript
 #!/usr/bin/env node
+import { runMultiImageAnalysis } from './ai-gemstone-analyzer-v3.mjs';
+import { exec } from 'child_process';
+import { promisify } from 'util';
 
-import OpenAI from 'openai';
-import { createClient } from '@supabase/supabase-js';
-import { config } from 'dotenv';
-import { getModelConfig, calculateActualCost } from './ai-analysis/model-config.mjs';
-import { DESCRIPTION_GENERATION_PROMPT } from './ai-analysis/prompts-v4.mjs';
+const execAsync = promisify(exec);
 
-config({ path: '.env.local' });
-
-const DESCRIPTION_MODEL = process.env.OPENAI_DESCRIPTION_MODEL || 'gpt-5-mini';
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
-
-/**
- * Generate descriptions for a single gemstone
- */
-async function generateDescriptions(gemstone) {
-  console.log(`\n📝 Generating descriptions for: ${gemstone.serial_number || gemstone.id}`);
+async function testCompleteWorkflow() {
+  console.log('🧪 Complete AI Workflow Test\n');
   
-  // Build input data summary from gemstone analysis
-  const inputData = {
-    type: gemstone.name,
-    weight_carats: gemstone.weight_carats,
-    dimensions: {
-      length: gemstone.length_mm,
-      width: gemstone.width_mm,
-      depth: gemstone.depth_mm
-    },
-    color: gemstone.color,
-    cut: gemstone.cut,
-    clarity: gemstone.clarity,
-    quality_grade: gemstone.ai_confidence_score > 0.9 ? 'excellent' : 'good',
-    origin: gemstone.origin || 'Unknown'
-  };
-
-  const prompt = `${DESCRIPTION_GENERATION_PROMPT}\n\n**GEMSTONE DATA:**\n${JSON.stringify(inputData, null, 2)}\n\nGenerate comprehensive descriptions following the guidelines above.`;
-
-  try {
-    const startTime = Date.now();
-    
-    const response = await openai.chat.completions.create({
-      model: DESCRIPTION_MODEL,
-      messages: [
-        {
-          role: 'system',
-          content: 'You are a master gemologist and storyteller. Output ONLY valid JSON.'
-        },
-        {
-          role: 'user',
-          content: prompt
-        }
-      ],
-      max_tokens: 2500,
-      temperature: 0.7, // Higher for creativity in narratives
-      response_format: { type: 'json_object' }
-    });
-
-    const processingTime = Date.now() - startTime;
-    const cost = calculateActualCost(
-      DESCRIPTION_MODEL,
-      response.usage.prompt_tokens,
-      response.usage.completion_tokens
-    );
-
-    console.log(`  ✅ Generated in ${processingTime}ms, cost: $${cost.toFixed(4)}`);
-
-    const result = JSON.parse(response.choices[0].message.content);
-    
-    // Validate all required fields
-    const required = ['technical_ru', 'technical_en', 'emotional_ru', 'emotional_en', 'narrative_ru', 'narrative_en'];
-    const missing = required.filter(field => !result.descriptions?.[field]);
-    
-    if (missing.length > 0) {
-      throw new Error(`Missing required fields: ${missing.join(', ')}`);
-    }
-
-    // Save to database
-    await saveDescriptions(gemstone.id, result, cost);
-
-    return { success: true, result, cost, processingTime };
-  } catch (error) {
-    console.error(`  ❌ Error: ${error.message}`);
-    return { success: false, error: error.message };
-  }
+  // Step 1: Vision analysis (5 gems)
+  console.log('Step 1: Running vision analysis...');
+  await runMultiImageAnalysis({ limit: 5 });
+  
+  // Step 2: Wait 2 seconds
+  await new Promise(resolve => setTimeout(resolve, 2000));
+  
+  // Step 3: Description generation
+  console.log('\nStep 2: Generating descriptions...');
+  await execAsync('node scripts/ai-description-generator-v4.mjs --limit=5');
+  
+  // Step 4: Verify data in database
+  console.log('\nStep 3: Verifying database...');
+  // Add verification queries
+  
+  console.log('\n✅ Complete workflow test finished!');
 }
 
-/**
- * Save generated descriptions to database
- */
-async function saveDescriptions(gemstoneId, descriptionData, cost) {
-  const { error } = await supabase
-    .from('gemstones')
-    .update({
-      description_technical_ru: descriptionData.descriptions.technical_ru,
-      description_technical_en: descriptionData.descriptions.technical_en,
-      description_emotional_ru: descriptionData.descriptions.emotional_ru,
-      description_emotional_en: descriptionData.descriptions.emotional_en,
-      narrative_story_ru: descriptionData.descriptions.narrative_ru,
-      narrative_story_en: descriptionData.descriptions.narrative_en,
-      ai_description_model: DESCRIPTION_MODEL,
-      ai_description_date: new Date().toISOString(),
-      ai_description_cost_usd: cost
-    })
-    .eq('id', gemstoneId);
+testCompleteWorkflow().catch(console.error);
+```
 
-  if (error) {
-    throw new Error(`Failed to save descriptions: ${error.message}`);
-  }
+### 7.2 Testing Milestones with Evidence
 
-  console.log(`  💾 Saved descriptions to database`);
-}
+#### Milestone 1: Database Schema Verification (After Phase 1)
 
-/**
- * Main execution
- */
+**Via Supabase MCP:**
+
+```
+mcp_supabase_execute_sql({
+  project_id: "dpqapyojcdtrjwuhybky",
+  query: `
+    -- Verify new columns exist
+    SELECT column_name, data_type, is_nullable
+    FROM information_schema.columns
+    WHERE table_name = 'gemstones'
+    AND column_name LIKE 'ai_%'
+    ORDER BY column_name;
+    
+    -- Verify view exists
+    SELECT table_name, view_definition
+    FROM information_schema.views
+    WHERE table_name = 'gemstones_with_best_data';
+  `
+})
+```
+
+**Expected Result:**
+
+- 12 new ai_* columns visible
+- gemstones_with_best_data view created
+- All columns have correct data types (NUMERIC, TEXT, TIMESTAMPTZ)
+
+**Document in:** `PHASE_AI_FINALIZATION_MILESTONE_1.md`
+
+---
+
+#### Milestone 2: Data Extraction Verification (After Phase 2)
+
+**Test via Script:**
+
+```bash
+node scripts/test-gpt5-analysis.mjs
+```
+
+**Via Supabase MCP (check extraction results):**
+
+```
+mcp_supabase_execute_sql({
+  project_id: "dpqapyojcdtrjwuhybky",
+  query: `
+    SELECT 
+      serial_number,
+      weight_carats as manual_weight,
+      ai_weight_carats,
+      length_mm as manual_length,
+      ai_length_mm,
+      ai_color,
+      ai_clarity,
+      ai_extraction_confidence,
+      ai_extracted_date
+    FROM gemstones
+    WHERE ai_extracted_date IS NOT NULL
+    ORDER BY ai_extracted_date DESC
+    LIMIT 5;
+  `
+})
+```
+
+**Via API (test fallback view):**
+
+```bash
+curl -X POST 'https://dpqapyojcdtrjwuhybky.supabase.co/rest/v1/rpc/test_best_data_fallback' \
+  -H "apikey: $NEXT_PUBLIC_SUPABASE_ANON_KEY" \
+  -H "Authorization: Bearer $NEXT_PUBLIC_SUPABASE_ANON_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{}'
+```
+
+Or direct view query:
+
+```
+mcp_supabase_execute_sql({
+  project_id: "dpqapyojcdtrjwuhybky",
+  query: `
+    SELECT 
+      serial_number,
+      weight_carats,
+      ai_weight_carats,
+      best_weight_carats,
+      weight_source,
+      best_color,
+      best_clarity
+    FROM gemstones_with_best_data
+    WHERE ai_extraction_confidence IS NOT NULL
+    LIMIT 5;
+  `
+})
+```
+
+**Expected Result:**
+
+- ai_* fields populated with extracted data
+- ai_extraction_confidence > 0.0
+- best_* fields show manual data when available, AI otherwise
+- weight_source correctly indicates 'manual' or 'ai'
+
+**Document in:** `PHASE_AI_FINALIZATION_MILESTONE_2.md`
+
+---
+
+#### Milestone 3: Description Generation Verification (After Phase 3)
+
+**Test via Script:**
+
+```bash
+node scripts/ai-description-generator-v4.mjs --limit=5
+```
+
+**Via Supabase MCP:**
+
+```
+mcp_supabase_execute_sql({
+  project_id: "dpqapyojcdtrjwuhybky",
+  query: `
+    SELECT 
+      serial_number,
+      LEFT(description_technical_ru, 100) as tech_ru_preview,
+      LEFT(description_emotional_ru, 100) as emot_ru_preview,
+      LEFT(narrative_story_ru, 100) as story_ru_preview,
+      ai_description_model,
+      ai_description_cost_usd,
+      ai_description_date
+    FROM gemstones
+    WHERE description_technical_ru IS NOT NULL
+    ORDER BY ai_description_date DESC
+    LIMIT 5;
+  `
+})
+```
+
+**Expected Result:**
+
+- All 3 description types populated (technical, emotional, narrative)
+- Both Russian and English versions present
+- ai_description_model = 'gpt-5-mini'
+- ai_description_cost_usd between $0.003-0.007
+- Descriptions are unique and relevant to gemstone data
+
+**Document in:** `PHASE_AI_FINALIZATION_MILESTONE_3.md`
+
+---
+
+#### Milestone 4: Admin UI Verification (After Phase 4)
+
+**Via Browser MCP:**
+
+```
+mcp_cursor-playwright_browser_navigate({
+  url: "http://localhost:3000/ru/admin/gemstones"
+})
+```
+
+Then click on a gemstone with AI data:
+
+```
+mcp_cursor-playwright_browser_click({
+  element: "First gemstone card with AI badge",
+  ref: "[data-testid='gemstone-card-0']"
+})
+```
+
+Navigate to AI Analysis section and Extracted Data tab:
+
+```
+mcp_cursor-playwright_browser_click({
+  element: "Extracted Data tab",
+  ref: "[data-tab='extracted']"
+})
+```
+
+Take screenshot:
+
+```
+mcp_cursor-playwright_browser_take_screenshot({
+  filename: "admin-ui-extracted-data-tab.png"
+})
+```
+
+**Expected Result:**
+
+- Extracted Data tab visible
+- DataComparisonCard components showing manual vs AI values
+- Confidence scores displayed
+- Manual data marked with "Manual" badge
+- AI data marked with "AI" badge
+- Quality assessment section shows metrics
+
+**Document in:** `PHASE_AI_FINALIZATION_MILESTONE_4.md` with screenshot
+
+---
+
+#### Milestone 5: User UI Verification (After Phase 5)
+
+**Via Browser MCP:**
+
+```
+mcp_cursor-playwright_browser_navigate({
+  url: "http://localhost:3000/ru/catalog"
+})
+```
+
+Click on gemstone with descriptions:
+
+```
+mcp_cursor-playwright_browser_click({
+  element: "Gemstone card",
+  ref: "[data-gemstone-id='<id>']"
+})
+```
+
+Take screenshot of descriptions section:
+
+```
+mcp_cursor-playwright_browser_take_screenshot({
+  element: "Gemstone descriptions card",
+  ref: "[data-testid='gemstone-descriptions']",
+  filename: "user-ui-descriptions.png"
+})
+```
+
+Test tab switching:
+
+```
+mcp_cursor-playwright_browser_click({
+  element: "Technical description tab",
+  ref: "[data-tab='technical']"
+})
+```
+
+Screenshot technical tab:
+
+```
+mcp_cursor-playwright_browser_take_screenshot({
+  filename: "user-ui-technical-tab.png"
+})
+```
+
+**Expected Result:**
+
+- GemstoneDescriptions component renders
+- 3 tabs: Описание (emotional), Технические (technical), История (narrative)
+- Default tab shows emotional description
+- Tab switching works smoothly
+- Text is properly formatted and readable
+- Correct locale used (Russian/English based on route)
+
+**Document in:** `PHASE_AI_FINALIZATION_MILESTONE_5.md` with screenshots
+
+---
+
+#### Milestone 6: List View Preview (After Phase 5.3)
+
+**Via Browser MCP:**
+
+```
+mcp_cursor-playwright_browser_navigate({
+  url: "http://localhost:3000/ru/catalog"
+})
+```
+
+Take screenshot of catalog with description previews:
+
+```
+mcp_cursor-playwright_browser_take_screenshot({
+  filename: "catalog-with-description-previews.png"
+})
+```
+
+**Expected Result:**
+
+- Gemstone cards show 2-line preview of emotional description
+- Preview is properly truncated with ellipsis
+- Only shows for gemstones with descriptions
+
+**Document in:** `PHASE_AI_FINALIZATION_MILESTONE_6.md` with screenshot
+
+---
+
+#### Milestone 7: Complete Workflow Integration Test
+
+**Run complete workflow:**
+
+```bash
+node scripts/test-complete-ai-workflow.mjs
+```
+
+**Via Supabase MCP (verify end-to-end):**
+
+```
+mcp_supabase_execute_sql({
+  project_id: "dpqapyojcdtrjwuhybky",
+  query: `
+    SELECT 
+      g.serial_number,
+      g.ai_weight_carats,
+      g.ai_extraction_confidence,
+      g.description_emotional_ru IS NOT NULL as has_emotional,
+      g.description_technical_ru IS NOT NULL as has_technical,
+      g.narrative_story_ru IS NOT NULL as has_narrative,
+      COUNT(aar.id) as analysis_count,
+      g.ai_description_cost_usd + COALESCE(MAX(aar.cost_usd), 0) as total_cost
+    FROM gemstones g
+    LEFT JOIN ai_analysis_results aar ON aar.gemstone_id = g.id
+    WHERE g.ai_extracted_date IS NOT NULL
+    GROUP BY g.id, g.serial_number, g.ai_weight_carats, g.ai_extraction_confidence, 
+             g.description_emotional_ru, g.description_technical_ru, g.narrative_story_ru,
+             g.ai_description_cost_usd
+    ORDER BY g.ai_extracted_date DESC
+    LIMIT 5;
+  `
+})
+```
+
+**Expected Result:**
+
+- Vision analysis completed
+- Extracted data populated
+- All 3 descriptions generated
+- Total cost per gemstone ~$0.035
+- No errors in workflow
+- Processing time ~60s per gemstone
+
+**Document in:** `PHASE_AI_FINALIZATION_COMPLETE.md`
+
+---
+
+### 7.3 Final Acceptance Testing Checklist
+
+Before Phase 8 deployment:
+
+1. ✅ Database schema correct (Milestone 1)
+2. ✅ Data extraction working (Milestone 2)
+3. ✅ Fallback logic correct (Milestone 2)
+4. ✅ Descriptions generated (Milestone 3)
+5. ✅ Admin UI displays extracted data (Milestone 4)
+6. ✅ User UI displays descriptions (Milestone 5)
+7. ✅ Catalog preview works (Milestone 6)
+8. ✅ Complete workflow runs successfully (Milestone 7)
+9. ✅ Cost per gemstone ~$0.035
+10. ✅ No manual data overwritten
+11. ✅ All screenshots captured and documented
+12. ✅ All SQL verification queries pass
+
+---
+
+## Phase 8: Production Deployment (1 hour)
+
+### 8.1 Update Main Scripts
+
+**File: `scripts/ai-gemstone-analyzer-v3.mjs`**
+
+Ensure it calls extraction after analysis (should be done in Phase 2.2)
+
+### 8.2 Create Full Workflow Command
+
+**File: `scripts/run-complete-ai-analysis.mjs`**
+
+```javascript
+#!/usr/bin/env node
+// Run complete workflow: vision → extraction → descriptions
+
+import { runMultiImageAnalysis } from './ai-gemstone-analyzer-v3.mjs';
+import { execSync } from 'child_process';
+
 async function main() {
-  const args = process.argv.slice(2);
-  const limit = parseInt(args.find(arg => arg.startsWith('--limit='))?.split('=')[1]) || 5;
-
-  console.log(`🚀 AI Description Generator v4.0`);
-  console.log(`📅 ${new Date().toISOString()}`);
-  console.log(`🤖 Using model: ${DESCRIPTION_MODEL}`);
-  console.log(`🎯 Processing ${limit} gemstones\n`);
-
-  // Get gemstones that have AI analysis but no descriptions
-  const { data: gemstones, error } = await supabase
-    .from('gemstones')
-    .select('*')
-    .eq('ai_analyzed', true)
-    .is('description_technical_ru', null)
-    .limit(limit);
-
-  if (error) {
-    console.error(`❌ Failed to fetch gemstones: ${error.message}`);
-    process.exit(1);
-  }
-
-  console.log(`📊 Found ${gemstones.length} gemstones ready for descriptions\n`);
-
-  let totalCost = 0;
-  let successful = 0;
-  let failed = 0;
-
-  for (const gemstone of gemstones) {
-    const result = await generateDescriptions(gemstone);
-    
-    if (result.success) {
-      successful++;
-      totalCost += result.cost;
-    } else {
-      failed++;
-    }
-
-    // Rate limiting: 1 second between requests
-    await new Promise(resolve => setTimeout(resolve, 1000));
-  }
-
-  console.log(`\n${'='.repeat(60)}`);
-  console.log(`🎉 Description Generation Complete!`);
-  console.log(`✅ Successful: ${successful}`);
-  console.log(`❌ Failed: ${failed}`);
-  console.log(`💰 Total Cost: $${totalCost.toFixed(4)}`);
-  console.log(`📈 Avg Cost per Gemstone: $${(totalCost / successful).toFixed(4)}`);
+  const limit = process.argv[2] || 100;
+  
+  console.log(`🚀 Running complete AI analysis for ${limit} gemstones\n`);
+  
+  // Phase 1: Vision analysis + extraction
+  console.log('📍 Phase 1: Vision Analysis & Data Extraction');
+  await runMultiImageAnalysis({ limit: parseInt(limit) });
+  
+  // Phase 2: Description generation
+  console.log('\n📍 Phase 2: Description Generation');
+  execSync(`node scripts/ai-description-generator-v4.mjs --limit=${limit}`, { 
+    stdio: 'inherit' 
+  });
+  
+  console.log('\n✅ Complete AI analysis finished!');
 }
 
 main().catch(console.error);
@@ -605,154 +985,64 @@ main().catch(console.error);
 
 ---
 
-## Phase 6: Testing & Validation (1 hour)
-
-### 6.1 Create Test Script
-
-**File: `scripts/test-gpt5-analysis.mjs`**
-
-```javascript
-#!/usr/bin/env node
-
-import { runMultiImageAnalysis } from './ai-gemstone-analyzer-v3.mjs';
-import { config } from 'dotenv';
-
-config({ path: '.env.local' });
-
-async function testGPT5Analysis() {
-  console.log(`🧪 GPT-5 Analysis Test Suite`);
-  console.log(`Model: ${process.env.OPENAI_VISION_MODEL || 'gpt-5'}`);
-  console.log(`Description Model: ${process.env.OPENAI_DESCRIPTION_MODEL || 'gpt-5-mini'}\n`);
-
-  try {
-    // Test 1: Run analysis on 5 gemstones
-    console.log(`📍 Test 1: Analyzing 5 gemstones with GPT-5...`);
-    const result = await runMultiImageAnalysis({
-      limit: 5,
-      clearExisting: false
-    });
-
-    // Display results
-    console.log(`\n✅ Test Complete!`);
-    console.log(`📊 Results:`);
-    console.log(`   - Gemstones analyzed: ${result.summary.analyzedGemstones}`);
-    console.log(`   - Total cost: $${result.summary.totalCostUSD}`);
-    console.log(`   - Avg cost per gem: $${result.costAnalysis.perGemstone}`);
-    console.log(`   - Success rate: ${result.summary.successRate}`);
-    
-    console.log(`\n💡 Next Steps:`);
-    console.log(`   1. Review analysis quality in database`);
-    console.log(`   2. Check Russian OCR accuracy`);
-    console.log(`   3. Validate primary image selection`);
-    console.log(`   4. Run description generation: node scripts/ai-description-generator-v4.mjs --limit=5`);
-    
-  } catch (error) {
-    console.error(`❌ Test failed: ${error.message}`);
-    process.exit(1);
-  }
-}
-
-testGPT5Analysis();
-```
-
-### 6.2 Update Main Script with Model Info
-
-**File: `scripts/ai-gemstone-analyzer-v3.mjs`**
-
-Add model info display at startup (after line 83):
-
-```javascript
-console.log(`🤖 Vision Model: ${process.env.OPENAI_VISION_MODEL || 'gpt-5'}`);
-console.log(`📝 Description Model: ${process.env.OPENAI_DESCRIPTION_MODEL || 'gpt-5-mini'}`);
-```
-
----
-
 ## Implementation Order
 
-1. **Phase 1** (30 min): Set up model configuration and env variables
-2. **Phase 2** (45 min): Add image optimization with sharp
-3. **Phase 3** (1 hour): Create enhanced prompts for descriptions
-4. **Phase 4** (30 min): Run database migration
-5. **Phase 5** (1 hour): Implement description generator
-6. **Phase 6** (1 hour): Test with 5 gemstones and validate
-
-**Total Estimated Time:** 4-5 hours
-
----
+1. Phase 1: Database migration (run via Supabase MCP)
+2. Phase 2: Data extraction logic
+3. Phase 6: TypeScript type regeneration
+4. Phase 4: Admin UI updates
+5. Phase 5: User UI components
+6. Phase 3: Description generation enhancement
+7. Phase 7: Testing
+8. Phase 8: Production deployment
 
 ## Success Criteria
 
-**Phase 1-2 (Infrastructure):**
+- AI-extracted data saved to ai_* fields without overwriting manual data
+- View provides best-value fallback (manual > AI)
+- All 3 description types generated in Russian + English
+- Admin UI shows data comparison (manual vs AI)
+- User UI displays descriptions in user-friendly tabs
+- Complete workflow runs: vision → extraction → descriptions
+- Cost per gemstone: ~$0.03 (vision + descriptions with gpt-5-mini)
+- Processing time: ~60s per gemstone total
 
-- Models configurable via environment variables
-- Image optimization reduces file sizes by 30-50%
-- Actual token accounting replaces estimates
+## Cost Estimate
 
-**Phase 3-5 (Descriptions):**
+**Per Gemstone (gpt-5-mini for all):**
 
-- All gemstones receive unique narrative stories (no templates)
-- Russian text quality is grammatically correct
-- Three distinct description types per gemstone
-- Cost per gemstone ≤ $0.30 (vision + descriptions combined)
+- Vision analysis: $0.030
+- Description generation: ~$0.005
+- **Total: ~$0.035/gemstone**
 
-**Phase 6 (Validation):**
+**Full Collection (1,385 gems):**
 
-- 5 test gemstones analyzed successfully with GPT-5
-- OCR accuracy on Russian labels >90%
-- Primary image selection matches human judgment >85%
-- Descriptions pass uniqueness check (0% duplication)
+- Vision: $41.22
+- Descriptions: $6.93
+- **Total: ~$48.15**
 
----
+## Files to Create
 
-## Cost Estimates (5 Test Gemstones)
+- `migrations/20251015_add_ai_extracted_fields.sql`
+- `scripts/ai-analysis/data-extractor.mjs`
+- `scripts/test-complete-ai-workflow.mjs`
+- `scripts/run-complete-ai-analysis.mjs`
+- `src/features/gemstones/components/gemstone-descriptions.tsx`
+- `src/features/gemstones/components/data-comparison-card.tsx`
 
-**Vision Analysis (GPT-5):**
+## Files to Modify
 
-- 5 gemstones × 8 images avg × ~1500 tokens/image
-- Estimated: 5 × $0.12 = **$0.60**
-
-**Description Generation (GPT-5-mini):**
-
-- 5 gemstones × ~1000 input + 1500 output tokens
-- Estimated: 5 × $0.018 = **$0.09**
-
-**Total Test Cost: ~$0.70 ($0.14/gemstone)**
-
-**Full Collection (1,385 gemstones):**
-
-- Vision: 1,385 × $0.12 = $166.20
-- Descriptions: 1,385 × $0.018 = $24.93
-- **Total: ~$191 ($0.138/gemstone)**
-
----
-
-## Files to Create/Modify
-
-**New Files:**
-
-- `scripts/ai-analysis/model-config.mjs`
-- `scripts/ai-analysis/prompts-v4.mjs`
-- `scripts/ai-description-generator-v4.mjs`
-- `scripts/test-gpt5-analysis.mjs`
-- `migrations/20251015_add_ai_descriptions.sql`
-- `.env.local.example`
-
-**Modified Files:**
-
-- `scripts/ai-analysis/multi-image-processor.mjs` (model configuration, cost calculation)
-- `scripts/ai-analysis/image-utils.mjs` (image optimization)
-- `scripts/ai-gemstone-analyzer-v3.mjs` (display model info)
-
-**Database Changes:**
-
-- Add 9 new columns to `gemstones` table for descriptions and metadata
-- Add 1 column to `ai_analysis_results` for description tracking
+- `scripts/ai-analysis/database-operations.mjs` (add extraction after save)
+- `scripts/ai-analysis/prompts-v4.mjs` (add buildDescriptionPrompt helper)
+- `scripts/ai-description-generator-v4.mjs` (use extracted data)
+- `src/features/gemstones/components/ai-analysis-display.tsx` (add extracted tab)
+- `src/features/gemstones/components/gemstone-detail.tsx` (add descriptions)
+- `src/features/gemstones/components/gemstone-card.tsx` (show description preview)
 
 ### To-dos
 
 - [ ] Create model configuration system with pricing and capabilities in scripts/ai-analysis/model-config.mjs
-- [ ] Add OPENAI_VISION_MODEL and OPENAI_DESCRIPTION_MODEL to .env.local.example
+- [ ] Add OPENAI_VISION_MODEL and OPENAI_DESCRIPTION_MODEL to .env.local.example (blocked by global ignore - user has values in .env.local)
 - [ ] Update multi-image-processor.mjs to use configurable models and actual token accounting
 - [ ] Add image optimization with sharp library in image-utils.mjs (downscale to 1536px, JPEG quality 82)
 - [ ] Create prompts-v4.mjs with multilingual description generation prompts (technical, emotional, narrative)

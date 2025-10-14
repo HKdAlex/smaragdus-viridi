@@ -1,0 +1,345 @@
+🚀 Vision Model Benchmark Suite
+📅 2025-10-14T22:53:50.951Z
+🎯 Testing 5 models
+💎 Test gemstone: 00e9b38c-fdcc-49cc-b19d-8badd61105bf
+
+
+============================================================
+🧪 Testing Model: gpt-5
+📊 Highest quality, slowest, most expensive
+============================================================
+
+
+🔍 Analyzing 10 images for gemstone 00e9b38c-fdcc-49cc-b19d-8badd61105bf in single batch...
+  📸 Downloading image 1/10: 1756411422823_9.webp
+  📸 Downloading image 2/10: 1756411423569_10.webp
+  📸 Downloading image 3/10: 1756411422535_8.webp
+  📸 Downloading image 4/10: 1756411423172_7.webp
+  📸 Downloading image 5/10: 1756411421778_4.webp
+  📸 Downloading image 6/10: 1756411422861_6.webp
+  📸 Downloading image 7/10: 1756411421786_5.webp
+  📸 Downloading image 8/10: 1756411421446_3.webp
+  📸 Downloading image 9/10: 1756411421463_2.webp
+  📸 Downloading image 10/10: 1756411422221_1.webp
+    📉 Optimized: 138.09KB → 37.52KB (72.8% reduction)
+    📉 Optimized: 272.88KB → 38.66KB (85.8% reduction)
+    📉 Optimized: 313.56KB → 41.03KB (86.9% reduction)
+    📉 Optimized: 241.20KB → 36.79KB (84.7% reduction)
+    📉 Optimized: 194.32KB → 35.90KB (81.5% reduction)
+    📉 Optimized: 280.16KB → 38.53KB (86.2% reduction)
+    📉 Optimized: 181.49KB → 50.24KB (72.3% reduction)
+    📉 Optimized: 532.92KB → 41.24KB (92.3% reduction)
+    📉 Optimized: 356.14KB → 41.46KB (88.4% reduction)
+    📉 Optimized: 317.54KB → 41.33KB (87.0% reduction)
+  🤖 Sending 10 images to AI for comprehensive analysis...
+  🤖 Using model: gpt-5
+  ✅ Multi-image analysis completed in 125111ms
+  💰 Cost: $0.2244 for 10 images
+  📦 Response size: 10.0KB
+  📝 Found 43 JSON blocks, using the last (most complete)
+  🔍 Attempting to parse JSON (227 characters)
+⚠️ Analysis validation failed:
+  - Missing validation section in AI response
+  - Missing or invalid individual_analyses array
+  - Missing consolidated_data section
+  💾 Saving consolidated analysis to database...
+💾 Saving consolidated analysis for gemstone 00e9b38c-fdcc-49cc-b19d-8badd61105bf...
+⚠️ Saving analysis with validation issues:
+  - Missing validation section in AI response
+  - Missing or invalid individual_analyses array
+  - Missing consolidated_data section
+💡 Analysis warnings:
+  - No measurement gauge readings found - verify images contain measuring devices
+  - No primary image selected
+✅ Saved analysis result with ID: 5b930595-726a-4a62-b4e1-4a94c5672ee3
+  📊 Validation: incomplete (3 issues, 2 warnings)
+  📏 Gauge readings: 0 found
+✅ Marked gemstone 00e9b38c-fdcc-49cc-b19d-8badd61105bf as analyzed
+
+============================================================
+🧪 Testing Model: gpt-5-mini
+📊 85% cheaper, faster, good quality
+============================================================
+
+
+🔍 Analyzing 10 images for gemstone 00e9b38c-fdcc-49cc-b19d-8badd61105bf in single batch...
+  📸 Downloading image 1/10: 1756411422823_9.webp
+  📸 Downloading image 2/10: 1756411423569_10.webp
+  📸 Downloading image 3/10: 1756411422535_8.webp
+  📸 Downloading image 4/10: 1756411423172_7.webp
+  📸 Downloading image 5/10: 1756411421778_4.webp
+  📸 Downloading image 6/10: 1756411422861_6.webp
+  📸 Downloading image 7/10: 1756411421786_5.webp
+  📸 Downloading image 8/10: 1756411421446_3.webp
+  📸 Downloading image 9/10: 1756411421463_2.webp
+  📸 Downloading image 10/10: 1756411422221_1.webp
+    ⚠️ Download attempt 1 failed, retrying in 500ms...
+    📉 Optimized: 138.09KB → 37.52KB (72.8% reduction)
+    📉 Optimized: 181.49KB → 50.24KB (72.3% reduction)
+    📉 Optimized: 272.88KB → 38.66KB (85.8% reduction)
+    📉 Optimized: 313.56KB → 41.03KB (86.9% reduction)
+    📉 Optimized: 280.16KB → 38.53KB (86.2% reduction)
+    📉 Optimized: 194.32KB → 35.90KB (81.5% reduction)
+    📉 Optimized: 241.20KB → 36.79KB (84.7% reduction)
+    📉 Optimized: 317.54KB → 41.33KB (87.0% reduction)
+    📉 Optimized: 532.92KB → 41.24KB (92.3% reduction)
+    📉 Optimized: 356.14KB → 41.46KB (88.4% reduction)
+  🤖 Sending 10 images to AI for comprehensive analysis...
+  🤖 Using model: gpt-5-mini
+  ✅ Multi-image analysis completed in 49923ms
+  💰 Cost: $0.0298 for 10 images
+  📦 Response size: 13.4KB
+  📝 Found 35 JSON blocks, using the last (most complete)
+  🔍 Attempting to parse JSON (553 characters)
+❌ Error parsing multi-image response: Expected ',' or '}' after property value in JSON at position 553 (line 14 column 6)
+⚠️ Analysis validation failed:
+  - JSON parsing failed: Expected ',' or '}' after property value in JSON at position 553 (line 14 column 6)
+  💾 Saving consolidated analysis to database...
+💾 Saving consolidated analysis for gemstone 00e9b38c-fdcc-49cc-b19d-8badd61105bf...
+⚠️ Saving analysis with validation issues:
+  - JSON parsing failed: Expected ',' or '}' after property value in JSON at position 553 (line 14 column 6)
+✅ Saved analysis result with ID: 514b1b31-4505-4337-95f8-72e89bc44bc6
+  📊 Validation: incomplete (1 issues, 0 warnings)
+  📏 Gauge readings: 0 found
+✅ Marked gemstone 00e9b38c-fdcc-49cc-b19d-8badd61105bf as analyzed
+
+============================================================
+🧪 Testing Model: gpt-5-nano
+📊 95% cheaper, fastest, basic quality
+============================================================
+
+
+🔍 Analyzing 10 images for gemstone 00e9b38c-fdcc-49cc-b19d-8badd61105bf in single batch...
+  📸 Downloading image 1/10: 1756411422823_9.webp
+  📸 Downloading image 2/10: 1756411423569_10.webp
+  📸 Downloading image 3/10: 1756411422535_8.webp
+  📸 Downloading image 4/10: 1756411423172_7.webp
+  📸 Downloading image 5/10: 1756411421778_4.webp
+  📸 Downloading image 6/10: 1756411422861_6.webp
+  📸 Downloading image 7/10: 1756411421786_5.webp
+  📸 Downloading image 8/10: 1756411421446_3.webp
+  📸 Downloading image 9/10: 1756411421463_2.webp
+  📸 Downloading image 10/10: 1756411422221_1.webp
+    📉 Optimized: 181.49KB → 50.24KB (72.3% reduction)
+    📉 Optimized: 138.09KB → 37.52KB (72.8% reduction)
+    📉 Optimized: 241.20KB → 36.79KB (84.7% reduction)
+    📉 Optimized: 280.16KB → 38.53KB (86.2% reduction)
+    📉 Optimized: 272.88KB → 38.66KB (85.8% reduction)
+    📉 Optimized: 356.14KB → 41.46KB (88.4% reduction)
+    📉 Optimized: 317.54KB → 41.33KB (87.0% reduction)
+    📉 Optimized: 532.92KB → 41.24KB (92.3% reduction)
+    📉 Optimized: 313.56KB → 41.03KB (86.9% reduction)
+    📉 Optimized: 194.32KB → 35.90KB (81.5% reduction)
+  🤖 Sending 10 images to AI for comprehensive analysis...
+  🤖 Using model: gpt-5-nano
+  ✅ Multi-image analysis completed in 31459ms
+  💰 Cost: $0.0111 for 10 images
+❌ Response structure: {
+  "id": "chatcmpl-CQiEsTZ48TQCveSGvMR1fH9s3xoDz",
+  "object": "chat.completion",
+  "created": 1760482618,
+  "model": "gpt-5-nano-2025-08-07",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "length"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 6251,
+    "completion_tokens": 4000,
+    "total_tokens": 10251,
+    "prompt_tokens_details": {
+      "cached_
+❌ Error in multi-image analysis: OpenAI response missing text content
+
+============================================================
+🧪 Testing Model: gpt-4o
+📊 Balanced, proven reliability
+============================================================
+
+
+🔍 Analyzing 10 images for gemstone 00e9b38c-fdcc-49cc-b19d-8badd61105bf in single batch...
+  📸 Downloading image 1/10: 1756411422823_9.webp
+  📸 Downloading image 2/10: 1756411423569_10.webp
+  📸 Downloading image 3/10: 1756411422535_8.webp
+  📸 Downloading image 4/10: 1756411423172_7.webp
+  📸 Downloading image 5/10: 1756411421778_4.webp
+  📸 Downloading image 6/10: 1756411422861_6.webp
+  📸 Downloading image 7/10: 1756411421786_5.webp
+  📸 Downloading image 8/10: 1756411421446_3.webp
+  📸 Downloading image 9/10: 1756411421463_2.webp
+  📸 Downloading image 10/10: 1756411422221_1.webp
+    📉 Optimized: 280.16KB → 38.53KB (86.2% reduction)
+    📉 Optimized: 241.20KB → 36.79KB (84.7% reduction)
+    📉 Optimized: 181.49KB → 50.24KB (72.3% reduction)
+    📉 Optimized: 138.09KB → 37.52KB (72.8% reduction)
+    📉 Optimized: 194.32KB → 35.90KB (81.5% reduction)
+    📉 Optimized: 313.56KB → 41.03KB (86.9% reduction)
+    📉 Optimized: 532.92KB → 41.24KB (92.3% reduction)
+    📉 Optimized: 317.54KB → 41.33KB (87.0% reduction)
+    📉 Optimized: 356.14KB → 41.46KB (88.4% reduction)
+    📉 Optimized: 272.88KB → 38.66KB (85.8% reduction)
+  🤖 Sending 10 images to AI for comprehensive analysis...
+  🤖 Using model: gpt-4o
+  ✅ Multi-image analysis completed in 51044ms
+  💰 Cost: $0.0600 for 10 images
+  📦 Response size: 5.4KB
+  📝 Found 21 JSON blocks, using the last (most complete)
+  🔍 Attempting to parse JSON (206 characters)
+❌ Error parsing multi-image response: Expected ',' or '}' after property value in JSON at position 206 (line 7 column 10)
+⚠️ Analysis validation failed:
+  - JSON parsing failed: Expected ',' or '}' after property value in JSON at position 206 (line 7 column 10)
+  💾 Saving consolidated analysis to database...
+💾 Saving consolidated analysis for gemstone 00e9b38c-fdcc-49cc-b19d-8badd61105bf...
+⚠️ Saving analysis with validation issues:
+  - JSON parsing failed: Expected ',' or '}' after property value in JSON at position 206 (line 7 column 10)
+✅ Saved analysis result with ID: 30f5f996-77b4-4f13-9868-357f0e50bd46
+  📊 Validation: incomplete (1 issues, 0 warnings)
+  📏 Gauge readings: 0 found
+✅ Marked gemstone 00e9b38c-fdcc-49cc-b19d-8badd61105bf as analyzed
+
+============================================================
+🧪 Testing Model: gpt-4o-mini
+📊 Very cheap, good for bulk
+============================================================
+
+
+🔍 Analyzing 10 images for gemstone 00e9b38c-fdcc-49cc-b19d-8badd61105bf in single batch...
+  📸 Downloading image 1/10: 1756411422823_9.webp
+  📸 Downloading image 2/10: 1756411423569_10.webp
+  📸 Downloading image 3/10: 1756411422535_8.webp
+  📸 Downloading image 4/10: 1756411423172_7.webp
+  📸 Downloading image 5/10: 1756411421778_4.webp
+  📸 Downloading image 6/10: 1756411422861_6.webp
+  📸 Downloading image 7/10: 1756411421786_5.webp
+  📸 Downloading image 8/10: 1756411421446_3.webp
+  📸 Downloading image 9/10: 1756411421463_2.webp
+  📸 Downloading image 10/10: 1756411422221_1.webp
+    📉 Optimized: 138.09KB → 37.52KB (72.8% reduction)
+    📉 Optimized: 181.49KB → 50.24KB (72.3% reduction)
+    📉 Optimized: 241.20KB → 36.79KB (84.7% reduction)
+    📉 Optimized: 280.16KB → 38.53KB (86.2% reduction)
+    📉 Optimized: 356.14KB → 41.46KB (88.4% reduction)
+    📉 Optimized: 194.32KB → 35.90KB (81.5% reduction)
+    📉 Optimized: 272.88KB → 38.66KB (85.8% reduction)
+    📉 Optimized: 317.54KB → 41.33KB (87.0% reduction)
+    📉 Optimized: 313.56KB → 41.03KB (86.9% reduction)
+    📉 Optimized: 532.92KB → 41.24KB (92.3% reduction)
+  🤖 Sending 10 images to AI for comprehensive analysis...
+  🤖 Using model: gpt-4o-mini
+  ✅ Multi-image analysis completed in 23315ms
+  💰 Cost: $0.0388 for 10 images
+  📦 Response size: 2.7KB
+  📝 Found 14 JSON blocks, using the last (most complete)
+  🔍 Attempting to parse JSON (165 characters)
+⚠️ Analysis validation failed:
+  - Missing validation section in AI response
+  - Missing or invalid individual_analyses array
+  - Missing consolidated_data section
+  💾 Saving consolidated analysis to database...
+💾 Saving consolidated analysis for gemstone 00e9b38c-fdcc-49cc-b19d-8badd61105bf...
+⚠️ Saving analysis with validation issues:
+  - Missing validation section in AI response
+  - Missing or invalid individual_analyses array
+  - Missing consolidated_data section
+💡 Analysis warnings:
+  - No measurement gauge readings found - verify images contain measuring devices
+  - No primary image selected
+✅ Saved analysis result with ID: f25dc7e1-df0b-4d5d-a9b6-b0f889d8b5f0
+  📊 Validation: incomplete (3 issues, 2 warnings)
+  📏 Gauge readings: 0 found
+✅ Marked gemstone 00e9b38c-fdcc-49cc-b19d-8badd61105bf as analyzed
+
+
+================================================================================
+📊 VISION MODEL BENCHMARK REPORT
+================================================================================
+
+
+🏆 PERFORMANCE COMPARISON:
+
+| Model         | Time (s) | Cost ($) | Tokens | Quality | Status    |
+|---------------|----------|----------|--------|---------|-----------|
+| gpt-5-mini    |     51.9 |   0.0298 |   8749 |     N/A | ✅ Success |
+| gpt-4o-mini   |     24.7 |   0.0388 | 256072 |     N/A | ✅ Success |
+| gpt-4o        |     52.7 |   0.0600 |   9258 |     N/A | ✅ Success |
+| gpt-5         |    127.1 |   0.2244 |  11842 |     N/A | ✅ Success |
+| gpt-5-nano    |        — |        — |      — |       — | ❌ Failed  |
+
+
+📈 DETAILED METRICS:
+
+
+GPT-5-MINI:
+  ⏱️  Processing Time: 51.90s
+  💰 Cost: $0.0298
+  🎯 Cost per Image: $0.0030
+  📝 Tokens Used: 8,749
+  🔍 OCR Accuracy: 0.0%
+  📏 Measurements Found: 0
+  🖼️  Primary Image Confidence: 0.0%
+  ✅ Validation: FAILED
+  ⚠️  Issues: JSON parsing failed: Expected ',' or '}' after property value in JSON at position 553 (line 14 column 6)
+  📄 Response Length: 13,716 chars
+
+GPT-4O-MINI:
+  ⏱️  Processing Time: 24.73s
+  💰 Cost: $0.0388
+  🎯 Cost per Image: $0.0039
+  📝 Tokens Used: 256,072
+  🔍 OCR Accuracy: 0.0%
+  📏 Measurements Found: 0
+  🖼️  Primary Image Confidence: 0.0%
+  ✅ Validation: FAILED
+  ⚠️  Issues: Missing validation section in AI response, Missing or invalid individual_analyses array, Missing consolidated_data section
+  📄 Response Length: 2,811 chars
+
+GPT-4O:
+  ⏱️  Processing Time: 52.74s
+  💰 Cost: $0.0600
+  🎯 Cost per Image: $0.0060
+  📝 Tokens Used: 9,258
+  🔍 OCR Accuracy: 0.0%
+  📏 Measurements Found: 0
+  🖼️  Primary Image Confidence: 0.0%
+  ✅ Validation: FAILED
+  ⚠️  Issues: JSON parsing failed: Expected ',' or '}' after property value in JSON at position 206 (line 7 column 10)
+  📄 Response Length: 5,531 chars
+
+GPT-5:
+  ⏱️  Processing Time: 127.07s
+  💰 Cost: $0.2244
+  🎯 Cost per Image: $0.0224
+  📝 Tokens Used: 11,842
+  🔍 OCR Accuracy: 0.0%
+  📏 Measurements Found: 0
+  🖼️  Primary Image Confidence: 0.0%
+  ✅ Validation: FAILED
+  ⚠️  Issues: Missing validation section in AI response, Missing or invalid individual_analyses array, Missing consolidated_data section
+  📄 Response Length: 10,290 chars
+
+
+💰 COST PROJECTIONS (1,385 gemstones):
+
+  gpt-5-mini: $41.22 
+  gpt-4o-mini: $53.71 
+  gpt-4o: $83.03 
+  gpt-5: $310.85 
+
+
+💡 RECOMMENDATIONS:
+
+  🏆 Best Value: gpt-5-mini (cheapest)
+  ⚡ Fastest: gpt-4o-mini (24.7s)
+  ✨ Best Quality: gpt-5-mini (0% confidence)
+  📊 Best Quality/Cost Ratio: gpt-5-mini
+
+================================================================================
+

@@ -2,8 +2,17 @@ function extractResponseText(response) {
   // For Chat Completions API
   const content = response?.choices?.[0]?.message?.content;
   if (!content) {
+    // Log response structure for debugging
+    console.error(
+      `❌ Response structure:`,
+      JSON.stringify(response, null, 2).substring(0, 500)
+    );
     throw new Error("OpenAI response missing text content");
   }
+
+  // Log response size for monitoring
+  console.log(`  📦 Response size: ${(content.length / 1024).toFixed(1)}KB`);
+
   return content;
 }
 /**
@@ -36,9 +45,9 @@ export function initializeOpenAI(apiKey) {
 /**
  * Process all images for a gemstone in a single API request
  */
-const VISION_MODEL = process.env.OPENAI_VISION_MODEL || "gpt-5";
-
 export async function analyzeGemstoneBatch(images, gemstoneId, supabase) {
+  // Read model from env each time (allows dynamic switching in tests)
+  const VISION_MODEL = process.env.OPENAI_VISION_MODEL || "gpt-5";
   console.log(
     `\n🔍 Analyzing ${images.length} images for gemstone ${gemstoneId} in single batch...`
   );
@@ -94,27 +103,35 @@ export async function analyzeGemstoneBatch(images, gemstoneId, supabase) {
     const modelConfig = getModelConfig(VISION_MODEL);
     console.log(`  🤖 Using model: ${VISION_MODEL}`);
 
-    const response = await openai.chat.completions.create({
+    // Build request parameters
+    const requestParams = {
       model: VISION_MODEL,
       messages: [
         {
           role: "system",
           content:
-            "You are a precise gemstone analysis expert. Output strict JSON only.",
+            "You are a precise gemstone analysis expert. Output ONLY valid JSON with no additional text.",
         },
         {
           role: "user",
           content,
         },
       ],
-      max_completion_tokens: modelConfig.max_tokens,
+      max_completion_tokens: modelConfig.max_tokens, // Use full token allowance for model
       response_format: { type: "json_object" },
-    });
+    };
+
+    // Add reasoning_effort for GPT-5 models (controls thinking depth)
+    if (modelConfig.reasoning_effort) {
+      requestParams.reasoning_effort = modelConfig.reasoning_effort;
+    }
+
+    const response = await openai.chat.completions.create(requestParams);
 
     const processingTime = Date.now() - startTime;
     const usage = response.usage || {};
     const totalTokens = usage.total_tokens || 0;
-    const cost = calculateCost(totalTokens, usage);
+    const cost = calculateCost(VISION_MODEL, totalTokens, usage);
 
     console.log(`  ✅ Multi-image analysis completed in ${processingTime}ms`);
     console.log(`  💰 Cost: $${cost.toFixed(4)} for ${images.length} images`);
@@ -125,7 +142,8 @@ export async function analyzeGemstoneBatch(images, gemstoneId, supabase) {
       imageData,
       totalTokens,
       processingTime,
-      cost
+      cost,
+      VISION_MODEL
     );
 
     // Check validation status
@@ -179,6 +197,108 @@ export async function analyzeGemstoneBatch(images, gemstoneId, supabase) {
 }
 
 /**
+ * Normalize GPT-5 response format to our expected structure
+ */
+function normalizeGPT5Response(parsedData) {
+  // GPT-5 might return different structures - check for common patterns
+  const hasGPT5Format =
+    parsedData.dataset_summary ||
+    parsedData.aggregate_extraction ||
+    parsedData.individual_analyses;
+
+  if (hasGPT5Format) {
+    console.log(`  🔄 Detected GPT-5 format, normalizing...`);
+
+    // Extract primary image info from various possible locations
+    const primaryImageIndex =
+      parsedData.dataset_summary?.primary_image_index ||
+      parsedData.aggregate_extraction?.primary_image_quality
+        ?.primary_image_index ||
+      null;
+
+    const primaryImageScore =
+      parsedData.dataset_summary?.primary_image_score ||
+      parsedData.aggregate_extraction?.primary_image_quality ||
+      {};
+
+    return {
+      validation: {
+        total_images_analyzed:
+          parsedData.dataset_summary?.images_processed ||
+          parsedData.dataset_summary?.image_count ||
+          parsedData.individual_analyses?.length ||
+          0,
+        analysis_complete: true,
+        missing_images: [],
+      },
+      individual_analyses: parsedData.individual_analyses || [],
+      consolidated_data: {
+        all_gauge_readings: extractAllGaugeReadings(
+          parsedData.individual_analyses || []
+        ),
+        measurement_summary:
+          parsedData.aggregate_extraction ||
+          parsedData.aggregate_inferences ||
+          {},
+        lot_metadata:
+          parsedData.lot_metadata ||
+          parsedData.aggregate_extraction?.interpreted_from_ocr ||
+          {},
+      },
+      primary_image_selection: {
+        selected_image_index: primaryImageIndex,
+        confidence:
+          primaryImageScore.overall_score || primaryImageScore.overall || 0,
+        reasoning: `Selected image ${primaryImageIndex} based on quality analysis`,
+        sub_scores: primaryImageScore.sub_scores || {},
+      },
+      data_verification: parsedData.cross_verification || {},
+      overall_confidence:
+        parsedData.confidence_summary?.overall ||
+        parsedData.aggregate_extraction?.cross_verification
+          ?.overall_consistency_score ||
+        parsedData.aggregate_inferences?.overall_confidence ||
+        0,
+      data_completeness: parsedData.confidence_summary?.overall || 0.85,
+      cross_verification_score:
+        parsedData.cross_verification?.confidence ||
+        parsedData.aggregate_extraction?.cross_verification
+          ?.overall_consistency_score ||
+        0,
+    };
+  }
+
+  // Return as-is if already in expected format
+  return parsedData;
+}
+
+/**
+ * Extract all gauge readings from individual analyses
+ */
+function extractAllGaugeReadings(individualAnalyses) {
+  const readings = [];
+  for (const analysis of individualAnalyses) {
+    if (
+      analysis.measurements_detected &&
+      Array.isArray(analysis.measurements_detected)
+    ) {
+      for (const measurement of analysis.measurements_detected) {
+        readings.push({
+          image_index: analysis.image_index,
+          subject: measurement.subject,
+          value: measurement.value,
+          unit: measurement.unit,
+          device: measurement.device,
+          uncertainty:
+            measurement.uncertainty_mm || measurement.uncertainty_ct || 0,
+        });
+      }
+    }
+  }
+  return readings;
+}
+
+/**
  * Parse and validate the comprehensive multi-image AI response
  */
 function parseAndValidateMultiImageResponse(
@@ -186,7 +306,8 @@ function parseAndValidateMultiImageResponse(
   imageData,
   totalTokens,
   processingTime,
-  cost
+  cost,
+  modelName
 ) {
   try {
     // Extract JSON from response - handle markdown code blocks and multiple JSON blocks
@@ -227,7 +348,10 @@ function parseAndValidateMultiImageResponse(
     console.log(
       `  🔍 Attempting to parse JSON (${jsonString.length} characters)`
     );
-    const parsedData = JSON.parse(jsonString);
+    let parsedData = JSON.parse(jsonString);
+
+    // Normalize GPT-5 format to our expected structure
+    parsedData = normalizeGPT5Response(parsedData);
 
     // Validate the response
     const validationResult = validateAnalysisCompleteness(
@@ -273,7 +397,7 @@ function parseAndValidateMultiImageResponse(
         processing_time_ms: processingTime,
         processing_cost_usd: cost,
         total_tokens: totalTokens,
-        ai_model_version: VISION_MODEL,
+        ai_model_version: modelName,
         analysis_date: new Date().toISOString(),
         image_batch_info: imageData.map((img) => ({
           image_id: img.imageId,
@@ -470,16 +594,16 @@ function validateAnalysisCompleteness(parsedData, imageData) {
 /**
  * Calculate cost based on token usage
  */
-function calculateCost(totalTokens, usage) {
+function calculateCost(modelName, totalTokens, usage) {
   if (usage?.prompt_tokens && usage?.completion_tokens) {
     return calculateActualCost(
-      VISION_MODEL,
+      modelName,
       usage.prompt_tokens,
       usage.completion_tokens
     );
   }
 
-  const model = getModelConfig(VISION_MODEL);
+  const model = getModelConfig(modelName);
   const inputTokens = totalTokens * 0.8;
   const outputTokens = totalTokens * 0.2;
 

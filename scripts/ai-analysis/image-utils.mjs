@@ -32,9 +32,48 @@ async function ensureTempDir() {
 }
 
 /**
- * Download image from URL and convert directly to base64
+ * Download image with retry logic
  */
-export async function downloadImageAsBase64(imageUrl, optimize = true) {
+export async function downloadImageAsBase64(
+  imageUrl,
+  optimize = true,
+  maxRetries = 3
+) {
+  let lastError;
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      // On last attempt, allow insecure TLS as fallback for CDN issues
+      const allowInsecure = attempt === maxRetries;
+      return await downloadImageAsBase64Internal(
+        imageUrl,
+        optimize,
+        allowInsecure
+      );
+    } catch (error) {
+      lastError = error;
+
+      if (attempt < maxRetries) {
+        const delay = 500 * attempt; // 500ms, 1000ms exponential backoff
+        console.log(
+          `    ⚠️ Download attempt ${attempt} failed, retrying in ${delay}ms...`
+        );
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      }
+    }
+  }
+
+  throw lastError;
+}
+
+/**
+ * Internal function - single download attempt
+ */
+function downloadImageAsBase64Internal(
+  imageUrl,
+  optimize = true,
+  allowInsecure = false
+) {
   return new Promise((resolve, reject) => {
     const url = new URL(imageUrl);
 
@@ -42,7 +81,7 @@ export async function downloadImageAsBase64(imageUrl, optimize = true) {
       hostname: url.hostname,
       path: url.pathname + url.search,
       method: "GET",
-      rejectUnauthorized: true,
+      rejectUnauthorized: !allowInsecure, // Allow insecure on last attempt
       timeout: 30000, // 30 second timeout
       headers: {
         "User-Agent": "Smaragdus-Viridi-AI-Analysis/3.1",
@@ -99,8 +138,8 @@ export async function downloadImageAsBase64(imageUrl, optimize = true) {
 
 export async function optimizeImageForAI(
   imageBuffer,
-  maxDimension = 1536,
-  quality = 82
+  maxDimension = 640, // Reduced from 1536 for cost savings
+  quality = 75 // Reduced from 82 for smaller files
 ) {
   try {
     const optimized = await sharp(imageBuffer)

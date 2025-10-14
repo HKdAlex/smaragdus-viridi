@@ -80,7 +80,9 @@ async function runMultiImageAnalysis(options = {}) {
 
   console.log(`\n🚀 Starting Multi-Image AI Gemstone Analysis v3.0`);
   console.log(`📅 ${new Date().toISOString()}`);
-  console.log(`🤖 Vision Model: ${process.env.OPENAI_VISION_MODEL || "gpt-5"}`);
+  console.log(
+    `🤖 Vision Model: ${process.env.OPENAI_VISION_MODEL || "gpt-5-mini"}`
+  );
   console.log(
     `📝 Description Model: ${
       process.env.OPENAI_DESCRIPTION_MODEL || "gpt-5-mini"
