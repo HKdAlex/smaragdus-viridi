@@ -1,21 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
-import { AdjustmentsHorizontalIcon } from "@heroicons/react/24/outline";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetBody,
-} from "@/shared/components/ui/sheet";
-import { AdvancedFiltersControlled } from "./advanced-filters-controlled";
-import { AdvancedFiltersV2Controlled } from "./advanced-filters-v2-controlled";
 import type {
   AdvancedGemstoneFilters,
   FilterOptions,
 } from "../../types/filter.types";
+import {
+  Sheet,
+  SheetBody,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/shared/components/ui/sheet";
+import { useEffect, useState } from "react";
+
+import { AdjustmentsHorizontalIcon } from "@heroicons/react/24/outline";
+import { AdvancedFiltersControlled } from "./advanced-filters-controlled";
+import { AdvancedFiltersV2Controlled } from "./advanced-filters-v2-controlled";
+import { useTranslations } from "next-intl";
 
 interface FilterSidebarProps {
   filters: AdvancedGemstoneFilters;
@@ -41,13 +42,13 @@ export function FilterSidebar({
   // Sidebar open state - default open on desktop, closed on mobile
   const [isOpen, setIsOpen] = useState(() => {
     if (typeof window === "undefined") return defaultOpen;
-    
+
     // Check localStorage first
     const stored = localStorage.getItem("filterSidebarOpen");
     if (stored !== null) {
       return stored === "true";
     }
-    
+
     // Default: open on desktop, closed on mobile
     return window.innerWidth >= 768;
   });
@@ -55,7 +56,7 @@ export function FilterSidebar({
   // Filter mode state - visual or standard
   const [mode, setMode] = useState<"visual" | "standard">(() => {
     if (typeof window === "undefined") return "visual";
-    
+
     const stored = localStorage.getItem("filterSidebarMode");
     return (stored as "visual" | "standard") || "visual";
   });
@@ -65,7 +66,7 @@ export function FilterSidebar({
     const checkMobile = () => {
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
-      
+
       // On mobile, default to closed unless explicitly opened
       if (mobile && !localStorage.getItem("filterSidebarOpen")) {
         setIsOpen(false);
@@ -108,16 +109,20 @@ export function FilterSidebar({
 
   return (
     <>
-      {/* Mobile Filter Toggle Button */}
-      {isMobile && !isOpen && (
+      {/* Filter Toggle Button (Mobile FAB or Desktop Corner Button) */}
+      {!isOpen && (
         <div className="fixed bottom-4 right-4 z-40">
           <button
             onClick={() => setIsOpen(true)}
-            className="flex items-center space-x-2 px-4 py-3 bg-primary text-primary-foreground rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+            className={`flex items-center space-x-2 px-4 py-3 bg-primary text-primary-foreground rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 ${
+              isMobile ? "" : "rounded-lg"
+            }`}
             aria-label={t("sidebar.openFilters")}
           >
             <AdjustmentsHorizontalIcon className="w-5 h-5" />
-            <span className="font-medium">{t("sidebar.filtersSidebar")}</span>
+            <span className={`font-medium ${isMobile ? "" : "hidden sm:inline"}`}>
+              {t("sidebar.filtersSidebar")}
+            </span>
             {activeFilterCount > 0 && (
               <span className="ml-1 px-2 py-0.5 bg-primary-foreground text-primary rounded-full text-xs font-bold">
                 {activeFilterCount}
@@ -194,4 +199,3 @@ export function FilterSidebar({
     </>
   );
 }
-
