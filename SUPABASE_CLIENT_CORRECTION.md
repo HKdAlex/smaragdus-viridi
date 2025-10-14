@@ -812,3 +812,418 @@ export const supabaseAdmin = (() => {
 ---
 
 Your understanding and usage of both clients is spot-on! 🎯
+
+---
+
+## `supabase` vs `createServerSupabaseClient`
+
+### **Critical Question: What's the difference between the browser and server clients?**
+
+Both use the **anon key** and respect **RLS**, but they run in **different environments**:
+
+---
+
+### **1. supabase - BROWSER/CLIENT-SIDE** 🌐
+
+```typescript
+"use client"; // ← Client Component!
+
+import { supabase } from "@/lib/supabase";
+
+export function MyComponent() {
+  const handleClick = async () => {
+    // This runs in the BROWSER
+    const { data } = await supabase.from("favorites").select("*");
+    // ↑ Uses cookies stored in browser
+  };
+
+  return <button onClick={handleClick}>Load Favorites</button>;
+}
+```
+
+**Key Properties:**
+
+- 🌐 Runs in the **browser** (client-side)
+- 🍪 Reads auth cookies from **browser storage**
+- 🔄 **Singleton** - same instance across all components
+- ✅ Works in Client Components (`"use client"`)
+- ❌ **NOT available** in Server Components or API routes
+- 🔒 Still respects RLS (uses anon key)
+
+---
+
+### **2. createServerSupabaseClient - SERVER-SIDE** 🖥️
+
+```typescript
+// No "use client" - Server Component or API route!
+
+import { createServerSupabaseClient } from "@/lib/supabase";
+
+export async function GET() {
+  // This runs on the SERVER
+  const supabase = await createServerSupabaseClient();
+  const { data } = await supabase.from("favorites").select("*");
+  // ↑ Uses cookies from Next.js request headers
+
+  return NextResponse.json(data);
+}
+```
+
+**Key Properties:**
+
+- 🖥️ Runs on the **server** (server-side)
+- 🍪 Reads auth cookies from **Next.js headers** (`next/headers`)
+- 🔄 **Creates new instance** per request
+- ✅ Works in Server Components and API routes
+- ❌ **NOT available** in Client Components
+- 🔒 Still respects RLS (uses anon key)
+
+---
+
+### **Visual Comparison:**
+
+```
+┌─────────────────────────────────────────┐
+│  Browser (Client-Side)                  │
+│  ┌───────────────────────────────────┐  │
+│  │ Client Component                  │  │
+│  │ "use client"                      │  │
+│  │                                   │  │
+│  │ import { supabase }               │  │
+│  │                                   │  │
+│  │ supabase.from("table")...         │  │
+│  │   ↓                               │  │
+│  │ Reads cookies from browser        │  │
+│  └───────────────────────────────────┘  │
+└─────────────────────────────────────────┘
+
+┌─────────────────────────────────────────┐
+│  Server (Server-Side)                   │
+│  ┌───────────────────────────────────┐  │
+│  │ API Route / Server Component      │  │
+│  │ (no "use client")                 │  │
+│  │                                   │  │
+│  │ const supabase = await            │  │
+│  │   createServerSupabaseClient()    │  │
+│  │                                   │  │
+│  │ supabase.from("table")...         │  │
+│  │   ↓                               │  │
+│  │ Reads cookies from Next.js        │  │
+│  └───────────────────────────────────┘  │
+└─────────────────────────────────────────┘
+```
+
+---
+
+### **The Cookie Source Difference:**
+
+```typescript
+// Browser Client (supabase)
+export const supabase = createBrowserClient<Database>(
+  supabaseUrl,
+  supabaseAnonKey,
+  {
+    // Browser automatically handles cookies via document.cookie
+    // No explicit cookie handling needed
+  }
+);
+```
+
+vs
+
+```typescript
+// Server Client (createServerSupabaseClient)
+export const createServerSupabaseClient = async () => {
+  const { cookies } = await import("next/headers");
+  const cookieStore = await cookies();
+  //     ↑↑↑↑↑↑↑
+  // Explicitly reads from Next.js request headers
+
+  return createServerClient<Database>(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      getAll() {
+        return cookieStore.getAll(); // ← From Next.js
+      },
+      setAll(cookiesToSet) {
+        // Set cookies in Next.js response
+      },
+    },
+  });
+};
+```
+
+---
+
+### **When To Use Each:**
+
+| Context              | Client                       | Example                                   |
+| -------------------- | ---------------------------- | ----------------------------------------- |
+| **Client Component** | `supabase`                   | Button click handlers, forms, React state |
+| **Server Component** | `createServerSupabaseClient` | Initial data loading, SSR                 |
+| **API Route**        | `createServerSupabaseClient` | REST endpoints, data mutations            |
+| **Server Action**    | `createServerSupabaseClient` | Form submissions (server-side)            |
+
+---
+
+### **Common Patterns:**
+
+#### **Pattern 1: Client-Side Interaction**
+
+```typescript
+"use client";
+
+import { supabase } from "@/lib/supabase";
+import { useState } from "react";
+
+export function AddToFavoritesButton({ gemstoneId }: { gemstoneId: string }) {
+  const [loading, setLoading] = useState(false);
+
+  const handleAddToFavorites = async () => {
+    setLoading(true);
+
+    // ✅ Client-side mutation
+    const { error } = await supabase
+      .from("favorites")
+      .insert({ gemstone_id: gemstoneId });
+
+    if (error) {
+      alert("Failed to add to favorites");
+    }
+
+    setLoading(false);
+  };
+
+  return (
+    <button onClick={handleAddToFavorites} disabled={loading}>
+      {loading ? "Adding..." : "Add to Favorites"}
+    </button>
+  );
+}
+```
+
+---
+
+#### **Pattern 2: Server-Side Initial Data**
+
+```typescript
+// Server Component - NO "use client"
+
+import { createServerSupabaseClient } from "@/lib/supabase";
+
+export default async function FavoritesPage() {
+  // ✅ Server-side data fetching
+  const supabase = await createServerSupabaseClient();
+
+  const { data: favorites } = await supabase.from("favorites").select(`
+      *,
+      gemstone:gemstones(*)
+    `);
+
+  return (
+    <div>
+      {favorites?.map((fav) => (
+        <FavoriteCard key={fav.id} favorite={fav} />
+      ))}
+    </div>
+  );
+}
+```
+
+---
+
+#### **Pattern 3: API Route**
+
+```typescript
+// /app/api/favorites/route.ts
+
+import { createServerSupabaseClient } from "@/lib/supabase";
+import { NextResponse } from "next/server";
+
+export async function POST(request: Request) {
+  // ✅ Server-side API endpoint
+  const supabase = await createServerSupabaseClient();
+
+  // Check authentication
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const body = await request.json();
+
+  const { data, error } = await supabase
+    .from("favorites")
+    .insert({
+      gemstone_id: body.gemstoneId,
+      user_id: user.id, // ← RLS will enforce this
+    })
+    .select()
+    .single();
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 400 });
+  }
+
+  return NextResponse.json(data);
+}
+```
+
+---
+
+### **Implementation in Your Code:**
+
+```typescript
+// /lib/supabase.ts
+
+// Browser Client (Singleton)
+let _browserClient: SupabaseClient<Database, "public">;
+
+export function getBrowserClient(): SupabaseClient<Database, "public"> {
+  if (!_browserClient) {
+    _browserClient = createBrowserClient<Database, "public">(
+      supabaseUrl,
+      supabaseAnonKey,
+      {
+        db: { schema: "public" as const },
+        isSingleton: false, // ← Your custom singleton
+      }
+    );
+  }
+  return _browserClient;
+}
+
+export const supabase = getBrowserClient(); // ← Export for client components
+
+// Server Client (New instance per request)
+export const createServerSupabaseClient = async () => {
+  const { cookies } = await import("next/headers");
+  const cookieStore = await cookies();
+
+  return createServerClient<Database>(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      getAll() {
+        return cookieStore.getAll();
+      },
+      setAll(cookiesToSet) {
+        /* handle response cookies */
+      },
+    },
+  }); // ← New instance each call
+};
+```
+
+---
+
+### **Why Not Use Browser Client on Server?**
+
+```typescript
+// ❌ This would FAIL:
+export async function GET() {
+  const { data } = await supabase.from("favorites").select("*");
+  //                      ↑↑↑↑↑↑↑
+  // ERROR: supabase is for browser, can't read Next.js cookies!
+  // Server has no access to document.cookie
+}
+```
+
+---
+
+### **Why Not Use Server Client on Browser?**
+
+```typescript
+"use client";
+
+// ❌ This would FAIL:
+export function MyComponent() {
+  const handleClick = async () => {
+    const supabase = await createServerSupabaseClient();
+    //                      ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
+    // ERROR: Can't import "next/headers" in browser!
+    // next/headers is server-only
+  };
+}
+```
+
+---
+
+### **Summary Table:**
+
+| Aspect              | `supabase` (Browser)           | `createServerSupabaseClient` (Server)  |
+| ------------------- | ------------------------------ | -------------------------------------- |
+| **Environment**     | Browser (client-side)          | Server (API routes, Server Components) |
+| **Cookie Source**   | `document.cookie`              | `next/headers` (request headers)       |
+| **Import Location** | Client Components              | Server Components, API routes          |
+| **Instance Type**   | Singleton (shared)             | New per request                        |
+| **Key Used**        | Anon key                       | Anon key                               |
+| **RLS**             | ✅ Enforced                    | ✅ Enforced                            |
+| **User Context**    | ✅ Yes (from browser cookies)  | ✅ Yes (from server cookies)           |
+| **When To Use**     | Interactive UI, client actions | Initial data load, API endpoints       |
+
+---
+
+### **Complete Architecture:**
+
+```
+Your Application
+├─ Browser (Client-Side)
+│  └─ supabase ← Client Components, user interactions
+│
+├─ Server (Next.js)
+│  ├─ createServerSupabaseClient ← Server Components, API routes
+│  └─ supabaseAdmin ← Admin operations (bypasses RLS)
+│
+└─ Middleware (Edge)
+   └─ createServerClient (direct) ← Auth checks, route protection
+```
+
+---
+
+### **Best Practice: Hybrid Approach**
+
+```typescript
+// Server Component - Initial load
+export default async function FavoritesPage() {
+  const supabase = await createServerSupabaseClient();
+  const { data: initialFavorites } = await supabase
+    .from("favorites")
+    .select("*");
+
+  // Pass to Client Component
+  return <FavoritesList initialData={initialFavorites} />;
+}
+
+// Client Component - Interactivity
+"use client";
+
+import { supabase } from "@/lib/supabase";
+
+export function FavoritesList({ initialData }) {
+  const [favorites, setFavorites] = useState(initialData);
+
+  const addFavorite = async (gemstoneId: string) => {
+    // Client-side mutation
+    const { data } = await supabase
+      .from("favorites")
+      .insert({ gemstone_id: gemstoneId })
+      .select()
+      .single();
+
+    setFavorites([...favorites, data]);
+  };
+
+  return (/* UI with addFavorite handler */);
+}
+```
+
+**Benefits:**
+
+- ✅ Fast initial load (server-side)
+- ✅ Interactive updates (client-side)
+- ✅ Both respect RLS
+- ✅ Seamless user experience
+
+---
+
+Your architecture uses both correctly! 🎯
