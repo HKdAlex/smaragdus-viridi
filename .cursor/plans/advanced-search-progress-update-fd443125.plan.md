@@ -1,407 +1,421 @@
-<!-- fd443125-f8d0-4126-a0cf-e138d0b32552 f022baa6-6045-4c51-957d-ba4d349846d6 -->
+<!-- fd443125-f8d0-4126-a0cf-e138d0b32552 80a20281-ec51-420c-bc21-7782ae44b019 -->
+# Multilingual Search & AI Analysis Enhancement Plan
 
-# Advanced Search Optimization - Updated Progress
+## Overview
 
-## Current Status: Phase 5 Complete, Phase 6 Next
-
-**Completed:** Phases 0-5 (Full-text search, autocomplete, fuzzy search, analytics)
-
-**Next:** Phase 6 (Image Caching Optimization)
+Implement comprehensive Russian/English bilingual search support and enhance the AI analysis system with improved prompts, multilingual descriptions (technical + storytelling), using modern AI models and cost-effective strategies.
 
 ---
 
-## Phase 0: Pre-Migration Refactoring ✅ COMPLETE
+## Part 1: Multilingual Search Implementation (8-10 hours)
 
-**Achievements:**
+### Phase 1.1: Database Schema Migration (2 hours)
 
-- Created 3 shared services (790 LOC)
-- Created 6 shared components (341 LOC)
-- Created 2 custom hooks (242 LOC)
-- 1,295 LOC duplication eliminated (65% reduction)
+**Goal:** Move from enum-based types to flexible translatable objects
 
----
+**Migration: `migrations/20251015_create_translation_tables.sql`**
 
-## Phase 1: Filter System + React Query ✅ COMPLETE
+Create translation infrastructure:
 
-**What Was Completed:**
+- `gemstone_type_translations` table (id, type_code, locale, name, description)
+- `gem_color_translations` table
+- `gem_cut_translations` table  
+- `gem_clarity_translations` table
+- Populate with EN/RU translations from current enums
+- Keep existing enum columns for backward compatibility (deprecated)
+- Add new `type_code` (VARCHAR) columns alongside enums
 
-### React Query Setup
+**Why:** Enums are rigid and don't support translations. Moving to relational tables allows unlimited languages, descriptions, and SEO metadata per term.
 
-- `src/lib/react-query/query-client.ts` ✅
-- `src/lib/react-query/query-keys.ts` ✅
-- `src/lib/react-query/provider.tsx` ✅
-- Added QueryProvider to `src/app/layout.tsx` ✅
+### Phase 1.2: Full-Text Search Enhancement (3 hours)
 
-### React Query Hooks
+**Migration: `migrations/20251015_add_multilingual_search.sql`**
 
-- `src/features/gemstones/hooks/use-gemstone-query.ts` ✅
-- `src/features/gemstones/hooks/__tests__/use-gemstone-query.test.ts` ✅
-- `src/features/gemstones/hooks/use-filter-counts-query.ts` ✅
+Implement dual-language search:
 
-### Filter State Management
+```sql
+-- Add Russian ts_vector column
+ALTER TABLE gemstones ADD COLUMN search_vector_ru tsvector;
 
-- `src/features/gemstones/hooks/use-filter-state.ts` ✅
-- `src/features/gemstones/hooks/use-filter-url-sync.ts` ✅
-- `src/features/gemstones/hooks/__tests__/use-filter-state.test.ts` ✅
+-- Create Russian full-text index
+CREATE INDEX idx_gemstones_fulltext_ru ON gemstones 
+USING GIN(search_vector_ru);
 
-**Dependencies Installed:**
+-- Update function to use correct language config based on query
+CREATE OR REPLACE FUNCTION search_gemstones_multilingual(
+  search_query text,
+  search_locale text DEFAULT 'en',
+  filters jsonb DEFAULT '{}'::jsonb,
+  page_num integer DEFAULT 1,
+  page_size integer DEFAULT 24
+)
+```
 
-- @tanstack/react-query@5.90.3 ✅
-- @tanstack/react-query-devtools@5.90.2 ✅
+**Key Features:**
 
----
+- Detect query language (Cyrillic = Russian, Latin = English)
+- Use `to_tsvector('russian', ...)` for Russian content
+- Use `to_tsvector('english', ...)` for English content
+- Search translations tables for type/color/cut matches
+- Cross-language fallback (EN query → RU results via translations)
 
-## Phase 2: Database & Full-Text Search ✅ COMPLETE
+**Files to Update:**
 
-**Database Migrations Created:**
+- `src/features/search/services/search.service.ts` - Add locale parameter
+- `src/app/api/search/route.ts` - Pass user locale from headers
+- `src/features/search/types/search.types.ts` - Add locale to SearchRequest
 
-- `migrations/20251013_add_search_indexes.sql` ✅
-- `migrations/20251013_add_search_indexes_final.sql` ✅
-- `migrations/20251013_create_search_functions.sql` ✅
-- `migrations/20251014_fix_search_in_stock.sql` ✅
+### Phase 1.3: Description Search Toggle (2 hours)
 
-**Backend Implementation:**
-
-- `src/app/api/search/route.ts` ✅
-- `src/features/search/services/search.service.ts` ✅
-- `src/features/search/types/search.types.ts` ✅
-
-**Tests:**
-
-- `src/features/search/services/__tests__/search.service.test.ts` ✅
-
-**Features Implemented:**
-
-- Full-text search with relevance ranking
-- Weighted search (serial_number > name > color)
-- Filter integration
-- Pagination
-- Image fetching optimization
-
----
-
-## Phase 3: Autocomplete & Suggestions ✅ COMPLETE
-
-**Backend:**
-
-- `src/app/api/search/suggestions/route.ts` ✅
-
-**Frontend:**
-
-- `src/features/search/components/search-input.tsx` ✅
-- `src/features/search/hooks/use-search-suggestions-query.ts` ✅
-- `src/features/search/hooks/use-search-query.ts` ✅
-- `src/features/search/components/__tests__/search-input.test.tsx` ✅
-
-**Features Implemented:**
-
-- Real-time suggestions
-- Debounced queries (300ms)
-- Keyboard navigation
-- Highlight matching text
-
----
-
-## Phase 4: Fuzzy Search & Typo Tolerance ✅ COMPLETE
-
-**Database:**
-
-- `migrations/20251013_add_fuzzy_search.sql` ✅
-
-**Backend:**
-
-- `src/app/api/search/fuzzy-suggestions/route.ts` ✅
-- Updated `search.service.ts` with fuzzy fallback ✅
-
-**Frontend:**
-
-- `src/features/search/components/fuzzy-search-banner.tsx` ✅
-- `src/features/search/components/search-results.tsx` ✅
-- `src/app/[locale]/search/page.tsx` ✅
-
-**Features Implemented:**
-
-- pg_trgm similarity matching
-- "Did you mean?" suggestions
-- Automatic fallback to fuzzy search
-- Configurable similarity threshold
-
----
-
-## Phase 5: Search Analytics ✅ COMPLETE
-
-**Goal:** Track search behavior for insights and optimization
-
-**Duration:** ~4 hours (COMPLETED)
-
-**What Was Implemented:**
-
-### Database Schema ✅
-
-- `migrations/20251014163810_create_search_analytics.sql`
-- `search_analytics` table with RLS policies
-- RPC functions: `get_search_analytics_summary()`, `get_search_trends()`
-
-### Backend Service ✅
-
-- `SearchAnalyticsService` with trackSearch(), getAnalyticsSummary(), getSearchTrends()
-- 13 unit tests passing (100% coverage)
-- Fire-and-forget tracking (never blocks search)
-
-### API Routes ✅
-
-- `POST /api/search/analytics` - Track searches
-- `GET /api/search/analytics?daysBack=N` - Retrieve metrics (admin only)
-
-### Frontend Integration ✅
-
-- Search tracking integrated into `/api/search` endpoints
-- Admin dashboard at `/admin/analytics/search`
-- Comprehensive analytics with insights and optimization recommendations
-
-### Privacy & Security ✅
-
-- No PII stored (only search terms and metrics)
-- RLS policies for data protection
-- Admin-only access to aggregated data
-
----
-
-## Phase 6: Image Caching Optimization ✅ COMPLETE
-
-**Goal:** Long-lived image caching with React Query for better UX
-
-**Duration:** ~2 hours (COMPLETED)
-
-**What Was Implemented:**
-
-### Step 1: Create use-image-query Hook (45 min)
-
-**File to Create:**
-
-- `src/features/gemstones/hooks/use-image-query.ts`
+**Goal:** Optional full-text description search (expensive, off by default)
 
 **Implementation:**
 
-```typescript
-import { useQuery } from "@tanstack/react-query";
-import { queryKeys } from "@/lib/react-query/query-keys";
-
-/**
- * Image query hook with long-lived caching for gemstone images
- * Caches images for 24 hours (stale time) and 7 days (GC time)
- */
-export function useImageQuery(imageUrl: string) {
-  return useQuery({
-    queryKey: queryKeys.images.detail(imageUrl),
-    queryFn: async () => {
-      // In a real implementation, this would fetch the image
-      // For now, we just return the URL and let React Query handle caching
-      return { url: imageUrl };
-    },
-    staleTime: 24 * 60 * 60 * 1000, // 24 hours
-    gcTime: 7 * 24 * 60 * 60 * 1000, // 7 days
-    enabled: !!imageUrl,
-  });
-}
-
-/**
- * Prefetch image on hover for better UX
- */
-export function prefetchImage(imageUrl: string) {
-  // This would use React Query's prefetchQuery
-  // Implementation will depend on how images are currently fetched
-}
-```
-
-### Step 2: Add Image Query Keys (15 min)
-
-**File to Modify:**
-
-- `src/lib/react-query/query-keys.ts`
-
-**Add:**
-
-```typescript
-export const queryKeys = {
-  // ... existing keys
-  images: {
-    detail: (url: string) => ["images", "detail", url] as const,
-  },
-} as const;
-```
-
-### Step 3: Implement Blur Placeholder Component (30 min)
-
-**File to Create:**
-
-- `src/shared/components/blur-placeholder.tsx`
-
-**Implementation:**
-
-```typescript
-import { useState } from "react";
-
-interface BlurPlaceholderProps {
-  src: string;
-  alt: string;
-  className?: string;
-  blurDataURL?: string;
-}
-
-export function BlurPlaceholder({
-  src,
-  alt,
-  className,
-  blurDataURL,
-}: BlurPlaceholderProps) {
-  const [loaded, setLoaded] = useState(false);
-
-  return (
-    <div className={`relative ${className}`}>
-      {/* Blur placeholder */}
-      {blurDataURL && !loaded && (
-        <img
-          src={blurDataURL}
-          alt={alt}
-          className="absolute inset-0 w-full h-full object-cover filter blur-sm scale-110"
-        />
-      )}
-
-      {/* Main image */}
-      <img
-        src={src}
-        alt={alt}
-        className={`w-full h-full object-cover transition-opacity duration-300 ${
-          loaded ? "opacity-100" : "opacity-0"
-        }`}
-        onLoad={() => setLoaded(true)}
-      />
-    </div>
-  );
-}
-```
-
-### Step 4: Update Image Components (45 min)
+- Add `searchDescriptions: boolean` to SearchRequest interface
+- Add toggle UI in search filters (checkbox: "Поиск в описаниях / Search descriptions")
+- Conditionally include description in ts_vector when enabled
+- Cache setting in localStorage per user preference
 
 **Files to Modify:**
 
-- Identify current image components (ProductItem, GemstoneCard, etc.)
-- Replace with use-image-query hook and BlurPlaceholder
+- `src/features/search/components/search-input.tsx` - Add toggle
+- `src/features/search/services/search.service.ts` - Conditional description search
+- Migration adds description-specific index for opt-in searches
 
-**Example Update:**
+### Phase 1.4: Translation Service Layer (1.5 hours)
+
+**Create: `src/features/translations/services/translation.service.ts`**
 
 ```typescript
-// Before
-<img src={imageUrl} alt={alt} />;
-
-// After
-const { data: imageData } = useImageQuery(imageUrl);
-<BlurPlaceholder
-  src={imageData?.url || imageUrl}
-  alt={alt}
-  blurDataURL={blurPlaceholder}
-/>;
+export class TranslationService {
+  // Get translated gemstone type name
+  static async getGemstoneTypeName(typeCode: string, locale: string): Promise<string>
+  
+  // Get all translations for a type (for autocomplete)
+  static async getAllTranslations(locale: string): Promise<TranslationMap>
+  
+  // Reverse lookup: RU name → type code
+  static async findTypeByName(name: string, locale: string): Promise<string>
+}
 ```
 
----
+**Purpose:** Centralized translation logic, cache-friendly, supports autocomplete in both languages.
 
-## Files Ready for Cleanup
+### Phase 1.5: Frontend Integration (1.5 hours)
 
-**After 48hrs Production Verification:**
+**Files to Update:**
 
-Phase 0-1 Legacy:
-
-- `use-gemstone-fetch.ts` (replaced by use-gemstone-query)
-- `use-filter-counts.ts` (replaced by use-filter-counts-query)
-- `catalog-cache.ts` (replaced by React Query)
-- `admin-cache.ts` (replaced by React Query)
-
-**Keep for Now:**
-
-- `use-advanced-filters.ts` (still in use by some components)
-- Filter components (refactoring in progress)
+- `src/features/search/hooks/use-search-query.ts` - Pass locale from routing
+- `src/features/search/components/search-results.tsx` - Display translated names
+- `src/features/gemstones/components/gemstone-card.tsx` - Use translations
+- Add React Query caching for translations (24hr stale time)
 
 ---
 
-## Success Metrics - Current Status
+## Part 2: AI Analysis Enhancement (10-12 hours)
 
-**Performance:**
+### Phase 2.1: Research & Model Evaluation (2 hours)
 
-- [x] Search response time <200ms (p95) - ACHIEVED
-- [x] API call reduction >50% via caching - React Query integrated
-- [x] Image requests reduced by ~90% - 24h stale time implemented
-- [x] Zero-result searches tracked - Analytics dashboard deployed
+**Goal:** Determine optimal OpenAI model and cost structure
 
-**Code Quality:**
+**Create Research Prompt Document:** `docs/ai-analysis/AI_MODEL_RESEARCH_PROMPT.md`
 
-- [x] All files <300 LOC - ACHIEVED
-- [x] 100% TypeScript strict mode - MAINTAINED
-- [x] > 85% test coverage - Search + analytics services covered
-- [x] Zero linting errors - MAINTAINED
+This document will be used by another agent to research:
 
-**User Experience:**
+1. Best OpenAI models for multilingual (Russian/English) gemstone descriptions
+2. Image analysis capabilities (extracting specs, quality assessment)
+3. Primary image selection logic (which image is best for display)
+4. Cost comparison for 1,385 gemstones with ~7 images each
+5. Token limits and context window considerations
+6. Vision capabilities for Russian text OCR from labels/certificates
 
-- [x] Autocomplete appears <300ms - ACHIEVED
-- [x] Typo tolerance works >90% of cases - Fuzzy search working
-- [x] Filter state persists in URL - WORKING
-- [x] Images load instantly on hover - Prefetch implemented
-- [x] Smooth image transitions - BlurPlaceholder component
-- [x] No regressions - VERIFIED
+**Models to Research (OpenAI only):**
 
-**Security:**
+- GPT-4o (current, highest quality, most expensive)
+- GPT-4o-mini (cheaper, faster, good balance)
+- GPT-4-turbo (older, may lack latest vision features)
+- o1-preview/o1-mini (reasoning models, for complex analysis)
 
-- [x] All inputs validated with Zod - IMPLEMENTED
-- [x] RLS policies on all tables - CONFIGURED
-- [x] No PII in analytics - VERIFIED (only search terms)
-- [x] Admin-only access to analytics - ENFORCED
-- [x] Parameterized queries only - ENFORCED
+**Research Questions:**
+
+- Can GPT-4o-mini handle Russian Cyrillic OCR accurately?
+- Does o1-mini provide better accuracy for technical analysis?
+- What's the optimal model for creative storytelling in Russian?
+- Should we use different models for different tasks (image analysis vs descriptions)?
+
+**Deliverable:** Research findings to inform model selection
+
+### Phase 2.2: Enhanced Prompt Engineering (3 hours)
+
+**Files to Create/Update:**
+
+- `scripts/ai-analysis/prompts-v4.mjs` - Enhanced prompts
+
+**New Prompt Structure:**
+
+```javascript
+export const GEMSTONE_DESCRIPTION_PROMPT_V4 = {
+  system: `You are a master jeweler and storyteller...`,
+  
+  technical_description: {
+    target_audience: "Professional buyers, collectors, jewelers",
+    style: "Precise, gemological, objective",
+    language: "Russian (with English fallback)",
+    fields: ["properties", "quality_assessment", "origin", "treatments"]
+  },
+  
+  emotional_description: {
+    target_audience: "Women and men seeking meaningful purchases",
+    style: "Evocative, sensory, aspirational",
+    language: "Russian",
+    tone: {
+      for_women: "Romantic, empowering, elegant",
+      for_men: "Strong, sophisticated, legacy-focused"
+    },
+    length: "2-3 paragraphs, 150-200 words"
+  },
+  
+  narrative_story: {
+    target_audience: "Gift buyers, romantic occasions",
+    style: "Unique fictional narrative per stone",
+    language: "Russian",
+    themes: ["love", "legacy", "transformation", "destiny", "nature"],
+    structure: "Beginning (discovery) → Middle (journey) → End (significance)",
+    length: "3-4 paragraphs, 250-300 words",
+    uniqueness: "CRITICAL: Each stone gets a completely unique story"
+  }
+}
+```
+
+**Key Improvements:**
+
+- Separate technical/emotional/narrative descriptions
+- Gender-aware emotional language
+- Unique storytelling per stone (not templates)
+- Russian-first with English fallback
+- Structured JSON output for easy parsing
+
+### Phase 2.3: Database Schema for AI Data (1.5 hours)
+
+**Migration: `migrations/20251015_enhance_ai_analysis.sql`**
+
+```sql
+-- Add new description fields
+ALTER TABLE gemstones
+ADD COLUMN description_technical_ru TEXT,
+ADD COLUMN description_technical_en TEXT,
+ADD COLUMN description_emotional_ru TEXT,
+ADD COLUMN description_emotional_en TEXT,
+ADD COLUMN narrative_story_ru TEXT,
+ADD COLUMN narrative_story_en TEXT,
+ADD COLUMN ai_model_used VARCHAR(50),
+ADD COLUMN ai_prompt_version VARCHAR(20),
+ADD COLUMN ai_tokens_used INTEGER,
+ADD COLUMN ai_cost_usd NUMERIC(10,4);
+
+-- Update search vector to optionally include new descriptions
+-- (Only when user enables description search)
+```
+
+**Why:** Separate fields allow:
+
+- A/B testing different descriptions
+- Selective display (technical for B2B, emotional for B2C)
+- Cost tracking per analysis
+- Reprocessing only changed fields
+
+### Phase 2.4: Enhanced AI Analyzer Script (3 hours)
+
+**File: `scripts/ai-gemstone-analyzer-v4.mjs`**
+
+**New Features:**
+
+1. Model selection (GPT-4o-mini, Claude, GPT-4o)
+2. Batch processing with retry logic
+3. Progress persistence (resume from interruption)
+4. Cost tracking and budget enforcement
+5. Quality validation (reject generic/templated responses)
+6. Parallel processing (5 concurrent requests)
+
+**CLI Usage:**
+
+```bash
+# Test with 10 stones, GPT-4o-mini
+node scripts/ai-gemstone-analyzer-v4.mjs --model gpt-4o-mini --batch 10 --max-cost 5
+
+# Full run with Claude for Russian quality
+node scripts/ai-gemstone-analyzer-v4.mjs --model claude-3.5-sonnet --batch 100 --max-cost 100
+
+# Resume interrupted run
+node scripts/ai-gemstone-analyzer-v4.mjs --resume --model gpt-4o-mini
+```
+
+**Quality Checks:**
+
+- Reject stories containing "Once upon a time" (cliché)
+- Reject descriptions <100 words (too generic)
+- Verify Russian Cyrillic text (not transliteration)
+- Check uniqueness across batch (no duplicate stories)
+
+### Phase 2.5: Frontend Display Components (2 hours)
+
+**Files to Update:**
+
+- `src/features/gemstones/components/gemstone-detail.tsx` - Display all 3 description types
+- `src/features/gemstones/components/ai-analysis-display.tsx` - Enhanced with narratives
+
+**UI Structure:**
+
+```
+Tabs:
+1. "Технические характеристики" (Technical) - B2B focus
+2. "Описание" (Emotional) - Main product page  
+3. "История камня" (Story) - Unique narrative in beautiful typography
+```
+
+**Design:** Story tab uses serif font, large typography, centered layout (like a book page)
+
+### Phase 2.6: Testing & Validation (1.5 hours)
+
+**Test Suite:**
+
+1. Process 10 diverse gemstones (emerald, sapphire, ruby, etc.)
+2. Validate Russian language quality (native speaker review)
+3. Check story uniqueness (no duplicates)
+4. Verify cost tracking accuracy
+5. Test resume functionality
+6. Validate search works with new descriptions
+
+**Deliverable:** `docs/ai-analysis/TESTING_RESULTS_2025.md`
 
 ---
 
-## Time Investment
+## Implementation Order
 
-**Completed:**
+### Week 1: Multilingual Search
 
-- Phase 0: ~10 hours ✅
-- Phase 1: ~10 hours ✅
-- Phase 2: ~6 hours ✅
-- Phase 3: ~4 hours ✅
-- Phase 4: ~3 hours ✅
-- Phase 5: ~4 hours ✅
+1. Day 1-2: Database migrations (translations tables, Russian search)
+2. Day 2-3: Search service updates, translation layer
+3. Day 3: Frontend integration, testing
 
-**Completed All Phases!**
+### Week 2: AI Enhancement  
 
-**Total Progress: 39/39 hours (100% complete) 🎉**
+1. Day 1: Model research and comparison
+2. Day 2-3: Prompt engineering and testing
+3. Day 3-4: Database schema, enhanced analyzer script
+4. Day 4-5: Frontend components, full testing
+
+### Week 3: Production Rollout
+
+1. Test batch (50 stones)
+2. Review quality with stakeholders
+3. Full batch (1,385 stones) if approved
+4. Monitor costs and performance
 
 ---
 
-## 🎉 PROJECT COMPLETE! Advanced Search Optimization 100% Done
+## Cost Estimates
 
-**All 6 phases completed successfully in 39 hours!**
+**Multilingual Search:** $0 (development time only)
 
-### Final Achievement Summary:
+**AI Analysis (Test Batch - 50 stones):**
 
-✅ **Phase 0:** Shared services & components (10h) - 65% code reduction
-✅ **Phase 1:** React Query integration (10h) - 50%+ API reduction
-✅ **Phase 2:** Full-text search (6h) - Relevance ranking & fuzzy fallback
-✅ **Phase 3:** Autocomplete (4h) - Real-time suggestions
-✅ **Phase 4:** Fuzzy search (3h) - Typo tolerance
-✅ **Phase 5:** Analytics dashboard (4h) - Search behavior insights
-✅ **Phase 6:** Image caching (2h) - 90% image request reduction
+- GPT-4o-mini: ~$8
+- Claude 3.5 Sonnet: ~$13  
+- GPT-4o: ~$25
 
-### Key Metrics Achieved:
+**AI Analysis (Full Batch - 1,385 stones):**
 
-- **Performance:** Search <200ms, API calls -50%, images -90%
-- **UX:** Instant autocomplete, fuzzy matching, smooth image loading
-- **Code Quality:** 100% TypeScript, comprehensive testing, zero lint errors
-- **Security:** RLS policies, no PII in analytics, admin-only access
+- GPT-4o-mini: ~$210 (RECOMMENDED)
+- Claude 3.5 Sonnet: ~$346
+- GPT-4o: ~$693
 
-### Production Ready Features:
+**Recommendation:** Start with GPT-4o-mini for cost efficiency, test Russian quality. If inadequate, re-run critical stones with Claude.
 
-- 🔍 **Advanced Search:** Full-text, fuzzy, autocomplete
-- 📊 **Analytics Dashboard:** Search insights for admins
-- 🖼️ **Optimized Images:** Long-lived caching, blur placeholders
-- 🛡️ **Security:** Privacy-compliant analytics, role-based access
+---
 
-**Ready for deployment!** 🚀
+## Success Metrics
+
+**Multilingual Search:**
+
+- Russian queries return correct results (100% accuracy)
+- Cross-language search works (EN query → RU results)
+- Search performance <250ms (p95) with descriptions enabled
+- Zero breaking changes to existing search
+
+**AI Analysis:**
+
+- All stones have unique narratives (0% duplication)
+- Russian text quality rated 4+/5 by native speakers
+- Technical descriptions accurate (verified against images)
+- Cost per stone ≤$0.20 (GPT-4o-mini target)
+- Processing time <30 min for full batch (parallel processing)
+
+---
+
+## Files to Create
+
+**Migrations:**
+
+- `migrations/20251015_create_translation_tables.sql`
+- `migrations/20251015_add_multilingual_search.sql`  
+- `migrations/20251015_enhance_ai_analysis.sql`
+
+**Services:**
+
+- `src/features/translations/services/translation.service.ts`
+- `src/features/translations/services/__tests__/translation.service.test.ts`
+
+**Scripts:**
+
+- `scripts/ai-gemstone-analyzer-v4.mjs`
+- `scripts/ai-analysis/prompts-v4.mjs`
+- `scripts/ai-analysis/model-comparison.mjs`
+- `scripts/populate-translation-tables.mjs`
+
+**Documentation:**
+
+- `docs/ai-analysis/MODEL_COMPARISON_2025.md`
+- `docs/ai-analysis/TESTING_RESULTS_2025.md`
+- `docs/multilingual-search/IMPLEMENTATION_GUIDE.md`
+
+**Components:**
+
+- `src/features/search/components/description-search-toggle.tsx`
+- `src/features/gemstones/components/narrative-story-display.tsx`
+
+---
+
+## Risk Mitigation
+
+**Search Performance:** Description search is opt-in, separate index prevents slowdown
+
+**AI Costs:** Batch limits, budget enforcement, resume capability prevents overspending
+
+**Quality:** Multi-stage validation, test batch before full run, model flexibility
+
+**Data Loss:** Progress persistence, transaction-safe DB updates, backup before analysis
+
+---
+
+## Next Steps After Plan Approval
+
+1. Create all migration files (read-only review)
+2. Implement translation service with tests
+3. Update search service with dual-language support
+4. Test search with sample Russian queries
+5. Research AI models with comparison doc
+6. Create enhanced prompts
+7. Build v4 analyzer script
+8. Run test batch (10-50 stones)
+9. Stakeholder review
+10. Full production run
+
+### To-dos
+
+- [ ] Create search_analytics table migration with RLS policies
+- [ ] Implement SearchAnalyticsService with trackSearch and getSummary methods
+- [ ] Create /api/search/analytics route for tracking and retrieval
+- [ ] Integrate analytics tracking into search endpoints and hooks
+- [ ] Build admin dashboard for search analytics visualization
+- [ ] Create E2E tests for analytics tracking and privacy
