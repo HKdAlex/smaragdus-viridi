@@ -220,11 +220,14 @@ export class SearchService {
     const supabase = supabaseAdmin;
 
     // Call the fuzzy_search_suggestions RPC function
-    const { data, error } = await supabase.rpc("fuzzy_search_suggestions", {
-      search_term: query,
-      suggestion_limit: limit,
-      search_locale: locale,
-    });
+    const { data, error } = await supabase.rpc(
+      "fuzzy_search_suggestions" as any,
+      {
+        search_term: query,
+        suggestion_limit: limit,
+        search_locale: locale,
+      }
+    );
 
     if (error) {
       console.error("[SearchService] Fuzzy suggestions error:", error);
