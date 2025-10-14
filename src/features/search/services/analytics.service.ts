@@ -227,8 +227,8 @@ export class SearchAnalyticsService {
     return (data || []).map((row) => ({
       query: row.search_query,
       resultsCount: row.results_count,
-      usedFuzzy: row.used_fuzzy_search,
-      timestamp: row.created_at,
+      usedFuzzy: row.used_fuzzy_search ?? false,
+      timestamp: row.created_at ?? new Date().toISOString(),
     }));
   }
 }

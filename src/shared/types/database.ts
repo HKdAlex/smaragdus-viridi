@@ -1014,6 +1014,39 @@ export type Database = {
         }
         Relationships: []
       }
+      search_analytics: {
+        Row: {
+          created_at: string | null
+          filters: Json | null
+          id: string
+          results_count: number
+          search_query: string
+          session_id: string | null
+          used_fuzzy_search: boolean | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          filters?: Json | null
+          id?: string
+          results_count: number
+          search_query: string
+          session_id?: string | null
+          used_fuzzy_search?: boolean | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          filters?: Json | null
+          id?: string
+          results_count?: number
+          search_query?: string
+          session_id?: string | null
+          used_fuzzy_search?: boolean | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       user_preferences: {
         Row: {
           cart_updates: boolean | null
@@ -1205,12 +1238,32 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      get_search_analytics_summary: {
+        Args: { days_back?: number }
+        Returns: {
+          avg_results: number
+          fuzzy_usage_count: number
+          search_count: number
+          search_query: string
+          zero_result_count: number
+        }[]
+      }
       get_search_suggestions: {
         Args: { limit_count?: number; query: string }
         Returns: {
           category: string
           relevance: number
           suggestion: string
+        }[]
+      }
+      get_search_trends: {
+        Args: { bucket_size?: string; days_back?: number }
+        Returns: {
+          avg_results: number
+          fuzzy_usage_count: number
+          search_count: number
+          time_bucket: string
+          zero_result_count: number
         }[]
       }
       gtrgm_compress: {
@@ -1235,9 +1288,9 @@ export type Database = {
       }
       search_gemstones_fulltext: {
         Args: {
-          filters?: Json
-          page_num?: number
-          page_size?: number
+          filters: Json
+          page_num: number
+          page_size: number
           search_query: string
         }
         Returns: {
@@ -1249,8 +1302,10 @@ export type Database = {
           has_ai_analysis: boolean
           has_certification: boolean
           id: string
+          in_stock: boolean
           metadata_status: Database["public"]["Enums"]["metadata_status"]
           name: Database["public"]["Enums"]["gemstone_type"]
+          origin_id: string
           price_amount: number
           price_currency: Database["public"]["Enums"]["currency_code"]
           relevance_score: number
