@@ -14,6 +14,7 @@ import fs from "fs/promises";
 import fsSync from "fs";
 import https from "https";
 import path from "path";
+import sharp from "sharp";
 
 // Setup temp directory
 const __filename = fileURLToPath(import.meta.url);
@@ -33,7 +34,7 @@ async function ensureTempDir() {
 /**
  * Download image from URL and convert directly to base64
  */
-export async function downloadImageAsBase64(imageUrl) {
+export async function downloadImageAsBase64(imageUrl, optimize = true) {
   return new Promise((resolve, reject) => {
     const url = new URL(imageUrl);
 
@@ -41,10 +42,10 @@ export async function downloadImageAsBase64(imageUrl) {
       hostname: url.hostname,
       path: url.pathname + url.search,
       method: "GET",
-      rejectUnauthorized: false, // Allow self-signed certificates
+      rejectUnauthorized: true,
       timeout: 30000, // 30 second timeout
       headers: {
-        "User-Agent": "Smaragdus-Viridi-AI-Analysis/1.0",
+        "User-Agent": "Smaragdus-Viridi-AI-Analysis/3.1",
       },
     };
 
@@ -63,9 +64,13 @@ export async function downloadImageAsBase64(imageUrl) {
           chunks.push(chunk);
         });
 
-        response.on("end", () => {
+        response.on("end", async () => {
           try {
-            const buffer = Buffer.concat(chunks);
+            let buffer = Buffer.concat(chunks);
+
+            if (optimize) {
+              buffer = await optimizeImageForAI(buffer);
+            }
 
             // Determine MIME type from URL or default to JPEG
             const mimeType = imageUrl.toLowerCase().includes(".png")
@@ -90,6 +95,42 @@ export async function downloadImageAsBase64(imageUrl) {
         reject(error);
       });
   });
+}
+
+export async function optimizeImageForAI(
+  imageBuffer,
+  maxDimension = 1536,
+  quality = 82
+) {
+  try {
+    const optimized = await sharp(imageBuffer)
+      .rotate()
+      .resize({
+        width: maxDimension,
+        height: maxDimension,
+        fit: "inside",
+        withoutEnlargement: true,
+      })
+      .jpeg({ quality })
+      .toBuffer();
+
+    const originalSize = (imageBuffer.length / 1024).toFixed(2);
+    const optimizedSize = (optimized.length / 1024).toFixed(2);
+    const savings = ((1 - optimized.length / imageBuffer.length) * 100).toFixed(
+      1
+    );
+
+    console.log(
+      `    📉 Optimized: ${originalSize}KB → ${optimizedSize}KB (${savings}% reduction)`
+    );
+
+    return optimized;
+  } catch (error) {
+    console.warn(
+      `    ⚠️ Optimization failed, using original buffer: ${error.message}`
+    );
+    return imageBuffer;
+  }
 }
 
 /**

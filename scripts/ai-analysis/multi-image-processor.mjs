@@ -1,3 +1,11 @@
+function extractResponseText(response) {
+  // For Chat Completions API
+  const content = response?.choices?.[0]?.message?.content;
+  if (!content) {
+    throw new Error("OpenAI response missing text content");
+  }
+  return content;
+}
 /**
  * 🔗 Multi-Image AI Analysis Processor
  *
@@ -9,7 +17,9 @@
  * @date 2025-01-19
  */
 
-import { COMPREHENSIVE_MULTI_IMAGE_PROMPT } from "./prompts.mjs";
+import { calculateActualCost, getModelConfig } from "./model-config.mjs";
+
+import { COMPREHENSIVE_MULTI_IMAGE_PROMPT_V4 } from "./prompts-v4.mjs";
 import OpenAI from "openai";
 import { downloadImageAsBase64 } from "./image-utils.mjs";
 
@@ -26,6 +36,8 @@ export function initializeOpenAI(apiKey) {
 /**
  * Process all images for a gemstone in a single API request
  */
+const VISION_MODEL = process.env.OPENAI_VISION_MODEL || "gpt-5";
+
 export async function analyzeGemstoneBatch(images, gemstoneId, supabase) {
   console.log(
     `\n🔍 Analyzing ${images.length} images for gemstone ${gemstoneId} in single batch...`
@@ -57,10 +69,12 @@ export async function analyzeGemstoneBatch(images, gemstoneId, supabase) {
     );
 
     // Create multi-image content array
+    const promptTemplate = COMPREHENSIVE_MULTI_IMAGE_PROMPT_V4;
+
     const content = [
       {
         type: "text",
-        text: COMPREHENSIVE_MULTI_IMAGE_PROMPT.replace(
+        text: promptTemplate.replace(
           /{IMAGE_COUNT}/g,
           images.length.toString()
         ),
@@ -77,29 +91,39 @@ export async function analyzeGemstoneBatch(images, gemstoneId, supabase) {
     const startTime = Date.now();
 
     // Single API call for all images
+    const modelConfig = getModelConfig(VISION_MODEL);
+    console.log(`  🤖 Using model: ${VISION_MODEL}`);
+
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: VISION_MODEL,
       messages: [
         {
+          role: "system",
+          content:
+            "You are a precise gemstone analysis expert. Output strict JSON only.",
+        },
+        {
           role: "user",
-          content: content,
+          content,
         },
       ],
-      max_tokens: 4000,
-      temperature: 0.1,
+      max_completion_tokens: modelConfig.max_tokens,
+      response_format: { type: "json_object" },
     });
 
     const processingTime = Date.now() - startTime;
-    const cost = calculateCost(response.usage?.total_tokens || 0);
+    const usage = response.usage || {};
+    const totalTokens = usage.total_tokens || 0;
+    const cost = calculateCost(totalTokens, usage);
 
     console.log(`  ✅ Multi-image analysis completed in ${processingTime}ms`);
     console.log(`  💰 Cost: $${cost.toFixed(4)} for ${images.length} images`);
 
     // Parse and validate the comprehensive response
     const consolidatedAnalysis = parseAndValidateMultiImageResponse(
-      response.choices[0]?.message?.content,
+      extractResponseText(response),
       imageData,
-      response.usage?.total_tokens || 0,
+      totalTokens,
       processingTime,
       cost
     );
@@ -249,7 +273,7 @@ function parseAndValidateMultiImageResponse(
         processing_time_ms: processingTime,
         processing_cost_usd: cost,
         total_tokens: totalTokens,
-        ai_model_version: "gpt-4o",
+        ai_model_version: VISION_MODEL,
         analysis_date: new Date().toISOString(),
         image_batch_info: imageData.map((img) => ({
           image_id: img.imageId,
@@ -446,14 +470,21 @@ function validateAnalysisCompleteness(parsedData, imageData) {
 /**
  * Calculate cost based on token usage
  */
-function calculateCost(totalTokens) {
-  // GPT-4o pricing: $0.005 per 1K input tokens, $0.015 per 1K output tokens
-  // Approximate: 80% input, 20% output
+function calculateCost(totalTokens, usage) {
+  if (usage?.prompt_tokens && usage?.completion_tokens) {
+    return calculateActualCost(
+      VISION_MODEL,
+      usage.prompt_tokens,
+      usage.completion_tokens
+    );
+  }
+
+  const model = getModelConfig(VISION_MODEL);
   const inputTokens = totalTokens * 0.8;
   const outputTokens = totalTokens * 0.2;
 
-  const inputCost = (inputTokens / 1000) * 0.005;
-  const outputCost = (outputTokens / 1000) * 0.015;
+  const inputCost = (inputTokens / 1000) * model.pricing.input_per_1k;
+  const outputCost = (outputTokens / 1000) * model.pricing.output_per_1k;
 
   return inputCost + outputCost;
 }

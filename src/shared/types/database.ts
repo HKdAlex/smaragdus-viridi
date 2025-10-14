@@ -20,6 +20,7 @@ export type Database = {
           analysis_type: string
           confidence_score: number | null
           created_at: string | null
+          description_data: Json | null
           extracted_data: Json | null
           gemstone_id: string
           id: string
@@ -34,6 +35,7 @@ export type Database = {
           analysis_type: string
           confidence_score?: number | null
           created_at?: string | null
+          description_data?: Json | null
           extracted_data?: Json | null
           gemstone_id: string
           id?: string
@@ -48,6 +50,7 @@ export type Database = {
           analysis_type?: string
           confidence_score?: number | null
           created_at?: string | null
+          description_data?: Json | null
           extracted_data?: Json | null
           gemstone_id?: string
           id?: string
@@ -665,6 +668,9 @@ export type Database = {
           ai_analyzed: boolean | null
           ai_confidence_score: number | null
           ai_data_completeness: number | null
+          ai_description_cost_usd: number | null
+          ai_description_date: string | null
+          ai_description_model: string | null
           clarity: Database["public"]["Enums"]["gem_clarity"]
           clarity_code: string
           color: Database["public"]["Enums"]["gem_color"]
@@ -675,6 +681,10 @@ export type Database = {
           delivery_days: number | null
           depth_mm: number
           description: string | null
+          description_emotional_en: string | null
+          description_emotional_ru: string | null
+          description_technical_en: string | null
+          description_technical_ru: string | null
           description_vector_en: unknown | null
           description_vector_ru: unknown | null
           id: string
@@ -687,6 +697,8 @@ export type Database = {
           marketing_highlights: string[] | null
           metadata_status: Database["public"]["Enums"]["metadata_status"] | null
           name: Database["public"]["Enums"]["gemstone_type"]
+          narrative_story_en: string | null
+          narrative_story_ru: string | null
           origin_id: string | null
           premium_price_amount: number | null
           premium_price_currency:
@@ -710,6 +722,9 @@ export type Database = {
           ai_analyzed?: boolean | null
           ai_confidence_score?: number | null
           ai_data_completeness?: number | null
+          ai_description_cost_usd?: number | null
+          ai_description_date?: string | null
+          ai_description_model?: string | null
           clarity: Database["public"]["Enums"]["gem_clarity"]
           clarity_code: string
           color: Database["public"]["Enums"]["gem_color"]
@@ -720,6 +735,10 @@ export type Database = {
           delivery_days?: number | null
           depth_mm: number
           description?: string | null
+          description_emotional_en?: string | null
+          description_emotional_ru?: string | null
+          description_technical_en?: string | null
+          description_technical_ru?: string | null
           description_vector_en?: unknown | null
           description_vector_ru?: unknown | null
           id?: string
@@ -734,6 +753,8 @@ export type Database = {
             | Database["public"]["Enums"]["metadata_status"]
             | null
           name: Database["public"]["Enums"]["gemstone_type"]
+          narrative_story_en?: string | null
+          narrative_story_ru?: string | null
           origin_id?: string | null
           premium_price_amount?: number | null
           premium_price_currency?:
@@ -757,6 +778,9 @@ export type Database = {
           ai_analyzed?: boolean | null
           ai_confidence_score?: number | null
           ai_data_completeness?: number | null
+          ai_description_cost_usd?: number | null
+          ai_description_date?: string | null
+          ai_description_model?: string | null
           clarity?: Database["public"]["Enums"]["gem_clarity"]
           clarity_code?: string
           color?: Database["public"]["Enums"]["gem_color"]
@@ -767,6 +791,10 @@ export type Database = {
           delivery_days?: number | null
           depth_mm?: number
           description?: string | null
+          description_emotional_en?: string | null
+          description_emotional_ru?: string | null
+          description_technical_en?: string | null
+          description_technical_ru?: string | null
           description_vector_en?: unknown | null
           description_vector_ru?: unknown | null
           id?: string
@@ -781,6 +809,8 @@ export type Database = {
             | Database["public"]["Enums"]["metadata_status"]
             | null
           name?: Database["public"]["Enums"]["gemstone_type"]
+          narrative_story_en?: string | null
+          narrative_story_ru?: string | null
           origin_id?: string | null
           premium_price_amount?: number | null
           premium_price_currency?:
@@ -1343,7 +1373,13 @@ export type Database = {
         Returns: string
       }
       fuzzy_search_suggestions: {
-        Args: { search_term: string; suggestion_limit?: number }
+        Args:
+          | {
+              search_locale?: string
+              search_term: string
+              suggestion_limit?: number
+            }
+          | { search_term: string; suggestion_limit?: number }
         Returns: {
           match_type: string
           similarity_score: number
@@ -1456,8 +1492,10 @@ export type Database = {
           has_ai_analysis: boolean
           has_certification: boolean
           id: string
+          in_stock: boolean
           metadata_status: Database["public"]["Enums"]["metadata_status"]
           name: Database["public"]["Enums"]["gemstone_type"]
+          origin_id: string
           price_amount: number
           price_currency: Database["public"]["Enums"]["currency_code"]
           relevance_score: number
