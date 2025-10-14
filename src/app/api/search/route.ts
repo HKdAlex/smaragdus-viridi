@@ -17,7 +17,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { searchQuerySchema } from "@/lib/validators/search.validator";
 import { SearchService } from "@/features/search/services/search.service";
+import { SearchAnalyticsService } from "@/features/search/services/analytics.service";
 import type { SearchRequest } from "@/features/search/types/search.types";
+import { createServerSupabaseClient } from "@/lib/supabase";
 
 export const runtime = "edge";
 export const dynamic = "force-dynamic";
@@ -42,6 +44,29 @@ export async function POST(request: NextRequest) {
     
     // Execute search
     const results = await SearchService.searchGemstones(searchRequest);
+    
+    // Track search analytics (fire and forget - don't await)
+    if (validatedData.query) {
+      // Get user ID if authenticated
+      let userId: string | undefined;
+      try {
+        const supabase = await createServerSupabaseClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        userId = user?.id;
+      } catch (error) {
+        // Anonymous tracking is fine
+      }
+      
+      SearchAnalyticsService.trackSearch({
+        query: validatedData.query,
+        filters: validatedData.filters,
+        resultsCount: results.results.length,
+        usedFuzzySearch: results.usedFuzzySearch || false,
+        userId,
+      }).catch((error) => {
+        console.error("[SearchAnalytics] Background tracking failed:", error);
+      });
+    }
     
     // Return results
     return NextResponse.json(results, {
@@ -109,6 +134,29 @@ export async function GET(request: NextRequest) {
     
     // Execute search
     const results = await SearchService.searchGemstones(searchRequest);
+    
+    // Track search analytics (fire and forget - don't await)
+    if (query) {
+      // Get user ID if authenticated
+      let userId: string | undefined;
+      try {
+        const supabase = await createServerSupabaseClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        userId = user?.id;
+      } catch (error) {
+        // Anonymous tracking is fine
+      }
+      
+      SearchAnalyticsService.trackSearch({
+        query,
+        filters: {},
+        resultsCount: results.results.length,
+        usedFuzzySearch: results.usedFuzzySearch || false,
+        userId,
+      }).catch((error) => {
+        console.error("[SearchAnalytics] Background tracking failed:", error);
+      });
+    }
     
     // Return results
     return NextResponse.json(results, {

@@ -274,7 +274,7 @@ export const createServerClient = () => {
 **`src/app/api/test-db/route.ts`**:
 
 ```typescript
-import { createServerClient } from "@/lib/supabase";
+import { createServerSupabaseClient } from "@/lib/supabase";
 import { NextResponse } from "next/server";
 
 export async function GET() {
@@ -866,7 +866,7 @@ export default function LoginPage() {
 **`src/middleware.ts`**:
 
 ```typescript
-import { createServerClient } from "@supabase/ssr";
+import { createServerSupabaseClient } from "@supabase/ssr";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 

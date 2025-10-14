@@ -1,39 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { createServerClient } from "@supabase/ssr";
+import { createServerSupabaseClient } from "@/lib/supabase";
 
 export async function GET(request: NextRequest) {
   try {
     console.log("[DEBUG API] Starting debug check");
 
     // Create Supabase client exactly like middleware does
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            const cookies = request.cookies.getAll();
-            console.log(
-              "[DEBUG API] Available cookies:",
-              cookies.map((c) => ({
-                name: c.name,
-                hasValue: !!c.value,
-                valueLength: c.value?.length,
-              }))
-            );
-            return cookies;
-          },
-          setAll(cookiesToSet) {
-            console.log(
-              "[DEBUG API] Supabase wants to set cookies:",
-              cookiesToSet.map((c) => ({ name: c.name, hasValue: !!c.value }))
-            );
-            // Don't set cookies in debug endpoint
-          },
-        },
-      }
-    );
+    const supabase = await createServerSupabaseClient();
 
     // Get session
     const { data: sessionData, error: sessionError } =

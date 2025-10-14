@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createServerSupabaseClient, supabaseAdmin } from "@/lib/supabase";
 
 import { createContextLogger } from "@/shared/utils/logger";
-import { createServerClient } from "@/lib/supabase-server";
-import { supabaseAdmin } from "@/lib/supabase";
 import { z } from "zod";
 
 const logger = createContextLogger("chat-api");
@@ -11,7 +10,7 @@ const logger = createContextLogger("chat-api");
 export async function GET(request: NextRequest) {
   try {
     // Get user from regular client (for auth context)
-    const authSupabase = await createServerClient();
+    const authSupabase = await createServerSupabaseClient();
     const {
       data: { user },
       error: authError,
@@ -91,7 +90,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // Get user from regular client (for auth context)
-    const authSupabase = await createServerClient();
+    const authSupabase = await createServerSupabaseClient();
     const {
       data: { user },
       error: authError,

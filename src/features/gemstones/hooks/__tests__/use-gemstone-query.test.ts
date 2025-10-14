@@ -1,18 +1,19 @@
 /**
  * Unit Tests: useGemstoneQuery Hook
- * 
+ *
  * Tests React Query integration for gemstone fetching
  */
 
-import { describe, it, expect, vi } from 'vitest';
-import { renderHook, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useGemstoneQuery } from '../use-gemstone-query';
-import { gemstoneFetchService } from '../../services/gemstone-fetch.service';
-import type { AdvancedGemstoneFilters } from '../../types/filter.types';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { describe, expect, it, vi } from "vitest";
+import { renderHook, waitFor } from "@testing-library/react";
+
+import type { AdvancedGemstoneFilters } from "../../types/filter.types";
+import { gemstoneFetchService } from "../../services/gemstone-fetch.service";
+import { useGemstoneQuery } from "../use-gemstone-query";
 
 // Mock the service
-vi.mock('../../services/gemstone-fetch.service', () => ({
+vi.mock("../../services/gemstone-fetch.service", () => ({
   gemstoneFetchService: {
     fetchGemstones: vi.fn(),
   },
@@ -26,20 +27,18 @@ const createWrapper = () => {
       },
     },
   });
-  
+
   return ({ children }: { children: React.ReactNode }) => (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
 };
 
-describe('useGemstoneQuery', () => {
-  it('should fetch gemstones with filters', async () => {
+describe("useGemstoneQuery", () => {
+  it("should fetch gemstones with filters", async () => {
     const mockData = {
       data: [
-        { id: '1', name: 'ruby', weight_carats: 1.5 },
-        { id: '2', name: 'sapphire', weight_carats: 2.0 },
+        { id: "1", name: "ruby", weight_carats: 1.5 },
+        { id: "2", name: "sapphire", weight_carats: 2.0 },
       ],
       pagination: {
         page: 1,
@@ -54,13 +53,12 @@ describe('useGemstoneQuery', () => {
     vi.mocked(gemstoneFetchService.fetchGemstones).mockResolvedValue(mockData);
 
     const filters: AdvancedGemstoneFilters = {
-      gemstoneTypes: ['ruby'],
+      gemstoneTypes: ["ruby"],
     };
 
-    const { result } = renderHook(
-      () => useGemstoneQuery(filters, 1, 24),
-      { wrapper: createWrapper() }
-    );
+    const { result } = renderHook(() => useGemstoneQuery(filters, 1, 24), {
+      wrapper: createWrapper(),
+    });
 
     expect(result.current.isLoading).toBe(true);
 
@@ -76,15 +74,14 @@ describe('useGemstoneQuery', () => {
     });
   });
 
-  it('should handle errors gracefully', async () => {
+  it("should handle errors gracefully", async () => {
     vi.mocked(gemstoneFetchService.fetchGemstones).mockRejectedValue(
-      new Error('API Error')
+      new Error("API Error")
     );
 
-    const { result } = renderHook(
-      () => useGemstoneQuery({}, 1, 24),
-      { wrapper: createWrapper() }
-    );
+    const { result } = renderHook(() => useGemstoneQuery({}, 1, 24), {
+      wrapper: createWrapper(),
+    });
 
     await waitFor(() => {
       expect(result.current.isError).toBe(true);
@@ -93,7 +90,7 @@ describe('useGemstoneQuery', () => {
     expect(result.current.error).toBeDefined();
   });
 
-  it('should cache results with correct query key', async () => {
+  it("should cache results with correct query key", async () => {
     const mockData = {
       data: [],
       pagination: {
@@ -109,7 +106,7 @@ describe('useGemstoneQuery', () => {
     vi.mocked(gemstoneFetchService.fetchGemstones).mockResolvedValue(mockData);
 
     const filters: AdvancedGemstoneFilters = {
-      search: 'ruby',
+      search: "ruby",
     };
 
     const { result, rerender } = renderHook(
@@ -134,7 +131,7 @@ describe('useGemstoneQuery', () => {
     expect(gemstoneFetchService.fetchGemstones).toHaveBeenCalledTimes(1);
   });
 
-  it('should refetch when filters change', async () => {
+  it("should refetch when filters change", async () => {
     const mockData = {
       data: [],
       pagination: {
@@ -153,7 +150,7 @@ describe('useGemstoneQuery', () => {
       ({ f, p }) => useGemstoneQuery(f, p, 24),
       {
         wrapper: createWrapper(),
-        initialProps: { f: { search: 'ruby' }, p: 1 },
+        initialProps: { f: { search: "ruby" }, p: 1 },
       }
     );
 
@@ -162,7 +159,7 @@ describe('useGemstoneQuery', () => {
     });
 
     // Change filters
-    rerender({ f: { search: 'sapphire' }, p: 1 });
+    rerender({ f: { search: "sapphire" }, p: 1 });
 
     // Should fetch again with new filters
     await waitFor(() => {
@@ -170,4 +167,3 @@ describe('useGemstoneQuery', () => {
     });
   });
 });
-

@@ -2,7 +2,7 @@ import { ReactNode, Suspense } from "react";
 import { notFound, redirect } from "next/navigation";
 
 import { Database } from "@/shared/types/database";
-import { createServerClient } from "@/lib/supabase-server";
+import { createServerSupabaseClient } from "@/lib/supabase";
 
 /**
  * Enhanced Authenticated Layout - Second Layer of Protection
@@ -53,7 +53,7 @@ export default async function AuthenticatedLayout({
   const { locale } = await params;
 
   try {
-    const supabase = await createServerClient();
+    const supabase = await createServerSupabaseClient();
 
     // Step 1: Perform thorough authentication check
     const {
@@ -141,7 +141,7 @@ export default async function AuthenticatedLayout({
  * Comprehensive user profile validation
  */
 async function validateUserProfile(
-  supabase: Awaited<ReturnType<typeof createServerClient>>,
+  supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>,
   userId: string
 ): Promise<UserProfileValidation> {
   try {

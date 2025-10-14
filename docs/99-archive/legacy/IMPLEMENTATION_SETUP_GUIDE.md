@@ -209,7 +209,7 @@ export function createClient() {
 **`src/lib/supabase/server.ts`**:
 
 ```typescript
-import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { createServerSupabaseClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
 export async function createClient() {

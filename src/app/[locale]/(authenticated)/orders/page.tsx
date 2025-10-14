@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { OrdersDashboard } from "@/features/orders/components/orders-dashboard";
-import { createServerClient } from "@/lib/supabase-server";
+import { createServerSupabaseClient } from "@/lib/supabase";
 import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import { userProfileService } from "@/features/user/services/user-profile-service";
@@ -28,7 +28,7 @@ export default async function OrdersPage({ params }: PageProps) {
 
   // Authentication is handled by the (authenticated) layout
   // We can safely assume the user is authenticated here
-  const supabase = await createServerClient();
+  const supabase = await createServerSupabaseClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

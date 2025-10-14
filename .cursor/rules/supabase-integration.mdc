@@ -51,7 +51,7 @@ The gemstone e-commerce platform uses Supabase PostgreSQL with the following cor
 ```typescript
 // lib/supabase.ts
 import { createClient } from "@supabase/supabase-js";
-import { createServerClient } from "@supabase/ssr";
+import { createServerSupabaseClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
 // Client-side Supabase client

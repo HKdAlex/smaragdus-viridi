@@ -14,7 +14,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
 // Typed singleton wrapper to prevent schema widening and bypass internal cache pitfalls
 let _browserClient: SupabaseClient<Database, "public">;
 
-export function getBrowserClient(): SupabaseClient<Database, "public"> {
+function getBrowserClient(): SupabaseClient<Database, "public"> {
   if (!_browserClient) {
     _browserClient = createBrowserClient<Database, "public">(
       supabaseUrl,

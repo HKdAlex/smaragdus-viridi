@@ -1227,3 +1227,408 @@ export function FavoritesList({ initialData }) {
 ---
 
 Your architecture uses both correctly! 🎯
+
+---
+
+## Server Components: Direct DB Access vs API Routes
+
+### **Critical Question: Should Server Components always use API routes?**
+
+**Answer: ❌ NO - Direct DB access is actually BETTER for Server Components!**
+
+---
+
+### **The Two Approaches:**
+
+#### **❌ Anti-Pattern: Server Component → API Route → DB**
+
+```typescript
+// Server Component
+export default async function OrdersPage() {
+  // Makes HTTP request to own API
+  const response = await fetch("/api/orders", {
+    headers: {
+      /* somehow pass auth? */
+    },
+  });
+  const orders = await response.json();
+
+  return <OrdersList orders={orders} />;
+}
+
+// API Route
+export async function GET() {
+  const supabase = await createServerSupabaseClient();
+  const { data } = await supabase.from("orders").select("*");
+  return NextResponse.json(data);
+}
+```
+
+**Problems:**
+
+- ❌ Extra network hop (slower)
+- ❌ JSON serialization overhead
+- ❌ Harder to pass authentication context
+- ❌ More code to maintain
+- ❌ Unnecessary abstraction layer
+
+---
+
+#### **✅ Best Practice: Server Component → DB Directly**
+
+```typescript
+// Server Component
+import { createServerSupabaseClient } from "@/lib/supabase";
+
+export default async function OrdersPage() {
+  // Direct database access
+  const supabase = await createServerSupabaseClient();
+  const { data: orders } = await supabase.from("orders").select("*");
+
+  return <OrdersList orders={orders} />;
+}
+```
+
+**Benefits:**
+
+- ✅ Faster (no extra HTTP hop)
+- ✅ Less code
+- ✅ Automatic auth context (from cookies)
+- ✅ Type-safe (no JSON serialization issues)
+- ✅ Easier error handling
+
+---
+
+### **When To Use Each:**
+
+| Use Case                          | Approach            | Why                                |
+| --------------------------------- | ------------------- | ---------------------------------- |
+| **Server Component initial data** | ✅ Direct DB access | Faster, simpler, type-safe         |
+| **Client Component data fetch**   | ✅ API Route        | Client can't access server-side DB |
+| **External clients**              | ✅ API Route        | Mobile app, 3rd party integration  |
+| **Reusable endpoint**             | ✅ API Route        | Used by multiple clients           |
+| **Form submission**               | ⚠️ Either           | Server Action OR API Route         |
+
+---
+
+### **The Architecture:**
+
+```
+┌─────────────────────────────────────────┐
+│  Server Component (RSC)                 │
+│  ✅ Direct DB Access                    │
+│                                         │
+│  createServerSupabaseClient()           │
+│           ↓                             │
+│      [Database]                         │
+│                                         │
+│  Fast, type-safe, automatic auth        │
+└─────────────────────────────────────────┘
+
+┌─────────────────────────────────────────┐
+│  Client Component                       │
+│  ✅ Must use API Route                  │
+│                                         │
+│  fetch("/api/orders")                   │
+│           ↓                             │
+│    [API Route] → [Database]             │
+│                                         │
+│  Only way to access DB from browser     │
+└─────────────────────────────────────────┘
+```
+
+---
+
+### **Example: Full Pattern**
+
+```typescript
+// ✅ GOOD: Server Component with direct access
+export default async function OrdersPage() {
+  const supabase = await createServerSupabaseClient();
+
+  // Direct query - fast and simple
+  const { data: initialOrders } = await supabase
+    .from("orders")
+    .select(`
+      *,
+      items:order_items(*)
+    `);
+
+  // Pass to Client Component for interactivity
+  return <OrdersList initialOrders={initialOrders} />;
+}
+
+// Client Component with API route for mutations
+"use client";
+
+export function OrdersList({ initialOrders }) {
+  const [orders, setOrders] = useState(initialOrders);
+
+  const cancelOrder = async (orderId: string) => {
+    // Client must use API route
+    const response = await fetch(`/api/orders/${orderId}/cancel`, {
+      method: "POST"
+    });
+
+    if (response.ok) {
+      setOrders(orders.filter(o => o.id !== orderId));
+    }
+  };
+
+  return (/* UI with cancel handler */);
+}
+
+// API Route for mutations from client
+export async function POST(
+  request: Request,
+  { params }: { params: { orderId: string } }
+) {
+  const supabase = await createServerSupabaseClient();
+
+  // Validate user can cancel this order
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { error } = await supabase
+    .from("orders")
+    .update({ status: "cancelled" })
+    .eq("id", params.orderId)
+    .eq("user_id", user.id); // RLS enforces this
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 400 });
+  }
+
+  return NextResponse.json({ success: true });
+}
+```
+
+---
+
+### **Exceptions: When API Routes ARE Better**
+
+#### **1. Reusable Endpoints**
+
+```typescript
+// API route used by:
+// - Server Components
+// - Client Components
+// - Mobile app
+// - Webhook handler
+
+// Makes sense to centralize:
+export async function GET(request: Request) {
+  const supabase = await createServerSupabaseClient();
+  // Complex business logic here
+  return NextResponse.json(data);
+}
+```
+
+---
+
+#### **2. External Access**
+
+```typescript
+// API route for mobile app, third-party integrations
+export async function GET(request: Request) {
+  const apiKey = request.headers.get("X-API-Key");
+
+  // Different auth than cookies
+  if (!validateApiKey(apiKey)) {
+    return NextResponse.json({ error: "Invalid API key" }, { status: 401 });
+  }
+
+  // Return data for external client
+}
+```
+
+---
+
+#### **3. Complex Business Logic**
+
+```typescript
+// If logic is very complex and reused:
+class OrderService {
+  static async createOrder(userId: string, items: Item[]) {
+    // 50+ lines of validation
+    // Multiple table updates
+    // External API calls
+    // Email notifications
+    // etc.
+  }
+}
+
+// API route:
+export async function POST(request: Request) {
+  const result = await OrderService.createOrder(/* ... */);
+  return NextResponse.json(result);
+}
+
+// Server Component:
+export default async function CheckoutPage() {
+  // Could also call OrderService directly!
+  // No need for API route unless external clients need it
+}
+```
+
+---
+
+### **Your Current Codebase Pattern:**
+
+Looking at your code, you're doing it **correctly**:
+
+```typescript
+// ❌ DON'T NEED: /api/orders route for Server Components
+// ✅ YOU DO: Server Components query directly
+
+// Example: Orders page (Server Component)
+export default async function OrdersPage() {
+  const supabase = await createServerSupabaseClient();
+  const { data: orders } = await supabase.from("orders").select("*");
+  // ✅ Direct access - perfect!
+}
+```
+
+---
+
+### **Best Practices Summary:**
+
+1. **Server Components:** Direct DB access (faster, simpler)
+2. **Client Components:** Must use API routes (only option)
+3. **API Routes:** Only when needed for:
+   - Client Component data fetches
+   - External clients (mobile, webhooks)
+   - Reusable endpoints
+4. **Server Actions:** Alternative to API routes for forms
+
+---
+
+## `getBrowserClient()` vs `supabase` Constant
+
+### **Question: Are they the same?**
+
+**Answer: ✅ YES - functionally identical, but different purposes:**
+
+---
+
+### **Your Current Code:**
+
+```typescript
+// /lib/supabase.ts
+
+// 1. Function (exported but rarely used directly)
+export function getBrowserClient(): SupabaseClient<Database, "public"> {
+  if (!_browserClient) {
+    _browserClient = createBrowserClient<Database, "public">(
+      supabaseUrl,
+      supabaseAnonKey,
+      {
+        db: { schema: "public" as const },
+        isSingleton: false,
+      }
+    );
+  }
+  return _browserClient;
+}
+
+// 2. Constant (main export everyone uses)
+export const supabase = getBrowserClient();
+```
+
+---
+
+### **Usage in Your App:**
+
+```typescript
+// ✅ COMMON: Everyone uses the constant
+import { supabase } from "@/lib/supabase";
+
+await supabase.from("favorites").select("*");
+
+// ⚠️ RARE: Almost nobody uses the function directly
+import { getBrowserClient } from "@/lib/supabase";
+
+const supabase = getBrowserClient();
+await supabase.from("favorites").select("*");
+```
+
+---
+
+### **Why Export Both?**
+
+#### **Historical/Flexibility Reasons:**
+
+```typescript
+// Most common usage:
+import { supabase } from "@/lib/supabase";
+// ↑ Short, convenient, 99% of use cases
+
+// Advanced usage (if needed):
+import { getBrowserClient } from "@/lib/supabase";
+// ↑ Explicit, can be called multiple times if needed
+```
+
+---
+
+### **Recommendation: Keep Only `supabase` Constant**
+
+```typescript
+// ✅ RECOMMENDED: Simplified version
+
+let _browserClient: SupabaseClient<Database, "public">;
+
+function getBrowserClient(): SupabaseClient<Database, "public"> {
+  // ↑ Not exported - internal helper
+  if (!_browserClient) {
+    _browserClient = createBrowserClient<Database, "public">(
+      supabaseUrl,
+      supabaseAnonKey,
+      {
+        db: { schema: "public" as const },
+        isSingleton: false,
+      }
+    );
+  }
+  return _browserClient;
+}
+
+// Only export the constant
+export const supabase = getBrowserClient();
+```
+
+**Benefits:**
+
+- ✅ Cleaner API (one export instead of two)
+- ✅ Less confusing for developers
+- ✅ Same functionality
+- ✅ Prevents misuse (calling function multiple times unnecessarily)
+
+---
+
+### **Your Current Setup is Fine:**
+
+Both exports are harmless:
+
+- `supabase` - Everyone uses this ✅
+- `getBrowserClient()` - Rarely/never used, but doesn't hurt ✅
+
+**If you want to clean it up:**
+
+1. Make `getBrowserClient()` private (remove `export`)
+2. Keep only `export const supabase`
+3. No need to change any calling code (nothing breaks)
+
+---
+
+### **Summary:**
+
+| Question                                          | Answer                                                         |
+| ------------------------------------------------- | -------------------------------------------------------------- |
+| **Should Server Components use API routes?**      | ❌ NO - Direct DB access is better (faster, simpler)           |
+| **When to use API routes?**                       | ✅ For Client Components, external clients, reusable endpoints |
+| **Is `getBrowserClient()` same as `supabase`?**   | ✅ YES - same instance, but `supabase` constant is preferred   |
+| **Should we remove `getBrowserClient()` export?** | ⚠️ Optional - makes API cleaner but not breaking anything      |
+
+Your current architecture is solid! 🎯
