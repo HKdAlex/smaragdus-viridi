@@ -17,9 +17,8 @@
 
 import { useCallback, useMemo, useState } from "react";
 
-// Controlled filter components
-import { AdvancedFiltersControlled } from "./filters/advanced-filters-controlled";
-import { AdvancedFiltersV2Controlled } from "./filters/advanced-filters-v2-controlled";
+// Filter sidebar component
+import { FilterSidebar } from "./filters/filter-sidebar";
 // Types
 import type { AdvancedGemstoneFilters } from "../types/filter.types";
 // Shared components from Phase 0
@@ -58,9 +57,6 @@ export function GemstoneCatalogOptimized() {
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-
-  // Filter UI toggle
-  const [useVisualFilters, setUseVisualFilters] = useState(false);
 
   // React Query: Fetch gemstones
   const {
@@ -112,49 +108,16 @@ export function GemstoneCatalogOptimized() {
       {/* Header */}
       <CatalogHeader title={t("title")} description={t("description")} />
 
-      {/* Filter Toggle */}
-      <div className="flex items-center justify-center mb-6 px-4">
-        <div className="inline-flex rounded-lg border border-border bg-muted p-1">
-          <button
-            onClick={() => setUseVisualFilters(false)}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-              !useVisualFilters
-                ? "bg-background text-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {t("standardFilters")}
-          </button>
-          <button
-            onClick={() => setUseVisualFilters(true)}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-              useVisualFilters
-                ? "bg-background text-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {t("visualFilters")}
-          </button>
-        </div>
-      </div>
-
-      {/* Controlled Filters */}
-      {filterOptions &&
-        (useVisualFilters ? (
-          <AdvancedFiltersV2Controlled
-            filters={filters}
-            onChange={handleFiltersChange}
-            options={filterOptions}
-            loading={filterCountsLoading || gemstonesLoading}
-          />
-        ) : (
-          <AdvancedFiltersControlled
-            filters={filters}
-            onChange={handleFiltersChange}
-            options={filterOptions}
-            loading={filterCountsLoading || gemstonesLoading}
-          />
-        ))}
+      {/* Filter Sidebar */}
+      {filterOptions && (
+        <FilterSidebar
+          filters={filters}
+          onChange={handleFiltersChange}
+          options={filterOptions}
+          loading={filterCountsLoading || gemstonesLoading}
+          defaultOpen={true}
+        />
+      )}
 
       {/* Results Section */}
       <div className="px-4">
