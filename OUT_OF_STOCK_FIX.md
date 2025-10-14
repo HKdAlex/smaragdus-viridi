@@ -15,6 +15,7 @@ All gemstones in search results are showing "Out of Stock" badges, even though t
 The `search_gemstones_fulltext` PostgreSQL function is **NOT returning the `in_stock` field** in its SELECT statement.
 
 **Evidence:**
+
 - `gemstone-card.tsx` line 143: Displays "Out of Stock" when `!gemstone.in_stock`
 - `search_gemstones_fulltext` lines 138-155: SELECT statement doesn't include `fg.in_stock`
 - Database has all 1,385 gemstones with `in_stock = true`
@@ -30,9 +31,10 @@ Add `in_stock` and `origin` fields to the search function's return columns.
 ✅ `migrations/20251014_fix_search_in_stock.sql`
 
 This migration:
+
 1. Drops the existing `search_gemstones_fulltext` function
 2. Recreates it with the correct return signature including:
-   - `in_stock boolean` 
+   - `in_stock boolean`
    - `origin text`
 3. Updates the SELECT statement to return these fields from the filtered results
 
@@ -68,10 +70,11 @@ npx supabase db push --linked
 After applying the migration:
 
 1. **Test the Search API:**
+
    ```bash
    curl "http://localhost:3000/api/search?query=emerald" | jq '.data[0] | {serial_number, in_stock}'
    ```
-   
+
    Expected: `"in_stock": true`
 
 2. **Test in Browser:**
@@ -101,6 +104,7 @@ After applying the migration:
 ## **Technical Details**
 
 ### **Function Signature Before**
+
 ```sql
 RETURNS TABLE (
   id uuid,
@@ -116,6 +120,7 @@ RETURNS TABLE (
 ```
 
 ### **Function Signature After**
+
 ```sql
 RETURNS TABLE (
   id uuid,
@@ -131,8 +136,9 @@ RETURNS TABLE (
 ```
 
 ### **SELECT Statement Updated**
+
 ```sql
-SELECT 
+SELECT
   fg.id,
   fg.serial_number,
   ...
@@ -149,12 +155,14 @@ FROM filtered_gemstones fg
 ## **Impact**
 
 ### **Before Fix**
+
 - ❌ All search results show "Out of Stock"
 - ❌ Users can't tell which gems are available
 - ❌ Confusing user experience
 - ❌ Lost sales opportunities
 
 ### **After Fix**
+
 - ✅ Correct stock status displayed
 - ✅ "Available" badge for in-stock items
 - ✅ Clear visual feedback
@@ -164,58 +172,77 @@ FROM filtered_gemstones fg
 
 ## **Related Files**
 
-| File | Purpose | Status |
-|------|---------|--------|
-| `migrations/20251014_fix_search_in_stock.sql` | Migration to fix function | ✅ Created |
-| `migrations/20251013_create_search_functions.sql` | Original function (outdated) | ⚠️  Updated |
-| `src/features/gemstones/components/gemstone-card.tsx` | Uses `in_stock` field | ✅ Correct |
-| `src/features/search/types/search.types.ts` | Type definitions | ⚠️  May need update |
+| File                                                  | Purpose                      | Status             |
+| ----------------------------------------------------- | ---------------------------- | ------------------ |
+| `migrations/20251014_fix_search_in_stock.sql`         | Migration to fix function    | ✅ Created         |
+| `migrations/20251013_create_search_functions.sql`     | Original function (outdated) | ⚠️ Updated         |
+| `src/features/gemstones/components/gemstone-card.tsx` | Uses `in_stock` field        | ✅ Correct         |
+| `src/features/search/types/search.types.ts`           | Type definitions             | ⚠️ May need update |
 
 ---
 
-## **Next Steps**
+## **Implementation Complete** ✅
 
 1. ✅ Migration file created
-2. ⏳ **Apply migration** (via Supabase Dashboard)
-3. ⏳ Test in browser
-4. ⏳ Update TypeScript types if needed
-5. ⏳ Commit changes
+2. ✅ **Migration applied** (via Supabase MCP)
+3. ✅ TypeScript types updated (`search.service.ts`)
+4. ✅ Tested in browser - all badges working correctly
+5. ✅ Ready to commit changes
 
 ---
 
 ## **Fuzzy Search Testing Summary**
 
-| Feature | Status | Notes |
-|---------|--------|-------|
-| **Autocomplete** | ✅ Working | Shows suggestions while typing |
-| **Fuzzy Fallback** | ✅ Working | "emrald" finds "emerald" results |
-| **Blue Banner** | ✅ Working | "Approximate matches" message |
-| **Amber Banner** | ✅ Working | API endpoint tested successfully |
-| **Stock Status** | ❌ **NEEDS FIX** | All showing "Out of Stock" |
+| Feature            | Status           | Notes                            |
+| ------------------ | ---------------- | -------------------------------- |
+| **Autocomplete**   | ✅ Working       | Shows suggestions while typing   |
+| **Fuzzy Fallback** | ✅ Working       | "emrald" finds "emerald" results |
+| **Blue Banner**    | ✅ Working       | "Approximate matches" message    |
+| **Amber Banner**   | ✅ Working       | API endpoint tested successfully |
+| **Stock Status**   | ✅ **FIXED** | "Available" badges showing correctly |
 
 ---
 
-## **Command to Apply Migration**
+## **Testing & Verification** ✅
 
-```bash
-# Option 1: Via Supabase Dashboard (RECOMMENDED)
-# Copy migrations/20251014_fix_search_in_stock.sql to SQL Editor
+### **1. Database Function Test**
 
-# Option 2: Via psql (if you have direct access)
-cd /Users/alex/Work/Projects/Sites/smaragdus_viridi
-psql "$DATABASE_URL" < migrations/20251014_fix_search_in_stock.sql
-
-# Option 3: Via Supabase CLI
-npx supabase db push
+```sql
+SELECT * FROM search_gemstones_fulltext('emerald', '{}'::jsonb, 1, 3);
 ```
 
+**Result:** ✅ Function executes successfully with correct return types
+
+### **2. API Endpoint Test**
+
+```bash
+curl "http://localhost:3000/api/search?query=emerald"
+```
+
+**Result:** ✅ API returns `"in_stock": true` for available gemstones
+
+### **3. Browser Verification**
+
+- Searched for "emerald" on http://localhost:3000/en/search
+- **Result:** ✅ All in-stock items correctly show green "Available" badge
+- **Screenshot:** Browser shows emerald search results with "Available" badges
+
 ---
 
-**Priority:** HIGH  
-**Effort:** 2 minutes (just run the migration)  
-**Impact:** Critical for user experience
+## **Fix Applied** ✅
+
+**Migration Applied:** `20251014_fix_search_in_stock_v2`  
+**Date:** October 14, 2025  
+**Method:** Supabase MCP `apply_migration` tool  
+
+**Key Changes:**
+1. Updated `search_gemstones_fulltext` function to return `in_stock` and `origin_id` fields
+2. Fixed type mismatch: `price_amount` changed from `numeric` to `integer`
+3. Updated `SearchService.buildSearchResponse()` to map `in_stock` and `origin_id`
+4. All search results now correctly display stock status badges
 
 ---
 
-**Note to Developer:** The migration is ready and tested locally. Simply apply it via the Supabase Dashboard SQL Editor to fix the issue immediately.
-
+**Status:** ✅ **COMPLETE**  
+**Priority:** HIGH (Was critical for UX)  
+**Impact:** All gemstone search results now show correct stock availability
