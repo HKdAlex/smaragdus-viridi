@@ -70,7 +70,7 @@ export class SearchService {
         console.log(
           `[SearchService] Fuzzy search found ${fuzzyData.length} results`
         );
-        return this.buildSearchResponse(fuzzyData, page, pageSize, true);
+        return await this.buildSearchResponse(fuzzyData, page, pageSize, true);
       }
     }
 
@@ -89,23 +89,64 @@ export class SearchService {
       };
     }
 
-    return this.buildSearchResponse(data, page, pageSize, false);
+    return await this.buildSearchResponse(data, page, pageSize, false);
   }
 
   /**
    * Build search response from raw data
+   * Fetches images for all gemstones in a single query
    */
-  private static buildSearchResponse(
+  private static async buildSearchResponse(
     data: any[],
     page: number,
     pageSize: number,
     usedFuzzy: boolean
-  ): SearchResponse {
+  ): Promise<SearchResponse> {
     // Extract total count from first row
     const totalCount = data[0]?.total_count || 0;
     const totalPages = Math.ceil(totalCount / pageSize);
 
-    // Map results
+    // If no results, return empty response
+    if (!data || data.length === 0) {
+      return {
+        results: [],
+        pagination: {
+          page,
+          pageSize,
+          totalCount: 0,
+          totalPages: 0,
+          hasNextPage: false,
+          hasPrevPage: false,
+        },
+        usedFuzzySearch: usedFuzzy,
+      };
+    }
+
+    // Extract gemstone IDs
+    const gemstoneIds = data.map((row: any) => row.id);
+
+    // Fetch images for all gemstones in a single query
+    const supabase = supabaseAdmin;
+    const { data: imagesData, error: imagesError } = await supabase
+      .from("gemstone_images")
+      .select("id, gemstone_id, image_url, is_primary, image_order")
+      .in("gemstone_id", gemstoneIds)
+      .order("image_order", { ascending: true });
+
+    if (imagesError) {
+      console.error("[SearchService] Error fetching images:", imagesError);
+    }
+
+    // Group images by gemstone_id
+    const imagesByGemstone = new Map<string, any[]>();
+    (imagesData || []).forEach((img) => {
+      if (!imagesByGemstone.has(img.gemstone_id)) {
+        imagesByGemstone.set(img.gemstone_id, []);
+      }
+      imagesByGemstone.get(img.gemstone_id)!.push(img);
+    });
+
+    // Map results with images
     const results = data.map((row: any) => ({
       id: row.id,
       serial_number: row.serial_number,
@@ -126,6 +167,7 @@ export class SearchService {
       created_at: row.created_at,
       updated_at: row.updated_at,
       relevance_score: row.relevance_score,
+      images: imagesByGemstone.get(row.id) || [], // Add images array
     }));
 
     return {
