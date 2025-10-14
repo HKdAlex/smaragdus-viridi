@@ -11,12 +11,14 @@
 ### **Issue 1: Null Check Pattern** ⚠️
 
 **Problem:**
+
 ```typescript
 const supabase = supabaseAdmin;  // Can be null!
 const { data } = await supabase.from("table")...  // ❌ TypeScript error
 ```
 
 **Current Approach (Inconsistent):**
+
 ```typescript
 // ✅ GOOD: Check at method start
 if (!supabaseAdmin) {
@@ -44,22 +46,21 @@ class MyService {
     if (!supabaseAdmin) {
       throw new Error("Database connection failed");
     }
-    
+
     // Now TypeScript knows it's not null
-    const { data, error } = await supabaseAdmin
-      .from("table")
-      .select("*");
-    
+    const { data, error } = await supabaseAdmin.from("table").select("*");
+
     if (error) {
       throw new Error(`Failed: ${error.message}`);
     }
-    
+
     return data;
   }
 }
 ```
 
 **Benefits:**
+
 - ✅ Single check at method start
 - ✅ TypeScript knows it's safe after guard
 - ✅ Fail fast with clear error
@@ -79,12 +80,13 @@ private static async fetchImages(ids: string[]) {
     .from("gemstone_images")
     .select("*")
     .in("id", ids);
-  
+
   return data;
 }
 ```
 
 **When to use:**
+
 - ✅ Private methods where caller validates
 - ✅ After explicit null check in same scope
 - ❌ Never in public API methods
@@ -107,12 +109,12 @@ private static async buildSearchResponse(data: any[]) {
       images: [], // Empty but valid
     }));
   }
-  
+
   // Fetch optional enhancement
   const { data: images } = await supabaseAdmin
     .from("gemstone_images")
     .select("*");
-  
+
   return data.map(row => ({
     ...row,
     images: images?.filter(img => img.gemstone_id === row.id) || [],
@@ -121,6 +123,7 @@ private static async buildSearchResponse(data: any[]) {
 ```
 
 **When to use:**
+
 - ✅ Optional enhancements (images, metadata)
 - ✅ Fallback data available
 - ✅ User experience shouldn't break
@@ -132,12 +135,12 @@ private static async buildSearchResponse(data: any[]) {
 
 ### **Pattern Distribution (Estimated):**
 
-| Pattern | Count | Usage | Quality |
-|---------|-------|-------|---------|
-| **Guard at start** | ~200 | Services, API routes | ✅ Good |
-| **No check + assign** | ~100 | Legacy code | ❌ Bad |
-| **Non-null assertion** | ~30 | Private methods | ⚠️ Risky |
-| **Inline checks** | ~20 | Scattered | ⚠️ Verbose |
+| Pattern                | Count | Usage                | Quality    |
+| ---------------------- | ----- | -------------------- | ---------- |
+| **Guard at start**     | ~200  | Services, API routes | ✅ Good    |
+| **No check + assign**  | ~100  | Legacy code          | ❌ Bad     |
+| **Non-null assertion** | ~30   | Private methods      | ⚠️ Risky   |
+| **Inline checks**      | ~20   | Scattered            | ⚠️ Verbose |
 
 ---
 
@@ -146,24 +149,26 @@ private static async buildSearchResponse(data: any[]) {
 ### **Priority 1: Service Layer** 🔴
 
 **Current Issues:**
+
 ```typescript
 // ❌ BAD: Multiple checks
 class SearchService {
   static async method1() {
     if (!supabaseAdmin) throw new Error();
-    const supabase = supabaseAdmin;  // Unnecessary
+    const supabase = supabaseAdmin; // Unnecessary
     // ...
   }
-  
+
   static async method2() {
     if (!supabaseAdmin) throw new Error();
-    const supabase = supabaseAdmin;  // Duplicate pattern
+    const supabase = supabaseAdmin; // Duplicate pattern
     // ...
   }
 }
 ```
 
 **Recommended Pattern:**
+
 ```typescript
 // ✅ GOOD: Consistent guard pattern
 class SearchService {
@@ -175,13 +180,13 @@ class SearchService {
       throw new Error("Database connection failed");
     }
   }
-  
+
   static async method1() {
     this.ensureConnection();
     // Now supabaseAdmin is safe to use
     const { data } = await supabaseAdmin.from("table")...
   }
-  
+
   static async method2() {
     this.ensureConnection();
     // Consistent pattern across all methods
@@ -195,6 +200,7 @@ class SearchService {
 ### **Priority 2: Query Optimization** 🚀
 
 **Current Issues:**
+
 ```typescript
 // ❌ BAD: N+1 query problem
 for (const gemstone of gemstones) {
@@ -206,16 +212,17 @@ for (const gemstone of gemstones) {
 ```
 
 **Best Practice:**
+
 ```typescript
 // ✅ GOOD: Single query with IN clause
-const gemstoneIds = gemstones.map(g => g.id);
+const gemstoneIds = gemstones.map((g) => g.id);
 const { data: allImages } = await supabase
   .from("gemstone_images")
   .in("gemstone_id", gemstoneIds);
 
 // Group by gemstone_id
 const imagesByGemstone = new Map();
-allImages?.forEach(img => {
+allImages?.forEach((img) => {
   if (!imagesByGemstone.has(img.gemstone_id)) {
     imagesByGemstone.set(img.gemstone_id, []);
   }
@@ -223,7 +230,7 @@ allImages?.forEach(img => {
 });
 
 // Assign to gemstones
-gemstones.forEach(g => {
+gemstones.forEach((g) => {
   g.images = imagesByGemstone.get(g.id) || [];
 });
 ```
@@ -233,32 +240,34 @@ gemstones.forEach(g => {
 ### **Priority 3: Error Handling** 🛡️
 
 **Current Issues:**
+
 ```typescript
 // ❌ BAD: Silent failures
 const { data, error } = await supabase.from("table").select("*");
-if (error) console.error(error);  // But then what?
-return data;  // Might be null!
+if (error) console.error(error); // But then what?
+return data; // Might be null!
 ```
 
 **Best Practice:**
+
 ```typescript
 // ✅ GOOD: Explicit error handling
 const { data, error } = await supabase.from("table").select("*");
 
 if (error) {
   console.error("[ServiceName] Operation failed:", error);
-  
+
   // Decision tree:
   // 1. Critical data? Throw
   if (isCritical) {
     throw new Error(`Failed to fetch critical data: ${error.message}`);
   }
-  
+
   // 2. Has fallback? Return default
   if (hasFallback) {
     return defaultData;
   }
-  
+
   // 3. Can continue? Return empty
   return [];
 }
@@ -279,6 +288,7 @@ return data;
 ### **Pattern 1: Batch Operations** 📦
 
 **Problem:**
+
 ```typescript
 // ❌ 100 queries!
 for (const id of userIds) {
@@ -287,11 +297,12 @@ for (const id of userIds) {
 ```
 
 **Solution:**
+
 ```typescript
 // ✅ 1 query!
 await supabase
   .from("users")
-  .upsert(userIds.map(id => ({ id, updated: true })));
+  .upsert(userIds.map((id) => ({ id, updated: true })));
 ```
 
 ---
@@ -299,6 +310,7 @@ await supabase
 ### **Pattern 2: Parallel Fetching** ⚡
 
 **Problem:**
+
 ```typescript
 // ❌ Sequential (slow)
 const users = await fetchUsers();
@@ -307,6 +319,7 @@ const orders = await fetchOrders();
 ```
 
 **Solution:**
+
 ```typescript
 // ✅ Parallel (fast)
 const [users, products, orders] = await Promise.all([
@@ -321,14 +334,14 @@ const [users, products, orders] = await Promise.all([
 ### **Pattern 3: Select Only What You Need** 🎯
 
 **Problem:**
+
 ```typescript
 // ❌ Fetches everything
-const { data } = await supabase
-  .from("gemstones")
-  .select("*");
+const { data } = await supabase.from("gemstones").select("*");
 ```
 
 **Solution:**
+
 ```typescript
 // ✅ Specific columns
 const { data } = await supabase
@@ -341,14 +354,16 @@ const { data } = await supabase
 ### **Pattern 4: Use RPC for Complex Queries** 🔧
 
 **Problem:**
+
 ```typescript
 // ❌ Multiple round trips
 const gemstones = await fetchGemstones();
-const filtered = gemstones.filter(g => complexLogic(g));
+const filtered = gemstones.filter((g) => complexLogic(g));
 const sorted = filtered.sort(compareFunction);
 ```
 
 **Solution:**
+
 ```typescript
 // ✅ Single RPC call with PostgreSQL logic
 const { data } = await supabase.rpc("search_gemstones_fulltext", {
@@ -360,6 +375,7 @@ const { data } = await supabase.rpc("search_gemstones_fulltext", {
 ```
 
 **Benefits:**
+
 - ✅ Database does the heavy lifting
 - ✅ Pagination at DB level
 - ✅ Complex filtering without N+1 queries
@@ -372,6 +388,7 @@ const { data } = await supabase.rpc("search_gemstones_fulltext", {
 ### **1. Single Responsibility** 📋
 
 **Problem:**
+
 ```typescript
 // ❌ Method does too much
 async function handleSearch() {
@@ -385,6 +402,7 @@ async function handleSearch() {
 ```
 
 **Solution:**
+
 ```typescript
 // ✅ Separated concerns
 class SearchService {
@@ -394,11 +412,19 @@ class SearchService {
     const enriched = await this.enrichWithImages(rawData);
     return this.formatResponse(enriched);
   }
-  
-  private static validateRequest(request: SearchRequest) { /* ... */ }
-  private static async queryDatabase(request: ValidatedRequest) { /* ... */ }
-  private static async enrichWithImages(data: RawData[]) { /* ... */ }
-  private static formatResponse(data: EnrichedData[]) { /* ... */ }
+
+  private static validateRequest(request: SearchRequest) {
+    /* ... */
+  }
+  private static async queryDatabase(request: ValidatedRequest) {
+    /* ... */
+  }
+  private static async enrichWithImages(data: RawData[]) {
+    /* ... */
+  }
+  private static formatResponse(data: EnrichedData[]) {
+    /* ... */
+  }
 }
 ```
 
@@ -407,6 +433,7 @@ class SearchService {
 ### **2. DRY (Don't Repeat Yourself)** 🔁
 
 **Problem:**
+
 ```typescript
 // ❌ Duplicate null checks everywhere
 async function method1() {
@@ -421,6 +448,7 @@ async function method2() {
 ```
 
 **Solution:**
+
 ```typescript
 // ✅ Centralized guard
 class BaseService {
@@ -436,7 +464,7 @@ class SearchService extends BaseService {
     this.ensureConnection();
     // ...
   }
-  
+
   static async method2() {
     this.ensureConnection();
     // ...
@@ -449,12 +477,14 @@ class SearchService extends BaseService {
 ### **3. Explicit Error Types** 🎯
 
 **Current:**
+
 ```typescript
 // ❌ Generic errors
 throw new Error("Something went wrong");
 ```
 
 **Better:**
+
 ```typescript
 // ✅ Specific error classes
 class DatabaseConnectionError extends Error {
@@ -488,6 +518,7 @@ if (error) {
 ### **Phase 1: Critical Fixes** 🔴 (High Priority)
 
 1. **Fix null check pattern** (1-2 hours)
+
    - Add `ensureConnection()` to all service classes
    - Remove redundant `const supabase = supabaseAdmin` assignments
    - **Files:** `search.service.ts`, `gemstone-fetch.service.ts`
@@ -500,6 +531,7 @@ if (error) {
 ### **Phase 2: Optimization** 🚀 (Medium Priority)
 
 3. **Implement batch operations** (3-4 hours)
+
    - Identify sequential queries that can be parallel
    - Use `Promise.all()` for independent fetches
    - **Impact:** 2-5x faster page loads
@@ -512,6 +544,7 @@ if (error) {
 ### **Phase 3: Refactoring** 🏗️ (Low Priority)
 
 5. **Create error hierarchy** (2-3 hours)
+
    - Define custom error classes
    - Consistent error handling
    - **Impact:** Better debugging, clearer logs
@@ -545,9 +578,7 @@ for (const id of ids) {
 }
 
 // After
-await supabase.from("table").upsert(
-  ids.map(id => ({ id, updated: true }))
-);
+await supabase.from("table").upsert(ids.map((id) => ({ id, updated: true })));
 ```
 
 ### **Win 3: Use Promise.all**
@@ -558,10 +589,7 @@ const users = await fetchUsers();
 const orders = await fetchOrders();
 
 // After
-const [users, orders] = await Promise.all([
-  fetchUsers(),
-  fetchOrders(),
-]);
+const [users, orders] = await Promise.all([fetchUsers(), fetchOrders()]);
 ```
 
 ---
@@ -591,32 +619,348 @@ class QueryLogger {
 }
 
 // Usage
-const data = await QueryLogger.logQuery(
-  "fetch_gemstones",
-  () => supabase.from("gemstones").select("*")
+const data = await QueryLogger.logQuery("fetch_gemstones", () =>
+  supabase.from("gemstones").select("*")
 );
+```
+
+---
+
+## **8. Architectural Questions & Answers**
+
+### **Q1: Should Supabase calls be in API routes or services?**
+
+**Short Answer:** 📚 **Services > API Routes** (with exceptions)
+
+**The Rule of Thumb:**
+
+```typescript
+// ❌ BAD: Business logic in API route
+export async function GET(request: NextRequest) {
+  const supabase = await createServerClient();
+  
+  // 50+ lines of query building, filtering, joining, transforming...
+  const query = supabase.from("gemstones").select("*");
+  
+  if (filters.color) query = query.eq("color", filters.color);
+  if (filters.priceMin) query = query.gte("price_amount", filters.priceMin);
+  // ... 30 more lines ...
+  
+  const enrichedData = data.map(item => ({ /* complex transformation */ }));
+  
+  return NextResponse.json(enrichedData);
+}
+
+// ✅ GOOD: Thin API route + thick service
+export async function GET(request: NextRequest) {
+  const filters = parseFilters(request);
+  const data = await GemstoneService.getGemstones(filters);
+  return NextResponse.json(data);
+}
+```
+
+**When to use Services:**
+
+| Scenario | Use Service? | Why |
+|----------|-------------|-----|
+| **Complex queries** | ✅ Yes | Reusable, testable |
+| **Business logic** | ✅ Yes | Single source of truth |
+| **Data transformation** | ✅ Yes | Consistent formatting |
+| **Multiple queries** | ✅ Yes | Transaction management |
+| **Used in 2+ places** | ✅ Yes | DRY principle |
+
+**When API routes are acceptable:**
+
+| Scenario | Direct in Route? | Why |
+|----------|-----------------|-----|
+| **Simple CRUD** | ⚠️ Maybe | If truly 1-2 lines |
+| **Single-use endpoint** | ⚠️ Maybe | If never reused |
+| **Auth-only logic** | ✅ Yes | Route-specific |
+| **Request validation** | ✅ Yes | HTTP layer concern |
+
+**Current Codebase Example:**
+
+```typescript
+// ❌ Current: /api/catalog/route.ts (150+ lines of DB logic)
+export async function GET(request: NextRequest) {
+  const supabase = supabaseAdmin;
+  let query = supabase.from("gemstones").select(/* 20 lines */);
+  query = query.gt("price_amount", 0);
+  if (filters.search) { /* ... */ }
+  if (filters.gemstoneTypes?.length) { /* ... */ }
+  // ... 100+ more lines ...
+}
+
+// ✅ Better: Move to GemstoneService
+// /api/catalog/route.ts
+export async function GET(request: NextRequest) {
+  const filters = parseFilters(request);
+  const result = await GemstoneService.getCatalog(filters);
+  return NextResponse.json(result);
+}
+
+// /features/gemstones/services/gemstone-service.ts
+export class GemstoneService {
+  static async getCatalog(filters: GemstoneFilters) {
+    // All the query logic here
+  }
+}
+```
+
+**Benefits of Service Layer:**
+
+1. **Reusability:** Use from API routes, server actions, cron jobs
+2. **Testing:** Mock services, not HTTP requests
+3. **Type Safety:** Strong typing without HTTP concerns
+4. **Composition:** Chain service methods easily
+5. **Caching:** Add caching layer without touching routes
+
+---
+
+### **Q2: Is it okay to have duplicate Supabase calls in multiple places?**
+
+**Short Answer:** ❌ **No, consolidate common queries into shared functions**
+
+**The Problem:**
+
+```typescript
+// ❌ BAD: Same query in 5 different places
+
+// File 1: search/services/search.service.ts
+const { data: images } = await supabase
+  .from("gemstone_images")
+  .select("id, gemstone_id, image_url, is_primary, image_order")
+  .in("gemstone_id", ids)
+  .order("image_order", { ascending: true });
+
+// File 2: catalog/services/catalog.service.ts
+const { data: images } = await supabase
+  .from("gemstone_images")
+  .select("id, gemstone_id, image_url, is_primary, image_order")
+  .in("gemstone_id", ids)
+  .order("image_order", { ascending: true });
+
+// File 3: admin/services/gemstone-admin-service.ts
+const { data: images } = await supabase
+  .from("gemstone_images")
+  .select("id, gemstone_id, image_url, is_primary, image_order")
+  .in("gemstone_id", ids)
+  .order("image_order", { ascending: true });
+
+// File 4: orders/services/order.service.ts
+// ... same exact query ...
+
+// File 5: cart/services/cart.service.ts
+// ... same exact query ...
+```
+
+**Risks of Duplication:**
+
+1. **Maintenance Nightmare:** Change image fields? Update 5 places
+2. **Inconsistency:** Different devs modify queries differently
+3. **Bug Propagation:** Fix a bug? Might miss 2 of 5 copies
+4. **Performance Drift:** Optimize one, forget others
+5. **Type Mismatches:** Different return types for same data
+
+**The Solution:**
+
+```typescript
+// ✅ GOOD: Shared data access layer
+
+// /features/gemstones/data-access/gemstone-images.da.ts
+import { supabaseAdmin } from "@/lib/supabase";
+
+/**
+ * Gemstone Images Data Access
+ * 
+ * Centralized queries for gemstone_images table.
+ * Single source of truth for image fetching logic.
+ */
+export class GemstoneImagesDA {
+  
+  /**
+   * Fetch images for multiple gemstones (batch operation)
+   * Returns Map for easy lookup
+   */
+  static async fetchImagesByGemstoneIds(
+    gemstoneIds: string[]
+  ): Promise<Map<string, GemstoneImage[]>> {
+    
+    if (!supabaseAdmin) {
+      throw new Error("Database connection failed");
+    }
+    
+    const { data, error } = await supabaseAdmin
+      .from("gemstone_images")
+      .select("id, gemstone_id, image_url, is_primary, image_order")
+      .in("gemstone_id", gemstoneIds)
+      .order("image_order", { ascending: true });
+    
+    if (error) {
+      console.error("[GemstoneImagesDA] Fetch failed:", error);
+      throw new Error(`Failed to fetch images: ${error.message}`);
+    }
+    
+    // Group by gemstone_id
+    const imagesByGemstone = new Map<string, GemstoneImage[]>();
+    (data || []).forEach((img) => {
+      if (!imagesByGemstone.has(img.gemstone_id)) {
+        imagesByGemstone.set(img.gemstone_id, []);
+      }
+      imagesByGemstone.get(img.gemstone_id)!.push(img);
+    });
+    
+    return imagesByGemstone;
+  }
+  
+  /**
+   * Fetch primary image for a single gemstone
+   */
+  static async fetchPrimaryImage(
+    gemstoneId: string
+  ): Promise<GemstoneImage | null> {
+    
+    if (!supabaseAdmin) {
+      throw new Error("Database connection failed");
+    }
+    
+    const { data, error } = await supabaseAdmin
+      .from("gemstone_images")
+      .select("*")
+      .eq("gemstone_id", gemstoneId)
+      .eq("is_primary", true)
+      .single();
+    
+    if (error) {
+      console.error("[GemstoneImagesDA] Primary image fetch failed:", error);
+      return null;
+    }
+    
+    return data;
+  }
+}
+
+// Now use it everywhere:
+
+// search/services/search.service.ts
+import { GemstoneImagesDA } from "@/features/gemstones/data-access/gemstone-images.da";
+
+const imagesByGemstone = await GemstoneImagesDA.fetchImagesByGemstoneIds(gemstoneIds);
+
+// catalog/services/catalog.service.ts
+const imagesByGemstone = await GemstoneImagesDA.fetchImagesByGemstoneIds(gemstoneIds);
+
+// admin/services/gemstone-admin-service.ts
+const imagesByGemstone = await GemstoneImagesDA.fetchImagesByGemstoneIds(gemstoneIds);
+```
+
+**Recommended File Structure:**
+
+```
+src/
+├── features/
+│   ├── gemstones/
+│   │   ├── services/           # Business logic
+│   │   │   ├── gemstone.service.ts
+│   │   │   └── catalog.service.ts
+│   │   │
+│   │   ├── data-access/        # 🆕 Data access layer
+│   │   │   ├── gemstones.da.ts
+│   │   │   ├── gemstone-images.da.ts
+│   │   │   ├── certifications.da.ts
+│   │   │   └── origins.da.ts
+│   │   │
+│   │   └── types/              # Shared types
+│   │       └── gemstone.types.ts
+│   │
+│   ├── search/
+│   │   ├── services/
+│   │   └── data-access/        # 🆕 Search-specific queries
+│   │       └── search.da.ts
+│   │
+│   └── orders/
+│       ├── services/
+│       └── data-access/        # 🆕 Order-specific queries
+│           └── orders.da.ts
+```
+
+**Data Access Layer Pattern:**
+
+```typescript
+// Pattern: [Entity].da.ts
+
+/**
+ * [Entity] Data Access
+ * 
+ * Low-level database queries for [table_name] table.
+ * No business logic - pure data fetching.
+ * 
+ * Rules:
+ * - Always check supabaseAdmin
+ * - Return raw data (minimal transformation)
+ * - Handle errors consistently
+ * - Optimize for batch operations
+ */
+export class EntityDA {
+  
+  // CRUD operations
+  static async findById(id: string) { /* ... */ }
+  static async findMany(filters: Filters) { /* ... */ }
+  static async create(data: CreateDto) { /* ... */ }
+  static async update(id: string, data: UpdateDto) { /* ... */ }
+  static async delete(id: string) { /* ... */ }
+  
+  // Common patterns
+  static async fetchByIds(ids: string[]) { /* Batch fetch */ }
+  static async fetchWithRelations(id: string) { /* With joins */ }
+}
+```
+
+**When to create a Data Access method:**
+
+| Criteria | Create DA Method? |
+|----------|-------------------|
+| Query used in 2+ files | ✅ Yes |
+| Complex join with 3+ tables | ✅ Yes |
+| Performance-sensitive query | ✅ Yes |
+| Table-specific logic | ✅ Yes |
+| One-off query in single file | ❌ No (inline acceptable) |
+
+**Refactoring Priority:**
+
+```typescript
+// 1. HIGH PRIORITY: Identify most duplicated queries
+// Run this search across codebase:
+// grep -r "from(\"gemstone_images\")" src/
+
+// 2. MEDIUM PRIORITY: Complex queries
+// Queries with 5+ joins, filters, transformations
+
+// 3. LOW PRIORITY: Simple CRUD
+// Basic .select(), .insert() if not duplicated
 ```
 
 ---
 
 ## **Summary**
 
-| Aspect | Current State | Target State |
-|--------|---------------|--------------|
-| **Null Checks** | Inconsistent | Guard pattern everywhere |
-| **Query Efficiency** | Some N+1 | All batched |
-| **Error Handling** | Generic | Typed & specific |
-| **Code Duplication** | High | Minimal via helpers |
-| **Performance** | Good | Excellent |
+| Aspect               | Current State          | Target State             |
+| -------------------- | ---------------------- | ------------------------ |
+| **Null Checks**      | Inconsistent           | Guard pattern everywhere |
+| **Query Efficiency** | Some N+1               | All batched              |
+| **Error Handling**   | Generic                | Typed & specific         |
+| **Code Duplication** | High (~50 duplicates)  | Minimal via DA layer     |
+| **Architecture**     | Logic in API routes    | Services + Data Access   |
+| **Performance**      | Good                   | Excellent                |
 
-**Estimated Effort:** 15-20 hours  
+**Estimated Effort:** 20-25 hours  
 **Expected Impact:** 2-10x performance improvement, significantly better maintainability
 
 ---
 
 **Next Steps:**
+
 1. Start with Phase 1 critical fixes
 2. Apply patterns to new code immediately
 3. Refactor existing code incrementally
 4. Monitor query performance
-
