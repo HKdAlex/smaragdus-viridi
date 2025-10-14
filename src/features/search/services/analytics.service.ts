@@ -115,7 +115,7 @@ export class SearchAnalyticsService {
 
     const { data, error } = await supabaseAdmin.rpc("get_search_trends", {
       days_back: daysBack,
-      time_bucket: timeBucket,
+      bucket_size: timeBucket,
     });
 
     if (error) {

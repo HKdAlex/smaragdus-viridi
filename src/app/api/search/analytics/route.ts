@@ -6,6 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+
 import { SearchAnalyticsService } from "@/features/search/services/analytics.service";
 import { createServerSupabaseClient } from "@/lib/supabase";
 import { z } from "zod";
@@ -137,4 +138,3 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-

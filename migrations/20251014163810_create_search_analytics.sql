@@ -85,7 +85,7 @@ $$;
 -- Admin function: Get search trends over time
 CREATE OR REPLACE FUNCTION get_search_trends(
   days_back integer DEFAULT 30,
-  time_bucket text DEFAULT 'day' -- 'hour', 'day', 'week'
+  bucket_size text DEFAULT 'day' -- 'hour', 'day', 'week'
 )
 RETURNS TABLE (
   time_bucket timestamptz,
@@ -97,8 +97,6 @@ RETURNS TABLE (
 LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$
-DECLARE
-  bucket_interval interval;
 BEGIN
   -- Check if user is admin
   IF NOT EXISTS (
@@ -109,24 +107,16 @@ BEGIN
     RAISE EXCEPTION 'Access denied. Admin role required.';
   END IF;
 
-  -- Set bucket interval based on parameter
-  bucket_interval := CASE time_bucket
-    WHEN 'hour' THEN '1 hour'::interval
-    WHEN 'day' THEN '1 day'::interval
-    WHEN 'week' THEN '1 week'::interval
-    ELSE '1 day'::interval
-  END;
-
   RETURN QUERY
   SELECT 
-    date_trunc(time_bucket, sa.created_at) as time_bucket,
+    date_trunc(bucket_size, sa.created_at) as time_bucket,
     COUNT(*) as search_count,
     ROUND(AVG(sa.results_count), 2) as avg_results,
     COUNT(*) FILTER (WHERE sa.results_count = 0) as zero_result_count,
     COUNT(*) FILTER (WHERE sa.used_fuzzy_search = true) as fuzzy_usage_count
   FROM search_analytics sa
   WHERE sa.created_at >= NOW() - (days_back || ' days')::interval
-  GROUP BY date_trunc(time_bucket, sa.created_at)
+  GROUP BY date_trunc(bucket_size, sa.created_at)
   ORDER BY time_bucket DESC;
 END;
 $$;

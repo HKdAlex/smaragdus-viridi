@@ -185,7 +185,7 @@ describe("SearchAnalyticsService", () => {
 
       expect(supabaseAdmin!.rpc).toHaveBeenCalledWith("get_search_trends", {
         days_back: 30,
-        time_bucket: "day",
+        bucket_size: "day",
       });
       expect(result).toEqual(mockData);
     });
@@ -197,7 +197,7 @@ describe("SearchAnalyticsService", () => {
 
       expect(supabaseAdmin!.rpc).toHaveBeenCalledWith("get_search_trends", {
         days_back: 7,
-        time_bucket: "hour",
+        bucket_size: "hour",
       });
     });
   });
