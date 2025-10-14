@@ -638,16 +638,18 @@ const data = await QueryLogger.logQuery("fetch_gemstones", () =>
 // ❌ BAD: Business logic in API route
 export async function GET(request: NextRequest) {
   const supabase = await createServerClient();
-  
+
   // 50+ lines of query building, filtering, joining, transforming...
   const query = supabase.from("gemstones").select("*");
-  
+
   if (filters.color) query = query.eq("color", filters.color);
   if (filters.priceMin) query = query.gte("price_amount", filters.priceMin);
   // ... 30 more lines ...
-  
-  const enrichedData = data.map(item => ({ /* complex transformation */ }));
-  
+
+  const enrichedData = data.map((item) => ({
+    /* complex transformation */
+  }));
+
   return NextResponse.json(enrichedData);
 }
 
@@ -661,22 +663,22 @@ export async function GET(request: NextRequest) {
 
 **When to use Services:**
 
-| Scenario | Use Service? | Why |
-|----------|-------------|-----|
-| **Complex queries** | ✅ Yes | Reusable, testable |
-| **Business logic** | ✅ Yes | Single source of truth |
-| **Data transformation** | ✅ Yes | Consistent formatting |
-| **Multiple queries** | ✅ Yes | Transaction management |
-| **Used in 2+ places** | ✅ Yes | DRY principle |
+| Scenario                | Use Service? | Why                    |
+| ----------------------- | ------------ | ---------------------- |
+| **Complex queries**     | ✅ Yes       | Reusable, testable     |
+| **Business logic**      | ✅ Yes       | Single source of truth |
+| **Data transformation** | ✅ Yes       | Consistent formatting  |
+| **Multiple queries**    | ✅ Yes       | Transaction management |
+| **Used in 2+ places**   | ✅ Yes       | DRY principle          |
 
 **When API routes are acceptable:**
 
-| Scenario | Direct in Route? | Why |
-|----------|-----------------|-----|
-| **Simple CRUD** | ⚠️ Maybe | If truly 1-2 lines |
-| **Single-use endpoint** | ⚠️ Maybe | If never reused |
-| **Auth-only logic** | ✅ Yes | Route-specific |
-| **Request validation** | ✅ Yes | HTTP layer concern |
+| Scenario                | Direct in Route? | Why                |
+| ----------------------- | ---------------- | ------------------ |
+| **Simple CRUD**         | ⚠️ Maybe         | If truly 1-2 lines |
+| **Single-use endpoint** | ⚠️ Maybe         | If never reused    |
+| **Auth-only logic**     | ✅ Yes           | Route-specific     |
+| **Request validation**  | ✅ Yes           | HTTP layer concern |
 
 **Current Codebase Example:**
 
@@ -686,8 +688,12 @@ export async function GET(request: NextRequest) {
   const supabase = supabaseAdmin;
   let query = supabase.from("gemstones").select(/* 20 lines */);
   query = query.gt("price_amount", 0);
-  if (filters.search) { /* ... */ }
-  if (filters.gemstoneTypes?.length) { /* ... */ }
+  if (filters.search) {
+    /* ... */
+  }
+  if (filters.gemstoneTypes?.length) {
+    /* ... */
+  }
   // ... 100+ more lines ...
 }
 
@@ -772,12 +778,11 @@ import { supabaseAdmin } from "@/lib/supabase";
 
 /**
  * Gemstone Images Data Access
- * 
+ *
  * Centralized queries for gemstone_images table.
  * Single source of truth for image fetching logic.
  */
 export class GemstoneImagesDA {
-  
   /**
    * Fetch images for multiple gemstones (batch operation)
    * Returns Map for easy lookup
@@ -785,22 +790,21 @@ export class GemstoneImagesDA {
   static async fetchImagesByGemstoneIds(
     gemstoneIds: string[]
   ): Promise<Map<string, GemstoneImage[]>> {
-    
     if (!supabaseAdmin) {
       throw new Error("Database connection failed");
     }
-    
+
     const { data, error } = await supabaseAdmin
       .from("gemstone_images")
       .select("id, gemstone_id, image_url, is_primary, image_order")
       .in("gemstone_id", gemstoneIds)
       .order("image_order", { ascending: true });
-    
+
     if (error) {
       console.error("[GemstoneImagesDA] Fetch failed:", error);
       throw new Error(`Failed to fetch images: ${error.message}`);
     }
-    
+
     // Group by gemstone_id
     const imagesByGemstone = new Map<string, GemstoneImage[]>();
     (data || []).forEach((img) => {
@@ -809,33 +813,32 @@ export class GemstoneImagesDA {
       }
       imagesByGemstone.get(img.gemstone_id)!.push(img);
     });
-    
+
     return imagesByGemstone;
   }
-  
+
   /**
    * Fetch primary image for a single gemstone
    */
   static async fetchPrimaryImage(
     gemstoneId: string
   ): Promise<GemstoneImage | null> {
-    
     if (!supabaseAdmin) {
       throw new Error("Database connection failed");
     }
-    
+
     const { data, error } = await supabaseAdmin
       .from("gemstone_images")
       .select("*")
       .eq("gemstone_id", gemstoneId)
       .eq("is_primary", true)
       .single();
-    
+
     if (error) {
       console.error("[GemstoneImagesDA] Primary image fetch failed:", error);
       return null;
     }
-    
+
     return data;
   }
 }
@@ -845,13 +848,19 @@ export class GemstoneImagesDA {
 // search/services/search.service.ts
 import { GemstoneImagesDA } from "@/features/gemstones/data-access/gemstone-images.da";
 
-const imagesByGemstone = await GemstoneImagesDA.fetchImagesByGemstoneIds(gemstoneIds);
+const imagesByGemstone = await GemstoneImagesDA.fetchImagesByGemstoneIds(
+  gemstoneIds
+);
 
 // catalog/services/catalog.service.ts
-const imagesByGemstone = await GemstoneImagesDA.fetchImagesByGemstoneIds(gemstoneIds);
+const imagesByGemstone = await GemstoneImagesDA.fetchImagesByGemstoneIds(
+  gemstoneIds
+);
 
 // admin/services/gemstone-admin-service.ts
-const imagesByGemstone = await GemstoneImagesDA.fetchImagesByGemstoneIds(gemstoneIds);
+const imagesByGemstone = await GemstoneImagesDA.fetchImagesByGemstoneIds(
+  gemstoneIds
+);
 ```
 
 **Recommended File Structure:**
@@ -891,10 +900,10 @@ src/
 
 /**
  * [Entity] Data Access
- * 
+ *
  * Low-level database queries for [table_name] table.
  * No business logic - pure data fetching.
- * 
+ *
  * Rules:
  * - Always check supabaseAdmin
  * - Return raw data (minimal transformation)
@@ -902,28 +911,41 @@ src/
  * - Optimize for batch operations
  */
 export class EntityDA {
-  
   // CRUD operations
-  static async findById(id: string) { /* ... */ }
-  static async findMany(filters: Filters) { /* ... */ }
-  static async create(data: CreateDto) { /* ... */ }
-  static async update(id: string, data: UpdateDto) { /* ... */ }
-  static async delete(id: string) { /* ... */ }
-  
+  static async findById(id: string) {
+    /* ... */
+  }
+  static async findMany(filters: Filters) {
+    /* ... */
+  }
+  static async create(data: CreateDto) {
+    /* ... */
+  }
+  static async update(id: string, data: UpdateDto) {
+    /* ... */
+  }
+  static async delete(id: string) {
+    /* ... */
+  }
+
   // Common patterns
-  static async fetchByIds(ids: string[]) { /* Batch fetch */ }
-  static async fetchWithRelations(id: string) { /* With joins */ }
+  static async fetchByIds(ids: string[]) {
+    /* Batch fetch */
+  }
+  static async fetchWithRelations(id: string) {
+    /* With joins */
+  }
 }
 ```
 
 **When to create a Data Access method:**
 
-| Criteria | Create DA Method? |
-|----------|-------------------|
-| Query used in 2+ files | ✅ Yes |
-| Complex join with 3+ tables | ✅ Yes |
-| Performance-sensitive query | ✅ Yes |
-| Table-specific logic | ✅ Yes |
+| Criteria                     | Create DA Method?         |
+| ---------------------------- | ------------------------- |
+| Query used in 2+ files       | ✅ Yes                    |
+| Complex join with 3+ tables  | ✅ Yes                    |
+| Performance-sensitive query  | ✅ Yes                    |
+| Table-specific logic         | ✅ Yes                    |
 | One-off query in single file | ❌ No (inline acceptable) |
 
 **Refactoring Priority:**
@@ -944,14 +966,14 @@ export class EntityDA {
 
 ## **Summary**
 
-| Aspect               | Current State          | Target State             |
-| -------------------- | ---------------------- | ------------------------ |
-| **Null Checks**      | Inconsistent           | Guard pattern everywhere |
-| **Query Efficiency** | Some N+1               | All batched              |
-| **Error Handling**   | Generic                | Typed & specific         |
-| **Code Duplication** | High (~50 duplicates)  | Minimal via DA layer     |
-| **Architecture**     | Logic in API routes    | Services + Data Access   |
-| **Performance**      | Good                   | Excellent                |
+| Aspect               | Current State         | Target State             |
+| -------------------- | --------------------- | ------------------------ |
+| **Null Checks**      | Inconsistent          | Guard pattern everywhere |
+| **Query Efficiency** | Some N+1              | All batched              |
+| **Error Handling**   | Generic               | Typed & specific         |
+| **Code Duplication** | High (~50 duplicates) | Minimal via DA layer     |
+| **Architecture**     | Logic in API routes   | Services + Data Access   |
+| **Performance**      | Good                  | Excellent                |
 
 **Estimated Effort:** 20-25 hours  
 **Expected Impact:** 2-10x performance improvement, significantly better maintainability
