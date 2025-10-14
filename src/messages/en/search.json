@@ -20,5 +20,9 @@
     "andMore": "and {count} more suggestions",
     "approximateMatches": "Approximate matches:",
     "noExactMatch": "Your search term didn't match exactly, showing similar results."
+  },
+  "descriptionSearch": {
+    "label": "Search in descriptions",
+    "helper": "Include gemstone descriptions in search queries. May be slower."
   }
 }

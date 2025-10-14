@@ -17,8 +17,60 @@ import {
   parseSortBy,
   parseSortDirection,
 } from "@/lib/validators/enum-parser";
+import type { RelatedGemstonesCriteria } from "./gemstone-fetch.service";
 
 export class QueryBuilderService {
+  /**
+   * Legacy-compatible search query builder.
+   * Returns URLSearchParams including pagination for API usage.
+   */
+  static buildSearchQuery(
+    filters: AdvancedGemstoneFilters,
+    page: number,
+    pageSize = 24
+  ): URLSearchParams {
+    const params = new URLSearchParams(this.filtersToQueryString(filters));
+    params.set("page", page.toString());
+    params.set("pageSize", pageSize.toString());
+    return params;
+  }
+
+  /**
+   * Build request configuration for filter counts endpoint.
+   */
+  static buildFilterCountsQuery(): {
+    method: "POST";
+    headers: Record<string, string>;
+    body: string;
+  } {
+    return {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "counts" }),
+    };
+  }
+
+  /**
+   * Build query params for related gemstones endpoint.
+   */
+  static buildRelatedQuery(
+    criteria: RelatedGemstonesCriteria,
+    defaultPageSize = 8
+  ): URLSearchParams {
+    const params = new URLSearchParams();
+    const pageSize = criteria.limit ?? defaultPageSize;
+
+    params.set("gemstoneTypes", criteria.gemstoneType);
+    params.set("colors", criteria.color);
+    params.set("priceMin", criteria.priceRange.min.toString());
+    params.set("priceMax", criteria.priceRange.max.toString());
+    params.set("pageSize", pageSize.toString());
+    params.set("page", "1");
+    params.set("inStockOnly", "true");
+
+    return params;
+  }
+
   /**
    * Convert filters to URL query string
    */

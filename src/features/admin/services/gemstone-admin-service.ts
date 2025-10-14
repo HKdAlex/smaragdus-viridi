@@ -5,6 +5,7 @@ import type {
   DatabaseGemstoneVideo,
   DatabaseOrigin,
 } from "@/shared/types";
+import type { TablesInsert, TablesUpdate } from "@/shared/types/database";
 
 import { supabaseAdmin } from "@/lib/supabase";
 
@@ -23,6 +24,10 @@ export interface GemstoneFormData {
   color: DatabaseGemstone["color"];
   cut: DatabaseGemstone["cut"];
   clarity: DatabaseGemstone["clarity"];
+  type_code?: string;
+  color_code?: string;
+  cut_code?: string;
+  clarity_code?: string;
   weight_carats: number;
   length_mm: number;
   width_mm: number;
@@ -63,6 +68,10 @@ export interface BulkImportData {
   color: DatabaseGemstone["color"];
   cut: DatabaseGemstone["cut"];
   clarity: DatabaseGemstone["clarity"];
+  type_code?: string;
+  color_code?: string;
+  cut_code?: string;
+  clarity_code?: string;
   weight_carats: number;
   length_mm?: number;
   width_mm?: number;
@@ -100,30 +109,36 @@ export class GemstoneAdminService {
         weight: formData.weight_carats,
       });
 
+      const payload: TablesInsert<"gemstones"> = {
+        name: formData.name,
+        type_code: formData.type_code ?? formData.name,
+        color: formData.color,
+        color_code: formData.color_code ?? formData.color,
+        cut: formData.cut,
+        cut_code: formData.cut_code ?? formData.cut,
+        clarity: formData.clarity,
+        clarity_code: formData.clarity_code ?? formData.clarity,
+        weight_carats: formData.weight_carats,
+        length_mm: formData.length_mm,
+        width_mm: formData.width_mm,
+        depth_mm: formData.depth_mm,
+        origin_id: formData.origin_id ?? null,
+        price_amount: formData.price_amount,
+        price_currency: formData.price_currency,
+        premium_price_amount: formData.premium_price_amount ?? null,
+        premium_price_currency: formData.premium_price_currency ?? null,
+        in_stock: formData.in_stock,
+        delivery_days: formData.delivery_days ?? null,
+        internal_code: formData.internal_code ?? null,
+        serial_number: formData.serial_number,
+        description: formData.description ?? null,
+        promotional_text: formData.promotional_text ?? null,
+        marketing_highlights: formData.marketing_highlights ?? null,
+      };
+
       const { data, error } = await supabaseAdmin!
         .from("gemstones")
-        .insert({
-          name: formData.name,
-          color: formData.color,
-          cut: formData.cut,
-          clarity: formData.clarity,
-          weight_carats: formData.weight_carats,
-          length_mm: formData.length_mm,
-          width_mm: formData.width_mm,
-          depth_mm: formData.depth_mm,
-          origin_id: formData.origin_id || null,
-          price_amount: formData.price_amount,
-          price_currency: formData.price_currency,
-          premium_price_amount: formData.premium_price_amount || null,
-          premium_price_currency: formData.premium_price_currency || null,
-          in_stock: formData.in_stock,
-          delivery_days: formData.delivery_days || null,
-          internal_code: formData.internal_code || null,
-          serial_number: formData.serial_number,
-          description: formData.description || null,
-          promotional_text: formData.promotional_text || null,
-          marketing_highlights: formData.marketing_highlights || null,
-        })
+        .insert(payload)
         .select()
         .single();
 
@@ -154,12 +169,42 @@ export class GemstoneAdminService {
     try {
       logger.info("Updating gemstone", { id, updates: Object.keys(formData) });
 
+      const updates = {
+        ...formData,
+        updated_at: new Date().toISOString(),
+      } as TablesUpdate<"gemstones">;
+
+      if (
+        typeof formData.name !== "undefined" &&
+        typeof formData.type_code === "undefined"
+      ) {
+        updates.type_code = formData.name;
+      }
+
+      if (
+        typeof formData.color !== "undefined" &&
+        typeof formData.color_code === "undefined"
+      ) {
+        updates.color_code = formData.color;
+      }
+
+      if (
+        typeof formData.cut !== "undefined" &&
+        typeof formData.cut_code === "undefined"
+      ) {
+        updates.cut_code = formData.cut;
+      }
+
+      if (
+        typeof formData.clarity !== "undefined" &&
+        typeof formData.clarity_code === "undefined"
+      ) {
+        updates.clarity_code = formData.clarity;
+      }
+
       const { data, error } = await supabaseAdmin!
         .from("gemstones")
-        .update({
-          ...formData,
-          updated_at: new Date().toISOString(),
-        })
+        .update(updates)
         .eq("id", id)
         .select()
         .single();
@@ -511,12 +556,16 @@ export class GemstoneAdminService {
             }
 
             // Convert to database format
-            const dbData = {
+            const dbData: TablesInsert<"gemstones"> = {
               serial_number: gemstoneData.serialNumber,
               name: gemstoneData.name,
+              type_code: gemstoneData.type_code ?? gemstoneData.name,
               color: gemstoneData.color,
+              color_code: gemstoneData.color_code ?? gemstoneData.color,
               cut: gemstoneData.cut,
+              cut_code: gemstoneData.cut_code ?? gemstoneData.cut,
               clarity: gemstoneData.clarity,
+              clarity_code: gemstoneData.clarity_code ?? gemstoneData.clarity,
               weight_carats: gemstoneData.weight_carats,
               length_mm: gemstoneData.length_mm ?? 0,
               width_mm: gemstoneData.width_mm ?? 0,

@@ -6,27 +6,33 @@
 
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 
-import { AdvancedFiltersControlled } from "@/features/gemstones/components/filters/advanced-filters-controlled";
 import { EmptyState } from "@/features/gemstones/components/empty-state";
-import { FuzzySearchBanner } from "./fuzzy-search-banner";
+import { AdvancedFiltersControlled } from "@/features/gemstones/components/filters/advanced-filters-controlled";
 import { GemstoneGrid } from "@/features/gemstones/components/gemstone-grid";
 import { LoadingState } from "@/features/gemstones/components/loading-state";
 import { PaginationControls } from "@/features/gemstones/components/pagination-controls";
-import { SearchInput } from "./search-input";
 import { useFilterCountsQuery } from "@/features/gemstones/hooks/use-filter-counts-query";
 import { useFilterState } from "@/features/gemstones/hooks/use-filter-state";
-import { useSearchParams } from "next/navigation";
+import type { CatalogGemstone } from "@/features/gemstones/services/gemstone-fetch.service";
 import { useSearchQuery } from "@/features/search/hooks/use-search-query";
-import { useTranslations } from "next-intl";
+import { TranslationService } from "@/features/translations/services/translation.service";
 import { useTypeSafeRouter } from "@/lib/navigation/type-safe-router";
+import { queryKeys } from "@/lib/react-query/query-keys";
+import { useQuery } from "@tanstack/react-query";
+import { useSearchParams } from "next/navigation";
+import { DescriptionSearchToggle } from "./description-search-toggle";
+import { FuzzySearchBanner } from "./fuzzy-search-banner";
+import { SearchInput } from "./search-input";
 
 const PAGE_SIZE = 24;
 
 export function SearchResults() {
   const t = useTranslations("search");
   const tCatalog = useTranslations("catalog");
+  const locale = useLocale();
   const searchParams = useSearchParams();
   const router = useTypeSafeRouter();
 
@@ -46,12 +52,100 @@ export function SearchResults() {
   >([]);
 
   // Fetch search results
+  const [searchDescriptions, setSearchDescriptions] = useState(false);
+
+  useEffect(() => {
+    const stored = window.localStorage.getItem("search:descriptions");
+    if (stored !== null) {
+      setSearchDescriptions(stored === "true");
+    }
+  }, []);
+
   const { data, isLoading, error } = useSearchQuery({
     query,
     filters,
     page: currentPage,
     pageSize: PAGE_SIZE,
+    locale,
+    searchDescriptions,
   });
+
+  const { data: typeTranslations } = useQuery({
+    queryKey: queryKeys.translations.list(locale, "type"),
+    queryFn: () => TranslationService.getGemstoneTypes(locale),
+    staleTime: 24 * 60 * 60 * 1000,
+  });
+
+  const { data: colorTranslations } = useQuery({
+    queryKey: queryKeys.translations.list(locale, "color"),
+    queryFn: () => TranslationService.getGemColors(locale),
+    staleTime: 24 * 60 * 60 * 1000,
+  });
+
+  const { data: cutTranslations } = useQuery({
+    queryKey: queryKeys.translations.list(locale, "cut"),
+    queryFn: () => TranslationService.getGemCuts(locale),
+    staleTime: 24 * 60 * 60 * 1000,
+  });
+
+  const { data: clarityTranslations } = useQuery({
+    queryKey: queryKeys.translations.list(locale, "clarity"),
+    queryFn: () => TranslationService.getGemClarities(locale),
+    staleTime: 24 * 60 * 60 * 1000,
+  });
+
+  const results = data?.results ?? [];
+  const decoratedResults = useMemo<CatalogGemstone[]>(() => {
+    return results.map((gemstone) => {
+      const baseGemstone = gemstone as CatalogGemstone;
+      const baseTypeCode = baseGemstone.type_code ?? baseGemstone.name ?? "";
+      const baseColorCode = baseGemstone.color_code ?? baseGemstone.color ?? "";
+      const baseCutCode = baseGemstone.cut_code ?? baseGemstone.cut ?? "";
+      const baseClarityCode =
+        baseGemstone.clarity_code ?? baseGemstone.clarity ?? "";
+
+      const displayName =
+        (baseTypeCode && typeTranslations?.get(baseTypeCode)?.name) ??
+        typeTranslations?.get(baseGemstone.name)?.name ??
+        baseGemstone.name;
+
+      const displayColor =
+        (baseColorCode && colorTranslations?.get(baseColorCode)?.name) ??
+        colorTranslations?.get(baseGemstone.color)?.name ??
+        baseGemstone.color;
+
+      const displayCut =
+        typeof baseGemstone.cut === "string"
+          ? (baseCutCode && cutTranslations?.get(baseCutCode)?.name) ??
+            cutTranslations?.get(baseGemstone.cut)?.name ??
+            baseGemstone.cut
+          : undefined;
+
+      const displayClarity =
+        typeof baseGemstone.clarity === "string"
+          ? (baseClarityCode &&
+              clarityTranslations?.get(baseClarityCode)?.name) ??
+            clarityTranslations?.get(baseGemstone.clarity)?.name ??
+            baseGemstone.clarity
+          : undefined;
+
+      return {
+        ...baseGemstone,
+        displayName,
+        displayColor,
+        displayCut,
+        displayClarity,
+      };
+    });
+  }, [
+    results,
+    typeTranslations,
+    colorTranslations,
+    cutTranslations,
+    clarityTranslations,
+  ]);
+
+  const totalCount = data?.pagination.totalCount || 0;
 
   // Fetch filter counts
   const { data: filterCountsData } = useFilterCountsQuery();
@@ -65,7 +159,7 @@ export function SearchResults() {
           const response = await fetch(
             `/api/search/fuzzy-suggestions?query=${encodeURIComponent(
               query
-            )}&limit=5`
+            )}&limit=5&locale=${locale}`
           );
 
           if (!response.ok) {
@@ -84,7 +178,7 @@ export function SearchResults() {
     };
 
     fetchFuzzySuggestions();
-  }, [query, data, isLoading]);
+  }, [query, data, isLoading, locale]);
 
   // Calculate total pages
   const totalPages = useMemo(() => {
@@ -138,8 +232,14 @@ export function SearchResults() {
     );
   }
 
-  const results = data?.results || [];
-  const totalCount = data?.pagination.totalCount || 0;
+  const handleDescriptionToggle = (enabled: boolean) => {
+    setSearchDescriptions(enabled);
+    window.localStorage.setItem(
+      "search:descriptions",
+      enabled ? "true" : "false"
+    );
+    setCurrentPage(1);
+  };
 
   return (
     <div>
@@ -186,15 +286,20 @@ export function SearchResults() {
       )}
 
       {/* Filters */}
-      {filterCountsData && (
-        <div className="mb-6">
+      <div className="mb-6 space-y-4">
+        <DescriptionSearchToggle
+          value={searchDescriptions}
+          onChange={handleDescriptionToggle}
+        />
+
+        {filterCountsData && (
           <AdvancedFiltersControlled
             filters={filters}
             onChange={handleFiltersChange}
             options={filterCountsData.aggregated}
           />
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Results */}
       {results.length === 0 ? (
@@ -204,7 +309,7 @@ export function SearchResults() {
         />
       ) : (
         <>
-          <GemstoneGrid gemstones={results as any} />
+          <GemstoneGrid gemstones={decoratedResults} />
 
           {/* Pagination */}
           {totalPages > 1 && data?.pagination && (

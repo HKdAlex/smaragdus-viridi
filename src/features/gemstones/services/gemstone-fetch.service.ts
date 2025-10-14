@@ -34,6 +34,11 @@ export interface CatalogGemstone extends DatabaseGemstone {
         created_at: string;
       }[]
     | null;
+  displayName?: string;
+  displayColor?: string;
+  displayCut?: string;
+  displayClarity?: string;
+  relevance_score?: number;
 }
 
 export interface PaginationMeta {

@@ -19,6 +19,9 @@ export const searchQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   pageSize: z.coerce.number().int().min(1).max(100).default(24),
 
+  locale: z.string().min(2).max(5).default("en"),
+  searchDescriptions: z.coerce.boolean().optional().default(false),
+
   // Filters
   filters: z
     .object({
@@ -168,5 +171,7 @@ export function parseSearchQuery(searchParams: URLSearchParams): SearchQuery {
     page: Number(searchParams.get("page") || 1),
     pageSize: Number(searchParams.get("pageSize") || 24),
     filters,
+    locale: searchParams.get("locale") || "en",
+    searchDescriptions: searchParams.get("searchDescriptions") === "true",
   };
 }

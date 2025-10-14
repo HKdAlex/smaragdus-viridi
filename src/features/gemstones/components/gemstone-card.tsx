@@ -90,6 +90,16 @@ export function GemstoneCard({
     translateGemstoneType,
   } = useGemstoneTranslations();
 
+  const typeLabel = gemstone.displayName ?? translateGemstoneType(gemstone.name);
+  const colorLabel =
+    gemstone.displayColor ?? translateColor(gemstone.color);
+  const cutLabel =
+    gemstone.displayCut ??
+    (gemstone.cut ? translateCut(gemstone.cut) : null);
+  const clarityLabel =
+    gemstone.displayClarity ??
+    (gemstone.clarity ? translateClarity(gemstone.clarity) : null);
+
   const primaryImage =
     gemstone.images?.find((img) => img.is_primary) || gemstone.images?.[0];
 
@@ -181,8 +191,8 @@ export function GemstoneCard({
             isCompact ? "text-xs" : "text-sm sm:text-base"
           }`}
         >
-          {translateColor(gemstone.color)}{" "}
-          {translateGemstoneType(gemstone.name)}
+          {colorLabel}{" "}
+          {typeLabel}
         </h3>
 
         {/* Attributes */}
@@ -195,7 +205,7 @@ export function GemstoneCard({
                 {t("type")}:
               </span>
               <span className="text-xs font-medium text-foreground">
-                {translateGemstoneType(gemstone.name)}
+                {typeLabel}
               </span>
             </div>
 
@@ -207,7 +217,7 @@ export function GemstoneCard({
               </span>
               <ColorIndicator color={gemstone.color} className="w-3 h-3" />
               <span className="text-xs font-medium text-foreground">
-                {translateColor(gemstone.color)}
+                {colorLabel}
               </span>
             </div>
 
@@ -217,7 +227,7 @@ export function GemstoneCard({
               <span className="text-xs text-muted-foreground">{t("cut")}:</span>
               <CutIcon cut={gemstone.cut} className="w-4 h-4" />
               <span className="text-xs font-medium text-foreground">
-                {translateCut(gemstone.cut)}
+                {cutLabel ?? t("unknown")}
               </span>
             </div>
           </div>
@@ -232,7 +242,7 @@ export function GemstoneCard({
           <div className="font-medium text-foreground">
             {gemstone.weight_carats}ct
           </div>
-          <div>{translateClarity(gemstone.clarity)}</div>
+          <div>{clarityLabel ?? t("unknown")}</div>
           {gemstone.origin && (
             <div className="text-xs">Origin: {gemstone.origin.name}</div>
           )}

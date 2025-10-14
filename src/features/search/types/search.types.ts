@@ -56,6 +56,8 @@ export interface SearchRequest {
   page: number;
   pageSize: number;
   filters: SearchFilters;
+  locale: string;
+  searchDescriptions?: boolean;
 }
 
 /**

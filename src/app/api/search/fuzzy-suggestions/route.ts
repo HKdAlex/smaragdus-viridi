@@ -14,6 +14,7 @@ import { z } from "zod";
 const fuzzySuggestionsSchema = z.object({
   query: z.string().min(1, "Query is required"),
   limit: z.number().int().min(1).max(10).default(5),
+  locale: z.string().default("en"),
 });
 
 // Force dynamic rendering (no static optimization)
@@ -30,14 +31,24 @@ export async function GET(request: NextRequest) {
     // Parse and validate query params
     const query = searchParams.get("query");
     const limit = Number(searchParams.get("limit") || 5);
+    const locale =
+      searchParams.get("locale") ||
+      request.headers.get("x-locale") ||
+      request.headers.get("accept-language")?.split(",")[0]?.slice(0, 2) ||
+      "en";
 
     // Validate
-    const validatedData = fuzzySuggestionsSchema.parse({ query, limit });
+    const validatedData = fuzzySuggestionsSchema.parse({
+      query,
+      limit,
+      locale,
+    });
 
     // Get fuzzy suggestions
     const suggestions = await SearchService.getFuzzySuggestions(
       validatedData.query,
-      validatedData.limit
+      validatedData.limit,
+      validatedData.locale
     );
 
     // Return suggestions

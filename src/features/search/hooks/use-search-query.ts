@@ -7,6 +7,7 @@
 "use client";
 
 import type { AdvancedGemstoneFilters } from "@/features/gemstones/types/filter.types";
+import type { CatalogGemstone } from "@/features/gemstones/services/gemstone-fetch.service";
 import { useQuery } from "@tanstack/react-query";
 
 export interface SearchQueryParams {
@@ -14,26 +15,11 @@ export interface SearchQueryParams {
   filters?: AdvancedGemstoneFilters;
   page?: number;
   pageSize?: number;
+  locale: string;
+  searchDescriptions?: boolean;
 }
 
-export interface SearchResult {
-  id: string;
-  serial_number: string;
-  name: string;
-  color: string;
-  cut: string | null;
-  clarity: string | null;
-  weight_carats: number;
-  price_amount: number;
-  price_currency: string;
-  description: string | null;
-  has_certification: boolean;
-  has_ai_analysis: boolean;
-  metadata_status: string | null;
-  created_at: string;
-  updated_at: string;
-  relevance_score?: number;
-}
+export type SearchResult = CatalogGemstone;
 
 export interface SearchResponse {
   results: SearchResult[];
@@ -54,7 +40,14 @@ export interface SearchResponse {
 async function fetchSearchResults(
   params: SearchQueryParams
 ): Promise<SearchResponse> {
-  const { query, filters = {}, page = 1, pageSize = 24 } = params;
+  const {
+    query,
+    filters = {},
+    page = 1,
+    pageSize = 24,
+    locale,
+    searchDescriptions = false,
+  } = params;
 
   const response = await fetch("/api/search", {
     method: "POST",
@@ -66,6 +59,8 @@ async function fetchSearchResults(
       page,
       pageSize,
       filters,
+      locale,
+      searchDescriptions,
     }),
   });
 
@@ -87,10 +82,25 @@ async function fetchSearchResults(
  * @param params - Search parameters
  */
 export function useSearchQuery(params: SearchQueryParams) {
-  const { query, filters = {}, page = 1, pageSize = 24 } = params;
+  const {
+    query,
+    filters = {},
+    page = 1,
+    pageSize = 24,
+    locale,
+    searchDescriptions = false,
+  } = params;
 
   return useQuery({
-    queryKey: ["search", query, filters, page, pageSize],
+    queryKey: [
+      "search",
+      query,
+      filters,
+      page,
+      pageSize,
+      locale,
+      searchDescriptions,
+    ],
     queryFn: () => fetchSearchResults(params),
     enabled: query.length > 0, // Only search if query exists
     staleTime: 5 * 60 * 1000, // 5 minutes

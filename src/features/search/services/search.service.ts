@@ -27,15 +27,27 @@ export class SearchService {
 
     const supabase = supabaseAdmin;
 
-    const { query, page, pageSize, filters } = request;
+    const { query, page, pageSize, filters, locale, searchDescriptions } =
+      request;
 
-    // Try exact search first
-    const { data, error } = await supabase.rpc("search_gemstones_fulltext", {
+    const rpcPayload = {
       search_query: query || "",
-      filters: (filters || {}) as any,
+      search_locale: locale,
+      filters: {
+        ...((filters || {}) as any),
+        searchDescriptions: !!searchDescriptions,
+      },
       page_num: page,
       page_size: pageSize,
-    });
+    };
+
+    // Try exact search first
+    const { data, error } = await supabase.rpc(
+      "search_gemstones_multilingual",
+      rpcPayload
+    );
+
+    const resultData = (data ?? []) as any[];
 
     if (error) {
       console.error("[SearchService] Full-text search error:", error);
@@ -43,7 +55,7 @@ export class SearchService {
     }
 
     // If exact search returns no results, try fuzzy search
-    if ((!data || data.length === 0) && query && query.trim().length > 0) {
+    if (resultData.length === 0 && query && query.trim().length > 0) {
       console.log(
         `[SearchService] No exact matches for "${query}", trying fuzzy search...`
       );
@@ -53,15 +65,19 @@ export class SearchService {
         useFuzzy: true,
       };
 
-      const { data: fuzzyData, error: fuzzyError } = await supabase.rpc(
-        "search_gemstones_fulltext",
+      const { data: fuzzyRaw, error: fuzzyError } = await supabase.rpc(
+        "search_gemstones_multilingual",
         {
+          ...rpcPayload,
           search_query: query,
-          filters: fuzzyFilters as any,
-          page_num: page,
-          page_size: pageSize,
+          filters: {
+            ...((fuzzyFilters || {}) as any),
+            searchDescriptions: !!searchDescriptions,
+          },
         }
       );
+
+      const fuzzyData = (fuzzyRaw ?? []) as any[];
 
       if (fuzzyError) {
         console.error("[SearchService] Fuzzy search error:", fuzzyError);
@@ -74,7 +90,7 @@ export class SearchService {
       }
     }
 
-    if (!data || data.length === 0) {
+    if (resultData.length === 0) {
       return {
         results: [],
         pagination: {
@@ -89,7 +105,7 @@ export class SearchService {
       };
     }
 
-    return await this.buildSearchResponse(data, page, pageSize, false);
+    return await this.buildSearchResponse(resultData, page, pageSize, false);
   }
 
   /**
@@ -132,26 +148,8 @@ export class SearchService {
       );
       // Return results without images rather than failing completely
       const results = data.map((row: any) => ({
-        id: row.id,
-        serial_number: row.serial_number,
-        name: row.name,
-        gemstone_type: row.gemstone_type,
-        color: row.color,
-        cut: row.cut,
-        clarity: row.clarity,
-        origin_id: row.origin_id,
-        weight_carats: row.weight_carats,
-        price_amount: row.price_amount,
-        price_currency: row.price_currency,
-        description: row.description,
-        in_stock: row.in_stock,
-        has_certification: row.has_certification,
-        has_ai_analysis: row.has_ai_analysis,
-        metadata_status: row.metadata_status,
-        created_at: row.created_at,
-        updated_at: row.updated_at,
-        relevance_score: row.relevance_score,
-        images: [], // Empty array when supabase is null
+        ...row,
+        images: [],
       }));
 
       return {
@@ -189,26 +187,8 @@ export class SearchService {
 
     // Map results with images
     const results = data.map((row: any) => ({
-      id: row.id,
-      serial_number: row.serial_number,
-      name: row.name,
-      gemstone_type: row.gemstone_type,
-      color: row.color,
-      cut: row.cut,
-      clarity: row.clarity,
-      origin_id: row.origin_id,
-      weight_carats: row.weight_carats,
-      price_amount: row.price_amount,
-      price_currency: row.price_currency,
-      description: row.description,
-      in_stock: row.in_stock,
-      has_certification: row.has_certification,
-      has_ai_analysis: row.has_ai_analysis,
-      metadata_status: row.metadata_status,
-      created_at: row.created_at,
-      updated_at: row.updated_at,
-      relevance_score: row.relevance_score,
-      images: imagesByGemstone.get(row.id) || [], // Add images array
+      ...row,
+      images: imagesByGemstone.get(row.id) || [],
     }));
 
     return {
@@ -230,7 +210,8 @@ export class SearchService {
    */
   static async getFuzzySuggestions(
     query: string,
-    limit: number = 5
+    limit: number = 5,
+    locale: string = "en"
   ): Promise<Array<{ suggestion: string; score: number; type: string }>> {
     if (!supabaseAdmin) {
       throw new Error("Database connection failed");
@@ -242,6 +223,7 @@ export class SearchService {
     const { data, error } = await supabase.rpc("fuzzy_search_suggestions", {
       search_term: query,
       suggestion_limit: limit,
+      search_locale: locale,
     });
 
     if (error) {

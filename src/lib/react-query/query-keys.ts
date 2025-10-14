@@ -38,6 +38,13 @@ export const queryKeys = {
     detail: (url: string) => [...queryKeys.images.all, "detail", url] as const,
   },
 
+  // Translations
+  translations: {
+    all: ["translations"] as const,
+    list: (locale: string, kind: "type" | "color" | "cut" | "clarity") =>
+      [...queryKeys.translations.all, locale, kind] as const,
+  },
+
   // Search (Phase 2+)
   search: {
     all: ["search"] as const,

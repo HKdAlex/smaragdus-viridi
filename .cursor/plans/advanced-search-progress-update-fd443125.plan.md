@@ -19,7 +19,7 @@ Create translation infrastructure:
 
 - `gemstone_type_translations` table (id, type_code, locale, name, description)
 - `gem_color_translations` table
-- `gem_cut_translations` table  
+- `gem_cut_translations` table
 - `gem_clarity_translations` table
 - Populate with EN/RU translations from current enums
 - Keep existing enum columns for backward compatibility (deprecated)
@@ -38,7 +38,7 @@ Implement dual-language search:
 ALTER TABLE gemstones ADD COLUMN search_vector_ru tsvector;
 
 -- Create Russian full-text index
-CREATE INDEX idx_gemstones_fulltext_ru ON gemstones 
+CREATE INDEX idx_gemstones_fulltext_ru ON gemstones
 USING GIN(search_vector_ru);
 
 -- Update function to use correct language config based on query
@@ -89,13 +89,16 @@ CREATE OR REPLACE FUNCTION search_gemstones_multilingual(
 ```typescript
 export class TranslationService {
   // Get translated gemstone type name
-  static async getGemstoneTypeName(typeCode: string, locale: string): Promise<string>
-  
+  static async getGemstoneTypeName(
+    typeCode: string,
+    locale: string
+  ): Promise<string>;
+
   // Get all translations for a type (for autocomplete)
-  static async getAllTranslations(locale: string): Promise<TranslationMap>
-  
+  static async getAllTranslations(locale: string): Promise<TranslationMap>;
+
   // Reverse lookup: RU name → type code
-  static async findTypeByName(name: string, locale: string): Promise<string>
+  static async findTypeByName(name: string, locale: string): Promise<string>;
 }
 ```
 
@@ -156,25 +159,25 @@ This document will be used by another agent to research:
 ```javascript
 export const GEMSTONE_DESCRIPTION_PROMPT_V4 = {
   system: `You are a master jeweler and storyteller...`,
-  
+
   technical_description: {
     target_audience: "Professional buyers, collectors, jewelers",
     style: "Precise, gemological, objective",
     language: "Russian (with English fallback)",
-    fields: ["properties", "quality_assessment", "origin", "treatments"]
+    fields: ["properties", "quality_assessment", "origin", "treatments"],
   },
-  
+
   emotional_description: {
     target_audience: "Women and men seeking meaningful purchases",
     style: "Evocative, sensory, aspirational",
     language: "Russian",
     tone: {
       for_women: "Romantic, empowering, elegant",
-      for_men: "Strong, sophisticated, legacy-focused"
+      for_men: "Strong, sophisticated, legacy-focused",
     },
-    length: "2-3 paragraphs, 150-200 words"
+    length: "2-3 paragraphs, 150-200 words",
   },
-  
+
   narrative_story: {
     target_audience: "Gift buyers, romantic occasions",
     style: "Unique fictional narrative per stone",
@@ -182,9 +185,9 @@ export const GEMSTONE_DESCRIPTION_PROMPT_V4 = {
     themes: ["love", "legacy", "transformation", "destiny", "nature"],
     structure: "Beginning (discovery) → Middle (journey) → End (significance)",
     length: "3-4 paragraphs, 250-300 words",
-    uniqueness: "CRITICAL: Each stone gets a completely unique story"
-  }
-}
+    uniqueness: "CRITICAL: Each stone gets a completely unique story",
+  },
+};
 ```
 
 **Key Improvements:**
@@ -230,7 +233,7 @@ ADD COLUMN ai_cost_usd NUMERIC(10,4);
 
 **New Features:**
 
-1. Model selection (GPT-4o-mini, Claude, GPT-4o)
+1. Model selection (GPT-4o-mini, GPT-4o, o1-preview)
 2. Batch processing with retry logic
 3. Progress persistence (resume from interruption)
 4. Cost tracking and budget enforcement
@@ -240,11 +243,14 @@ ADD COLUMN ai_cost_usd NUMERIC(10,4);
 **CLI Usage:**
 
 ```bash
-# Test with 10 stones, GPT-4o-mini
-node scripts/ai-gemstone-analyzer-v4.mjs --model gpt-4o-mini --batch 10 --max-cost 5
+# Test run with default 5 stones (configurable)
+node scripts/ai-gemstone-analyzer-v4.mjs --model gpt-4o-mini
 
-# Full run with Claude for Russian quality
-node scripts/ai-gemstone-analyzer-v4.mjs --model claude-3.5-sonnet --batch 100 --max-cost 100
+# Specify custom batch size and cost
+node scripts/ai-gemstone-analyzer-v4.mjs --model gpt-4o-mini --batch-size 12 --max-cost 6
+
+# Full run with GPT-4o for higher fidelity
+node scripts/ai-gemstone-analyzer-v4.mjs --model gpt-4o --batch-size 100 --max-cost 120
 
 # Resume interrupted run
 node scripts/ai-gemstone-analyzer-v4.mjs --resume --model gpt-4o-mini
@@ -269,7 +275,7 @@ node scripts/ai-gemstone-analyzer-v4.mjs --resume --model gpt-4o-mini
 ```
 Tabs:
 1. "Технические характеристики" (Technical) - B2B focus
-2. "Описание" (Emotional) - Main product page  
+2. "Описание" (Emotional) - Main product page
 3. "История камня" (Story) - Unique narrative in beautiful typography
 ```
 
@@ -298,7 +304,7 @@ Tabs:
 2. Day 2-3: Search service updates, translation layer
 3. Day 3: Frontend integration, testing
 
-### Week 2: AI Enhancement  
+### Week 2: AI Enhancement
 
 1. Day 1: Model research and comparison
 2. Day 2-3: Prompt engineering and testing
@@ -321,7 +327,7 @@ Tabs:
 **AI Analysis (Test Batch - 50 stones):**
 
 - GPT-4o-mini: ~$8
-- Claude 3.5 Sonnet: ~$13  
+- Claude 3.5 Sonnet: ~$13
 - GPT-4o: ~$25
 
 **AI Analysis (Full Batch - 1,385 stones):**
@@ -358,7 +364,7 @@ Tabs:
 **Migrations:**
 
 - `migrations/20251015_create_translation_tables.sql`
-- `migrations/20251015_add_multilingual_search.sql`  
+- `migrations/20251015_add_multilingual_search.sql`
 - `migrations/20251015_enhance_ai_analysis.sql`
 
 **Services:**

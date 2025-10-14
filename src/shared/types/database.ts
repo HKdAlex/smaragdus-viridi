@@ -434,6 +434,78 @@ export type Database = {
           },
         ]
       }
+      gem_clarity_translations: {
+        Row: {
+          clarity_code: string
+          description: string | null
+          id: string
+          locale: string
+          name: string
+        }
+        Insert: {
+          clarity_code: string
+          description?: string | null
+          id?: string
+          locale: string
+          name: string
+        }
+        Update: {
+          clarity_code?: string
+          description?: string | null
+          id?: string
+          locale?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      gem_color_translations: {
+        Row: {
+          color_code: string
+          description: string | null
+          id: string
+          locale: string
+          name: string
+        }
+        Insert: {
+          color_code: string
+          description?: string | null
+          id?: string
+          locale: string
+          name: string
+        }
+        Update: {
+          color_code?: string
+          description?: string | null
+          id?: string
+          locale?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      gem_cut_translations: {
+        Row: {
+          cut_code: string
+          description: string | null
+          id: string
+          locale: string
+          name: string
+        }
+        Insert: {
+          cut_code: string
+          description?: string | null
+          id?: string
+          locale: string
+          name: string
+        }
+        Update: {
+          cut_code?: string
+          description?: string | null
+          id?: string
+          locale?: string
+          name?: string
+        }
+        Relationships: []
+      }
       gemstone_images: {
         Row: {
           ai_analysis_date: string | null
@@ -503,6 +575,30 @@ export type Database = {
           },
         ]
       }
+      gemstone_type_translations: {
+        Row: {
+          description: string | null
+          id: string
+          locale: string
+          name: string
+          type_code: string
+        }
+        Insert: {
+          description?: string | null
+          id?: string
+          locale: string
+          name: string
+          type_code: string
+        }
+        Update: {
+          description?: string | null
+          id?: string
+          locale?: string
+          name?: string
+          type_code?: string
+        }
+        Relationships: []
+      }
       gemstone_videos: {
         Row: {
           ai_analysis_date: string | null
@@ -570,12 +666,17 @@ export type Database = {
           ai_confidence_score: number | null
           ai_data_completeness: number | null
           clarity: Database["public"]["Enums"]["gem_clarity"]
+          clarity_code: string
           color: Database["public"]["Enums"]["gem_color"]
+          color_code: string
           created_at: string | null
           cut: Database["public"]["Enums"]["gem_cut"]
+          cut_code: string
           delivery_days: number | null
           depth_mm: number
           description: string | null
+          description_vector_en: unknown | null
+          description_vector_ru: unknown | null
           id: string
           import_batch_id: string | null
           import_folder_path: string | null
@@ -596,7 +697,10 @@ export type Database = {
           price_per_carat: number | null
           promotional_text: string | null
           quantity: number
+          search_vector_en: unknown | null
+          search_vector_ru: unknown | null
           serial_number: string
+          type_code: string
           updated_at: string | null
           weight_carats: number
           width_mm: number
@@ -607,12 +711,17 @@ export type Database = {
           ai_confidence_score?: number | null
           ai_data_completeness?: number | null
           clarity: Database["public"]["Enums"]["gem_clarity"]
+          clarity_code: string
           color: Database["public"]["Enums"]["gem_color"]
+          color_code: string
           created_at?: string | null
           cut: Database["public"]["Enums"]["gem_cut"]
+          cut_code: string
           delivery_days?: number | null
           depth_mm: number
           description?: string | null
+          description_vector_en?: unknown | null
+          description_vector_ru?: unknown | null
           id?: string
           import_batch_id?: string | null
           import_folder_path?: string | null
@@ -635,7 +744,10 @@ export type Database = {
           price_per_carat?: number | null
           promotional_text?: string | null
           quantity?: number
+          search_vector_en?: unknown | null
+          search_vector_ru?: unknown | null
           serial_number: string
+          type_code: string
           updated_at?: string | null
           weight_carats: number
           width_mm: number
@@ -646,12 +758,17 @@ export type Database = {
           ai_confidence_score?: number | null
           ai_data_completeness?: number | null
           clarity?: Database["public"]["Enums"]["gem_clarity"]
+          clarity_code?: string
           color?: Database["public"]["Enums"]["gem_color"]
+          color_code?: string
           created_at?: string | null
           cut?: Database["public"]["Enums"]["gem_cut"]
+          cut_code?: string
           delivery_days?: number | null
           depth_mm?: number
           description?: string | null
+          description_vector_en?: unknown | null
+          description_vector_ru?: unknown | null
           id?: string
           import_batch_id?: string | null
           import_folder_path?: string | null
@@ -674,7 +791,10 @@ export type Database = {
           price_per_carat?: number | null
           promotional_text?: string | null
           quantity?: number
+          search_vector_en?: unknown | null
+          search_vector_ru?: unknown | null
           serial_number?: string
+          type_code?: string
           updated_at?: string | null
           weight_carats?: number
           width_mm?: number
@@ -1218,6 +1338,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: number
       }
+      detect_query_locale: {
+        Args: { query: string }
+        Returns: string
+      }
       fuzzy_search_suggestions: {
         Args: { search_term: string; suggestion_limit?: number }
         Returns: {
@@ -1315,6 +1439,34 @@ export type Database = {
           weight_carats: number
         }[]
       }
+      search_gemstones_multilingual: {
+        Args: {
+          filters?: Json
+          page_num?: number
+          page_size?: number
+          search_locale?: string
+          search_query: string
+        }
+        Returns: {
+          clarity: Database["public"]["Enums"]["gem_clarity"]
+          color: Database["public"]["Enums"]["gem_color"]
+          created_at: string
+          cut: Database["public"]["Enums"]["gem_cut"]
+          description: string
+          has_ai_analysis: boolean
+          has_certification: boolean
+          id: string
+          metadata_status: Database["public"]["Enums"]["metadata_status"]
+          name: Database["public"]["Enums"]["gemstone_type"]
+          price_amount: number
+          price_currency: Database["public"]["Enums"]["currency_code"]
+          relevance_score: number
+          serial_number: string
+          total_count: number
+          updated_at: string
+          weight_carats: number
+        }[]
+      }
       search_gemstones_optimized: {
         Args: {
           clarities?: string[]
@@ -1372,6 +1524,14 @@ export type Database = {
       show_trgm: {
         Args: { "": string }
         Returns: string[]
+      }
+      unaccent: {
+        Args: { "": string }
+        Returns: string
+      }
+      unaccent_init: {
+        Args: { "": unknown }
+        Returns: unknown
       }
       validate_cart_item: {
         Args: { p_gemstone_id: string; p_quantity: number; p_user_id: string }
