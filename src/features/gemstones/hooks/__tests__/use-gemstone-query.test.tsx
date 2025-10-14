@@ -10,11 +10,12 @@ import { renderHook, waitFor } from "@testing-library/react";
 
 import type { AdvancedGemstoneFilters } from "../../types/filter.types";
 import { GemstoneFetchService } from "../../services/gemstone-fetch.service";
+import React from "react";
 import { useGemstoneQuery } from "../use-gemstone-query";
 
 // Mock the service
 vi.mock("../../services/gemstone-fetch.service", () => ({
-  gemstoneFetchService: {
+  GemstoneFetchService: {
     fetchGemstones: vi.fn(),
   },
 }));
@@ -31,7 +32,6 @@ const createWrapper = () => {
   return ({ children }: { children: React.ReactNode }) => (
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
-};
 };
 
 describe("useGemstoneQuery", () => {
@@ -51,7 +51,7 @@ describe("useGemstoneQuery", () => {
       },
     };
 
-    vi.mocked(gemstoneFetchService.fetchGemstones).mockResolvedValue(mockData);
+    vi.mocked(GemstoneFetchService.fetchGemstones).mockResolvedValue(mockData);
 
     const filters: AdvancedGemstoneFilters = {
       gemstoneTypes: ["ruby"],
@@ -68,7 +68,7 @@ describe("useGemstoneQuery", () => {
     });
 
     expect(result.current.data).toEqual(mockData);
-    expect(gemstoneFetchService.fetchGemstones).toHaveBeenCalledWith({
+    expect(GemstoneFetchService.fetchGemstones).toHaveBeenCalledWith({
       ...filters,
       page: 1,
       pageSize: 24,
@@ -76,7 +76,7 @@ describe("useGemstoneQuery", () => {
   });
 
   it("should handle errors gracefully", async () => {
-    vi.mocked(gemstoneFetchService.fetchGemstones).mockRejectedValue(
+    vi.mocked(GemstoneFetchService.fetchGemstones).mockRejectedValue(
       new Error("API Error")
     );
 
@@ -104,7 +104,7 @@ describe("useGemstoneQuery", () => {
       },
     };
 
-    vi.mocked(gemstoneFetchService.fetchGemstones).mockResolvedValue(mockData);
+    vi.mocked(GemstoneFetchService.fetchGemstones).mockResolvedValue(mockData);
 
     const filters: AdvancedGemstoneFilters = {
       search: "ruby",
@@ -123,13 +123,13 @@ describe("useGemstoneQuery", () => {
     });
 
     // Service should be called once
-    expect(gemstoneFetchService.fetchGemstones).toHaveBeenCalledTimes(1);
+    expect(GemstoneFetchService.fetchGemstones).toHaveBeenCalledTimes(1);
 
     // Re-render with same filters should use cache
     rerender({ f: filters, p: 1 });
 
     // Should still only have been called once (using cache)
-    expect(gemstoneFetchService.fetchGemstones).toHaveBeenCalledTimes(1);
+    expect(GemstoneFetchService.fetchGemstones).toHaveBeenCalledTimes(1);
   });
 
   it("should refetch when filters change", async () => {
@@ -145,7 +145,7 @@ describe("useGemstoneQuery", () => {
       },
     };
 
-    vi.mocked(gemstoneFetchService.fetchGemstones).mockResolvedValue(mockData);
+    vi.mocked(GemstoneFetchService.fetchGemstones).mockResolvedValue(mockData);
 
     const { result, rerender } = renderHook(
       ({ f, p }) => useGemstoneQuery(f, p, 24),
@@ -164,7 +164,7 @@ describe("useGemstoneQuery", () => {
 
     // Should fetch again with new filters
     await waitFor(() => {
-      expect(gemstoneFetchService.fetchGemstones).toHaveBeenCalledTimes(2);
+      expect(GemstoneFetchService.fetchGemstones).toHaveBeenCalledTimes(2);
     });
   });
 });

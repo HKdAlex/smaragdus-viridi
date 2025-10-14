@@ -12,12 +12,12 @@ import {
   type GemstoneWithRelations,
 } from "../services/gemstone-admin-service";
 
+import { GemstoneImageThumbnail } from "@/features/gemstones/components/gemstone-image-thumbnail";
 import { adminCache } from "../services/admin-cache";
 import { BulkEditModal } from "./bulk-edit-modal";
 import { EnhancedSearch, type SearchFilters } from "./enhanced-search";
 import { GemstoneActionsMenu } from "./gemstone-actions-menu";
 import { GemstoneDetailView } from "./gemstone-detail-view";
-import { GemstoneImageThumbnail } from "@/features/gemstones/components/gemstone-image-thumbnail";
 
 interface GemstoneListOptimizedProps {
   onCreateNew?: () => void;

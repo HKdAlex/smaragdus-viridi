@@ -17,8 +17,10 @@ interface GemstoneImageThumbnailProps {
   gemstone: {
     images?: Array<{
       image_url: string;
-      is_primary?: boolean;
+      is_primary?: boolean | null;
+      [key: string]: any; // Allow additional database fields
     }> | null;
+    name?: string;
   };
   size?: "xs" | "sm" | "md" | "lg";
   alt: string;

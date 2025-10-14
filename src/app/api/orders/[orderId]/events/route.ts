@@ -18,7 +18,7 @@ export async function GET(
       );
     }
 
-    const supabase = await createServerClient();
+    const supabase = await createServerSupabaseClient();
 
     // Fetch order to authorize and get current status
     const { data: order, error: orderError } = (await supabase

@@ -26,7 +26,7 @@ export function BlurPlaceholder({
   alt,
   className = "",
   blurDataURL,
-  priority = false
+  priority = false,
 }: BlurPlaceholderProps) {
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
@@ -57,9 +57,7 @@ export function BlurPlaceholder({
         src={src}
         alt={alt}
         className={`w-full h-full object-cover transition-all duration-500 ${
-          loaded
-            ? "opacity-100 scale-100"
-            : "opacity-0 scale-105"
+          loaded ? "opacity-100 scale-100" : "opacity-0 scale-105"
         }`}
         onLoad={handleLoad}
         onError={handleError}

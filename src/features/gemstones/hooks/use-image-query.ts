@@ -6,6 +6,7 @@
  */
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+
 import { queryKeys } from "@/lib/react-query/query-keys";
 
 interface ImageData {
