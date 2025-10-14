@@ -32,10 +32,10 @@ export const queryKeys = {
       [...queryKeys.related.all, gemstoneId] as const,
   },
 
-  // Images (long TTL)
+  // Images (long TTL - Phase 6)
   images: {
     all: ["images"] as const,
-    image: (url: string) => [...queryKeys.images.all, url] as const,
+    detail: (url: string) => [...queryKeys.images.all, "detail", url] as const,
   },
 
   // Search (Phase 2+)

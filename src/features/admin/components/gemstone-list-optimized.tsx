@@ -17,6 +17,7 @@ import { BulkEditModal } from "./bulk-edit-modal";
 import { EnhancedSearch, type SearchFilters } from "./enhanced-search";
 import { GemstoneActionsMenu } from "./gemstone-actions-menu";
 import { GemstoneDetailView } from "./gemstone-detail-view";
+import { GemstoneImageThumbnail } from "@/features/gemstones/components/gemstone-image-thumbnail";
 
 interface GemstoneListOptimizedProps {
   onCreateNew?: () => void;
@@ -646,44 +647,11 @@ export function GemstoneListOptimized({
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center">
-                          <div className="flex-shrink-0 w-12 h-12 relative">
-                            {gemstone.images && gemstone.images.length > 0 ? (
-                              <img
-                                src={gemstone.images[0].image_url}
-                                alt={getLocalizedGemstoneType(gemstone.name)}
-                                className="w-12 h-12 rounded-lg object-cover border border-border"
-                                loading="lazy"
-                                decoding="async"
-                                onLoad={(e) => {
-                                  // Hide fallback when image loads successfully
-                                  const target = e.target as HTMLImageElement;
-                                  const fallback =
-                                    target.nextElementSibling as HTMLElement;
-                                  if (fallback) fallback.style.display = "none";
-                                }}
-                                onError={(e) => {
-                                  // Show fallback when image fails to load
-                                  const target = e.target as HTMLImageElement;
-                                  target.style.display = "none";
-                                  const fallback =
-                                    target.nextElementSibling as HTMLElement;
-                                  if (fallback) fallback.style.display = "flex";
-                                }}
-                              />
-                            ) : null}
-                            {/* Fallback for missing or broken images */}
-                            <div
-                              className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center border border-border absolute inset-0"
-                              style={{
-                                display:
-                                  gemstone.images && gemstone.images.length > 0
-                                    ? "flex"
-                                    : "flex",
-                              }}
-                            >
-                              <Gem className="w-6 h-6 text-muted-foreground" />
-                            </div>
-                          </div>
+                          <GemstoneImageThumbnail
+                            gemstone={gemstone}
+                            size="sm"
+                            alt={getLocalizedGemstoneType(gemstone.name)}
+                          />
                           <div className="ml-4">
                             <div className="font-medium text-foreground">
                               {formatWeight(gemstone.weight_carats)}{" "}
