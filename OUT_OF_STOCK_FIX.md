@@ -193,12 +193,12 @@ FROM filtered_gemstones fg
 
 ## **Fuzzy Search Testing Summary**
 
-| Feature            | Status           | Notes                            |
-| ------------------ | ---------------- | -------------------------------- |
-| **Autocomplete**   | ✅ Working       | Shows suggestions while typing   |
-| **Fuzzy Fallback** | ✅ Working       | "emrald" finds "emerald" results |
-| **Blue Banner**    | ✅ Working       | "Approximate matches" message    |
-| **Amber Banner**   | ✅ Working       | API endpoint tested successfully |
+| Feature            | Status       | Notes                                |
+| ------------------ | ------------ | ------------------------------------ |
+| **Autocomplete**   | ✅ Working   | Shows suggestions while typing       |
+| **Fuzzy Fallback** | ✅ Working   | "emrald" finds "emerald" results     |
+| **Blue Banner**    | ✅ Working   | "Approximate matches" message        |
+| **Amber Banner**   | ✅ Working   | API endpoint tested successfully     |
 | **Stock Status**   | ✅ **FIXED** | "Available" badges showing correctly |
 
 ---
@@ -233,9 +233,10 @@ curl "http://localhost:3000/api/search?query=emerald"
 
 **Migration Applied:** `20251014_fix_search_in_stock_v2`  
 **Date:** October 14, 2025  
-**Method:** Supabase MCP `apply_migration` tool  
+**Method:** Supabase MCP `apply_migration` tool
 
 **Key Changes:**
+
 1. Updated `search_gemstones_fulltext` function to return `in_stock` and `origin_id` fields
 2. Fixed type mismatch: `price_amount` changed from `numeric` to `integer`
 3. Updated `SearchService.buildSearchResponse()` to map `in_stock` and `origin_id`

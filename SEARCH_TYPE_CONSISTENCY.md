@@ -52,8 +52,8 @@ interface GemstoneSearchResult extends DbGemstone {  // ❌ Raw database row
 ```typescript
 // Now search extends catalog type:
 interface GemstoneSearchResult extends CatalogGemstone {
-  relevance_score?: number;  // Search-specific metadata
-  total_count?: number;      // Search-specific metadata
+  relevance_score?: number; // Search-specific metadata
+  total_count?: number; // Search-specific metadata
 }
 ```
 
@@ -71,13 +71,13 @@ GemstoneSearchResult (adds: relevance_score, total_count)
 
 ## **Benefits** 🎉
 
-| Benefit | Description |
-|---------|-------------|
-| **Type Safety** | TypeScript now knows search results have `images`, `origin`, etc. |
-| **Consistency** | Both endpoints return compatible types |
-| **DRY Principle** | Single source of truth for gemstone structure |
-| **Future-Proof** | Changes to `CatalogGemstone` auto-apply to search |
-| **No Casting** | Components work with both without `as any` |
+| Benefit           | Description                                                       |
+| ----------------- | ----------------------------------------------------------------- |
+| **Type Safety**   | TypeScript now knows search results have `images`, `origin`, etc. |
+| **Consistency**   | Both endpoints return compatible types                            |
+| **DRY Principle** | Single source of truth for gemstone structure                     |
+| **Future-Proof**  | Changes to `CatalogGemstone` auto-apply to search                 |
+| **No Casting**    | Components work with both without `as any`                        |
 
 ---
 
@@ -91,7 +91,7 @@ GemstoneSearchResult (adds: relevance_score, total_count)
   id, serial_number, name, color, cut, clarity,
   weight_carats, price_amount, price_currency,
   in_stock, origin_id, created_at, updated_at, ...
-  
+
   // Joined data (from CatalogGemstone)
   images: DatabaseGemstoneImage[],
   origin: DatabaseOrigin | null,
@@ -175,7 +175,7 @@ We have **TWO different fuzzy features**:
 if (data.length === 0) {
   // Try fuzzy search
   const fuzzyData = await supabase.rpc("search_gemstones_fulltext", {
-    filters: { ...filters, useFuzzy: true }
+    filters: { ...filters, useFuzzy: true },
   });
   return buildSearchResponse(fuzzyData, page, pageSize, true);
 }
@@ -193,7 +193,9 @@ if (data.length === 0) {
 useEffect(() => {
   if (query && data?.results.length === 0) {
     // Fetch suggestions for "Did you mean?"
-    const response = await fetch(`/api/search/fuzzy-suggestions?query=${query}`);
+    const response = await fetch(
+      `/api/search/fuzzy-suggestions?query=${query}`
+    );
     setFuzzySuggestions(response.suggestions);
   }
 }, [query, data]);
@@ -225,13 +227,13 @@ BEGIN
     SELECT serial_number as matched_value, 'serial_number' as match_type
     FROM gemstones
     WHERE similarity(serial_number, search_term) > 0.3
-    
+
     UNION ALL
-    
+
     SELECT name::text as matched_value, 'type' as match_type
     FROM gemstones
     WHERE similarity(name::text, search_term) > 0.3
-    
+
     -- etc...
   ) matches
   ORDER BY similarity_score DESC
@@ -252,7 +254,7 @@ static async getFuzzySuggestions(
     search_term: query,
     suggestion_limit: limit,
   });
-  
+
   return (data || []).map((row: any) => ({
     suggestion: row.suggestion,
     score: row.similarity_score,
@@ -280,19 +282,21 @@ useEffect(() => {
   if (query && data?.results.length === 0 && !isLoading) {
     // Only when NO results found
     fetch(`/api/search/fuzzy-suggestions?query=${query}`)
-      .then(r => r.json())
-      .then(result => setFuzzySuggestions(result.suggestions));
+      .then((r) => r.json())
+      .then((result) => setFuzzySuggestions(result.suggestions));
   }
 }, [query, data, isLoading]);
 
 // Render amber banner
-{fuzzySuggestions.length > 0 && results.length === 0 && (
-  <FuzzySearchBanner
-    originalQuery={query}
-    suggestions={fuzzySuggestions}
-    onSuggestionClick={handleSuggestionClick}
-  />
-)}
+{
+  fuzzySuggestions.length > 0 && results.length === 0 && (
+    <FuzzySearchBanner
+      originalQuery={query}
+      suggestions={fuzzySuggestions}
+      onSuggestionClick={handleSuggestionClick}
+    />
+  );
+}
 ```
 
 ---
@@ -345,19 +349,19 @@ Shows: Results (no banners)
 
 ### **Type Consistency: ✅ FIXED**
 
-| Aspect | Before | After |
-|--------|--------|-------|
-| **Base Type** | `DbGemstone` | `CatalogGemstone` |
-| **Type Safety** | ❌ Broken | ✅ Consistent |
-| **Images Field** | ⚠️ Runtime only | ✅ In type |
-| **Maintenance** | ❌ Manual sync | ✅ Auto-sync |
+| Aspect           | Before          | After             |
+| ---------------- | --------------- | ----------------- |
+| **Base Type**    | `DbGemstone`    | `CatalogGemstone` |
+| **Type Safety**  | ❌ Broken       | ✅ Consistent     |
+| **Images Field** | ⚠️ Runtime only | ✅ In type        |
+| **Maintenance**  | ❌ Manual sync  | ✅ Auto-sync      |
 
 ### **Fuzzy Suggestions: 🔶 "Did You Mean?"**
 
-| Feature | Purpose | When Shown | User Action |
-|---------|---------|------------|-------------|
-| **Fuzzy Suggestions** | Spelling correction | 0 results | Click suggestion |
-| **Fuzzy Search** | Find similar | 0 exact matches | Auto-applied |
+| Feature               | Purpose             | When Shown      | User Action      |
+| --------------------- | ------------------- | --------------- | ---------------- |
+| **Fuzzy Suggestions** | Spelling correction | 0 results       | Click suggestion |
+| **Fuzzy Search**      | Find similar        | 0 exact matches | Auto-applied     |
 
 ---
 
@@ -375,4 +379,3 @@ fix(search): ensure type consistency between search and catalog
 **Status:** ✅ **TYPE SAFETY RESTORED**  
 **Impact:** Prevents runtime errors, improves maintainability  
 **Committed:** ✅ (d273a8d)
-

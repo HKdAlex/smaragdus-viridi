@@ -27,10 +27,10 @@ created_at, updated_at, relevance_score, total_count
 
 **Comparison:**
 
-| Endpoint | Images Included? | How? |
-|----------|------------------|------|
-| `/api/catalog` | ✅ YES | Direct Supabase query with join: `images:gemstone_images!inner(id, image_url, is_primary)` |
-| `/api/search` | ❌ NO | RPC function doesn't join with `gemstone_images` table |
+| Endpoint       | Images Included? | How?                                                                                       |
+| -------------- | ---------------- | ------------------------------------------------------------------------------------------ |
+| `/api/catalog` | ✅ YES           | Direct Supabase query with join: `images:gemstone_images!inner(id, image_url, is_primary)` |
+| `/api/search`  | ❌ NO            | RPC function doesn't join with `gemstone_images` table                                     |
 
 ### **Why Not Fix the RPC Function?**
 
@@ -45,14 +45,17 @@ PostgreSQL functions have limitations returning nested arrays/objects. Modifying
 ### **Implementation Details**
 
 1. **Made `buildSearchResponse()` async**
+
    - Allows asynchronous image fetching
 
 2. **Extract gemstone IDs from search results**
+
    ```typescript
    const gemstoneIds = data.map((row: any) => row.id);
    ```
 
 3. **Fetch all images in a single query**
+
    ```typescript
    const { data: imagesData } = await supabase
      .from("gemstone_images")
@@ -62,6 +65,7 @@ PostgreSQL functions have limitations returning nested arrays/objects. Modifying
    ```
 
 4. **Group images by gemstone_id using Map**
+
    ```typescript
    const imagesByGemstone = new Map<string, any[]>();
    (imagesData || []).forEach((img) => {
@@ -95,7 +99,7 @@ PostgreSQL functions have limitations returning nested arrays/objects. Modifying
 
 ```sql
 -- Single efficient query:
-SELECT * FROM gemstone_images 
+SELECT * FROM gemstone_images
 WHERE gemstone_id IN (id1, id2, id3, ..., id24)
 ORDER BY image_order ASC
 
@@ -116,6 +120,7 @@ curl "http://localhost:3000/api/search?query=SV-143-12202582-90t"
 ```
 
 **Result:**
+
 ```json
 {
   "serial": "SV-143-12202582-90t",
@@ -147,12 +152,14 @@ curl "http://localhost:3000/api/search?query=SV-143-12202582-90t"
 ## **Impact**
 
 ### **Before Fix**
+
 ❌ Search results showed placeholder icons (💎)  
 ❌ Users couldn't see gemstone appearance  
 ❌ Inconsistent experience vs. catalog page  
 ❌ Reduced trust and engagement
 
 ### **After Fix**
+
 ✅ All search results display actual gemstone images  
 ✅ Consistent experience with catalog browsing  
 ✅ Improved visual appeal and user engagement  
@@ -162,8 +169,8 @@ curl "http://localhost:3000/api/search?query=SV-143-12202582-90t"
 
 ## **Files Changed**
 
-| File | Changes | Lines |
-|------|---------|-------|
+| File                                             | Changes                    | Lines  |
+| ------------------------------------------------ | -------------------------- | ------ |
 | `src/features/search/services/search.service.ts` | Added image fetching logic | +47 -5 |
 
 ---
@@ -188,17 +195,17 @@ private static async buildSearchResponse(data: any[], ...): Promise<SearchRespon
     .from("gemstone_images")
     .select("...")
     .in("gemstone_id", gemstoneIds);
-  
+
   // Group by gemstone_id
   const imagesByGemstone = new Map();
   imagesData.forEach(img => { ... });
-  
+
   // Add images to results
   const results = data.map((row: any) => ({
     ...row,
     images: imagesByGemstone.get(row.id) || [],
   }));
-  
+
   return { results, pagination, usedFuzzySearch };
 }
 ```
@@ -243,4 +250,3 @@ Consider adding a `primary_image_url` field to `gemstones` table for even faster
 **Verified:** Database + API + Browser  
 **Performance:** Optimized (single query)  
 **Committed:** ✅ (dd7cffc)
-

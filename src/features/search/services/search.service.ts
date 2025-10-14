@@ -126,8 +126,49 @@ export class SearchService {
     const gemstoneIds = data.map((row: any) => row.id);
 
     // Fetch images for all gemstones in a single query
-    const supabase = supabaseAdmin;
-    const { data: imagesData, error: imagesError } = await supabase
+    if (!supabaseAdmin) {
+      console.error(
+        "[SearchService] supabaseAdmin is null, skipping image fetch"
+      );
+      // Return results without images rather than failing completely
+      const results = data.map((row: any) => ({
+        id: row.id,
+        serial_number: row.serial_number,
+        name: row.name,
+        gemstone_type: row.gemstone_type,
+        color: row.color,
+        cut: row.cut,
+        clarity: row.clarity,
+        origin_id: row.origin_id,
+        weight_carats: row.weight_carats,
+        price_amount: row.price_amount,
+        price_currency: row.price_currency,
+        description: row.description,
+        in_stock: row.in_stock,
+        has_certification: row.has_certification,
+        has_ai_analysis: row.has_ai_analysis,
+        metadata_status: row.metadata_status,
+        created_at: row.created_at,
+        updated_at: row.updated_at,
+        relevance_score: row.relevance_score,
+        images: [], // Empty array when supabase is null
+      }));
+
+      return {
+        results: results as any,
+        pagination: {
+          page,
+          pageSize,
+          totalCount,
+          totalPages,
+          hasNextPage: page < totalPages,
+          hasPrevPage: page > 1,
+        },
+        usedFuzzySearch: usedFuzzy,
+      };
+    }
+
+    const { data: imagesData, error: imagesError } = await supabaseAdmin
       .from("gemstone_images")
       .select("id, gemstone_id, image_url, is_primary, image_order")
       .in("gemstone_id", gemstoneIds)
