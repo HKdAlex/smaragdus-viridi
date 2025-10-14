@@ -1,6 +1,6 @@
--- Migration: Add multilingual search support
+-- Migration: Add multilingual search with advanced filters support
 -- Date: 2025-10-15
--- Purpose: Introduce Russian full-text vectors and update search functions
+-- Purpose: Introduce Russian full-text vectors and advanced filtering (price, weight, types, etc.)
 
 BEGIN;
 
@@ -104,8 +104,37 @@ DECLARE
   base_vector tsvector;
   description_enabled boolean := COALESCE((filters->>'searchDescriptions')::boolean, false);
   final_vector tsvector;
+  -- Advanced filter variables
+  min_price numeric;
+  max_price numeric;
+  min_weight numeric;
+  max_weight numeric;
+  types text[];
+  colors text[];
+  cuts text[];
+  clarities text[];
+  origins_filter text[];
+  in_stock_only boolean;
+  has_images boolean;
+  has_certification_filter boolean;
+  has_ai_analysis_filter boolean;
 BEGIN
   offset_val := (page_num - 1) * page_size;
+
+  -- Parse advanced filters (matching catalog API logic)
+  min_price := (filters->>'minPrice')::numeric;
+  max_price := (filters->>'maxPrice')::numeric;
+  min_weight := (filters->>'minWeight')::numeric;
+  max_weight := (filters->>'maxWeight')::numeric;
+  types := ARRAY(SELECT jsonb_array_elements_text(filters->'gemstoneTypes'));
+  colors := ARRAY(SELECT jsonb_array_elements_text(filters->'colors'));
+  cuts := ARRAY(SELECT jsonb_array_elements_text(filters->'cuts'));
+  clarities := ARRAY(SELECT jsonb_array_elements_text(filters->'clarities'));
+  origins_filter := ARRAY(SELECT jsonb_array_elements_text(filters->'origins'));
+  in_stock_only := (filters->>'inStockOnly')::boolean;
+  has_images := (filters->>'hasImages')::boolean;
+  has_certification_filter := (filters->>'hasCertification')::boolean;
+  has_ai_analysis_filter := (filters->>'hasAIAnalysis')::boolean;
 
   IF effective_locale = 'ru' THEN
     ts_query := websearch_to_tsquery('russian', unaccent(coalesce(search_query, '')));
@@ -133,9 +162,23 @@ BEGIN
       -- Always filter out gems with price <= 0 (matches catalog behavior)
       g.price_amount > 0
       -- Ensure gem has at least one image (matches catalog behavior)
-      AND EXISTS (SELECT 1 FROM gemstone_images WHERE gemstone_id = g.id)
+      AND EXISTS (SELECT 1 FROM gemstone_images gi WHERE gi.gemstone_id = g.id)
       -- Search query filter
       AND (search_query IS NULL OR ts_query @@ final_vector)
+      -- Advanced filters (matching catalog API logic)
+      AND (min_price IS NULL OR g.price_amount >= min_price)
+      AND (max_price IS NULL OR g.price_amount <= max_price)
+      AND (min_weight IS NULL OR g.weight_carats >= min_weight)
+      AND (max_weight IS NULL OR g.weight_carats <= max_weight)
+      AND (types IS NULL OR cardinality(types) = 0 OR g.name::text = ANY(types))
+      AND (colors IS NULL OR cardinality(colors) = 0 OR g.color::text = ANY(colors))
+      AND (cuts IS NULL OR cardinality(cuts) = 0 OR g.cut::text = ANY(cuts))
+      AND (clarities IS NULL OR cardinality(clarities) = 0 OR g.clarity::text = ANY(clarities))
+      AND (origins_filter IS NULL OR cardinality(origins_filter) = 0 OR g.origin_id IN (
+        SELECT id FROM origins WHERE name = ANY(origins_filter)
+      ))
+      AND (in_stock_only IS NULL OR NOT in_stock_only OR g.in_stock = true)
+      AND (has_ai_analysis_filter IS NULL OR NOT has_ai_analysis_filter OR g.ai_analyzed = true)
   )
   SELECT
     f.id,

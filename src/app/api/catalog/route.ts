@@ -112,7 +112,7 @@ export async function GET(request: NextRequest) {
     if (filters.search) {
       const searchTerm = `%${filters.search}%`;
       query = query.or(
-        `serial_number.ilike.${searchTerm},internal_code.ilike.${searchTerm},name.ilike.${searchTerm},color.ilike.${searchTerm},cut.ilike.${searchTerm}`
+        `serial_number.ilike.${searchTerm},internal_code.ilike.${searchTerm},name::text.ilike.${searchTerm},color::text.ilike.${searchTerm},cut::text.ilike.${searchTerm}`
       );
     }
 

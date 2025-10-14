@@ -19,29 +19,29 @@
 
 "use client";
 
+import {
+  AdjustmentsHorizontalIcon,
+  MagnifyingGlassIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
+import {
+  CLARITY_ORDER,
+  categorizeColor,
+  getActiveFilterCount,
+} from "../../types/filter.types";
 import type {
   GemClarity,
   GemColor,
   GemCut,
   GemstoneType,
 } from "@/shared/types";
-import {
-  AdjustmentsHorizontalIcon,
-  MagnifyingGlassIcon,
-  XMarkIcon,
-} from "@heroicons/react/24/outline";
-import { useCallback, useMemo } from "react";
-import {
-  CLARITY_ORDER,
-  categorizeColor,
-  getActiveFilterCount,
-} from "../../types/filter.types";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { useTranslations } from "next-intl";
-import { useFilterLabels } from "../../hooks/use-filter-labels";
 import type { AdvancedGemstoneFilters } from "../../types/filter.types";
 import { FilterDropdown } from "./filter-dropdown";
 import { RangeSlider } from "./range-slider";
+import { useFilterLabels } from "../../hooks/use-filter-labels";
+import { useTranslations } from "next-intl";
 
 // Filter option types
 export interface FilterOption<T = string> {
@@ -87,13 +87,37 @@ export function AdvancedFiltersControlled({
     [filters]
   );
 
+  // Handle search input - debounced to avoid excessive URL updates
+  const [searchValue, setSearchValue] = useState(filters.search || "");
+  const [debouncedSearch, setDebouncedSearch] = useState(filters.search || "");
+
+  // Sync local state when filters prop changes (e.g., URL loading)
+  useEffect(() => {
+    const currentSearch = filters.search || "";
+    setSearchValue(currentSearch);
+    setDebouncedSearch(currentSearch);
+  }, [filters.search]);
+
+  // Debounce search updates to URL (500ms)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchValue);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchValue]);
+
+  // Update filters only when debounced search changes
+  useEffect(() => {
+    if (debouncedSearch !== (filters.search || "")) {
+      onChange({ ...filters, search: debouncedSearch || undefined });
+    }
+  }, [debouncedSearch, filters, onChange]);
+
   // Handle search input
-  const handleSearchChange = useCallback(
-    (value: string) => {
-      onChange({ ...filters, search: value || undefined });
-    },
-    [filters, onChange]
-  );
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchValue(value);
+  }, []);
 
   // Handle gemstone type filter
   const handleTypeChange = useCallback(
@@ -280,15 +304,15 @@ export function AdvancedFiltersControlled({
         <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
         <input
           type="text"
-          value={filters.search || ""}
+          value={searchValue}
           onChange={(e) => handleSearchChange(e.target.value)}
           placeholder={t("searchPlaceholder")}
           disabled={loading}
           className="w-full pl-10 pr-10 py-2 border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:opacity-50"
         />
-        {filters.search && (
+        {searchValue && (
           <button
-            onClick={() => handleSearchChange("")}
+            onClick={() => setSearchValue("")}
             disabled={loading}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground disabled:opacity-50"
           >

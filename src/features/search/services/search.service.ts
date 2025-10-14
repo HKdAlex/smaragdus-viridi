@@ -185,10 +185,12 @@ export class SearchService {
       imagesByGemstone.get(img.gemstone_id)!.push(img);
     });
 
-    // Map results with images
+    // Map results with images (handle renamed columns)
     const results = data.map((row: any) => ({
       ...row,
-      images: imagesByGemstone.get(row.id) || [],
+      id: row.gemstone_id || row.id,
+      name: row.gemstone_name || row.name, // Handle renamed column
+      images: imagesByGemstone.get(row.gemstone_id || row.id) || [],
     }));
 
     return {
