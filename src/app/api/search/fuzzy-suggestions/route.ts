@@ -6,6 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+
 import { SearchService } from "@/features/search/services/search.service";
 import { z } from "zod";
 
@@ -25,20 +26,20 @@ export const dynamic = "force-dynamic";
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    
+
     // Parse and validate query params
     const query = searchParams.get("query");
     const limit = Number(searchParams.get("limit") || 5);
-    
+
     // Validate
     const validatedData = fuzzySuggestionsSchema.parse({ query, limit });
-    
+
     // Get fuzzy suggestions
     const suggestions = await SearchService.getFuzzySuggestions(
       validatedData.query,
       validatedData.limit
     );
-    
+
     // Return suggestions
     return NextResponse.json(
       { suggestions },
@@ -52,7 +53,7 @@ export async function GET(request: NextRequest) {
     );
   } catch (error) {
     console.error("[API /search/fuzzy-suggestions] Error:", error);
-    
+
     // Zod validation errors
     if (error instanceof Error && error.name === "ZodError") {
       return NextResponse.json(
@@ -63,7 +64,7 @@ export async function GET(request: NextRequest) {
         { status: 400 }
       );
     }
-    
+
     // Service errors
     if (error instanceof Error) {
       return NextResponse.json(
@@ -74,7 +75,7 @@ export async function GET(request: NextRequest) {
         { status: 500 }
       );
     }
-    
+
     // Unknown errors
     return NextResponse.json(
       {
@@ -85,4 +86,3 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-

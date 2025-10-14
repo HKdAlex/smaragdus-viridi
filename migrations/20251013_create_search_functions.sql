@@ -146,6 +146,8 @@ BEGIN
     fg.price_amount,
     fg.price_currency,
     fg.description,
+    fg.in_stock,
+    fg.origin,
     false AS has_certification,
     COALESCE(fg.ai_analyzed, false) AS has_ai_analysis,
     fg.metadata_status,

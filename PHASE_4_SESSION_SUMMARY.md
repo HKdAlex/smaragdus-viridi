@@ -147,7 +147,7 @@ ORDER BY rel_score DESC
 
 ## **Known Issues & Solutions**
 
-### **✅ FIXED: Client-Side DB Access** 
+### **✅ FIXED: Client-Side DB Access**
 
 **Issue:** `getFuzzySuggestions` was calling `supabaseAdmin` from client  
 **Impact:** "Did you mean?" banner wasn't showing (but fuzzy search worked!)  

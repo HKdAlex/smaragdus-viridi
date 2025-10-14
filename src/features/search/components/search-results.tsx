@@ -15,7 +15,6 @@ import { GemstoneGrid } from "@/features/gemstones/components/gemstone-grid";
 import { LoadingState } from "@/features/gemstones/components/loading-state";
 import { PaginationControls } from "@/features/gemstones/components/pagination-controls";
 import { SearchInput } from "./search-input";
-import { SearchService } from "../services/search.service";
 import { useFilterCountsQuery } from "@/features/gemstones/hooks/use-filter-counts-query";
 import { useFilterState } from "@/features/gemstones/hooks/use-filter-state";
 import { useSearchParams } from "next/navigation";
@@ -64,13 +63,15 @@ export function SearchResults() {
         try {
           // Use API endpoint instead of direct service call
           const response = await fetch(
-            `/api/search/fuzzy-suggestions?query=${encodeURIComponent(query)}&limit=5`
+            `/api/search/fuzzy-suggestions?query=${encodeURIComponent(
+              query
+            )}&limit=5`
           );
-          
+
           if (!response.ok) {
             throw new Error("Failed to fetch fuzzy suggestions");
           }
-          
+
           const result = await response.json();
           setFuzzySuggestions(result.suggestions || []);
         } catch (error) {
