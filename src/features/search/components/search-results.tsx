@@ -62,8 +62,17 @@ export function SearchResults() {
     const fetchFuzzySuggestions = async () => {
       if (query && data && data.results.length === 0 && !isLoading) {
         try {
-          const suggestions = await SearchService.getFuzzySuggestions(query, 5);
-          setFuzzySuggestions(suggestions);
+          // Use API endpoint instead of direct service call
+          const response = await fetch(
+            `/api/search/fuzzy-suggestions?query=${encodeURIComponent(query)}&limit=5`
+          );
+          
+          if (!response.ok) {
+            throw new Error("Failed to fetch fuzzy suggestions");
+          }
+          
+          const result = await response.json();
+          setFuzzySuggestions(result.suggestions || []);
         } catch (error) {
           console.error("Failed to fetch fuzzy suggestions:", error);
           setFuzzySuggestions([]);
@@ -143,7 +152,7 @@ export function SearchResults() {
         <h1 className="text-2xl font-bold mb-2">
           {query ? (
             <>
-              {t("resultsFor")} "{query}"
+              {t("resultsFor")} &quot; {query}&quot;
             </>
           ) : (
             t("searchResults")
