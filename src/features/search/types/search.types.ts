@@ -5,14 +5,18 @@
  */
 
 import type { Database } from "@/shared/types/database";
+import type { CatalogGemstone } from "@/features/gemstones/services/gemstone-fetch.service";
 
 // Gemstone type from database
 type DbGemstone = Database["public"]["Tables"]["gemstones"]["Row"];
 
 /**
  * Gemstone with Search Metadata
+ * 
+ * Extends CatalogGemstone to ensure type consistency between search and catalog.
+ * Adds search-specific metadata (relevance_score, total_count).
  */
-export interface GemstoneSearchResult extends DbGemstone {
+export interface GemstoneSearchResult extends CatalogGemstone {
   relevance_score?: number;
   total_count?: number;
 }
