@@ -37,9 +37,9 @@ CREATE POLICY "Admins can view all analytics"
   ON search_analytics FOR SELECT
   USING (
     EXISTS (
-      SELECT 1 FROM auth.users
-      WHERE auth.users.id = auth.uid()
-      AND auth.users.raw_user_meta_data->>'role' = 'admin'
+      SELECT 1 FROM user_profiles
+      WHERE user_profiles.id = auth.uid()
+      AND user_profiles.role = 'admin'
     )
   );
 
@@ -60,9 +60,9 @@ AS $$
 BEGIN
   -- Check if user is admin
   IF NOT EXISTS (
-    SELECT 1 FROM auth.users
-    WHERE auth.users.id = auth.uid()
-    AND auth.users.raw_user_meta_data->>'role' = 'admin'
+    SELECT 1 FROM user_profiles
+    WHERE user_profiles.id = auth.uid()
+    AND user_profiles.role = 'admin'
   ) THEN
     RAISE EXCEPTION 'Access denied. Admin role required.';
   END IF;
@@ -102,9 +102,9 @@ DECLARE
 BEGIN
   -- Check if user is admin
   IF NOT EXISTS (
-    SELECT 1 FROM auth.users
-    WHERE auth.users.id = auth.uid()
-    AND auth.users.raw_user_meta_data->>'role' = 'admin'
+    SELECT 1 FROM user_profiles
+    WHERE user_profiles.id = auth.uid()
+    AND user_profiles.role = 'admin'
   ) THEN
     RAISE EXCEPTION 'Access denied. Admin role required.';
   END IF;

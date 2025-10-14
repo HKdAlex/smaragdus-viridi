@@ -8,8 +8,8 @@
  * - Search trends over time
  */
 
-import { Suspense } from "react";
 import { SearchAnalyticsDashboard } from "@/features/admin/components/search-analytics-dashboard";
+import { Suspense } from "react";
 
 export default function SearchAnalyticsPage() {
   return (
@@ -40,4 +40,3 @@ export default function SearchAnalyticsPage() {
     </div>
   );
 }
-

@@ -4,11 +4,12 @@
  * Tests tracking and retrieval of search analytics data
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import { SearchAnalyticsService } from "../analytics.service";
 import type { TrackSearchParams } from "../analytics.service";
 
-// Mock supabaseAdmin
+// Mock supabaseAdmin!
 vi.mock("@/lib/supabase", () => ({
   supabaseAdmin: {
     from: vi.fn(() => ({
@@ -71,7 +72,7 @@ describe("SearchAnalyticsService", () => {
       const { supabaseAdmin } = await import("@/lib/supabase");
       const insertMock = vi.fn(() => ({ error: null }));
 
-      vi.mocked(supabaseAdmin.from).mockReturnValue({
+      vi.mocked(supabaseAdmin!!.from).mockReturnValue({
         insert: insertMock,
       } as any);
 
@@ -90,9 +91,11 @@ describe("SearchAnalyticsService", () => {
 
     it("should not throw on tracking error", async () => {
       const { supabaseAdmin } = await import("@/lib/supabase");
-      const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+      const consoleSpy = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
 
-      vi.mocked(supabaseAdmin.from).mockReturnValue({
+      vi.mocked(supabaseAdmin!.from).mockReturnValue({
         insert: vi.fn(() => ({ error: { message: "Database error" } })),
       } as any);
 
@@ -122,14 +125,14 @@ describe("SearchAnalyticsService", () => {
       ];
 
       const { supabaseAdmin } = await import("@/lib/supabase");
-      vi.mocked(supabaseAdmin.rpc).mockResolvedValue({
+      vi.mocked(supabaseAdmin!.rpc).mockResolvedValue({
         data: mockData,
         error: null,
       } as any);
 
       const result = await SearchAnalyticsService.getAnalyticsSummary();
 
-      expect(supabaseAdmin.rpc).toHaveBeenCalledWith(
+      expect(supabaseAdmin!.rpc).toHaveBeenCalledWith(
         "get_search_analytics_summary",
         { days_back: 30 }
       );
@@ -141,7 +144,7 @@ describe("SearchAnalyticsService", () => {
 
       await SearchAnalyticsService.getAnalyticsSummary(7);
 
-      expect(supabaseAdmin.rpc).toHaveBeenCalledWith(
+      expect(supabaseAdmin!.rpc).toHaveBeenCalledWith(
         "get_search_analytics_summary",
         { days_back: 7 }
       );
@@ -149,7 +152,7 @@ describe("SearchAnalyticsService", () => {
 
     it("should throw on RPC error", async () => {
       const { supabaseAdmin } = await import("@/lib/supabase");
-      vi.mocked(supabaseAdmin.rpc).mockResolvedValue({
+      vi.mocked(supabaseAdmin!.rpc).mockResolvedValue({
         data: null,
         error: { message: "Permission denied" },
       } as any);
@@ -173,14 +176,14 @@ describe("SearchAnalyticsService", () => {
       ];
 
       const { supabaseAdmin } = await import("@/lib/supabase");
-      vi.mocked(supabaseAdmin.rpc).mockResolvedValue({
+      vi.mocked(supabaseAdmin!.rpc).mockResolvedValue({
         data: mockData,
         error: null,
       } as any);
 
       const result = await SearchAnalyticsService.getSearchTrends();
 
-      expect(supabaseAdmin.rpc).toHaveBeenCalledWith("get_search_trends", {
+      expect(supabaseAdmin!.rpc).toHaveBeenCalledWith("get_search_trends", {
         days_back: 30,
         time_bucket: "day",
       });
@@ -192,7 +195,7 @@ describe("SearchAnalyticsService", () => {
 
       await SearchAnalyticsService.getSearchTrends(7, "hour");
 
-      expect(supabaseAdmin.rpc).toHaveBeenCalledWith("get_search_trends", {
+      expect(supabaseAdmin!.rpc).toHaveBeenCalledWith("get_search_trends", {
         days_back: 7,
         time_bucket: "hour",
       });
@@ -226,7 +229,7 @@ describe("SearchAnalyticsService", () => {
       ];
 
       const { supabaseAdmin } = await import("@/lib/supabase");
-      vi.mocked(supabaseAdmin.rpc).mockResolvedValue({
+      vi.mocked(supabaseAdmin!.rpc).mockResolvedValue({
         data: mockSummary,
         error: null,
       } as any);
@@ -243,7 +246,7 @@ describe("SearchAnalyticsService", () => {
 
     it("should handle empty summary data", async () => {
       const { supabaseAdmin } = await import("@/lib/supabase");
-      vi.mocked(supabaseAdmin.rpc).mockResolvedValue({
+      vi.mocked(supabaseAdmin!.rpc).mockResolvedValue({
         data: [],
         error: null,
       } as any);
@@ -290,7 +293,7 @@ describe("SearchAnalyticsService", () => {
         eq: eqMock,
       }));
 
-      vi.mocked(supabaseAdmin.from).mockReturnValue({
+      vi.mocked(supabaseAdmin!.from).mockReturnValue({
         select: selectMock,
       } as any);
 
@@ -314,7 +317,7 @@ describe("SearchAnalyticsService", () => {
         error: null,
       }));
 
-      vi.mocked(supabaseAdmin.from).mockReturnValue({
+      vi.mocked(supabaseAdmin!.from).mockReturnValue({
         select: vi.fn(() => ({
           eq: vi.fn(() => ({
             order: vi.fn(() => ({
@@ -330,4 +333,3 @@ describe("SearchAnalyticsService", () => {
     });
   });
 });
-
