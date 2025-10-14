@@ -243,12 +243,12 @@ const { data } = await supabaseAdmin.from("table").select();
 
 ## Summary
 
-| Import                       | From             | What It Is              | When To Use                             |
-| ---------------------------- | ---------------- | ----------------------- | --------------------------------------- |
-| `createServerClient`         | `@supabase/ssr`  | **Supabase's function** | ✅ **Middleware ONLY** (special case)   |
-| `createServerSupabaseClient` | `@/lib/supabase` | **Your wrapper**        | API routes, Server Components           |
-| `supabase`                   | `@/lib/supabase` | **Browser singleton**   | Client Components                       |
-| `supabaseAdmin`              | `@/lib/supabase` | **Service role client** | Server-side admin operations            |
+| Import                       | From             | What It Is              | When To Use                           |
+| ---------------------------- | ---------------- | ----------------------- | ------------------------------------- |
+| `createServerClient`         | `@supabase/ssr`  | **Supabase's function** | ✅ **Middleware ONLY** (special case) |
+| `createServerSupabaseClient` | `@/lib/supabase` | **Your wrapper**        | API routes, Server Components         |
+| `supabase`                   | `@/lib/supabase` | **Browser singleton**   | Client Components                     |
+| `supabaseAdmin`              | `@/lib/supabase` | **Service role client** | Server-side admin operations          |
 
 ---
 
@@ -299,7 +299,7 @@ export async function updateSession(request: NextRequest) {
         setAll(cookiesToSet) {
           // Must handle BOTH request and response cookies
           cookiesToSet.forEach(({ name, value }) => {
-            request.cookies.set(name, value);     // ← For Server Components
+            request.cookies.set(name, value); // ← For Server Components
             supabaseResponse.cookies.set(name, value); // ← For browser
           });
         },
@@ -329,11 +329,11 @@ export async function updateSession(request: NextRequest) {
 
 ### **The Key Differences:**
 
-| Context | Cookie Source | Import From |
-|---------|--------------|-------------|
-| **Middleware** | `NextRequest.cookies` | Direct `request.cookies.getAll()` |
-| **API Routes** | `next/headers` | `import { cookies } from "next/headers"` |
-| **Server Components** | `next/headers` | `import { cookies } from "next/headers"` |
+| Context               | Cookie Source         | Import From                              |
+| --------------------- | --------------------- | ---------------------------------------- |
+| **Middleware**        | `NextRequest.cookies` | Direct `request.cookies.getAll()`        |
+| **API Routes**        | `next/headers`        | `import { cookies } from "next/headers"` |
+| **Server Components** | `next/headers`        | `import { cookies } from "next/headers"` |
 
 ---
 
@@ -345,9 +345,9 @@ export const createServerSupabaseClient = async () => {
   const { cookies } = await import("next/headers");
   //     ↑↑↑↑↑↑↑
   //     This is NOT available in middleware context!
-  
+
   const cookieStore = await cookies();
-  
+
   return createServerClient<Database>(..., {
     cookies: {
       getAll() { return cookieStore.getAll(); },
@@ -363,11 +363,13 @@ export const createServerSupabaseClient = async () => {
 ### **Why Middleware is Special:**
 
 1. **Different execution context**
+
    - Middleware runs on Edge Runtime
    - Has access to `NextRequest`/`NextResponse` objects
    - Does NOT have access to `next/headers` cookies
 
 2. **Different cookie handling**
+
    - Must read from `request.cookies`
    - Must write to BOTH `request.cookies` (for Server Components) AND `response.cookies` (for browser)
 
@@ -406,6 +408,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 ### **Your Current Implementation: Perfect! ✅**
 
 Looking at your `middleware.ts` (lines 68-119):
+
 - ✅ Correctly imports `createServerClient` from `@supabase/ssr`
 - ✅ Properly handles `request.cookies.getAll()`
 - ✅ Correctly sets cookies on BOTH request and response
@@ -418,12 +421,394 @@ Looking at your `middleware.ts` (lines 68-119):
 
 ### **Summary:**
 
-| File | Should Use | Reason |
-|------|-----------|--------|
-| `middleware.ts` | ✅ `createServerClient` from `@supabase/ssr` | NextRequest context |
-| `route.ts` (API) | ✅ `createServerSupabaseClient` from `@/lib/supabase` | next/headers context |
-| `page.tsx` (Server) | ✅ `createServerSupabaseClient` from `@/lib/supabase` | next/headers context |
-| `*.tsx` (Client) | ✅ `supabase` from `@/lib/supabase` | Browser context |
-| `*.service.ts` (Server) | ✅ `supabaseAdmin` from `@/lib/supabase` | Service role |
+| File                    | Should Use                                            | Reason               |
+| ----------------------- | ----------------------------------------------------- | -------------------- |
+| `middleware.ts`         | ✅ `createServerClient` from `@supabase/ssr`          | NextRequest context  |
+| `route.ts` (API)        | ✅ `createServerSupabaseClient` from `@/lib/supabase` | next/headers context |
+| `page.tsx` (Server)     | ✅ `createServerSupabaseClient` from `@/lib/supabase` | next/headers context |
+| `*.tsx` (Client)        | ✅ `supabase` from `@/lib/supabase`                   | Browser context      |
+| `*.service.ts` (Server) | ✅ `supabaseAdmin` from `@/lib/supabase`              | Service role         |
 
 Your architecture is **textbook correct**! 🎯
+
+---
+
+## `createServerSupabaseClient` vs `supabaseAdmin`
+
+### **Critical Question: What's the difference?**
+
+These are **fundamentally different** clients for different security contexts:
+
+---
+
+### **1. createServerSupabaseClient - USER CONTEXT** 👤
+
+```typescript
+import { createServerSupabaseClient } from "@/lib/supabase";
+
+export async function GET(request: NextRequest) {
+  const supabase = await createServerSupabaseClient();
+
+  // This client:
+  // ✅ Reads the user's session from cookies
+  // ✅ Respects Row Level Security (RLS)
+  // ✅ Only sees data the LOGGED-IN USER can see
+  // ❌ Cannot bypass security policies
+
+  const { data } = await supabase.from("orders").select("*");
+  // ↑ Returns only THIS USER's orders (enforced by RLS)
+}
+```
+
+**Key Properties:**
+
+- 🔑 Uses **anon key** (`NEXT_PUBLIC_SUPABASE_ANON_KEY`)
+- 👤 Authenticated as the **current user** (from cookies)
+- 🔒 **RLS policies apply** - security enforced by database
+- ✅ Safe to use based on user's session
+- ⚠️ If user is not logged in, sees only public data
+
+---
+
+### **2. supabaseAdmin - ADMIN/SYSTEM CONTEXT** 🔓
+
+```typescript
+import { supabaseAdmin } from "@/lib/supabase";
+
+export async function GET() {
+  if (!supabaseAdmin) {
+    throw new Error("Service role not available");
+  }
+
+  // This client:
+  // ✅ BYPASSES all Row Level Security (RLS)
+  // ✅ Has FULL database access
+  // ⚠️ NO authentication checks
+  // ⚠️ Can see/modify ANY data
+
+  const { data } = await supabaseAdmin.from("orders").select("*");
+  // ↑ Returns ALL orders from ALL users!
+}
+```
+
+**Key Properties:**
+
+- 🔑 Uses **service role key** (`SUPABASE_SERVICE_ROLE_KEY`)
+- 🔓 **Bypasses ALL RLS policies** - full database access
+- ⚠️ **DANGEROUS** if misused - can access everything
+- ✅ Required for admin operations
+- ⚠️ **Must validate permissions yourself** in application code
+
+---
+
+### **Visual Comparison:**
+
+```
+Database Table: orders
+┌─────────┬─────────┬────────┬────────┐
+│ id      │ user_id │ total  │ status │
+├─────────┼─────────┼────────┼────────┤
+│ order-1 │ user-A  │ $100   │ paid   │ ← User A can see this
+│ order-2 │ user-A  │ $50    │ paid   │ ← User A can see this
+│ order-3 │ user-B  │ $200   │ paid   │ ← User A CANNOT see this (RLS)
+│ order-4 │ user-C  │ $150   │ paid   │ ← User A CANNOT see this (RLS)
+└─────────┴─────────┴────────┴────────┘
+
+// User A logs in...
+
+// Using createServerSupabaseClient (User Context):
+const supabase = await createServerSupabaseClient();
+const { data } = await supabase.from("orders").select("*");
+// Returns: [order-1, order-2] ← Only User A's orders ✅
+
+// Using supabaseAdmin (System Context):
+const { data } = await supabaseAdmin.from("orders").select("*");
+// Returns: [order-1, order-2, order-3, order-4] ← ALL orders! ⚠️
+```
+
+---
+
+### **When to Use Each:**
+
+| Scenario                         | Use                          | Why                                   |
+| -------------------------------- | ---------------------------- | ------------------------------------- |
+| **User viewing their orders**    | `createServerSupabaseClient` | RLS ensures they only see their data  |
+| **User updating their profile**  | `createServerSupabaseClient` | RLS prevents editing others' profiles |
+| **Public catalog page**          | `createServerSupabaseClient` | Can use anon/guest user session       |
+| **Admin dashboard (all orders)** | `supabaseAdmin`              | Need to see across all users          |
+| **System cron job**              | `supabaseAdmin`              | No user session available             |
+| **Server-side background task**  | `supabaseAdmin`              | Processing data for all users         |
+
+---
+
+### **Security Implications:**
+
+#### **✅ Safe: User Context**
+
+```typescript
+// API route for user's orders
+export async function GET(request: NextRequest) {
+  const supabase = await createServerSupabaseClient();
+
+  // Check if user is authenticated
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // RLS automatically filters to this user's data
+  const { data } = await supabase.from("orders").select("*");
+
+  // ✅ SAFE: User can only see their own orders (RLS enforced)
+  return NextResponse.json(data);
+}
+```
+
+---
+
+#### **⚠️ DANGEROUS: Admin Context Without Checks**
+
+```typescript
+// ❌ BAD: Using admin client without permission checks
+export async function GET(request: NextRequest) {
+  if (!supabaseAdmin) {
+    throw new Error("Service role not available");
+  }
+
+  // NO authentication check!
+  // NO admin role check!
+
+  const { data } = await supabaseAdmin.from("orders").select("*");
+
+  // ⚠️ DANGER: Returns ALL users' orders to ANYONE!
+  return NextResponse.json(data);
+}
+```
+
+---
+
+#### **✅ SAFE: Admin Context WITH Checks**
+
+```typescript
+// ✅ GOOD: Using admin client with proper authorization
+export async function GET(request: NextRequest) {
+  // First, authenticate the user with USER context
+  const supabase = await createServerSupabaseClient();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error || !user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Check if user is admin
+  const { data: profile } = await supabase
+    .from("user_profiles")
+    .select("role")
+    .eq("user_id", user.id)
+    .single();
+
+  if (profile?.role !== "admin") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  // NOW safe to use admin client
+  if (!supabaseAdmin) {
+    throw new Error("Service role not available");
+  }
+
+  const { data } = await supabaseAdmin.from("orders").select("*");
+
+  // ✅ SAFE: Verified user is admin before using admin client
+  return NextResponse.json(data);
+}
+```
+
+---
+
+### **Your Current Code Pattern: CORRECT ✅**
+
+Looking at your codebase:
+
+```typescript
+// Example: /api/catalog/route.ts
+export async function GET(request: NextRequest) {
+  if (!supabaseAdmin) {
+    return NextResponse.json(
+      { error: "Database connection failed" },
+      { status: 500 }
+    );
+  }
+  const supabase = supabaseAdmin;
+
+  // Query gemstones with filters
+  const { data } = await supabase
+    .from("gemstones")
+    .select("*")
+    .gt("price_amount", 0);
+
+  // ✅ SAFE: Catalog is public data, no user-specific filtering needed
+}
+```
+
+This is correct because:
+
+- ✅ Catalog data is public (not user-specific)
+- ✅ Using admin to avoid RLS overhead on public queries
+- ✅ No sensitive user data exposed
+
+---
+
+### **Common Patterns:**
+
+#### **Pattern 1: Public Data (Admin Client OK)**
+
+```typescript
+// Fetching public catalog - no user filtering needed
+const { data } = await supabaseAdmin
+  .from("gemstones")
+  .select("*")
+  .eq("in_stock", true);
+```
+
+---
+
+#### **Pattern 2: User-Specific Data (User Client)**
+
+```typescript
+// Fetching user's favorites - must use user context
+const supabase = await createServerSupabaseClient();
+const { data } = await supabase.from("favorites").select("*");
+// RLS ensures user only sees their favorites
+```
+
+---
+
+#### **Pattern 3: Admin Operation (Both Clients)**
+
+```typescript
+// Admin viewing all users' data
+const supabase = await createServerSupabaseClient();
+
+// 1. Verify user is admin (use user context)
+const {
+  data: { user },
+} = await supabase.auth.getUser();
+if (!user) throw new Error("Unauthorized");
+
+const { data: profile } = await supabase
+  .from("user_profiles")
+  .select("role")
+  .eq("user_id", user.id)
+  .single();
+
+if (profile?.role !== "admin") {
+  throw new Error("Forbidden");
+}
+
+// 2. Now use admin client for cross-user queries
+const { data: allOrders } = await supabaseAdmin!.from("orders").select("*");
+```
+
+---
+
+### **Implementation in Your Code:**
+
+Looking at `/lib/supabase.ts`:
+
+```typescript
+// Lines 55-76: User Context Client
+export const createServerSupabaseClient = async () => {
+  const { cookies } = await import("next/headers");
+  const cookieStore = await cookies();
+
+  return createServerClient<Database>(
+    supabaseUrl,
+    supabaseAnonKey, // ← ANON KEY (respects RLS)
+    {
+      cookies: {
+        /* cookie handling */
+      },
+    }
+  );
+};
+
+// Lines 38-52: Admin Context Client
+export const supabaseAdmin = (() => {
+  const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseServiceRoleKey) {
+    return null; // Not available on client-side
+  }
+
+  return createClient<Database>(
+    supabaseUrl,
+    supabaseServiceRoleKey, // ← SERVICE ROLE KEY (bypasses RLS)
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    }
+  );
+})();
+```
+
+---
+
+### **Summary Table:**
+
+| Aspect             | `createServerSupabaseClient` | `supabaseAdmin`               |
+| ------------------ | ---------------------------- | ----------------------------- |
+| **Key Used**       | Anon key (public)            | Service role key (secret)     |
+| **Authentication** | From user's cookies          | None (system)                 |
+| **RLS Policies**   | ✅ Enforced                  | ❌ Bypassed                   |
+| **Access Level**   | User's permissions           | Full database access          |
+| **Use For**        | User-specific operations     | Admin/system operations       |
+| **Security Risk**  | Low (RLS protects)           | High (must validate yourself) |
+| **Session**        | User's session               | No session                    |
+| **Available On**   | Server-side only             | Server-side only              |
+
+---
+
+### **Best Practices:**
+
+1. **Default to User Context**
+
+   ```typescript
+   // ✅ Start with user context
+   const supabase = await createServerSupabaseClient();
+   ```
+
+2. **Only Use Admin When Needed**
+
+   ```typescript
+   // ⚠️ Only when you need to bypass RLS
+   if (!supabaseAdmin) throw new Error("DB error");
+   const data = await supabaseAdmin.from("table").select("*");
+   ```
+
+3. **Always Validate Before Admin Operations**
+
+   ```typescript
+   // ✅ Check authentication + authorization first
+   const supabase = await createServerSupabaseClient();
+   const user = await verifyAdmin(supabase);
+   // Then use admin client
+   ```
+
+4. **Use User Context for User Operations**
+   ```typescript
+   // ✅ Let RLS do the work
+   const supabase = await createServerSupabaseClient();
+   await supabase.from("favorites").insert({ ... });
+   // RLS ensures user_id is set correctly
+   ```
+
+---
+
+Your understanding and usage of both clients is spot-on! 🎯
