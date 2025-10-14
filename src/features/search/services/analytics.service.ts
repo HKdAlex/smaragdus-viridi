@@ -52,7 +52,9 @@ export class SearchAnalyticsService {
    */
   static async trackSearch(params: TrackSearchParams): Promise<void> {
     if (!supabaseAdmin) {
-      console.error("[SearchAnalytics] supabaseAdmin is null, skipping tracking");
+      console.error(
+        "[SearchAnalytics] supabaseAdmin is null, skipping tracking"
+      );
       return;
     }
 
@@ -71,7 +73,10 @@ export class SearchAnalyticsService {
         console.error("[SearchAnalytics] Failed to track search:", error);
       }
     } catch (error) {
-      console.error("[SearchAnalytics] Unexpected error tracking search:", error);
+      console.error(
+        "[SearchAnalytics] Unexpected error tracking search:",
+        error
+      );
     }
   }
 
@@ -143,8 +148,7 @@ export class SearchAnalyticsService {
     const uniqueQueries = summary.length;
 
     const totalResults = summary.reduce(
-      (sum, item) =>
-        sum + Number(item.search_count) * Number(item.avg_results),
+      (sum, item) => sum + Number(item.search_count) * Number(item.avg_results),
       0
     );
     const avgResultsPerSearch =
@@ -228,4 +232,3 @@ export class SearchAnalyticsService {
     }));
   }
 }
-

@@ -38,7 +38,7 @@ CREATE POLICY "Admins can view all analytics"
   USING (
     EXISTS (
       SELECT 1 FROM user_profiles
-      WHERE user_profiles.id = auth.uid()
+      WHERE user_profiles.user_id = auth.uid()
       AND user_profiles.role = 'admin'
     )
   );
@@ -61,7 +61,7 @@ BEGIN
   -- Check if user is admin
   IF NOT EXISTS (
     SELECT 1 FROM user_profiles
-    WHERE user_profiles.id = auth.uid()
+    WHERE user_profiles.user_id = auth.uid()
     AND user_profiles.role = 'admin'
   ) THEN
     RAISE EXCEPTION 'Access denied. Admin role required.';
@@ -101,7 +101,7 @@ BEGIN
   -- Check if user is admin
   IF NOT EXISTS (
     SELECT 1 FROM user_profiles
-    WHERE user_profiles.id = auth.uid()
+    WHERE user_profiles.user_id = auth.uid()
     AND user_profiles.role = 'admin'
   ) THEN
     RAISE EXCEPTION 'Access denied. Admin role required.';
