@@ -274,30 +274,24 @@ export function AdvancedFiltersControlled({
   }, [options.origins]);
 
   return (
-    <div className="bg-card rounded-lg border border-border p-4 sm:p-6 space-y-6">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <AdjustmentsHorizontalIcon className="w-5 h-5 text-muted-foreground" />
-          <h3 className="text-lg font-semibold text-foreground">
-            {t("title")}
-          </h3>
-          {activeFilterCount > 0 && (
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary text-primary-foreground">
-              {activeFilterCount}
+      {activeFilterCount > 0 && (
+        <div className="flex items-center justify-between pb-4 border-b border-border">
+          <div className="flex items-center space-x-2">
+            <span className="text-sm text-muted-foreground">
+              {activeFilterCount} {activeFilterCount === 1 ? 'filter' : 'filters'} active
             </span>
-          )}
-        </div>
-        {activeFilterCount > 0 && (
+          </div>
           <button
             onClick={handleClearAll}
             disabled={loading}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
+            className="text-sm text-destructive hover:text-destructive/80 transition-colors disabled:opacity-50 font-medium"
           >
             {t("clearAll")}
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Search */}
       <div className="relative">
@@ -321,8 +315,8 @@ export function AdvancedFiltersControlled({
         )}
       </div>
 
-      {/* Filter Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Filter Grid - Single column for sidebar, responsive for full page */}
+      <div className="grid grid-cols-1 gap-4">
         <FilterDropdown
           label={t("type")}
           options={gemstoneTypeOptions}

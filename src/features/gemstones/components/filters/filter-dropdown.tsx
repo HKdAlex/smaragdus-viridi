@@ -5,6 +5,7 @@
 
 import { CheckIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 
 interface FilterDropdownOption<T = string> {
   value: T;
@@ -29,14 +30,18 @@ export function FilterDropdown<T extends string = string>({
   options,
   selectedValues,
   onSelectionChange,
-  placeholder = "Select options...",
+  placeholder,
   maxDisplayItems = 3,
   disabled = false,
   className = "",
 }: FilterDropdownProps<T>) {
+  const t = useTranslations("filters.dropdown");
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  
+  // Use translation for placeholder if not provided
+  const displayPlaceholder = placeholder || t("selectPlaceholder");
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -88,7 +93,7 @@ export function FilterDropdown<T extends string = string>({
 
   const getDisplayText = (): string => {
     if (selectedValues.length === 0) {
-      return placeholder;
+      return displayPlaceholder;
     }
 
     if (selectedValues.length <= maxDisplayItems) {
@@ -98,7 +103,7 @@ export function FilterDropdown<T extends string = string>({
       return labels.join(", ");
     }
 
-    return `${selectedValues.length} selected`;
+    return `${selectedValues.length} ${t("selected")}`;
   };
 
   const hasSelection = selectedValues.length > 0;
@@ -163,7 +168,7 @@ export function FilterDropdown<T extends string = string>({
                 onClick={handleClearAll}
                 className="w-full px-3 py-2 text-left text-sm text-destructive hover:bg-muted/50 transition-colors duration-150"
               >
-                Clear all ({selectedValues.length})
+                {t("clearAll")} ({selectedValues.length})
               </button>
               <div className="border-t border-border" />
             </>
@@ -220,7 +225,7 @@ export function FilterDropdown<T extends string = string>({
           {/* No options message */}
           {options.length === 0 && (
             <div className="px-3 py-2 text-sm text-muted-foreground text-center">
-              No options available
+              {t("noOptions")}
             </div>
           )}
         </div>

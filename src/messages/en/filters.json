@@ -165,5 +165,11 @@
     "SI1": "Slightly Included",
     "SI2": "Slightly Included",
     "I1": "Included"
+  },
+  "dropdown": {
+    "selectPlaceholder": "Select...",
+    "selected": "selected",
+    "clearAll": "Clear all",
+    "noOptions": "No options available"
   }
 }
