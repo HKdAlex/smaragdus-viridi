@@ -318,7 +318,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                             <Sparkles className="w-4 h-4 text-primary" />
                           </div>
                           <h3 className="font-semibold text-xs uppercase tracking-widest text-primary/80">
-                            Distinguished Features
+                            {t("distinguishedFeatures")}
                           </h3>
                         </div>
 
@@ -599,14 +599,9 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                         </span>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <CutIcon
-                          cut={gemstone.v6Text?.detected_cut || gemstone.cut}
-                          className="w-4 h-4"
-                        />
+                        <CutIcon cut={gemstone.cut} className="w-4 h-4" />
                         <span className="font-semibold text-foreground capitalize">
-                          {translateCut(
-                            gemstone.v6Text?.detected_cut || gemstone.cut
-                          )}
+                          {translateCut(gemstone.cut)}
                         </span>
                       </div>
                     </div>

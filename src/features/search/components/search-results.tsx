@@ -151,8 +151,10 @@ export function SearchResults() {
 
   const totalCount = data?.pagination.totalCount || 0;
 
-  // Fetch filter counts
-  const { data: filterCountsData } = useFilterCountsQuery();
+  // Fetch filter counts only when we have search results to avoid interference
+  const { data: filterCountsData } = useFilterCountsQuery({
+    enabled: !!data && data.results.length > 0,
+  });
 
   // Fetch fuzzy suggestions when no results are found
   useEffect(() => {
@@ -297,14 +299,14 @@ export function SearchResults() {
         />
       </div>
 
-      {/* Filter Sidebar */}
-      {filterCountsData && (
+      {/* Filter Sidebar - only show when we have search results and filter counts */}
+      {filterCountsData && data && data.results.length > 0 && (
         <FilterSidebar
           filters={filters}
           onChange={handleFiltersChange}
           options={filterCountsData.aggregated}
           loading={isLoading}
-          defaultOpen={true}
+          defaultOpen={false}
         />
       )}
 

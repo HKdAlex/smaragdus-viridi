@@ -38,9 +38,9 @@ export function GemstoneDetailV6Tabs({
   if (!v6Text) return null;
 
   const tabs = [
-    { id: "overview" as const, label: "Overview", icon: Info },
-    { id: "story" as const, label: "Story & History", icon: BookOpen },
-    { id: "care" as const, label: "Care & Details", icon: Shield },
+    { id: "overview" as const, label: t("overview"), icon: Info },
+    { id: "story" as const, label: t("storyAndHistory"), icon: BookOpen },
+    { id: "care" as const, label: t("careAndDetails"), icon: Shield },
   ];
 
   return (
@@ -88,7 +88,7 @@ export function GemstoneDetailV6Tabs({
                           {t("technicalDescription")}
                         </h3>
                         <p className="text-xs text-muted-foreground">
-                          AI-Generated
+                          {t("aiGenerated")}
                         </p>
                       </div>
                     </div>
@@ -113,7 +113,7 @@ export function GemstoneDetailV6Tabs({
                           {t("emotionalDescription")}
                         </h3>
                         <p className="text-xs text-muted-foreground">
-                          The feeling
+                          {t("theFeeling")}
                         </p>
                       </div>
                     </div>
@@ -133,7 +133,7 @@ export function GemstoneDetailV6Tabs({
                   <div className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl p-6 border border-primary/20">
                     <h3 className="font-bold text-primary mb-4 flex items-center gap-2">
                       <Sparkles className="w-5 h-5" />
-                      Key Highlights
+                      {t("keyHighlights")}
                     </h3>
                     <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {v6Text.marketing_highlights.map((highlight, index) => (
