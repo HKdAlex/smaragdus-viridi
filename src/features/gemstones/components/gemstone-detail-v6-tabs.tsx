@@ -18,6 +18,7 @@ interface V6TextContent {
   care_instructions_en: string | null;
   care_instructions_ru: string | null;
   marketing_highlights: string[] | null;
+  marketing_highlights_ru: string[] | null;
   promotional_text: string | null;
 }
 
@@ -128,26 +129,35 @@ export function GemstoneDetailV6Tabs({
               </div>
 
               {/* Marketing Highlights */}
-              {v6Text.marketing_highlights &&
-                v6Text.marketing_highlights.length > 0 && (
-                  <div className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl p-6 border border-primary/20">
-                    <h3 className="font-bold text-primary mb-4 flex items-center gap-2">
-                      <Sparkles className="w-5 h-5" />
-                      {t("keyHighlights")}
-                    </h3>
-                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {v6Text.marketing_highlights.map((highlight, index) => (
-                        <li
-                          key={index}
-                          className="flex items-start gap-2 text-sm text-foreground/90"
-                        >
-                          <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0" />
-                          <span>{highlight}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+              {(() => {
+                const highlights =
+                  locale === "ru"
+                    ? v6Text.marketing_highlights_ru ||
+                      v6Text.marketing_highlights
+                    : v6Text.marketing_highlights;
+                return (
+                  highlights &&
+                  highlights.length > 0 && (
+                    <div className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl p-6 border border-primary/20">
+                      <h3 className="font-bold text-primary mb-4 flex items-center gap-2">
+                        <Sparkles className="w-5 h-5" />
+                        {t("keyHighlights")}
+                      </h3>
+                      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {highlights.map((highlight, index) => (
+                          <li
+                            key={index}
+                            className="flex items-start gap-2 text-sm text-foreground/90"
+                          >
+                            <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0" />
+                            <span>{highlight}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )
+                );
+              })()}
 
               {/* Promotional Text */}
               {v6Text.promotional_text && (

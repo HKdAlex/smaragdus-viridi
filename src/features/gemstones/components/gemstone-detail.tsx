@@ -305,26 +305,31 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                 </div>
 
                 {/* Key Highlights - Above Price */}
-                {gemstone.v6Text?.marketing_highlights &&
-                  gemstone.v6Text.marketing_highlights.length > 0 && (
-                    <div className="relative bg-gradient-to-br from-primary/5 via-primary/3 to-transparent rounded-2xl p-6 border border-primary/5 backdrop-blur-sm overflow-hidden">
-                      {/* Elegant corner accent */}
-                      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/10 to-transparent rounded-bl-full blur-2xl" />
+                {(() => {
+                  const highlights =
+                    locale === "ru"
+                      ? gemstone.v6Text?.marketing_highlights_ru ||
+                        gemstone.v6Text?.marketing_highlights
+                      : gemstone.v6Text?.marketing_highlights;
+                  return (
+                    highlights &&
+                    highlights.length > 0 && (
+                      <div className="relative bg-gradient-to-br from-primary/5 via-primary/3 to-transparent rounded-2xl p-6 border border-primary/5 backdrop-blur-sm overflow-hidden">
+                        {/* Elegant corner accent */}
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/10 to-transparent rounded-bl-full blur-2xl" />
 
-                      <div className="relative">
-                        <div className="flex items-center gap-2.5 mb-4">
-                          <div className="p-1.5 bg-gradient-to-br from-primary/20 to-primary/10 rounded-lg">
-                            <Sparkles className="w-4 h-4 text-primary" />
+                        <div className="relative">
+                          <div className="flex items-center gap-2.5 mb-4">
+                            <div className="p-1.5 bg-gradient-to-br from-primary/20 to-primary/10 rounded-lg">
+                              <Sparkles className="w-4 h-4 text-primary" />
+                            </div>
+                            <h3 className="font-semibold text-xs uppercase tracking-widest text-primary/80">
+                              {t("distinguishedFeatures")}
+                            </h3>
                           </div>
-                          <h3 className="font-semibold text-xs uppercase tracking-widest text-primary/80">
-                            {t("distinguishedFeatures")}
-                          </h3>
-                        </div>
 
-                        <ul className="space-y-3">
-                          {gemstone.v6Text.marketing_highlights
-                            .slice(0, 3)
-                            .map((highlight, index) => (
+                          <ul className="space-y-3">
+                            {highlights.slice(0, 3).map((highlight, index) => (
                               <li
                                 key={index}
                                 className="flex items-start gap-3 group"
@@ -338,10 +343,12 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                                 </span>
                               </li>
                             ))}
-                        </ul>
+                          </ul>
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )
+                  );
+                })()}
 
                 {/* Price Section - More Spacing */}
                 <div className="pt-6 border-t border-border">

@@ -88,11 +88,25 @@ export const TEXT_GENERATION_SCHEMA = {
       additionalProperties: false,
     },
     marketing_highlights: {
-      type: "array",
-      items: { type: "string" },
-      minItems: 3,
-      maxItems: 5,
-      description: "3-5 concise marketing highlights (English)",
+      type: "object",
+      properties: {
+        en: {
+          type: "array",
+          items: { type: "string" },
+          minItems: 3,
+          maxItems: 5,
+          description: "3-5 concise marketing highlights in English",
+        },
+        ru: {
+          type: "array",
+          items: { type: "string" },
+          minItems: 3,
+          maxItems: 5,
+          description: "3-5 concise marketing highlights in Russian",
+        },
+      },
+      required: ["en", "ru"],
+      additionalProperties: false,
     },
     promotional_text: {
       type: "string",
@@ -123,4 +137,3 @@ export const TEXT_GENERATION_SCHEMA = {
   ],
   additionalProperties: false,
 };
-

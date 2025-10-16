@@ -1085,6 +1085,7 @@ export type Database = {
           image_quality_scores: Json | null
           image_urls: string[] | null
           marketing_highlights: string[] | null
+          marketing_highlights_ru: string[] | null
           model_version: string
           narrative_story_en: string | null
           narrative_story_ru: string | null
@@ -1117,6 +1118,7 @@ export type Database = {
           image_quality_scores?: Json | null
           image_urls?: string[] | null
           marketing_highlights?: string[] | null
+          marketing_highlights_ru?: string[] | null
           model_version: string
           narrative_story_en?: string | null
           narrative_story_ru?: string | null
@@ -1149,6 +1151,7 @@ export type Database = {
           image_quality_scores?: Json | null
           image_urls?: string[] | null
           marketing_highlights?: string[] | null
+          marketing_highlights_ru?: string[] | null
           model_version?: string
           narrative_story_en?: string | null
           narrative_story_ru?: string | null
