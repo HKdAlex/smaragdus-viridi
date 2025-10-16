@@ -6,26 +6,27 @@
 
 "use client";
 
-import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 
+import type { CatalogGemstone } from "@/features/gemstones/services/gemstone-fetch.service";
+import { DescriptionSearchToggle } from "./description-search-toggle";
 import { EmptyState } from "@/features/gemstones/components/empty-state";
-import { AdvancedFiltersControlled } from "@/features/gemstones/components/filters/advanced-filters-controlled";
+import { FilterSidebar } from "@/features/gemstones/components/filters/filter-sidebar";
+import { FuzzySearchBanner } from "./fuzzy-search-banner";
 import { GemstoneGrid } from "@/features/gemstones/components/gemstone-grid";
 import { LoadingState } from "@/features/gemstones/components/loading-state";
 import { PaginationControls } from "@/features/gemstones/components/pagination-controls";
+import { SearchInput } from "./search-input";
+import { TranslationService } from "@/features/translations/services/translation.service";
+import { queryKeys } from "@/lib/react-query/query-keys";
 import { useFilterCountsQuery } from "@/features/gemstones/hooks/use-filter-counts-query";
 import { useFilterState } from "@/features/gemstones/hooks/use-filter-state";
-import type { CatalogGemstone } from "@/features/gemstones/services/gemstone-fetch.service";
-import { useSearchQuery } from "@/features/search/hooks/use-search-query";
-import { TranslationService } from "@/features/translations/services/translation.service";
-import { useTypeSafeRouter } from "@/lib/navigation/type-safe-router";
-import { queryKeys } from "@/lib/react-query/query-keys";
+import { useFilterUrlSync } from "@/features/gemstones/hooks/use-filter-url-sync";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
-import { DescriptionSearchToggle } from "./description-search-toggle";
-import { FuzzySearchBanner } from "./fuzzy-search-banner";
-import { SearchInput } from "./search-input";
+import { useSearchQuery } from "@/features/search/hooks/use-search-query";
+import { useTypeSafeRouter } from "@/lib/navigation/type-safe-router";
 
 const PAGE_SIZE = 24;
 
@@ -42,6 +43,9 @@ export function SearchResults() {
   // Filter state
   const { filters, updateFilters, resetFilters, filterCount } =
     useFilterState();
+
+  // URL synchronization (opt-in side effect)
+  useFilterUrlSync(filters);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -285,21 +289,24 @@ export function SearchResults() {
         />
       )}
 
-      {/* Filters */}
-      <div className="mb-6 space-y-4">
+      {/* Description Search Toggle */}
+      <div className="mb-6">
         <DescriptionSearchToggle
           value={searchDescriptions}
           onChange={handleDescriptionToggle}
         />
-
-        {filterCountsData && (
-          <AdvancedFiltersControlled
-            filters={filters}
-            onChange={handleFiltersChange}
-            options={filterCountsData.aggregated}
-          />
-        )}
       </div>
+
+      {/* Filter Sidebar */}
+      {filterCountsData && (
+        <FilterSidebar
+          filters={filters}
+          onChange={handleFiltersChange}
+          options={filterCountsData.aggregated}
+          loading={isLoading}
+          defaultOpen={true}
+        />
+      )}
 
       {/* Results */}
       {results.length === 0 ? (

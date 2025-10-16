@@ -29,6 +29,7 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { CertificationDisplay } from "./certification-display";
 import type { DetailGemstone } from "@/shared/types";
+import type { Database } from "@/shared/types/database";
 import { GemstoneDetailV6Tabs } from "./gemstone-detail-v6-tabs";
 import { MediaGallery } from "./media-gallery";
 import { RelatedGemstones } from "./related-gemstones";
@@ -42,29 +43,9 @@ import { useTranslations } from "next-intl";
 
 interface GemstoneDetailProps {
   gemstone: DetailGemstone & {
-    v6Text?: {
-      technical_description_en: string | null;
-      technical_description_ru: string | null;
-      emotional_description_en: string | null;
-      emotional_description_ru: string | null;
-      narrative_story_en: string | null;
-      narrative_story_ru: string | null;
-      historical_context_en: string | null;
-      historical_context_ru: string | null;
-      care_instructions_en: string | null;
-      care_instructions_ru: string | null;
-      marketing_highlights: string[] | null;
-      promotional_text: string | null;
-      needs_review: boolean;
-      model_version: string;
-      // Image analysis fields
-      detected_cut: string | null;
-      cut_detection_confidence: number | null;
-      cut_matches_metadata: boolean | null;
-      cut_detection_reasoning: string | null;
-      recommended_primary_image_index: number | null;
-      primary_image_selection_reasoning: string | null;
-      image_quality_scores: unknown | null;
+    v6Text?: Database["public"]["Tables"]["gemstones_ai_v6"]["Row"] & {
+      // Only include the field that's actually used
+      recommended_primary_image_index?: number | null;
     } | null;
   };
 }

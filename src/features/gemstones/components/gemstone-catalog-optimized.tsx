@@ -18,7 +18,7 @@
 import { useCallback, useMemo, useState } from "react";
 
 // Types
-import type { AdvancedGemstoneFilters } from "../types/filter.types";
+import type { AdvancedGemstoneFilters, FilterOptions } from "../types/filter.types";
 import { CatalogHeader } from "./catalog-header";
 import { EmptyState } from "./empty-state";
 // Filter sidebar component
@@ -101,7 +101,41 @@ export function GemstoneCatalogOptimized() {
 
   const gemstones = gemstonesData?.data || [];
   const pagination = gemstonesData?.pagination;
-  const filterOptions = filterCountsData?.aggregated;
+  const aggregatedOptions = filterCountsData?.aggregated;
+
+  // Convert AggregatedFilterOptions to FilterOptions for FilterSidebar
+  const filterOptions: FilterOptions | undefined = aggregatedOptions ? {
+    gemstoneTypes: aggregatedOptions.gemstoneTypes.map(opt => ({
+      value: opt.value,
+      label: opt.label,
+      count: opt.count,
+    })),
+    colors: aggregatedOptions.colors.map(opt => ({
+      value: opt.value,
+      label: opt.label,
+      count: opt.count,
+      category: opt.category,
+    })),
+    cuts: aggregatedOptions.cuts.map(opt => ({
+      value: opt.value,
+      label: opt.label,
+      count: opt.count,
+    })),
+    clarities: aggregatedOptions.clarities.map(opt => ({
+      value: opt.value,
+      label: opt.label,
+      count: opt.count,
+      order: opt.order,
+    })),
+    origins: aggregatedOptions.origins.map(opt => ({
+      value: opt.value,
+      label: opt.label,
+      country: opt.country,
+      count: opt.count,
+    })),
+    priceRange: aggregatedOptions.priceRange,
+    weightRange: aggregatedOptions.weightRange,
+  } : undefined;
 
   return (
     <div className="space-y-8">

@@ -45,6 +45,15 @@ export interface AggregatedFilterOptions {
   cuts: FilterOption<GemCut>[];
   clarities: ClarityFilterOption[];
   origins: OriginFilterOption[];
+  priceRange: {
+    min: number;
+    max: number;
+    currency: "USD";
+  };
+  weightRange: {
+    min: number;
+    max: number;
+  };
 }
 
 // ===== SERVICE CLASS =====
@@ -60,6 +69,15 @@ export class FilterAggregationService {
       cuts: this.aggregateCuts(counts.cuts),
       clarities: this.aggregateClarities(counts.clarities),
       origins: this.aggregateOrigins(counts.origins),
+      priceRange: {
+        min: 0,
+        max: 5000000, // $50,000 in cents
+        currency: "USD",
+      },
+      weightRange: {
+        min: 0,
+        max: 20, // 20 carats
+      },
     };
   }
 

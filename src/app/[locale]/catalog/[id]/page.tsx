@@ -82,7 +82,7 @@ async function fetchGemstoneById(
       data: any[] | null;
       error: any;
     };
-    // Fetch v6 text (if available)
+    // Fetch v6 text (if available) - all fields expected by GemstoneDetail component
     const { data: v6Text, error: v6Error } = (await supabase
       .from("gemstones_ai_v6")
       .select("*")

@@ -55,7 +55,7 @@ export function GemstoneDescriptions({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue="emotional" className="w-full">
+        <Tabs defaultValue="emotional">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger
               value="emotional"
