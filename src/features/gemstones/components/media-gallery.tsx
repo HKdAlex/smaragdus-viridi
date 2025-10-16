@@ -3,7 +3,6 @@
 import {
   ChevronLeft,
   ChevronRight,
-  Download,
   Expand,
   Pause,
   Play,
@@ -26,6 +25,7 @@ import { useTranslations } from "next-intl";
 interface MediaGalleryProps {
   images: DatabaseGemstoneImage[];
   videos: DatabaseGemstoneVideo[];
+  recommendedPrimaryIndex?: number | null; // AI-recommended primary image index
 }
 
 type MediaItem = {
@@ -38,7 +38,11 @@ type MediaItem = {
   duration?: number;
 };
 
-export function MediaGallery({ images, videos }: MediaGalleryProps) {
+export function MediaGallery({
+  images,
+  videos,
+  recommendedPrimaryIndex,
+}: MediaGalleryProps) {
   const t = useTranslations("gemstones.media");
   const tErrors = useTranslations("errors.media");
 
@@ -62,8 +66,21 @@ export function MediaGallery({ images, videos }: MediaGalleryProps) {
   ].sort((a, b) => a.order - b.order);
 
   // Find the primary image index to start with
-  const primaryImageIndex = mediaItems.findIndex((item) => item.isPrimary);
-  const initialIndex = primaryImageIndex !== -1 ? primaryImageIndex : 0;
+  // Priority: AI recommendation > is_primary from DB > first image
+  let initialIndex = 0;
+  if (
+    recommendedPrimaryIndex !== null &&
+    recommendedPrimaryIndex !== undefined &&
+    recommendedPrimaryIndex >= 0 &&
+    recommendedPrimaryIndex < mediaItems.length
+  ) {
+    // Use AI-recommended index if valid
+    initialIndex = recommendedPrimaryIndex;
+  } else {
+    // Fallback to is_primary from database
+    const primaryImageIndex = mediaItems.findIndex((item) => item.isPrimary);
+    initialIndex = primaryImageIndex !== -1 ? primaryImageIndex : 0;
+  }
 
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
@@ -281,14 +298,14 @@ export function MediaGallery({ images, videos }: MediaGalleryProps) {
         )}
 
         {/* Media Type Badge */}
-        <div className="absolute top-4 left-4">
+        {/* <div className="absolute top-4 left-4">
           <Badge
             variant={currentMedia.type === "video" ? "destructive" : "default"}
           >
             {currentMedia.type === "video" ? t("video") : t("image")}
             {currentMedia.isPrimary && ` • ${t("primary")}`}
           </Badge>
-        </div>
+        </div> */}
 
         {/* Action Buttons */}
         <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
@@ -300,7 +317,7 @@ export function MediaGallery({ images, videos }: MediaGalleryProps) {
           >
             <Expand className="w-4 h-4 text-foreground" />
           </Button>
-          <Button
+          {/* <Button
             variant="secondary"
             size="icon"
             onClick={() =>
@@ -312,7 +329,7 @@ export function MediaGallery({ images, videos }: MediaGalleryProps) {
             className="bg-background/95 hover:bg-background shadow-lg hover:shadow-xl backdrop-blur-sm border border-border h-9 w-9 transition-all duration-200"
           >
             <Download className="w-4 h-4 text-foreground" />
-          </Button>
+          </Button> */}
         </div>
 
         {/* Navigation Arrows */}

@@ -1,0 +1,114 @@
+import { duration, ease, radius, shadowSoft } from "@/lib/ux/tokens";
+
+import { Container } from "@/components/ui/Container";
+import { Button } from "@/shared/components/ui/button";
+import Image from "next/image";
+import Link from "next/link";
+
+export type HeroProps = {
+  title: string;
+  subtitle: string;
+  primaryHref: string;
+  secondaryHref: string;
+  primaryLabel?: string;
+  secondaryLabel?: string;
+  imageSrc: string;
+  imageAlt: string;
+  trustItems: string[];
+};
+
+export function Hero({
+  title,
+  subtitle,
+  primaryHref,
+  secondaryHref,
+  primaryLabel,
+  secondaryLabel,
+  imageSrc,
+  imageAlt,
+  trustItems,
+}: HeroProps) {
+  return (
+    <section className="bg-background">
+      <Container className="grid items-center gap-10 md:gap-12 lg:grid-cols-2 py-16 sm:py-20 lg:py-24">
+        {/* Copy */}
+        <div>
+          <h1 className="font-serif tracking-tight text-3xl md:text-5xl lg:text-6xl leading-tight text-foreground">
+            {title}
+          </h1>
+          <p className="mt-4 md:mt-6 text-base md:text-lg text-muted-foreground max-w-prose">
+            {subtitle}
+          </p>
+
+          <div className="mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4">
+            <Button asChild size="lg" className={`${duration} ${ease}`}>
+              <Link
+                href={primaryHref}
+                aria-label={primaryLabel || "Browse catalog"}
+              >
+                {primaryLabel || "Browse Catalog"}
+              </Link>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className={`${duration} ${ease}`}
+            >
+              <Link
+                href={secondaryHref}
+                aria-label={secondaryLabel || "Contact sales"}
+              >
+                {secondaryLabel || "Contact Sales"}
+              </Link>
+            </Button>
+          </div>
+
+          {/* Trust strip */}
+          {trustItems?.length ? (
+            <div className="mt-6 md:mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
+              {trustItems.map((label, idx) => (
+                <div key={idx} className="flex items-center gap-2">
+                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary/80" />
+                  <span>{label}</span>
+                </div>
+              ))}
+            </div>
+          ) : null}
+        </div>
+
+        {/* Visual */}
+        <div className="relative mx-auto max-w-md md:max-w-none w-full">
+          <div
+            className={`relative ${radius} ${shadowSoft} overflow-hidden bg-black dark:bg-black`}
+            aria-hidden="true"
+          >
+            {/* Subtle overlay for light mode to soften black */}
+            <div
+              className="absolute inset-0 pointer-events-none bg-gradient-to-br from-slate-100/5 via-transparent to-transparent dark:from-transparent"
+              aria-hidden
+            />
+            {/* Gold accent glow */}
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background:
+                  "radial-gradient(60% 60% at 70% 30%, rgba(182,140,58,0.12) 0%, transparent 60%)",
+              }}
+            />
+            <div className="relative aspect-[4/3] md:aspect-[5/3]">
+              <Image
+                src={imageSrc}
+                alt={imageAlt}
+                fill
+                priority
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover"
+              />
+            </div>
+          </div>
+        </div>
+      </Container>
+    </section>
+  );
+}

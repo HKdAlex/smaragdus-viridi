@@ -4,7 +4,12 @@
     "titleHighlight": "Professional Jewelers",
     "subtitle": "Discover our curated collection of certified gemstones. From rare emeralds to brilliant diamonds, each stone is professionally graded with full documentation for serious jewelry artisans.",
     "browseCollection": "Browse Collection",
-    "learnMore": "Learn More"
+    "learnMore": "Learn More",
+    "browseCatalog": "Browse Catalog",
+    "contactSales": "Contact Sales",
+    "giaCertified": "GIA certified",
+    "worldwideShipping": "Worldwide shipping",
+    "imageAlt": "Premium gemstone detail on black"
   },
   "featured": {
     "title": "Featured Categories",
@@ -29,20 +34,30 @@
     "title": "Why Professionals Choose Us",
     "authenticity": {
       "title": "Certified Authenticity",
-      "description": "Every gemstone comes with professional certification from recognized laboratories"
+      "description": "Documentation from recognized laboratories."
     },
     "quality": {
       "title": "Premium Quality",
-      "description": "Hand-selected stones meeting the highest standards for jewelry professionals"
+      "description": "Hand-selected to precise trade standards."
     },
     "delivery": {
       "title": "Fast Delivery",
-      "description": "Secure worldwide shipping with full insurance and tracking"
+      "description": "Insured worldwide shipping with tracking."
+    },
+    "pricing": {
+      "title": "Transparent Pricing",
+      "description": "Clear quotes for retail or bulk orders."
     }
   },
   "cta": {
     "title": "Ready to Find Your Perfect Gemstone?",
     "subtitle": "Join thousands of professional jewelers who trust our expertise",
     "getStarted": "Get Started Today"
+  },
+  "proCta": {
+    "title": "For Professional Jewelers",
+    "subtitle": "Need specific sizes, cuts, or origins? We handle sourcing and wholesale with full documentation.",
+    "requestSourcing": "Request Sourcing",
+    "browseCatalog": "Browse Catalog"
   }
 }

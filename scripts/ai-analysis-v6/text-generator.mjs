@@ -3,7 +3,6 @@
  * Uses OpenAI Structured Outputs for consistent content generation
  */
 
-import OpenAI from "openai";
 import {
   DEFAULT_MODEL,
   DEFAULT_TEMPERATURE,
@@ -11,6 +10,8 @@ import {
   TIMEOUT_MS,
   withTimeout,
 } from "./config.mjs";
+
+import OpenAI from "openai";
 import { TEXT_GENERATION_SCHEMA } from "./schemas.mjs";
 
 const openai = new OpenAI({
@@ -23,22 +24,23 @@ const openai = new OpenAI({
  * @param {Object} options.metadata - Gemstone metadata
  * @param {Array|null} options.images - Array of base64 encoded images (optional)
  * @param {string} options.model - OpenAI model to use
+ * @param {string|null} options.detectedCut - AI-detected cut to override metadata (optional)
  * @returns {Promise<Object>} Generated content with metadata
  */
 export async function generateGemstoneText(options) {
-  const { metadata, images = null, model = DEFAULT_MODEL } = options;
+  const { metadata, images = null, model = DEFAULT_MODEL, detectedCut = null } = options;
 
   const startTime = Date.now();
 
-  // Build the user message with metadata
-  const userMessage = buildPromptMessage(metadata, images);
+  // Build the user message with metadata (using detected cut if available)
+  const userMessage = buildPromptMessage(metadata, images, detectedCut);
 
   try {
     const response = await withTimeout(
       openai.chat.completions.create({
         model,
         temperature: DEFAULT_TEMPERATURE,
-        max_tokens: MAX_TOKENS_OUTPUT,
+        max_completion_tokens: MAX_TOKENS_OUTPUT, // Use max_completion_tokens for newer models
         messages: [
           {
             role: "system",
@@ -85,10 +87,11 @@ export async function generateGemstoneText(options) {
  * Build the prompt message with metadata and optional images
  * @param {Object} metadata - Gemstone metadata
  * @param {Array|null} images - Base64 encoded images
+ * @param {string|null} detectedCut - AI-detected cut to override metadata
  * @returns {Object} User message for OpenAI
  */
-function buildPromptMessage(metadata, images) {
-  const metadataText = formatMetadata(metadata);
+function buildPromptMessage(metadata, images, detectedCut = null) {
+  const metadataText = formatMetadata(metadata, detectedCut);
 
   // If we have images, use multi-modal input
   if (images && images.length > 0) {
@@ -120,12 +123,18 @@ function buildPromptMessage(metadata, images) {
 /**
  * Format gemstone metadata into readable text
  * @param {Object} metadata - Gemstone metadata
+ * @param {string|null} detectedCut - AI-detected cut to override metadata
  * @returns {string} Formatted metadata
  */
-function formatMetadata(metadata) {
+function formatMetadata(metadata, detectedCut = null) {
+  // Use AI-detected cut if available and different from metadata
+  const cutToUse = detectedCut || metadata.cut;
+  const cutNote = detectedCut && detectedCut !== metadata.cut 
+    ? ` (AI-verified from images, metadata indicated "${metadata.cut}")` 
+    : "";
+
   return `
 GEMSTONE METADATA:
-- Serial Number: ${metadata.serial_number}
 - Type: ${metadata.name}
 - Weight: ${metadata.weight_carats} carats
 - Dimensions: ${metadata.length_mm} × ${metadata.width_mm} × ${
@@ -133,11 +142,13 @@ GEMSTONE METADATA:
   } mm
 - Color: ${metadata.color} (${metadata.color_code})
 - Clarity: ${metadata.clarity} (${metadata.clarity_code})
-- Cut: ${metadata.cut} (${metadata.cut_code})
+- Cut: ${cutToUse}${cutNote}
 - Origin: ${metadata.origin_name || "Unknown"}${
     metadata.origin_country ? `, ${metadata.origin_country}` : ""
   }${metadata.origin_region ? ` (${metadata.origin_region})` : ""}
 - Price: ${metadata.price_amount} ${metadata.price_currency}
+
+IMPORTANT: Do NOT include the serial number in any generated descriptions. It is for internal reference only and should never appear in customer-facing content (technical description, emotional description, story, etc.).
 `.trim();
 }
 

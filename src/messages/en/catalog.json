@@ -123,7 +123,15 @@
         "good": "Good",
         "fair": "Fair"
       },
-      "professionalDescription": "Professional quality {color} {name} with exceptional {cut} cut. This {weight} carat gemstone exhibits {clarity} clarity and represents excellent value for collectors and jewelry designers."
+      "professionalDescription": "Professional quality {color} {name} with exceptional {cut} cut. This {weight} carat gemstone exhibits {clarity} clarity and represents excellent value for collectors and jewelry designers.",
+      "technicalDescription": "Technical Description",
+      "emotionalDescription": "Emotional Description",
+      "narrativeStory": "Story",
+      "historicalContext": "Historical Context",
+      "careInstructions": "Care Instructions",
+      "favorite": "Favorite",
+      "favorited": "Favorited",
+      "share": "Share"
     }
   }
 }

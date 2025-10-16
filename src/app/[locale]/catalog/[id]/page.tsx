@@ -4,6 +4,7 @@ import type {
   DetailGemstone,
 } from "@/shared/types";
 
+import type { Database } from "@/shared/types/database";
 import { GemstoneDetail } from "@/features/gemstones/components/gemstone-detail";
 import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
@@ -24,7 +25,11 @@ export async function generateStaticParams() {
   return [];
 }
 
-async function fetchGemstoneById(id: string): Promise<DetailGemstone | null> {
+type V6Row = Database["public"]["Tables"]["gemstones_ai_v6"]["Row"];
+
+async function fetchGemstoneById(
+  id: string
+): Promise<(DetailGemstone & { v6Text?: V6Row | null }) | null> {
   try {
     // Validate UUID format
     const uuidRegex =
@@ -77,6 +82,17 @@ async function fetchGemstoneById(id: string): Promise<DetailGemstone | null> {
       data: any[] | null;
       error: any;
     };
+    // Fetch v6 text (if available)
+    const { data: v6Text, error: v6Error } = (await supabase
+      .from("gemstones_ai_v6")
+      .select("*")
+      .eq("gemstone_id", id)
+      .single()) as { data: V6Row | null; error: any };
+
+    if (v6Error && v6Error.code !== "PGRST116") {
+      // PGRST116 = Not found
+      console.warn(`⚠️ [GemstoneDetail] Failed to fetch v6 text:`, v6Error);
+    }
 
     if (aiError) {
       console.warn(`⚠️ [GemstoneDetail] Failed to fetch AI analysis:`, aiError);
@@ -127,7 +143,8 @@ async function fetchGemstoneById(id: string): Promise<DetailGemstone | null> {
       ai_confidence_score: gemstone.ai_confidence_score
         ? Number(gemstone.ai_confidence_score)
         : null,
-    } as DetailGemstone;
+      v6Text: v6Text || null,
+    } as DetailGemstone & { v6Text?: V6Row | null };
 
     return finalGemstone;
   } catch (error) {

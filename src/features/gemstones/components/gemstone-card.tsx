@@ -263,10 +263,14 @@ export function GemstoneCard({
           )}
         </div>
 
-        {/* Show emotional description snippet if available */}
-        {gemstone.description_emotional_ru && (
+        {/* Show emotional description snippet if available (prefer v6) */}
+        {((gemstone as any).v6_text?.emotional_description_en ||
+          gemstone.description_emotional_en ||
+          gemstone.description_emotional_ru) && (
           <p className="text-sm text-muted-foreground line-clamp-2 mt-3 px-2">
-            {gemstone.description_emotional_ru}
+            {(gemstone as any).v6_text?.emotional_description_en ||
+              gemstone.description_emotional_en ||
+              gemstone.description_emotional_ru}
           </p>
         )}
       </div>

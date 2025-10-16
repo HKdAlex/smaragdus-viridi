@@ -54,20 +54,20 @@ export async function getGemstoneForTextGeneration(gemstoneId) {
     throw new Error(`Failed to fetch gemstone: ${gemError.message}`);
   }
 
-  // Fetch associated images
-  const { data: media, error: mediaError } = await supabase
-    .from("gemstone_media")
-    .select("id, file_path, url, media_type, display_order")
+  // Fetch associated images (primary first)
+  const { data: images, error: imagesError } = await supabase
+    .from("gemstone_images")
+    .select("id, image_url, image_order, is_primary")
     .eq("gemstone_id", gemstoneId)
-    .eq("media_type", "image")
-    .order("display_order", { ascending: true })
-    .limit(5); // Limit to first 5 images
+    .order("is_primary", { ascending: false, nullsFirst: false })
+    .order("image_order", { ascending: true })
+    .limit(5);
 
-  if (mediaError) {
-    console.warn(`Failed to fetch media: ${mediaError.message}`);
+  if (imagesError) {
+    console.warn(`Failed to fetch images: ${imagesError.message}`);
   }
 
-  const imageUrls = media?.map((m) => m.url).filter(Boolean) || [];
+  const imageUrls = images?.map((m) => m.image_url).filter(Boolean) || [];
 
   return {
     ...gemstone,
@@ -111,6 +111,16 @@ export async function saveTextGeneration(
     generation_cost_usd: metadata.generation_cost_usd || null,
     generation_time_ms: metadata.generation_time_ms || null,
     needs_review: shouldFlagForReview(generatedContent, metadata),
+    // Image analysis results
+    detected_cut: metadata.detected_cut || null,
+    cut_detection_confidence: metadata.cut_detection_confidence || null,
+    cut_matches_metadata: metadata.cut_matches_metadata ?? null,
+    cut_detection_reasoning: metadata.cut_detection_reasoning || null,
+    recommended_primary_image_index:
+      metadata.recommended_primary_image_index ?? null,
+    primary_image_selection_reasoning:
+      metadata.primary_image_selection_reasoning || null,
+    image_quality_scores: metadata.image_quality_scores || null,
     updated_at: new Date().toISOString(),
   };
 
@@ -175,6 +185,22 @@ function shouldFlagForReview(content, metadata) {
 
   // Took too long
   if (metadata.generation_time_ms && metadata.generation_time_ms > 30000) {
+    return true;
+  }
+
+  // Flag if cut detection found a mismatch
+  if (metadata.cut_matches_metadata === false) {
+    console.log("⚠️ Flagging for review: Cut mismatch detected");
+    return true;
+  }
+
+  // Flag if cut detection confidence is low
+  if (
+    metadata.cut_detection_confidence !== null &&
+    metadata.cut_detection_confidence !== undefined &&
+    metadata.cut_detection_confidence < 0.6
+  ) {
+    console.log("⚠️ Flagging for review: Low cut detection confidence");
     return true;
   }
 

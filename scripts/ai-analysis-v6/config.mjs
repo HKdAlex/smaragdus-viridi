@@ -2,13 +2,15 @@
  * Configuration for AI Text Generation v6
  */
 
-export const DEFAULT_MODEL = "gpt-4o";
-export const DEFAULT_TEMPERATURE = 0.85; // Higher for creative content
+export const DEFAULT_MODEL = process.env.V6_TEXT_MODEL || "gpt-4o";
+// Temperature for creative content generation
+export const DEFAULT_TEMPERATURE = 1.0; // Creative, varied outputs
 export const MAX_TOKENS_OUTPUT = 4000; // Sufficient for all text fields
 
 export const TIMEOUT_MS = {
   IMAGE_DOWNLOAD: 5000, // 5 seconds per image
-  TEXT_GENERATION: 60000, // 60 seconds for full generation
+  TEXT_GENERATION: 180000, // 180 seconds (3 minutes) - sufficient for complex generation with images
+  IMAGE_ANALYSIS: 60000, // 60 seconds for image analysis (cut detection, primary selection)
 };
 
 export const CONFIDENCE_THRESHOLDS = {
@@ -30,4 +32,3 @@ export function withTimeout(promise, ms) {
     ),
   ]);
 }
-

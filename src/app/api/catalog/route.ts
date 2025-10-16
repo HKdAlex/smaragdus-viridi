@@ -100,7 +100,8 @@ export async function GET(request: NextRequest) {
         images:gemstone_images!inner(id, image_url, is_primary),
         origin:origins(id, name, country),
         certifications:certifications(id, certificate_type),
-        ai_analysis:ai_analysis_results!left(id, confidence_score, analysis_type)
+        ai_analysis:ai_analysis_results!left(id, confidence_score, analysis_type),
+        v6_text:gemstones_ai_v6!left(emotional_description_en, emotional_description_ru, marketing_highlights)
       `,
       { count: "exact" }
     );
@@ -302,15 +303,19 @@ export async function GET(request: NextRequest) {
     }
 
     // Transform data to match frontend expectations
-    const transformedData = processedData.map((gemstone: any) => ({
-      ...gemstone,
-      images: gemstone.images || [],
-      origin: gemstone.origin || null,
-      certifications: gemstone.certifications || [],
-      ai_analysis: (gemstone.ai_analysis || []).filter(
-        (analysis: any) => analysis.confidence_score >= 0.5
-      ),
-    }));
+    const transformedData = processedData.map((gemstone: any) => {
+      const v6 = gemstone.v6_text || null;
+      return {
+        ...gemstone,
+        images: gemstone.images || [],
+        origin: gemstone.origin || null,
+        certifications: gemstone.certifications || [],
+        ai_analysis: (gemstone.ai_analysis || []).filter(
+          (analysis: any) => analysis.confidence_score >= 0.5
+        ),
+        v6_text: v6,
+      };
+    });
 
     // Calculate pagination info
     const totalPages = Math.ceil((count || 0) / pagination.pageSize);
