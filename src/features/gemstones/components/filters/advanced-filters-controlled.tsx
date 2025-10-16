@@ -20,11 +20,6 @@
 "use client";
 
 import {
-  AdjustmentsHorizontalIcon,
-  MagnifyingGlassIcon,
-  XMarkIcon,
-} from "@heroicons/react/24/outline";
-import {
   CLARITY_ORDER,
   categorizeColor,
   getActiveFilterCount,
@@ -35,6 +30,7 @@ import type {
   GemCut,
   GemstoneType,
 } from "@/shared/types";
+import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import type { AdvancedGemstoneFilters } from "../../types/filter.types";
@@ -280,7 +276,8 @@ export function AdvancedFiltersControlled({
         <div className="flex items-center justify-between pb-4 border-b border-border">
           <div className="flex items-center space-x-2">
             <span className="text-sm text-muted-foreground">
-              {activeFilterCount} {activeFilterCount === 1 ? 'filter' : 'filters'} active
+              {activeFilterCount}{" "}
+              {activeFilterCount === 1 ? "filter" : "filters"} active
             </span>
           </div>
           <button

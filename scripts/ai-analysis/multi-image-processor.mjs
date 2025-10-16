@@ -29,6 +29,8 @@ function extractResponseText(response) {
 import { calculateActualCost, getModelConfig } from "./model-config.mjs";
 
 import { COMPREHENSIVE_MULTI_IMAGE_PROMPT_V4 } from "./prompts-v4.mjs";
+// NOTE: Not using json_schema anymore - vision models don't support it reliably
+// import { GEMSTONE_ANALYSIS_SCHEMA_SIMPLE } from "./json-schema-simple.mjs";
 import OpenAI from "openai";
 import { downloadImageAsBase64 } from "./image-utils.mjs";
 
@@ -47,7 +49,9 @@ export function initializeOpenAI(apiKey) {
  */
 export async function analyzeGemstoneBatch(images, gemstoneId, supabase) {
   // Read model from env each time (allows dynamic switching in tests)
-  const VISION_MODEL = process.env.OPENAI_VISION_MODEL || "gpt-5";
+  // NOTE: Structured outputs don't work with vision models!
+  // Using regular JSON mode + robust parser instead
+  const VISION_MODEL = process.env.OPENAI_VISION_MODEL || "gpt-5-mini";
   console.log(
     `\n🔍 Analyzing ${images.length} images for gemstone ${gemstoneId} in single batch...`
   );
@@ -103,21 +107,23 @@ export async function analyzeGemstoneBatch(images, gemstoneId, supabase) {
     const modelConfig = getModelConfig(VISION_MODEL);
     console.log(`  🤖 Using model: ${VISION_MODEL}`);
 
-    // Build request parameters
+    // Build request parameters with STRUCTURED OUTPUT
     const requestParams = {
       model: VISION_MODEL,
       messages: [
         {
           role: "system",
           content:
-            "You are a precise gemstone analysis expert. Output ONLY valid JSON with no additional text.",
+            "You are a precise gemstone analysis expert. Analyze all images and provide structured JSON measurements.",
         },
         {
           role: "user",
           content,
         },
       ],
-      max_completion_tokens: modelConfig.max_tokens, // Use full token allowance for model
+      max_completion_tokens: modelConfig.max_tokens,
+      // Use regular JSON mode - no schema enforcement
+      // Vision models don't reliably support json_schema format
       response_format: { type: "json_object" },
     };
 
@@ -200,71 +206,186 @@ export async function analyzeGemstoneBatch(images, gemstoneId, supabase) {
  * Normalize GPT-5 response format to our expected structure
  */
 function normalizeGPT5Response(parsedData) {
-  // GPT-5 might return different structures - check for common patterns
+  // GPT-5-mini returns different structures - check for common patterns
   const hasGPT5Format =
+    parsedData.overall_summary ||
+    parsedData.summary ||
     parsedData.dataset_summary ||
     parsedData.aggregate_extraction ||
-    parsedData.individual_analyses;
+    parsedData.aggregate_inferences ||
+    parsedData.individual_analyses ||
+    parsedData.image_count;
 
   if (hasGPT5Format) {
     console.log(`  🔄 Detected GPT-5 format, normalizing...`);
 
+    // Extract individual analyses from various locations
+    const individualAnalyses =
+      parsedData.individual_analyses ||
+      parsedData.images ||
+      parsedData.per_image_analysis ||
+      [];
+
+    // Extract consolidated/aggregate data from various locations
+    const aggregateData =
+      parsedData.aggregate_extraction ||
+      parsedData.aggregate_inferences ||
+      parsedData.aggregate_analysis ||
+      parsedData.overall_summary ||
+      parsedData.summary ||
+      {};
+
+    // Extract measurements and dimensions from multiple possible locations
+    const measurements =
+      aggregateData.measurements ||
+      aggregateData.dimensions ||
+      aggregateData.inferred_dimensions ||
+      parsedData.measurements ||
+      {};
+
+    // Extract color data
+    const colorData =
+      aggregateData.color ||
+      aggregateData.color_assessment ||
+      aggregateData.inferred_color ||
+      parsedData.color ||
+      {};
+
+    // Extract clarity data
+    const clarityData =
+      aggregateData.clarity ||
+      aggregateData.clarity_grade ||
+      aggregateData.inferred_clarity ||
+      parsedData.clarity ||
+      null;
+
+    // Extract cut/shape data
+    const cutData =
+      aggregateData.cut ||
+      aggregateData.shape ||
+      aggregateData.cut_quality ||
+      aggregateData.inferred_cut ||
+      parsedData.cut ||
+      {};
+
+    // Extract quality assessment
+    const qualityData =
+      aggregateData.quality_assessment ||
+      aggregateData.quality_grade ||
+      aggregateData.overall_quality ||
+      parsedData.quality ||
+      {};
+
+    // Extract origin/treatment data
+    const origin =
+      aggregateData.origin || aggregateData.source || parsedData.origin || null;
+
+    const treatment =
+      aggregateData.treatment ||
+      aggregateData.treatments ||
+      parsedData.treatment ||
+      null;
+
     // Extract primary image info from various possible locations
+    const primaryImageData =
+      parsedData.primary_image ||
+      parsedData.best_image ||
+      aggregateData.primary_image ||
+      {};
+
     const primaryImageIndex =
+      primaryImageData.index ||
+      primaryImageData.image_index ||
       parsedData.dataset_summary?.primary_image_index ||
-      parsedData.aggregate_extraction?.primary_image_quality
-        ?.primary_image_index ||
       null;
 
     const primaryImageScore =
+      primaryImageData.score ||
+      primaryImageData.confidence ||
+      primaryImageData.quality_score ||
       parsedData.dataset_summary?.primary_image_score ||
-      parsedData.aggregate_extraction?.primary_image_quality ||
-      {};
+      0;
+
+    // Extract overall confidence from many possible locations
+    const overallConfidence =
+      parsedData.overall_confidence ||
+      parsedData.confidence ||
+      aggregateData.confidence ||
+      aggregateData.overall_confidence ||
+      parsedData.confidence_summary?.overall ||
+      parsedData.aggregate_extraction?.cross_verification
+        ?.overall_consistency_score ||
+      0;
 
     return {
       validation: {
         total_images_analyzed:
+          parsedData.image_count ||
+          parsedData.total_images ||
           parsedData.dataset_summary?.images_processed ||
-          parsedData.dataset_summary?.image_count ||
-          parsedData.individual_analyses?.length ||
+          individualAnalyses.length ||
           0,
         analysis_complete: true,
         missing_images: [],
       },
-      individual_analyses: parsedData.individual_analyses || [],
+      individual_analyses: individualAnalyses,
       consolidated_data: {
-        all_gauge_readings: extractAllGaugeReadings(
-          parsedData.individual_analyses || []
-        ),
-        measurement_summary:
-          parsedData.aggregate_extraction ||
-          parsedData.aggregate_inferences ||
-          {},
-        lot_metadata:
-          parsedData.lot_metadata ||
-          parsedData.aggregate_extraction?.interpreted_from_ocr ||
-          {},
+        all_gauge_readings: extractAllGaugeReadings(individualAnalyses),
+        measurement_summary: {
+          dimensions: measurements,
+          weight: measurements.weight_carats || measurements.weight || null,
+          length_mm: measurements.length_mm || measurements.length || null,
+          width_mm: measurements.width_mm || measurements.width || null,
+          depth_mm: measurements.depth_mm || measurements.depth || null,
+        },
+        color_assessment: {
+          primary_color:
+            colorData.primary || colorData.primary_color || colorData,
+          secondary_colors:
+            colorData.secondary || colorData.secondary_colors || [],
+          saturation: colorData.saturation || null,
+          tone: colorData.tone || null,
+        },
+        clarity_grade:
+          typeof clarityData === "string"
+            ? clarityData
+            : clarityData?.grade || null,
+        cut_quality: {
+          cut_type:
+            typeof cutData === "string"
+              ? cutData
+              : cutData.type || cutData.cut_type || cutData.shape,
+          quality: cutData.quality || cutData.grade || null,
+        },
+        quality_assessment: qualityData,
+        lot_metadata: {
+          origin: origin,
+          source: origin,
+        },
+        treatment_assessment: Array.isArray(treatment)
+          ? treatment.join(", ")
+          : treatment,
       },
       primary_image_selection: {
         selected_image_index: primaryImageIndex,
-        confidence:
-          primaryImageScore.overall_score || primaryImageScore.overall || 0,
-        reasoning: `Selected image ${primaryImageIndex} based on quality analysis`,
-        sub_scores: primaryImageScore.sub_scores || {},
+        confidence: primaryImageScore,
+        reasoning:
+          primaryImageData.reasoning ||
+          `Selected image ${primaryImageIndex} based on quality analysis`,
+        sub_scores: primaryImageData.sub_scores || {},
       },
       data_verification: parsedData.cross_verification || {},
-      overall_confidence:
-        parsedData.confidence_summary?.overall ||
-        parsedData.aggregate_extraction?.cross_verification
-          ?.overall_consistency_score ||
-        parsedData.aggregate_inferences?.overall_confidence ||
-        0,
-      data_completeness: parsedData.confidence_summary?.overall || 0.85,
+      overall_confidence: overallConfidence,
+      overall_metrics: {
+        quality_grade:
+          qualityData.overall_grade || qualityData.grade || qualityData,
+      },
+      data_completeness:
+        parsedData.confidence_summary?.overall || overallConfidence || 0.85,
       cross_verification_score:
         parsedData.cross_verification?.confidence ||
-        parsedData.aggregate_extraction?.cross_verification
-          ?.overall_consistency_score ||
-        0,
+        aggregateData.cross_verification?.overall_consistency_score ||
+        overallConfidence,
     };
   }
 
@@ -321,32 +442,28 @@ function parseAndValidateMultiImageResponse(
       jsonString = codeBlockMatch[1];
       console.log(`  📝 Found JSON in markdown code block`);
     } else {
-      // Fallback: extract JSON using regex (AI might include explanatory text before JSON)
-      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        throw new Error("No JSON found in AI response");
+      // Try to extract the complete JSON object (greedy match from first { to last })
+      const firstBrace = responseText.indexOf("{");
+      const lastBrace = responseText.lastIndexOf("}");
+
+      if (firstBrace === -1 || lastBrace === -1 || firstBrace >= lastBrace) {
+        throw new Error("No valid JSON structure found in AI response");
       }
 
-      // If there are multiple JSON blocks, take the last one (most complete)
-      const allJsonMatches = responseText.match(/\{[\s\S]*?\}/g);
-      if (allJsonMatches && allJsonMatches.length > 1) {
-        console.log(
-          `  📝 Found ${allJsonMatches.length} JSON blocks, using the last (most complete)`
-        );
-        jsonString = allJsonMatches[allJsonMatches.length - 1];
-      } else {
-        jsonString = jsonMatch[0];
-      }
+      jsonString = responseText.substring(firstBrace, lastBrace + 1);
+      console.log(
+        `  📝 Extracted JSON from position ${firstBrace} to ${lastBrace}`
+      );
     }
 
-    // Clean up the JSON string (remove any trailing text after the closing brace)
-    const lastBraceIndex = jsonString.lastIndexOf("}");
-    if (lastBraceIndex !== -1) {
-      jsonString = jsonString.substring(0, lastBraceIndex + 1);
-    }
-
+    // Log response details for debugging
+    console.log(`  📦 Raw response length: ${responseText.length} chars`);
+    console.log(`  🔍 Extracted JSON length: ${jsonString.length} characters`);
+    console.log(`  📝 First 150 chars: ${jsonString.substring(0, 150)}...`);
     console.log(
-      `  🔍 Attempting to parse JSON (${jsonString.length} characters)`
+      `  📝 Last 150 chars: ...${jsonString.substring(
+        Math.max(0, jsonString.length - 150)
+      )}`
     );
     let parsedData = JSON.parse(jsonString);
 

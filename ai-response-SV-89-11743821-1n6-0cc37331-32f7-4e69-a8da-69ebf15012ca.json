@@ -1,0 +1,657 @@
+{
+  "analysis_id": "0cc37331-32f7-4e69-a8da-69ebf15012ca",
+  "gemstone": {
+    "id": "46f7f89b-a732-4740-9cdc-1fb759dc3007",
+    "serial_number": "SV-89-11743821-1n6",
+    "name": "emerald"
+  },
+  "confidence_score": 0,
+  "created_at": "2025-10-15T19:52:18.698+00:00",
+  "ai_model_version": "gpt-5-mini",
+  "raw_response": {
+    "individual_analyses": [
+      {
+        "index": 1,
+        "type": "digital_scale_photo",
+        "ocr_text": null,
+        "measurements": {
+          "weight_ct_display": 1.325,
+          "weight_method": "digital_scale_display",
+          "device": {
+            "make": "NEWACALOX (scale pictured)",
+            "model": null,
+            "resolution": "0.001 ct (display shows three decimals)"
+          },
+          "confidence": 0.98
+        },
+        "visual_observations": "Two pear-shaped green gemstones placed in scale tray. Good lighting on display, scale clearly legible. Stones show internal inclusions and medium green color.",
+        "notes": "Scale reading used as primary weight measurement source.",
+        "confidence": 0.95
+      },
+      {
+        "index": 2,
+        "type": "gemstone_top_view",
+        "ocr_text": null,
+        "measurements": null,
+        "visual_observations": "Two pear/teardrop cut green stones on a neutral white/cream textured background. Facet detail visible; numerous internal inclusions and some dark crystal inclusions. Color medium to vivid green with slight bluish tint in areas.",
+        "confidence": 0.93
+      },
+      {
+        "index": 3,
+        "type": "gemstone_side_profile",
+        "ocr_text": null,
+        "measurements": null,
+        "visual_observations": "Side profile showing pavilion and girdle. Stones appear shallow to medium depth for pear cuts; internal growth features visible.",
+        "confidence": 0.88
+      },
+      {
+        "index": 4,
+        "type": "gemstone_top_view_alt",
+        "ocr_text": null,
+        "measurements": null,
+        "visual_observations": "Top view of pear-cut stones with more even lighting; good color fidelity and visible inclusions. Useful for judging cut shape and color.",
+        "confidence": 0.92
+      },
+      {
+        "index": 5,
+        "type": "gemstone_positioned_view",
+        "ocr_text": null,
+        "measurements": null,
+        "visual_observations": "Another top/angled view showing both stones; consistent medium-green color and internal features. Slight surface-reaching fissures visible on one stone.",
+        "confidence": 0.9
+      },
+      {
+        "index": 6,
+        "type": "gemstone_detail_view",
+        "ocr_text": null,
+        "measurements": null,
+        "visual_observations": "Close-up showing facet detail and internal inclusions. One stone displays a pronounced dark inclusion near the center.",
+        "confidence": 0.91
+      },
+      {
+        "index": 7,
+        "type": "dial_gauge_measurement",
+        "ocr_text": null,
+        "measurements": {
+          "gauge_type": "dial_indicator (thickness/length gauge)",
+          "dial_scale_reading_mm": 3,
+          "interpretation": "needle near '3' on dial; dial labeled 0.1 mm increments. Likely indicating ~3.0 mm (depth/thickness) for one stone in this photo.",
+          "device": {
+            "make": null,
+            "model": null,
+            "resolution": "0.1 mm"
+          },
+          "confidence": 0.75
+        },
+        "visual_observations": "Two small pear-cut stones positioned with gauge anvils. Photo used as measurement source but instrument obscures some reference marks.",
+        "confidence": 0.76
+      },
+      {
+        "index": 8,
+        "type": "dial_gauge_measurement",
+        "ocr_text": null,
+        "measurements": {
+          "gauge_type": "dial_indicator",
+          "dial_scale_reading_mm": 3.2,
+          "interpretation": "needle between 3 and 3.5 markings; interpreted as ~3.2 mm for one stone thickness.",
+          "device": {
+            "make": null,
+            "model": null,
+            "resolution": "0.1 mm"
+          },
+          "confidence": 0.74
+        },
+        "visual_observations": "Gauge photo with stone between anvils; needle clearly visible but perspective may shift reading slightly.",
+        "confidence": 0.75
+      },
+      {
+        "index": 9,
+        "type": "dial_gauge_measurement",
+        "ocr_text": null,
+        "measurements": {
+          "gauge_type": "dial_indicator",
+          "dial_scale_reading_mm": 3.1,
+          "interpretation": "needle just above '3' marking; indicates ~3.1 mm thickness for the stone placed under the gauge.",
+          "device": {
+            "make": null,
+            "model": null,
+            "resolution": "0.1 mm"
+          },
+          "confidence": 0.74
+        },
+        "visual_observations": "Stone placed under gauge; consistent with other gauge images showing ~3.0–3.2 mm thickness.",
+        "confidence": 0.75
+      },
+      {
+        "index": 10,
+        "type": "dial_gauge_measurement",
+        "ocr_text": null,
+        "measurements": {
+          "gauge_type": "dial_indicator",
+          "dial_scale_reading_mm": 3,
+          "interpretation": "needle near 3; used as corroborating thickness reading (~3.0 mm).",
+          "device": {
+            "make": null,
+            "model": null,
+            "resolution": "0.1 mm"
+          },
+          "confidence": 0.72
+        },
+        "visual_observations": "Another angle of the same dial gauge; stones visible nearby and one under the anvils.",
+        "confidence": 0.73
+      },
+      {
+        "index": 11,
+        "type": "dial_gauge_measurement",
+        "ocr_text": null,
+        "measurements": {
+          "gauge_type": "dial_indicator",
+          "dial_scale_reading_mm": 3.3,
+          "interpretation": "needle slightly above 3; interpreted as ~3.3 mm (possible small variance between stones).",
+          "device": {
+            "make": null,
+            "model": null,
+            "resolution": "0.1 mm"
+          },
+          "confidence": 0.7
+        },
+        "visual_observations": "Gauge image showing needle slightly higher than previous images; suggests small measurement spread between stones.",
+        "confidence": 0.72
+      },
+      {
+        "index": 12,
+        "type": "label_image",
+        "ocr_text": "A 89\n1.32 ct\nкапля/2 шт\n7 / 5",
+        "measurements": {
+          "weight_ct_label": 1.32,
+          "shape_note": "капля (pear/teardrop) 2 pcs",
+          "length_mm_label": 7,
+          "width_mm_label": 5,
+          "confidence": 0.95
+        },
+        "visual_observations": "Paper label showing lot/code, weight and basic dimensions. Russian text OCR normalized (decimal comma to period).",
+        "confidence": 0.96
+      }
+    ],
+    "primary_image": {
+      "index": 2,
+      "image_index": 2,
+      "score": 92,
+      "confidence": 0.95,
+      "reasoning": "Image 2 provides the best combination of sharp focus, balanced lighting, clean neutral background and accurate color fidelity for product display. The stones are centered and facets are clearly visible enabling assessment of shape, color and inclusions.",
+      "disqualified_images": [
+        {
+          "index": 1,
+          "reason": "Measuring device/scale photo — disqualified from display (measurement source only)"
+        },
+        {
+          "index": 7,
+          "reason": "Measuring gauge photo — disqualified from display (measurement source only)"
+        },
+        {
+          "index": 8,
+          "reason": "Measuring gauge photo — disqualified from display (measurement source only)"
+        },
+        {
+          "index": 9,
+          "reason": "Measuring gauge photo — disqualified from display (measurement source only)"
+        },
+        {
+          "index": 10,
+          "reason": "Measuring gauge photo — disqualified from display (measurement source only)"
+        },
+        {
+          "index": 11,
+          "reason": "Measuring gauge photo — disqualified from display (measurement source only)"
+        },
+        {
+          "index": 12,
+          "reason": "Label/packaging photo — disqualified from display (OCR/label only)"
+        }
+      ],
+      "sub_scores": {
+        "focus": 24,
+        "lighting": 23,
+        "background": 18,
+        "color_fidelity": 19,
+        "composition": 8
+      }
+    },
+    "aggregated_data": {
+      "shape_cut": "pear / teardrop (pair)",
+      "color": "medium to vivid green with slight bluish tint in areas",
+      "clarity_observations": "Visible internal inclusions including veils, growth features and some dark crystal inclusions; at least one surface-reaching fissure on one stone.",
+      "measurements_cross_verified": {
+        "weight_ct": {
+          "value": 1.325,
+          "confidence": 0.98,
+          "sources": [
+            {
+              "image_index": 1,
+              "method": "digital scale display",
+              "confidence": 0.98
+            },
+            {
+              "image_index": 12,
+              "method": "label OCR",
+              "confidence": 0.95
+            }
+          ]
+        },
+        "length_mm": {
+          "value": 7,
+          "confidence": 0.94,
+          "sources": [
+            {
+              "image_index": 12,
+              "method": "label OCR (7 / 5 marking)",
+              "confidence": 0.95
+            },
+            {
+              "image_index": 2,
+              "method": "visual scale estimation from photos (pear length appearance consistent with 7 mm)",
+              "confidence": 0.85
+            }
+          ]
+        },
+        "width_mm": {
+          "value": 5,
+          "confidence": 0.93,
+          "sources": [
+            {
+              "image_index": 12,
+              "method": "label OCR (7 / 5 marking)",
+              "confidence": 0.95
+            },
+            {
+              "image_index": 2,
+              "method": "visual estimation from top-view photos",
+              "confidence": 0.8
+            }
+          ]
+        },
+        "depth_mm": {
+          "value": 3.15,
+          "confidence": 0.85,
+          "sources": [
+            {
+              "image_index": 8,
+              "method": "dial gauge reading interpretation (~3.2 mm)",
+              "confidence": 0.75
+            },
+            {
+              "image_index": 9,
+              "method": "dial gauge reading interpretation (~3.1 mm)",
+              "confidence": 0.74
+            },
+            {
+              "image_index": 11,
+              "method": "dial gauge reading interpretation (~3.3 mm)",
+              "confidence": 0.7
+            }
+          ]
+        }
+      },
+      "overall_confidence_summary": {
+        "visual_identification_as_emerald": 0.86,
+        "measurements_consistency": 0.95,
+        "label_and_display_agreement": 0.96
+      }
+    }
+  },
+  "extracted_data": {
+    "overall_metrics": {
+      "expected_images": 12,
+      "images_analyzed": 12,
+      "confidence_score": 0,
+      "data_completeness": 0.85,
+      "gauge_readings_found": 0,
+      "cross_verification_score": 0,
+      "primary_image_confidence": 92
+    },
+    "raw_ai_response": "{\n  \"individual_analyses\": [\n    {\n      \"index\": 1,\n      \"type\": \"digital_scale_photo\",\n      \"ocr_text\": null,\n      \"measurements\": {\n        \"weight_ct_display\": 1.325,\n        \"weight_method\": \"digital_scale_display\",\n        \"device\": {\n          \"make\": \"NEWACALOX (scale pictured)\",\n          \"model\": null,\n          \"resolution\": \"0.001 ct (display shows three decimals)\"\n        },\n        \"confidence\": 0.98\n      },\n      \"visual_observations\": \"Two pear-shaped green gemstones placed in scale tray. Good lighting on display, scale clearly legible. Stones show internal inclusions and medium green color.\",\n      \"notes\": \"Scale reading used as primary weight measurement source.\",\n      \"confidence\": 0.95\n    },\n    {\n      \"index\": 2,\n      \"type\": \"gemstone_top_view\",\n      \"ocr_text\": null,\n      \"measurements\": null,\n      \"visual_observations\": \"Two pear/teardrop cut green stones on a neutral white/cream textured background. Facet detail visible; numerous internal inclusions and some dark crystal inclusions. Color medium to vivid green with slight bluish tint in areas.\",\n      \"confidence\": 0.93\n    },\n    {\n      \"index\": 3,\n      \"type\": \"gemstone_side_profile\",\n      \"ocr_text\": null,\n      \"measurements\": null,\n      \"visual_observations\": \"Side profile showing pavilion and girdle. Stones appear shallow to medium depth for pear cuts; internal growth features visible.\",\n      \"confidence\": 0.88\n    },\n    {\n      \"index\": 4,\n      \"type\": \"gemstone_top_view_alt\",\n      \"ocr_text\": null,\n      \"measurements\": null,\n      \"visual_observations\": \"Top view of pear-cut stones with more even lighting; good color fidelity and visible inclusions. Useful for judging cut shape and color.\",\n      \"confidence\": 0.92\n    },\n    {\n      \"index\": 5,\n      \"type\": \"gemstone_positioned_view\",\n      \"ocr_text\": null,\n      \"measurements\": null,\n      \"visual_observations\": \"Another top/angled view showing both stones; consistent medium-green color and internal features. Slight surface-reaching fissures visible on one stone.\",\n      \"confidence\": 0.90\n    },\n    {\n      \"index\": 6,\n      \"type\": \"gemstone_detail_view\",\n      \"ocr_text\": null,\n      \"measurements\": null,\n      \"visual_observations\": \"Close-up showing facet detail and internal inclusions. One stone displays a pronounced dark inclusion near the center.\",\n      \"confidence\": 0.91\n    },\n    {\n      \"index\": 7,\n      \"type\": \"dial_gauge_measurement\",\n      \"ocr_text\": null,\n      \"measurements\": {\n        \"gauge_type\": \"dial_indicator (thickness/length gauge)\",\n        \"dial_scale_reading_mm\": 3.0,\n        \"interpretation\": \"needle near '3' on dial; dial labeled 0.1 mm increments. Likely indicating ~3.0 mm (depth/thickness) for one stone in this photo.\",\n        \"device\": {\n          \"make\": null,\n          \"model\": null,\n          \"resolution\": \"0.1 mm\"\n        },\n        \"confidence\": 0.75\n      },\n      \"visual_observations\": \"Two small pear-cut stones positioned with gauge anvils. Photo used as measurement source but instrument obscures some reference marks.\",\n      \"confidence\": 0.76\n    },\n    {\n      \"index\": 8,\n      \"type\": \"dial_gauge_measurement\",\n      \"ocr_text\": null,\n      \"measurements\": {\n        \"gauge_type\": \"dial_indicator\",\n        \"dial_scale_reading_mm\": 3.2,\n        \"interpretation\": \"needle between 3 and 3.5 markings; interpreted as ~3.2 mm for one stone thickness.\",\n        \"device\": {\n          \"make\": null,\n          \"model\": null,\n          \"resolution\": \"0.1 mm\"\n        },\n        \"confidence\": 0.74\n      },\n      \"visual_observations\": \"Gauge photo with stone between anvils; needle clearly visible but perspective may shift reading slightly.\",\n      \"confidence\": 0.75\n    },\n    {\n      \"index\": 9,\n      \"type\": \"dial_gauge_measurement\",\n      \"ocr_text\": null,\n      \"measurements\": {\n        \"gauge_type\": \"dial_indicator\",\n        \"dial_scale_reading_mm\": 3.1,\n        \"interpretation\": \"needle just above '3' marking; indicates ~3.1 mm thickness for the stone placed under the gauge.\",\n        \"device\": {\n          \"make\": null,\n          \"model\": null,\n          \"resolution\": \"0.1 mm\"\n        },\n        \"confidence\": 0.74\n      },\n      \"visual_observations\": \"Stone placed under gauge; consistent with other gauge images showing ~3.0–3.2 mm thickness.\",\n      \"confidence\": 0.75\n    },\n    {\n      \"index\": 10,\n      \"type\": \"dial_gauge_measurement\",\n      \"ocr_text\": null,\n      \"measurements\": {\n        \"gauge_type\": \"dial_indicator\",\n        \"dial_scale_reading_mm\": 3.0,\n        \"interpretation\": \"needle near 3; used as corroborating thickness reading (~3.0 mm).\",\n        \"device\": {\n          \"make\": null,\n          \"model\": null,\n          \"resolution\": \"0.1 mm\"\n        },\n        \"confidence\": 0.72\n      },\n      \"visual_observations\": \"Another angle of the same dial gauge; stones visible nearby and one under the anvils.\",\n      \"confidence\": 0.73\n    },\n    {\n      \"index\": 11,\n      \"type\": \"dial_gauge_measurement\",\n      \"ocr_text\": null,\n      \"measurements\": {\n        \"gauge_type\": \"dial_indicator\",\n        \"dial_scale_reading_mm\": 3.3,\n        \"interpretation\": \"needle slightly above 3; interpreted as ~3.3 mm (possible small variance between stones).\",\n        \"device\": {\n          \"make\": null,\n          \"model\": null,\n          \"resolution\": \"0.1 mm\"\n        },\n        \"confidence\": 0.70\n      },\n      \"visual_observations\": \"Gauge image showing needle slightly higher than previous images; suggests small measurement spread between stones.\",\n      \"confidence\": 0.72\n    },\n    {\n      \"index\": 12,\n      \"type\": \"label_image\",\n      \"ocr_text\": \"A 89\\n1.32 ct\\nкапля/2 шт\\n7 / 5\",\n      \"measurements\": {\n        \"weight_ct_label\": 1.32,\n        \"shape_note\": \"капля (pear/teardrop) 2 pcs\",\n        \"length_mm_label\": 7.0,\n        \"width_mm_label\": 5.0,\n        \"confidence\": 0.95\n      },\n      \"visual_observations\": \"Paper label showing lot/code, weight and basic dimensions. Russian text OCR normalized (decimal comma to period).\",\n      \"confidence\": 0.96\n    }\n  ],\n  \"primary_image\": {\n    \"index\": 2,\n    \"image_index\": 2,\n    \"score\": 92,\n    \"confidence\": 0.95,\n    \"reasoning\": \"Image 2 provides the best combination of sharp focus, balanced lighting, clean neutral background and accurate color fidelity for product display. The stones are centered and facets are clearly visible enabling assessment of shape, color and inclusions.\",\n    \"disqualified_images\": [\n      {\n        \"index\": 1,\n        \"reason\": \"Measuring device/scale photo — disqualified from display (measurement source only)\"\n      },\n      {\n        \"index\": 7,\n        \"reason\": \"Measuring gauge photo — disqualified from display (measurement source only)\"\n      },\n      {\n        \"index\": 8,\n        \"reason\": \"Measuring gauge photo — disqualified from display (measurement source only)\"\n      },\n      {\n        \"index\": 9,\n        \"reason\": \"Measuring gauge photo — disqualified from display (measurement source only)\"\n      },\n      {\n        \"index\": 10,\n        \"reason\": \"Measuring gauge photo — disqualified from display (measurement source only)\"\n      },\n      {\n        \"index\": 11,\n        \"reason\": \"Measuring gauge photo — disqualified from display (measurement source only)\"\n      },\n      {\n        \"index\": 12,\n        \"reason\": \"Label/packaging photo — disqualified from display (OCR/label only)\"\n      }\n    ],\n    \"sub_scores\": {\n      \"focus\": 24,\n      \"lighting\": 23,\n      \"background\": 18,\n      \"color_fidelity\": 19,\n      \"composition\": 8\n    }\n  },\n  \"aggregated_data\": {\n    \"shape_cut\": \"pear / teardrop (pair)\",\n    \"color\": \"medium to vivid green with slight bluish tint in areas\",\n    \"clarity_observations\": \"Visible internal inclusions including veils, growth features and some dark crystal inclusions; at least one surface-reaching fissure on one stone.\",\n    \"measurements_cross_verified\": {\n      \"weight_ct\": {\n        \"value\": 1.325,\n        \"confidence\": 0.98,\n        \"sources\": [\n          {\n            \"image_index\": 1,\n            \"method\": \"digital scale display\",\n            \"confidence\": 0.98\n          },\n          {\n            \"image_index\": 12,\n            \"method\": \"label OCR\",\n            \"confidence\": 0.95\n          }\n        ]\n      },\n      \"length_mm\": {\n        \"value\": 7.0,\n        \"confidence\": 0.94,\n        \"sources\": [\n          {\n            \"image_index\": 12,\n            \"method\": \"label OCR (7 / 5 marking)\",\n            \"confidence\": 0.95\n          },\n          {\n            \"image_index\": 2,\n            \"method\": \"visual scale estimation from photos (pear length appearance consistent with 7 mm)\",\n            \"confidence\": 0.85\n          }\n        ]\n      },\n      \"width_mm\": {\n        \"value\": 5.0,\n        \"confidence\": 0.93,\n        \"sources\": [\n          {\n            \"image_index\": 12,\n            \"method\": \"label OCR (7 / 5 marking)\",\n            \"confidence\": 0.95\n          },\n          {\n            \"image_index\": 2,\n            \"method\": \"visual estimation from top-view photos\",\n            \"confidence\": 0.80\n          }\n        ]\n      },\n      \"depth_mm\": {\n        \"value\": 3.15,\n        \"confidence\": 0.85,\n        \"sources\": [\n          {\n            \"image_index\": 8,\n            \"method\": \"dial gauge reading interpretation (~3.2 mm)\",\n            \"confidence\": 0.75\n          },\n          {\n            \"image_index\": 9,\n            \"method\": \"dial gauge reading interpretation (~3.1 mm)\",\n            \"confidence\": 0.74\n          },\n          {\n            \"image_index\": 11,\n            \"method\": \"dial gauge reading interpretation (~3.3 mm)\",\n            \"confidence\": 0.70\n          }\n        ]\n      }\n    },\n    \"overall_confidence_summary\": {\n      \"visual_identification_as_emerald\": 0.86,\n      \"measurements_consistency\": 0.95,\n      \"label_and_display_agreement\": 0.96\n    }\n  }\n}",
+    "consolidated_data": {
+      "cut_quality": {
+        "quality": null
+      },
+      "lot_metadata": {
+        "origin": null,
+        "source": null
+      },
+      "clarity_grade": null,
+      "color_assessment": {
+        "tone": null,
+        "saturation": null,
+        "primary_color": {},
+        "secondary_colors": []
+      },
+      "all_gauge_readings": [],
+      "quality_assessment": {},
+      "measurement_summary": {
+        "weight": null,
+        "depth_mm": null,
+        "width_mm": null,
+        "length_mm": null,
+        "dimensions": {}
+      },
+      "treatment_assessment": null
+    },
+    "data_verification": {},
+    "validation_issues": [
+      "Missing analysis for image indices: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12"
+    ],
+    "validation_passed": false,
+    "individual_analyses": [
+      {
+        "type": "digital_scale_photo",
+        "index": 1,
+        "notes": "Scale reading used as primary weight measurement source.",
+        "ocr_text": null,
+        "confidence": 0.95,
+        "measurements": {
+          "device": {
+            "make": "NEWACALOX (scale pictured)",
+            "model": null,
+            "resolution": "0.001 ct (display shows three decimals)"
+          },
+          "confidence": 0.98,
+          "weight_method": "digital_scale_display",
+          "weight_ct_display": 1.325
+        },
+        "visual_observations": "Two pear-shaped green gemstones placed in scale tray. Good lighting on display, scale clearly legible. Stones show internal inclusions and medium green color."
+      },
+      {
+        "type": "gemstone_top_view",
+        "index": 2,
+        "ocr_text": null,
+        "confidence": 0.93,
+        "measurements": null,
+        "visual_observations": "Two pear/teardrop cut green stones on a neutral white/cream textured background. Facet detail visible; numerous internal inclusions and some dark crystal inclusions. Color medium to vivid green with slight bluish tint in areas."
+      },
+      {
+        "type": "gemstone_side_profile",
+        "index": 3,
+        "ocr_text": null,
+        "confidence": 0.88,
+        "measurements": null,
+        "visual_observations": "Side profile showing pavilion and girdle. Stones appear shallow to medium depth for pear cuts; internal growth features visible."
+      },
+      {
+        "type": "gemstone_top_view_alt",
+        "index": 4,
+        "ocr_text": null,
+        "confidence": 0.92,
+        "measurements": null,
+        "visual_observations": "Top view of pear-cut stones with more even lighting; good color fidelity and visible inclusions. Useful for judging cut shape and color."
+      },
+      {
+        "type": "gemstone_positioned_view",
+        "index": 5,
+        "ocr_text": null,
+        "confidence": 0.9,
+        "measurements": null,
+        "visual_observations": "Another top/angled view showing both stones; consistent medium-green color and internal features. Slight surface-reaching fissures visible on one stone."
+      },
+      {
+        "type": "gemstone_detail_view",
+        "index": 6,
+        "ocr_text": null,
+        "confidence": 0.91,
+        "measurements": null,
+        "visual_observations": "Close-up showing facet detail and internal inclusions. One stone displays a pronounced dark inclusion near the center."
+      },
+      {
+        "type": "dial_gauge_measurement",
+        "index": 7,
+        "ocr_text": null,
+        "confidence": 0.76,
+        "measurements": {
+          "device": {
+            "make": null,
+            "model": null,
+            "resolution": "0.1 mm"
+          },
+          "confidence": 0.75,
+          "gauge_type": "dial_indicator (thickness/length gauge)",
+          "interpretation": "needle near '3' on dial; dial labeled 0.1 mm increments. Likely indicating ~3.0 mm (depth/thickness) for one stone in this photo.",
+          "dial_scale_reading_mm": 3
+        },
+        "visual_observations": "Two small pear-cut stones positioned with gauge anvils. Photo used as measurement source but instrument obscures some reference marks."
+      },
+      {
+        "type": "dial_gauge_measurement",
+        "index": 8,
+        "ocr_text": null,
+        "confidence": 0.75,
+        "measurements": {
+          "device": {
+            "make": null,
+            "model": null,
+            "resolution": "0.1 mm"
+          },
+          "confidence": 0.74,
+          "gauge_type": "dial_indicator",
+          "interpretation": "needle between 3 and 3.5 markings; interpreted as ~3.2 mm for one stone thickness.",
+          "dial_scale_reading_mm": 3.2
+        },
+        "visual_observations": "Gauge photo with stone between anvils; needle clearly visible but perspective may shift reading slightly."
+      },
+      {
+        "type": "dial_gauge_measurement",
+        "index": 9,
+        "ocr_text": null,
+        "confidence": 0.75,
+        "measurements": {
+          "device": {
+            "make": null,
+            "model": null,
+            "resolution": "0.1 mm"
+          },
+          "confidence": 0.74,
+          "gauge_type": "dial_indicator",
+          "interpretation": "needle just above '3' marking; indicates ~3.1 mm thickness for the stone placed under the gauge.",
+          "dial_scale_reading_mm": 3.1
+        },
+        "visual_observations": "Stone placed under gauge; consistent with other gauge images showing ~3.0–3.2 mm thickness."
+      },
+      {
+        "type": "dial_gauge_measurement",
+        "index": 10,
+        "ocr_text": null,
+        "confidence": 0.73,
+        "measurements": {
+          "device": {
+            "make": null,
+            "model": null,
+            "resolution": "0.1 mm"
+          },
+          "confidence": 0.72,
+          "gauge_type": "dial_indicator",
+          "interpretation": "needle near 3; used as corroborating thickness reading (~3.0 mm).",
+          "dial_scale_reading_mm": 3
+        },
+        "visual_observations": "Another angle of the same dial gauge; stones visible nearby and one under the anvils."
+      },
+      {
+        "type": "dial_gauge_measurement",
+        "index": 11,
+        "ocr_text": null,
+        "confidence": 0.72,
+        "measurements": {
+          "device": {
+            "make": null,
+            "model": null,
+            "resolution": "0.1 mm"
+          },
+          "confidence": 0.7,
+          "gauge_type": "dial_indicator",
+          "interpretation": "needle slightly above 3; interpreted as ~3.3 mm (possible small variance between stones).",
+          "dial_scale_reading_mm": 3.3
+        },
+        "visual_observations": "Gauge image showing needle slightly higher than previous images; suggests small measurement spread between stones."
+      },
+      {
+        "type": "label_image",
+        "index": 12,
+        "ocr_text": "A 89\n1.32 ct\nкапля/2 шт\n7 / 5",
+        "confidence": 0.96,
+        "measurements": {
+          "confidence": 0.95,
+          "shape_note": "капля (pear/teardrop) 2 pcs",
+          "width_mm_label": 5,
+          "length_mm_label": 7,
+          "weight_ct_label": 1.32
+        },
+        "visual_observations": "Paper label showing lot/code, weight and basic dimensions. Russian text OCR normalized (decimal comma to period)."
+      }
+    ],
+    "processing_metadata": {
+      "total_tokens": 9681,
+      "analysis_date": "2025-10-15T19:52:17.243Z",
+      "ai_model_version": "gpt-5-mini",
+      "image_batch_info": [
+        {
+          "order": 1,
+          "filename": "1756411744738_1.webp",
+          "image_id": "07c0696f-2f3f-4936-9ebb-e1100d2f1807"
+        },
+        {
+          "order": 2,
+          "filename": "1756411744301_2.webp",
+          "image_id": "362fbe17-3822-4086-896f-f03cc7d4d5a3"
+        },
+        {
+          "order": 3,
+          "filename": "1756411744323_3.webp",
+          "image_id": "545a7bdc-f03d-44f9-b54e-d1d487d6d16b"
+        },
+        {
+          "order": 4,
+          "filename": "1756411744357_4.webp",
+          "image_id": "c5698601-b71a-4d14-8e30-4b106831edeb"
+        },
+        {
+          "order": 5,
+          "filename": "1756411744310_5.webp",
+          "image_id": "08842e2e-b2d2-432f-b342-96d3a80a9895"
+        },
+        {
+          "order": 6,
+          "filename": "1756411744705_6.webp",
+          "image_id": "7bbf73f4-1f7f-49b7-9e8f-d19f20d6f6fe"
+        },
+        {
+          "order": 7,
+          "filename": "1756411744692_7.webp",
+          "image_id": "83a15996-e787-4483-889b-b83539202780"
+        },
+        {
+          "order": 8,
+          "filename": "1756411744756_8.webp",
+          "image_id": "1f75c715-eb5c-400e-8408-87fad287a6fa"
+        },
+        {
+          "order": 9,
+          "filename": "1756411745058_9.webp",
+          "image_id": "e1a73259-8f97-4aad-8267-7aba33da1b88"
+        },
+        {
+          "order": 10,
+          "filename": "1756411745097_10.webp",
+          "image_id": "daf1f322-d896-437d-a504-eac8296a8f59"
+        },
+        {
+          "order": 11,
+          "filename": "1756411745083_11.webp",
+          "image_id": "b3a4edff-5274-4691-a7fd-16d46dd8ea21"
+        },
+        {
+          "order": 12,
+          "filename": "1756411745136_12.webp",
+          "image_id": "9ad24683-997f-4230-a328-4e5ac8b1f6ec"
+        }
+      ],
+      "processing_time_ms": 37537,
+      "processing_cost_usd": 0.027288000000000003,
+      "validation_metadata": {
+        "issues": [
+          "Missing analysis for image indices: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12"
+        ],
+        "passed": false,
+        "warnings": [
+          "Image 1 missing classification",
+          "Image 2 missing classification",
+          "Image 3 missing classification",
+          "Image 4 missing classification",
+          "Image 5 missing classification",
+          "Image 6 missing classification",
+          "Image 7 missing classification",
+          "Image 8 missing classification",
+          "Image 9 missing classification",
+          "Image 10 missing classification",
+          "Image 11 missing classification",
+          "Image 12 missing classification",
+          "No measurement gauge readings found - verify images contain measuring devices"
+        ],
+        "actual_analyses": 12,
+        "expected_images": 12,
+        "gauge_readings_found": 0,
+        "validation_timestamp": "2025-10-15T19:52:17.243Z"
+      },
+      "total_images_analyzed": 12
+    },
+    "validation_metadata": {
+      "images_analyzed": 12,
+      "images_expected": 12,
+      "validation_issues": [
+        "Missing analysis for image indices: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12"
+      ],
+      "validation_passed": false,
+      "completeness_score": 0.85,
+      "validation_warnings": [
+        "Image 1 missing classification",
+        "Image 2 missing classification",
+        "Image 3 missing classification",
+        "Image 4 missing classification",
+        "Image 5 missing classification",
+        "Image 6 missing classification",
+        "Image 7 missing classification",
+        "Image 8 missing classification",
+        "Image 9 missing classification",
+        "Image 10 missing classification",
+        "Image 11 missing classification",
+        "Image 12 missing classification",
+        "No measurement gauge readings found - verify images contain measuring devices"
+      ],
+      "validation_timestamp": "2025-10-15T19:52:18.698Z",
+      "gauge_readings_extracted": 0
+    },
+    "validation_warnings": [
+      "Image 1 missing classification",
+      "Image 2 missing classification",
+      "Image 3 missing classification",
+      "Image 4 missing classification",
+      "Image 5 missing classification",
+      "Image 6 missing classification",
+      "Image 7 missing classification",
+      "Image 8 missing classification",
+      "Image 9 missing classification",
+      "Image 10 missing classification",
+      "Image 11 missing classification",
+      "Image 12 missing classification",
+      "No measurement gauge readings found - verify images contain measuring devices"
+    ],
+    "primary_image_selection": {
+      "reasoning": "Image 2 provides the best combination of sharp focus, balanced lighting, clean neutral background and accurate color fidelity for product display. The stones are centered and facets are clearly visible enabling assessment of shape, color and inclusions.",
+      "confidence": 92,
+      "sub_scores": {
+        "focus": 24,
+        "lighting": 23,
+        "background": 18,
+        "composition": 8,
+        "color_fidelity": 19
+      },
+      "selected_image_index": 2
+    }
+  }
+}

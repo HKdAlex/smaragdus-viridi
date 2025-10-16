@@ -104,6 +104,76 @@ export async function saveMultiImageAnalysis(
       } found`
     );
 
+    // Extract and save structured data to gemstone fields
+    console.log(`\n📤 Extracting structured data from AI analysis...`);
+    const { extractGemstoneData, shouldUpdateField } = await import(
+      "./data-extractor.mjs"
+    );
+    const extractedData = extractGemstoneData(consolidatedAnalysis);
+
+    // Fetch current gemstone data to check for manual values
+    const { data: currentGemstone, error: fetchError } = await supabase
+      .from("gemstones")
+      .select(
+        "weight_carats, length_mm, width_mm, depth_mm, color, clarity, cut"
+      )
+      .eq("id", gemstoneId)
+      .single();
+
+    if (fetchError) {
+      console.warn(
+        `⚠️ Could not fetch current gemstone data: ${fetchError.message}`
+      );
+    }
+
+    // Build update object - ALWAYS populate ai_* fields regardless of manual data
+    const updateFields = {};
+    const skippedFields = [];
+
+    Object.entries(extractedData).forEach(([key, value]) => {
+      // Always update AI fields if we have data, regardless of manual values
+      if (value !== null && value !== undefined) {
+        updateFields[key] = value;
+      } else {
+        skippedFields.push(`${key} (no AI value extracted)`);
+      }
+    });
+
+    if (Object.keys(updateFields).length > 0) {
+      const { error: extractError } = await supabase
+        .from("gemstones")
+        .update(updateFields)
+        .eq("id", gemstoneId);
+
+      if (extractError) {
+        console.warn(
+          `⚠️ Failed to save extracted data: ${extractError.message}`
+        );
+      } else {
+        console.log(
+          `✅ Saved ${
+            Object.keys(updateFields).length
+          } extracted fields to gemstone`
+        );
+        console.log(
+          `  📊 Confidence: ${(
+            extractedData.ai_extraction_confidence * 100
+          ).toFixed(0)}%`
+        );
+        if (skippedFields.length > 0) {
+          console.log(
+            `  ⏭️  Skipped ${skippedFields.length} fields: ${skippedFields
+              .slice(0, 3)
+              .join(", ")}${skippedFields.length > 3 ? "..." : ""}`
+          );
+        }
+      }
+    } else {
+      console.log(
+        `⏭️  No fields to update (all have manual values or low confidence)`
+      );
+    }
+
     // Update primary image flags based on AI selection
     if (
       consolidatedAnalysis.primary_image_selection?.selected_image_index !==
@@ -279,7 +349,9 @@ async function markGemstoneAsAnalyzed(
   } catch (error) {
     console.error(`❌ Error marking gemstone as analyzed: ${error.message}`);
     console.error(`🔧 This will cause UI to show "AI Analysis Not Available"`);
-    console.error(`💡 Manual fix: UPDATE gemstones SET ai_analyzed = true WHERE id = '${gemstoneId}'`);
+    console.error(
+      `💡 Manual fix: UPDATE gemstones SET ai_analyzed = true WHERE id = '${gemstoneId}'`
+    );
     // Don't throw here - analysis save is more important
   }
 }

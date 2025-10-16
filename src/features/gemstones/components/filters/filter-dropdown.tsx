@@ -5,6 +5,7 @@
 
 import { CheckIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
 import { useEffect, useRef, useState } from "react";
+
 import { useTranslations } from "next-intl";
 
 interface FilterDropdownOption<T = string> {
@@ -39,7 +40,7 @@ export function FilterDropdown<T extends string = string>({
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
-  
+
   // Use translation for placeholder if not provided
   const displayPlaceholder = placeholder || t("selectPlaceholder");
 

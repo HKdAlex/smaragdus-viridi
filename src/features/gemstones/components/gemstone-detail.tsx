@@ -1,6 +1,15 @@
 "use client";
 
-import { Link, useRouter } from "@/i18n/navigation";
+import {
+  ArrowLeft,
+  Heart,
+  Info,
+  Share2,
+  Shield,
+  ShoppingCart,
+  Star,
+  Truck,
+} from "lucide-react";
 import {
   Card,
   CardContent,
@@ -14,29 +23,20 @@ import {
   GemstoneCutIcon,
   GemstoneTypeIcon,
 } from "@/shared/components/ui/gemstone-icons";
-import {
-  ArrowLeft,
-  Heart,
-  Info,
-  Share2,
-  Shield,
-  ShoppingCart,
-  Star,
-  Truck,
-} from "lucide-react";
+import { Link, useRouter } from "@/i18n/navigation";
 
-import { useAuth } from "@/features/auth/context/auth-context";
-import { useCartContext } from "@/features/cart/context/cart-context";
+import { AIAnalysisDisplay } from "./ai-analysis-display";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import type { DetailGemstone } from "@/shared/types";
-import { useTranslations } from "next-intl";
-import { useState } from "react";
-import { useGemstoneTranslations } from "../utils/gemstone-translations";
-import { AIAnalysisDisplay } from "./ai-analysis-display";
 import { CertificationDisplay } from "./certification-display";
+import type { DetailGemstone } from "@/shared/types";
 import { MediaGallery } from "./media-gallery";
 import { RelatedGemstones } from "./related-gemstones";
+import { useAuth } from "@/features/auth/context/auth-context";
+import { useCartContext } from "@/features/cart/context/cart-context";
+import { useGemstoneTranslations } from "../utils/gemstone-translations";
+import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 // DetailGemstone interface is now imported from shared types
 

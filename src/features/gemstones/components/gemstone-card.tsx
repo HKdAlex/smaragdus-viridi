@@ -90,12 +90,11 @@ export function GemstoneCard({
     translateGemstoneType,
   } = useGemstoneTranslations();
 
-  const typeLabel = gemstone.displayName ?? translateGemstoneType(gemstone.name);
-  const colorLabel =
-    gemstone.displayColor ?? translateColor(gemstone.color);
+  const typeLabel =
+    gemstone.displayName ?? translateGemstoneType(gemstone.name);
+  const colorLabel = gemstone.displayColor ?? translateColor(gemstone.color);
   const cutLabel =
-    gemstone.displayCut ??
-    (gemstone.cut ? translateCut(gemstone.cut) : null);
+    gemstone.displayCut ?? (gemstone.cut ? translateCut(gemstone.cut) : null);
   const clarityLabel =
     gemstone.displayClarity ??
     (gemstone.clarity ? translateClarity(gemstone.clarity) : null);
@@ -191,8 +190,7 @@ export function GemstoneCard({
             isCompact ? "text-xs" : "text-sm sm:text-base"
           }`}
         >
-          {colorLabel}{" "}
-          {typeLabel}
+          {colorLabel} {typeLabel}
         </h3>
 
         {/* Attributes */}
@@ -264,6 +262,13 @@ export function GemstoneCard({
             </div>
           )}
         </div>
+
+        {/* Show emotional description snippet if available */}
+        {gemstone.description_emotional_ru && (
+          <p className="text-sm text-muted-foreground line-clamp-2 mt-3 px-2">
+            {gemstone.description_emotional_ru}
+          </p>
+        )}
       </div>
     </>
   );

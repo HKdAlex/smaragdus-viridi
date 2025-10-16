@@ -1,4 +1,5 @@
 import * as React from "react";
+
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { cn } from "@/lib/utils";
 
@@ -41,7 +42,10 @@ interface SheetContentProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const SheetContent = React.forwardRef<HTMLDivElement, SheetContentProps>(
-  ({ side = "right", className, children, showClose = true, ...props }, ref) => {
+  (
+    { side = "right", className, children, showClose = true, ...props },
+    ref
+  ) => {
     const { open, onOpenChange } = useSheet();
     const contentRef = React.useRef<HTMLDivElement>(null);
 
@@ -195,10 +199,10 @@ SheetBody.displayName = "SheetBody";
 
 export {
   Sheet,
+  SheetBody,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetDescription,
-  SheetBody,
 };
 

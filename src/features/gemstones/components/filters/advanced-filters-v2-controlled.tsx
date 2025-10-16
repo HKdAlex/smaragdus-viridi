@@ -14,20 +14,20 @@
 
 "use client";
 
+import {
+  ClaritySelector,
+  ColorPicker,
+  CutShapeSelector,
+  PriceRangeCards,
+  ToggleCards,
+  WeightRangeCards,
+} from "./visual";
 import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import { useCallback } from "react";
-import { useTranslations } from "next-intl";
 
 import type { AdvancedGemstoneFilters } from "../../types/filter.types";
 import type { FilterOptions } from "./advanced-filters-controlled";
-import {
-  CutShapeSelector,
-  ColorPicker,
-  ClaritySelector,
-  PriceRangeCards,
-  WeightRangeCards,
-  ToggleCards,
-} from "./visual";
+import { useCallback } from "react";
+import { useTranslations } from "next-intl";
 
 interface AdvancedFiltersV2ControlledProps {
   filters: AdvancedGemstoneFilters;
@@ -159,7 +159,9 @@ export function AdvancedFiltersV2Controlled({
             className="flex items-center space-x-2 px-3 py-1.5 bg-destructive/10 text-destructive rounded-lg hover:bg-destructive/20 transition-colors text-sm font-medium"
           >
             <XMarkIcon className="w-4 h-4" />
-            <span>{t("advancedV2.resetAll", { count: activeFilterCount })}</span>
+            <span>
+              {t("advancedV2.resetAll", { count: activeFilterCount })}
+            </span>
           </button>
         </div>
       )}

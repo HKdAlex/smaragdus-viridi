@@ -17,24 +17,24 @@
 
 import { useCallback, useMemo, useState } from "react";
 
-// Filter sidebar component
-import { FilterSidebar } from "./filters/filter-sidebar";
 // Types
 import type { AdvancedGemstoneFilters } from "../types/filter.types";
-// Shared components from Phase 0
 import { CatalogHeader } from "./catalog-header";
 import { EmptyState } from "./empty-state";
+// Filter sidebar component
+import { FilterSidebar } from "./filters/filter-sidebar";
 import { GemstoneGrid } from "./gemstone-grid";
 import { LoadingState } from "./loading-state";
 import { PaginationControls } from "./pagination-controls";
+// Shared components from Phase 0
 import { queryStringToFilters } from "../utils/filter-url.utils";
-// React Query hooks
 import { useFilterCountsQuery } from "../hooks/use-filter-counts-query";
-// Filter state hooks
 import { useFilterState } from "../hooks/use-filter-state";
 import { useFilterUrlSync } from "../hooks/use-filter-url-sync";
 import { useGemstoneQuery } from "../hooks/use-gemstone-query";
+// React Query hooks
 import { useSearchParams } from "next/navigation";
+// Filter state hooks
 import { useTranslations } from "next-intl";
 
 const PAGE_SIZE = 24;

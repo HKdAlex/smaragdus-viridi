@@ -120,7 +120,9 @@ export function FilterSidebar({
             aria-label={t("sidebar.openFilters")}
           >
             <AdjustmentsHorizontalIcon className="w-5 h-5" />
-            <span className={`font-medium ${isMobile ? "" : "hidden sm:inline"}`}>
+            <span
+              className={`font-medium ${isMobile ? "" : "hidden sm:inline"}`}
+            >
               {t("sidebar.filtersSidebar")}
             </span>
             {activeFilterCount > 0 && (

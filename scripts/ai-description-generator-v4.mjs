@@ -5,8 +5,8 @@ import {
   getModelConfig,
 } from "./ai-analysis/model-config.mjs";
 
-import { DESCRIPTION_GENERATION_PROMPT } from "./ai-analysis/prompts-v4.mjs";
 import OpenAI from "openai";
+import { buildDescriptionPrompt } from "./ai-analysis/prompts-v4.mjs";
 import { config } from "dotenv";
 import { createClient } from "@supabase/supabase-js";
 
@@ -28,32 +28,13 @@ if (!supabaseUrl || !supabaseKey) {
 }
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-async function generateDescriptions(gemstone) {
+async function generateDescriptions(gemstone, analysisData) {
   console.log(
     `\n📝 Generating descriptions for: ${gemstone.serial_number || gemstone.id}`
   );
 
-  const inputData = {
-    type: gemstone.name,
-    weight_carats: gemstone.weight_carats,
-    dimensions: {
-      length: gemstone.length_mm,
-      width: gemstone.width_mm,
-      depth: gemstone.depth_mm,
-    },
-    color: gemstone.color,
-    cut: gemstone.cut,
-    clarity: gemstone.clarity,
-    quality_grade: gemstone.ai_confidence_score,
-    origin: gemstone.origin,
-    certifications: gemstone.certifications,
-  };
-
-  const prompt = `${DESCRIPTION_GENERATION_PROMPT}\n\n**GEMSTONE DATA:**\n${JSON.stringify(
-    inputData,
-    null,
-    2
-  )}\n\nGenerate comprehensive descriptions following the guidelines.`;
+  // Use buildDescriptionPrompt helper - it intelligently uses AI data or manual data
+  const prompt = buildDescriptionPrompt(gemstone, analysisData);
 
   try {
     const startTime = Date.now();
@@ -169,7 +150,16 @@ async function main() {
 
   const { data: gemstones, error } = await supabase
     .from("gemstones")
-    .select("*")
+    .select(
+      `
+      *,
+      ai_analysis_results (
+        extracted_data,
+        confidence_score,
+        overall_metrics
+      )
+    `
+    )
     .eq("ai_analyzed", true)
     .is("description_technical_ru", null)
     .limit(limit);
@@ -187,7 +177,12 @@ async function main() {
   let successful = 0;
 
   for (const gemstone of gemstones) {
-    const result = await generateDescriptions(gemstone);
+    // Extract analysis data if available (may be array, take first/latest)
+    const analysisData = Array.isArray(gemstone.ai_analysis_results)
+      ? gemstone.ai_analysis_results[0]
+      : gemstone.ai_analysis_results;
+
+    const result = await generateDescriptions(gemstone, analysisData);
     if (result.success) {
       successful += 1;
       totalCost += result.cost;

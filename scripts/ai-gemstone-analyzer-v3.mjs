@@ -45,18 +45,18 @@ config({ path: ".env.local" });
 // Configuration
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 // Validate environment variables
 function validateEnvironment() {
   const missing = [];
   if (!OPENAI_API_KEY) missing.push("OPENAI_API_KEY");
   if (!SUPABASE_URL) missing.push("NEXT_PUBLIC_SUPABASE_URL");
-  if (!SUPABASE_ANON_KEY) missing.push("NEXT_PUBLIC_SUPABASE_ANON_KEY");
+  if (!SUPABASE_SERVICE_ROLE_KEY) missing.push("SUPABASE_SERVICE_ROLE_KEY");
 
   if (missing.length > 0) {
     console.error(`❌ Missing environment variables: ${missing.join(", ")}`);
-    console.error("Please check your .env file");
+    console.error("Please check your .env.local file");
     process.exit(1);
   }
 }
@@ -64,7 +64,13 @@ function validateEnvironment() {
 // Initialize services
 function initializeServices() {
   const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  // Use SERVICE_ROLE_KEY to bypass RLS for admin operations
+  const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  });
   return { openai, supabase };
 }
 

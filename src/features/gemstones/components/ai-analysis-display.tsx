@@ -28,6 +28,7 @@ import {
 
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
+import { DataComparisonCard } from "./data-comparison-card";
 import type { DatabaseAIAnalysisResult } from "@/shared/types";
 import { Progress } from "@/shared/components/ui/progress";
 import { useState } from "react";
@@ -38,6 +39,7 @@ interface AIAnalysisDisplayProps {
   aiAnalyzed: boolean;
   aiConfidenceScore?: number;
   aiAnalysisDate?: string;
+  gemstone?: any; // Full gemstone data for extracted fields comparison
 }
 
 export function AIAnalysisDisplay({
@@ -46,6 +48,7 @@ export function AIAnalysisDisplay({
   aiAnalyzed,
   aiConfidenceScore,
   aiAnalysisDate,
+  gemstone,
 }: AIAnalysisDisplayProps) {
   const [activeTab, setActiveTab] = useState("overview");
   const [showRawData, setShowRawData] = useState(false);
@@ -175,11 +178,11 @@ export function AIAnalysisDisplay({
   // Tab configuration
   const tabs = [
     { id: "overview", label: "Overview", icon: Eye },
-    { id: "extraction", label: "Data Extraction", icon: FileText },
+    { id: "extracted", label: "Extracted Data", icon: Database },
     { id: "classification", label: "Image Analysis", icon: ImageIcon },
     { id: "measurements", label: "Measurements", icon: Ruler },
     { id: "quality", label: "Quality Assessment", icon: Star },
-    { id: "raw", label: "Raw Data", icon: Database },
+    { id: "raw", label: "Raw Data", icon: Code2 },
   ];
 
   return (
@@ -664,6 +667,112 @@ export function AIAnalysisDisplay({
               </CardContent>
             </Card>
           </div>
+        )}
+
+        {/* Extracted Data Tab */}
+        {activeTab === "extracted" && gemstone && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <DataComparisonCard
+                label="Weight (carats)"
+                manualValue={gemstone.weight_carats}
+                aiValue={gemstone.ai_weight_carats}
+                confidence={gemstone.ai_extraction_confidence}
+              />
+              <DataComparisonCard
+                label="Dimensions (mm)"
+                manualValue={
+                  gemstone.length_mm
+                    ? `${gemstone.length_mm} × ${gemstone.width_mm} × ${gemstone.depth_mm}`
+                    : null
+                }
+                aiValue={
+                  gemstone.ai_length_mm
+                    ? `${gemstone.ai_length_mm} × ${gemstone.ai_width_mm} × ${gemstone.ai_depth_mm}`
+                    : null
+                }
+                confidence={gemstone.ai_extraction_confidence}
+              />
+              <DataComparisonCard
+                label="Color"
+                manualValue={gemstone.color ? String(gemstone.color) : null}
+                aiValue={gemstone.ai_color}
+                confidence={gemstone.ai_extraction_confidence}
+              />
+              <DataComparisonCard
+                label="Clarity"
+                manualValue={gemstone.clarity ? String(gemstone.clarity) : null}
+                aiValue={gemstone.ai_clarity}
+                confidence={gemstone.ai_extraction_confidence}
+              />
+              <DataComparisonCard
+                label="Cut"
+                manualValue={gemstone.cut ? String(gemstone.cut) : null}
+                aiValue={gemstone.ai_cut}
+                confidence={gemstone.ai_extraction_confidence}
+              />
+              <DataComparisonCard
+                label="Quality Grade"
+                manualValue={null}
+                aiValue={gemstone.ai_quality_grade}
+                confidence={gemstone.ai_extraction_confidence}
+              />
+            </div>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm">
+                  Data Quality Assessment
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span>Extraction Confidence:</span>
+                    <Badge
+                      variant={
+                        gemstone.ai_extraction_confidence > 0.8
+                          ? "default"
+                          : "secondary"
+                      }
+                    >
+                      {gemstone.ai_extraction_confidence
+                        ? (gemstone.ai_extraction_confidence * 100).toFixed(0)
+                        : 0}
+                      %
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Extracted Date:</span>
+                    <span className="text-muted-foreground">
+                      {gemstone.ai_extracted_date
+                        ? new Date(
+                            gemstone.ai_extracted_date
+                          ).toLocaleDateString()
+                        : "N/A"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Treatment:</span>
+                    <span className="text-muted-foreground">
+                      {gemstone.ai_treatment || "Not specified"}
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {activeTab === "extracted" && !gemstone && (
+          <Card>
+            <CardContent className="p-8 text-center">
+              <p className="text-muted-foreground">
+                Extracted data not available. Gemstone data not provided to
+                component.
+              </p>
+            </CardContent>
+          </Card>
         )}
 
         {/* Enhanced Multi-Image Analysis Tab */}
