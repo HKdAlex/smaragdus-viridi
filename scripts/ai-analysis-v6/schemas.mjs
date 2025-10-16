@@ -109,9 +109,21 @@ export const TEXT_GENERATION_SCHEMA = {
       additionalProperties: false,
     },
     promotional_text: {
-      type: "string",
-      description:
-        "Promotional text highlighting special occasions/use cases (English, 100-150 words)",
+      type: "object",
+      properties: {
+        en: {
+          type: "string",
+          description:
+            "Promotional text highlighting special occasions/use cases in English (100-150 words)",
+        },
+        ru: {
+          type: "string",
+          description:
+            "Promotional text highlighting special occasions/use cases in Russian (100-150 words)",
+        },
+      },
+      required: ["en", "ru"],
+      additionalProperties: false,
     },
     confidence: {
       type: "number",

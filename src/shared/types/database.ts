@@ -1092,6 +1092,7 @@ export type Database = {
           needs_review: boolean
           primary_image_selection_reasoning: string | null
           promotional_text: string | null
+          promotional_text_ru: string | null
           recommended_primary_image_index: number | null
           review_notes: string | null
           technical_description_en: string | null
@@ -1125,6 +1126,7 @@ export type Database = {
           needs_review?: boolean
           primary_image_selection_reasoning?: string | null
           promotional_text?: string | null
+          promotional_text_ru?: string | null
           recommended_primary_image_index?: number | null
           review_notes?: string | null
           technical_description_en?: string | null
@@ -1158,6 +1160,7 @@ export type Database = {
           needs_review?: boolean
           primary_image_selection_reasoning?: string | null
           promotional_text?: string | null
+          promotional_text_ru?: string | null
           recommended_primary_image_index?: number | null
           review_notes?: string | null
           technical_description_en?: string | null

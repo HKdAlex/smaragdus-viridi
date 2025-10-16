@@ -355,7 +355,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                   <div className="space-y-5">
                     <div className="pb-2">
                       <div className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-3">
-                        Price
+                        {t("price")}
                       </div>
                       <div className="flex items-baseline gap-3 pb-1">
                         <span className="text-4xl sm:text-5xl font-bold bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent filter drop-shadow-sm">
@@ -605,9 +605,14 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                         </span>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <CutIcon cut={gemstone.v6Text?.detected_cut || gemstone.cut} className="w-4 h-4" />
+                        <CutIcon
+                          cut={gemstone.v6Text?.detected_cut || gemstone.cut}
+                          className="w-4 h-4"
+                        />
                         <span className="font-semibold text-foreground capitalize">
-                          {translateCut(gemstone.v6Text?.detected_cut || gemstone.cut)}
+                          {translateCut(
+                            gemstone.v6Text?.detected_cut || gemstone.cut
+                          )}
                         </span>
                       </div>
                     </div>

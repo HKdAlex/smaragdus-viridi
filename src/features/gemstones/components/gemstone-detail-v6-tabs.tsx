@@ -20,6 +20,7 @@ interface V6TextContent {
   marketing_highlights: string[] | null;
   marketing_highlights_ru: string[] | null;
   promotional_text: string | null;
+  promotional_text_ru: string | null;
 }
 
 interface GemstoneDetailV6TabsProps {
@@ -160,13 +161,21 @@ export function GemstoneDetailV6Tabs({
               })()}
 
               {/* Promotional Text */}
-              {v6Text.promotional_text && (
-                <div className="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 rounded-xl p-6 border border-amber-500/20">
-                  <p className="text-sm text-foreground/90 leading-relaxed text-center font-medium">
-                    {v6Text.promotional_text}
-                  </p>
-                </div>
-              )}
+              {(() => {
+                const promoText =
+                  locale === "ru"
+                    ? v6Text.promotional_text_ru || v6Text.promotional_text
+                    : v6Text.promotional_text;
+                return (
+                  promoText && (
+                    <div className="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 rounded-xl p-6 border border-amber-500/20">
+                      <p className="text-sm text-foreground/90 leading-relaxed text-center font-medium">
+                        {promoText}
+                      </p>
+                    </div>
+                  )
+                );
+              })()}
             </div>
           )}
 
