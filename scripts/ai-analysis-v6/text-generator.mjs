@@ -31,14 +31,22 @@ export async function generateGemstoneText(options) {
   const {
     metadata,
     images = null,
-    model = DEFAULT_MODEL,
+    model = process.env.OPENAI_DESCRIPTION_MODEL || DEFAULT_MODEL,
     detectedCut = null,
+    detectedColor = null,
   } = options;
 
   const startTime = Date.now();
 
-  // Build the user message with metadata (using detected cut if available)
-  const userMessage = buildPromptMessage(metadata, images, detectedCut);
+  // Build the user message with metadata (using detected cut and color if available)
+  const userMessage = buildPromptMessage(
+    metadata,
+    images,
+    detectedCut,
+    detectedColor
+  );
+
+  console.log("Using model for text generation:", model);
 
   try {
     const response = await withTimeout(
@@ -64,6 +72,8 @@ export async function generateGemstoneText(options) {
       }),
       TIMEOUT_MS.TEXT_GENERATION
     );
+
+    // console.log("OpenAI API Response:", JSON.stringify(response, null, 2));
 
     const generatedContent = JSON.parse(
       response.choices[0].message.content || "{}"
@@ -105,8 +115,13 @@ export async function generateGemstoneText(options) {
  * @param {string|null} detectedCut - AI-detected cut to override metadata
  * @returns {Object} User message for OpenAI
  */
-function buildPromptMessage(metadata, images, detectedCut = null) {
-  const metadataText = formatMetadata(metadata, detectedCut);
+function buildPromptMessage(
+  metadata,
+  images,
+  detectedCut = null,
+  detectedColor = null
+) {
+  const metadataText = formatMetadata(metadata, detectedCut, detectedColor);
 
   // If we have images, use multi-modal input
   if (images && images.length > 0) {
@@ -141,13 +156,12 @@ function buildPromptMessage(metadata, images, detectedCut = null) {
  * @param {string|null} detectedCut - AI-detected cut to override metadata
  * @returns {string} Formatted metadata
  */
-function formatMetadata(metadata, detectedCut = null) {
-  // Use AI-detected cut if available and different from metadata
+function formatMetadata(metadata, detectedCut = null, detectedColor = null) {
+  // Use AI-detected cut if available, otherwise use metadata
   const cutToUse = detectedCut || metadata.cut;
-  const cutNote =
-    detectedCut && detectedCut !== metadata.cut
-      ? ` (AI-verified from images, metadata indicated "${metadata.cut}")`
-      : "";
+
+  // Use AI-detected color if available, otherwise use metadata
+  const colorToUse = detectedColor || metadata.color;
 
   return `
 GEMSTONE METADATA:
@@ -156,9 +170,9 @@ GEMSTONE METADATA:
 - Dimensions: ${metadata.length_mm} × ${metadata.width_mm} × ${
     metadata.depth_mm
   } mm
-- Color: ${metadata.color} (${metadata.color_code})
+- Color: ${colorToUse} (${metadata.color_code})
 - Clarity: ${metadata.clarity} (${metadata.clarity_code})
-- Cut: ${cutToUse}${cutNote}
+- Cut: ${cutToUse}
 - Origin: ${metadata.origin_name || "Unknown"}${
     metadata.origin_country ? `, ${metadata.origin_country}` : ""
   }${metadata.origin_region ? ` (${metadata.origin_region})` : ""}

@@ -311,6 +311,65 @@ export type Database = {
         }
         Relationships: []
       }
+      color_translations: {
+        Row: {
+          color_id: number
+          created_at: string
+          id: number
+          language_code: string
+          name: string
+        }
+        Insert: {
+          color_id: number
+          created_at?: string
+          id?: number
+          language_code: string
+          name: string
+        }
+        Update: {
+          color_id?: number
+          created_at?: string
+          id?: number
+          language_code?: string
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "color_translations_color_id_fkey"
+            columns: ["color_id"]
+            isOneToOne: false
+            referencedRelation: "colors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      colors: {
+        Row: {
+          color_code: string
+          created_at: string
+          hex_value: string | null
+          id: number
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          color_code: string
+          created_at?: string
+          hex_value?: string | null
+          id?: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          color_code?: string
+          created_at?: string
+          hex_value?: string | null
+          id?: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       contact_messages: {
         Row: {
           admin_notes: string | null
@@ -773,6 +832,8 @@ export type Database = {
           ai_analyzed: boolean | null
           ai_clarity: string | null
           ai_color: string | null
+          ai_color_code: string | null
+          ai_color_description: string | null
           ai_confidence_score: number | null
           ai_cut: string | null
           ai_data_completeness: number | null
@@ -843,6 +904,8 @@ export type Database = {
           ai_analyzed?: boolean | null
           ai_clarity?: string | null
           ai_color?: string | null
+          ai_color_code?: string | null
+          ai_color_description?: string | null
           ai_confidence_score?: number | null
           ai_cut?: string | null
           ai_data_completeness?: number | null
@@ -915,6 +978,8 @@ export type Database = {
           ai_analyzed?: boolean | null
           ai_clarity?: string | null
           ai_color?: string | null
+          ai_color_code?: string | null
+          ai_color_description?: string | null
           ai_confidence_score?: number | null
           ai_cut?: string | null
           ai_data_completeness?: number | null
@@ -1069,11 +1134,16 @@ export type Database = {
         Row: {
           care_instructions_en: string | null
           care_instructions_ru: string | null
+          color_detection_confidence: number | null
+          color_detection_reasoning: string | null
+          color_matches_metadata: boolean | null
           confidence_score: number | null
           created_at: string
           cut_detection_confidence: number | null
           cut_detection_reasoning: string | null
           cut_matches_metadata: boolean | null
+          detected_color: string | null
+          detected_color_description: string | null
           detected_cut: string | null
           emotional_description_en: string | null
           emotional_description_ru: string | null
@@ -1095,6 +1165,7 @@ export type Database = {
           promotional_text_ru: string | null
           recommended_primary_image_index: number | null
           review_notes: string | null
+          selected_image_uuid: string | null
           technical_description_en: string | null
           technical_description_ru: string | null
           updated_at: string
@@ -1103,11 +1174,16 @@ export type Database = {
         Insert: {
           care_instructions_en?: string | null
           care_instructions_ru?: string | null
+          color_detection_confidence?: number | null
+          color_detection_reasoning?: string | null
+          color_matches_metadata?: boolean | null
           confidence_score?: number | null
           created_at?: string
           cut_detection_confidence?: number | null
           cut_detection_reasoning?: string | null
           cut_matches_metadata?: boolean | null
+          detected_color?: string | null
+          detected_color_description?: string | null
           detected_cut?: string | null
           emotional_description_en?: string | null
           emotional_description_ru?: string | null
@@ -1129,6 +1205,7 @@ export type Database = {
           promotional_text_ru?: string | null
           recommended_primary_image_index?: number | null
           review_notes?: string | null
+          selected_image_uuid?: string | null
           technical_description_en?: string | null
           technical_description_ru?: string | null
           updated_at?: string
@@ -1137,11 +1214,16 @@ export type Database = {
         Update: {
           care_instructions_en?: string | null
           care_instructions_ru?: string | null
+          color_detection_confidence?: number | null
+          color_detection_reasoning?: string | null
+          color_matches_metadata?: boolean | null
           confidence_score?: number | null
           created_at?: string
           cut_detection_confidence?: number | null
           cut_detection_reasoning?: string | null
           cut_matches_metadata?: boolean | null
+          detected_color?: string | null
+          detected_color_description?: string | null
           detected_cut?: string | null
           emotional_description_en?: string | null
           emotional_description_ru?: string | null
@@ -1163,6 +1245,7 @@ export type Database = {
           promotional_text_ru?: string | null
           recommended_primary_image_index?: number | null
           review_notes?: string | null
+          selected_image_uuid?: string | null
           technical_description_en?: string | null
           technical_description_ru?: string | null
           updated_at?: string

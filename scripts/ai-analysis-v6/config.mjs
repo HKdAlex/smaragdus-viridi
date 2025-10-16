@@ -2,10 +2,20 @@
  * Configuration for AI Text Generation v6
  */
 
-export const DEFAULT_MODEL = process.env.V6_TEXT_MODEL || "gpt-4o-mini";
+export const DEFAULT_MODEL = "gpt-4o-mini"; // Use GPT-4o-mini for all operations
 // Temperature for creative content generation
 export const DEFAULT_TEMPERATURE = 1.0; // Creative, varied outputs
-export const MAX_TOKENS_OUTPUT = 4000; // Sufficient for all text fields
+export const MAX_TOKENS_OUTPUT = 6000; // Increased to handle reasoning tokens + content
+
+// Image quality settings - can be adjusted based on generation quality
+export const IMAGE_QUALITY = {
+  LOW: "low", // Fast, efficient for most cases
+  MEDIUM: "medium", // Balanced quality/speed
+  HIGH: "high", // Maximum quality for difficult cases
+};
+
+// Default image quality - start with low for efficiency
+export const DEFAULT_IMAGE_QUALITY = IMAGE_QUALITY.LOW;
 
 export const TIMEOUT_MS = {
   IMAGE_DOWNLOAD: 5000, // 5 seconds per image

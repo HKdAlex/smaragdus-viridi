@@ -3,14 +3,20 @@
  * Orchestrates the full text generation workflow with image analysis
  */
 
-import { detectGemstoneCut, selectPrimaryImage } from "./image-analyzer.mjs";
+import { DEFAULT_MODEL, IMAGE_QUALITY } from "./config.mjs";
+import {
+  detectGemstoneColor,
+  detectGemstoneCut,
+  selectPrimaryImage,
+} from "./image-analyzer.mjs";
 import {
   getGemstoneForTextGeneration,
   markGemstoneTextGenerated,
   saveTextGeneration,
+  updateGemstoneAIColor,
+  updateGemstoneAICut,
 } from "./database.mjs";
 
-import { DEFAULT_MODEL } from "./config.mjs";
 import { downloadImagesWithFallback } from "./image-utils.mjs";
 import { generateGemstoneText } from "./text-generator.mjs";
 
@@ -42,6 +48,7 @@ export async function generateTextForGemstone(gemstoneId, options = {}) {
     let images = [];
     let imageAnalysis = {
       cutDetection: null,
+      colorDetection: null,
       primaryImageSelection: null,
     };
 
@@ -59,11 +66,13 @@ export async function generateTextForGemstone(gemstoneId, options = {}) {
         console.log("🔍 Performing AI image analysis...");
 
         try {
-          // Detect gemstone cut from images (using base64 encoded images)
+          // Detect gemstone cut from images (using base64 encoded images and metadata)
           console.log("  • Detecting cut type...");
           const cutDetection = await detectGemstoneCut({
             images: images, // Pass base64 encoded images
+            imageData: gemData.image_data, // Pass image metadata with UUIDs
             metadataCut: gemData.cut || "unknown",
+            imageQuality: IMAGE_QUALITY.LOW, // Start with low quality for efficiency
           });
           imageAnalysis.cutDetection = cutDetection;
 
@@ -79,21 +88,47 @@ export async function generateTextForGemstone(gemstoneId, options = {}) {
             console.log(`    Reasoning: ${cutDetection.reasoning}`);
           }
 
+          // Detect gemstone color from images (using base64 encoded images)
+          console.log("  • Detecting color...");
+          const colorDetection = await detectGemstoneColor({
+            images: images, // Pass base64 encoded images
+            imageData: gemData.image_data, // Pass image metadata with UUIDs
+            metadataColor: gemData.color || "unknown",
+            imageQuality: IMAGE_QUALITY.LOW, // Start with low quality for efficiency
+          });
+          imageAnalysis.colorDetection = colorDetection;
+
+          console.log(
+            `    Detected: ${
+              colorDetection.detected_color
+            } (confidence: ${colorDetection.confidence.toFixed(2)})`
+          );
+          console.log(`    Description: ${colorDetection.color_description}`);
+          if (!colorDetection.matches_metadata) {
+            console.log(
+              `    ⚠️ MISMATCH: Metadata says "${colorDetection.metadata_color}" but detected "${colorDetection.detected_color}"`
+            );
+            console.log(`    Reasoning: ${colorDetection.reasoning}`);
+          }
+
           // Select best primary image
           if (images.length > 1) {
             console.log("  • Selecting best primary image...");
             const primarySelection = await selectPrimaryImage({
               images: images, // Pass base64 encoded images
+              imageData: gemData.image_data, // Pass image metadata with UUIDs
               gemstoneInfo: {
                 weight_carats: gemData.weight_carats,
                 color: gemData.color,
                 name: gemData.name,
                 cut: cutDetection.detected_cut, // Use detected cut
               },
+              imageQuality: IMAGE_QUALITY.LOW, // Start with low quality for efficiency
             });
             imageAnalysis.primaryImageSelection = primarySelection;
 
             const selectedScore =
+              primarySelection.selected_index >= 0 &&
               primarySelection.image_scores &&
               primarySelection.image_scores[primarySelection.selected_index]
                 ? primarySelection.image_scores[
@@ -116,6 +151,7 @@ export async function generateTextForGemstone(gemstoneId, options = {}) {
 
     // Step 3: Generate text content
     console.log("🤖 Generating text content with AI...");
+    console.log("Using model:", model);
     let generation;
     try {
       generation = await generateGemstoneText({
@@ -123,21 +159,42 @@ export async function generateTextForGemstone(gemstoneId, options = {}) {
         images: images.length > 0 ? images : null,
         model,
         detectedCut: imageAnalysis.cutDetection?.detected_cut || null, // Use AI-detected cut
+        detectedColor: imageAnalysis.colorDetection?.detected_color || null, // Use AI-detected color
       });
 
+      if (!generation || !generation.content) {
+        throw new Error("Text generation returned empty or invalid result");
+      }
+
+      // Debug: Log the structure of generated content (only if needed)
+      // console.log("Generated content structure:", JSON.stringify(generation.content, null, 2));
+
+      const confidence = generation.content.confidence || 0;
+      console.log(`✓ Generated content (confidence: ${confidence.toFixed(2)})`);
       console.log(
-        `✓ Generated content (confidence: ${generation.content.confidence.toFixed(
-          2
-        )})`
+        `  Cost: $${
+          generation.metadata?.generation_cost_usd?.toFixed(4) || "N/A"
+        }`
       );
       console.log(
-        `  Cost: $${generation.metadata.generation_cost_usd.toFixed(4)}`
+        `  Time: ${
+          (generation.metadata?.generation_time_ms / 1000)?.toFixed(1) || "N/A"
+        }s`
       );
-      console.log(
-        `  Time: ${(generation.metadata.generation_time_ms / 1000).toFixed(1)}s`
-      );
+
+      // Check if generation quality is good enough
+      if (confidence < 0.7) {
+        console.log(
+          `⚠️ Low confidence generation (${confidence.toFixed(
+            2
+          )}) - consider retrying with higher image quality`
+        );
+      } else {
+        console.log(`✅ High quality generation (${confidence.toFixed(2)})`);
+      }
     } catch (error) {
       console.error(`❌ Failed to generate text: ${error.message}`);
+      console.error(`Error details:`, error);
       throw error; // Re-throw to propagate to outer catch block
     }
 
@@ -153,8 +210,19 @@ export async function generateTextForGemstone(gemstoneId, options = {}) {
       cut_matches_metadata:
         imageAnalysis.cutDetection?.matches_metadata ?? null,
       cut_detection_reasoning: imageAnalysis.cutDetection?.reasoning || null,
+      detected_color: imageAnalysis.colorDetection?.detected_color || null,
+      color_detection_confidence:
+        imageAnalysis.colorDetection?.confidence || null,
+      color_matches_metadata:
+        imageAnalysis.colorDetection?.matches_metadata ?? null,
+      color_detection_reasoning:
+        imageAnalysis.colorDetection?.reasoning || null,
+      detected_color_description:
+        imageAnalysis.colorDetection?.color_description || null,
       recommended_primary_image_index:
         imageAnalysis.primaryImageSelection?.selected_index ?? null,
+      selected_image_uuid:
+        imageAnalysis.primaryImageSelection?.selected_image_uuid || null,
       primary_image_selection_reasoning:
         imageAnalysis.primaryImageSelection?.reasoning || null,
       image_quality_scores:
@@ -162,6 +230,38 @@ export async function generateTextForGemstone(gemstoneId, options = {}) {
     });
 
     await markGemstoneTextGenerated(gemstoneId);
+
+    // Update gemstones table with AI-detected color if available
+    if (imageAnalysis.colorDetection?.detected_color) {
+      try {
+        await updateGemstoneAIColor(gemstoneId, imageAnalysis.colorDetection);
+        console.log(
+          `✓ Updated gemstone with AI color: ${imageAnalysis.colorDetection.detected_color}`
+        );
+      } catch (error) {
+        console.error(
+          `⚠️ Failed to update gemstone AI color: ${error.message}`
+        );
+        // Don't fail the entire process if color update fails
+      }
+    }
+
+    // Update gemstones table with AI-detected cut if available and different from metadata
+    if (
+      imageAnalysis.cutDetection?.detected_cut &&
+      imageAnalysis.cutDetection.detected_cut !== gemData.cut
+    ) {
+      try {
+        await updateGemstoneAICut(gemstoneId, imageAnalysis.cutDetection);
+        console.log(
+          `✓ Updated gemstone cut from "${gemData.cut}" to "${imageAnalysis.cutDetection.detected_cut}"`
+        );
+      } catch (error) {
+        console.error(`⚠️ Failed to update gemstone AI cut: ${error.message}`);
+        // Don't fail the entire process if cut update fails
+      }
+    }
+
     console.log("✓ Saved successfully");
 
     return {
@@ -181,6 +281,10 @@ export async function generateTextForGemstone(gemstoneId, options = {}) {
       imageAnalysis: {
         cut_detected: imageAnalysis.cutDetection?.detected_cut || null,
         cut_matches: imageAnalysis.cutDetection?.matches_metadata ?? null,
+        color_detected: imageAnalysis.colorDetection?.detected_color || null,
+        color_matches: imageAnalysis.colorDetection?.matches_metadata ?? null,
+        color_description:
+          imageAnalysis.colorDetection?.color_description || null,
         primary_image_index:
           imageAnalysis.primaryImageSelection?.selected_index ?? null,
       },

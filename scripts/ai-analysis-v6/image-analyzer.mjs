@@ -3,7 +3,12 @@
  * Detects cut type and selects best primary image using GPT-4 Vision
  */
 
-import { DEFAULT_TEMPERATURE, TIMEOUT_MS, withTimeout } from "./config.mjs";
+import {
+  DEFAULT_IMAGE_QUALITY,
+  DEFAULT_TEMPERATURE,
+  TIMEOUT_MS,
+  withTimeout,
+} from "./config.mjs";
 
 import OpenAI from "openai";
 
@@ -11,8 +16,8 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// Use GPT-4 Vision for image analysis
-const VISION_MODEL = "gpt-4o"; // Latest vision model
+// Use environment variable or fallback to GPT-4o-mini for image analysis
+const VISION_MODEL = process.env.OPENAI_VISION_MODEL || "gpt-4o-mini";
 
 /**
  * Schema for cut detection response
@@ -60,8 +65,9 @@ const PRIMARY_IMAGE_SELECTION_SCHEMA = {
   properties: {
     selected_index: {
       type: "number",
+      minimum: 0,
       description:
-        "Index of the best image to use as primary (0-based). MUST select the best available image. Only use -1 if ALL images are completely unusable (corrupted/blank).",
+        "Index of the best image to use as primary (0-based). MUST be 0 or greater - never return -1. Always select the best available image, even with measurement tools.",
     },
     reasoning: {
       type: "string",
@@ -118,6 +124,50 @@ const PRIMARY_IMAGE_SELECTION_SCHEMA = {
 };
 
 /**
+ * Schema for color detection response
+ */
+const COLOR_DETECTION_SCHEMA = {
+  type: "object",
+  properties: {
+    detected_color: {
+      type: "string",
+      description:
+        "Primary color detected from the images (e.g., red, pink, orange, yellow, green, blue, purple, brown, black, white, gray, colorless, smoky, amber, violet, teal, coral, peach, mint)",
+    },
+    confidence: {
+      type: "number",
+      description: "Confidence score from 0 to 1",
+    },
+    color_description: {
+      type: "string",
+      description:
+        "Detailed color description (e.g., smoky brown with amber undertones, light pink with subtle peach tones)",
+    },
+    matches_metadata: {
+      type: "boolean",
+      description: "Whether the detected color matches the provided metadata",
+    },
+    metadata_color: {
+      type: "string",
+      description: "The color from metadata for comparison",
+    },
+    reasoning: {
+      type: "string",
+      description: "Brief explanation of why this color was detected",
+    },
+  },
+  required: [
+    "detected_color",
+    "confidence",
+    "color_description",
+    "matches_metadata",
+    "metadata_color",
+    "reasoning",
+  ],
+  additionalProperties: false,
+};
+
+/**
  * Detect gemstone cut from images
  * @param {Object} options
  * @param {Array<string>} options.images - Array of base64 encoded images
@@ -125,14 +175,25 @@ const PRIMARY_IMAGE_SELECTION_SCHEMA = {
  * @returns {Promise<Object>} Detection results with confidence and validation
  */
 export async function detectGemstoneCut(options) {
-  const { images, metadataCut } = options;
+  const {
+    images,
+    imageData = null,
+    metadataCut,
+    imageQuality = DEFAULT_IMAGE_QUALITY,
+  } = options;
 
   if (!images || images.length === 0) {
     throw new Error("At least one image is required for cut detection");
   }
 
-  // Use up to 3 images for cut detection
-  const imagesToAnalyze = images.slice(0, 3);
+  // Select up to 10 non-repeating random images for better variety
+  const maxImages = Math.min(10, images.length);
+
+  // Create mapping between shuffled indices and original indices
+  const originalIndices = Array.from({ length: images.length }, (_, i) => i);
+  const shuffledIndices = [...originalIndices].sort(() => 0.5 - Math.random());
+  const selectedIndices = shuffledIndices.slice(0, maxImages);
+  const imagesToAnalyze = selectedIndices.map((idx) => images[idx]);
 
   const systemPrompt = `You are an expert gemologist with extensive experience in identifying gemstone cuts and shapes.
 Your task is to analyze the provided gemstone images and determine the cut/shape with high accuracy.
@@ -181,7 +242,7 @@ Flag if your detection doesn't match the metadata cut.`;
         type: "image_url",
         image_url: {
           url: `data:image/webp;base64,${imageBase64}`,
-          detail: "high", // High detail for accurate detection
+          detail: imageQuality, // Configurable image quality
         },
       });
     }
@@ -227,6 +288,126 @@ Flag if your detection doesn't match the metadata cut.`;
 }
 
 /**
+ * Detect gemstone color from images
+ * @param {Object} options
+ * @param {Array<string>} options.images - Array of base64 encoded images
+ * @param {string} options.metadataColor - Color from metadata for validation
+ * @returns {Promise<Object>} Detection results with confidence and validation
+ */
+export async function detectGemstoneColor(options) {
+  const {
+    images,
+    imageData = null,
+    metadataColor,
+    imageQuality = DEFAULT_IMAGE_QUALITY,
+  } = options;
+
+  if (!images || images.length === 0) {
+    throw new Error("At least one image is required for color detection");
+  }
+
+  // Select up to 10 non-repeating random images for better variety
+  const maxImages = Math.min(10, images.length);
+
+  // Create mapping between shuffled indices and original indices
+  const originalIndices = Array.from({ length: images.length }, (_, i) => i);
+  const shuffledIndices = [...originalIndices].sort(() => 0.5 - Math.random());
+  const selectedIndices = shuffledIndices.slice(0, maxImages);
+  const imagesToAnalyze = selectedIndices.map((idx) => images[idx]);
+
+  const systemPrompt = `You are an expert gemologist with extensive experience in identifying gemstone colors.
+Your task is to analyze the provided gemstone images and determine the primary color with high accuracy.
+
+Common gemstone colors include:
+- Red, Pink, Orange, Yellow, Green, Blue, Purple
+- Brown, Black, White, Gray, Colorless
+- Smoky, Amber, Violet, Teal, Coral, Peach, Mint
+- Multi-color (for stones with multiple distinct colors)
+
+For colorless stones, look for:
+- True colorless (clear, like water)
+- Near colorless (very slight tints)
+- Light tints (yellow, brown, gray)
+
+For colored stones, identify the dominant hue and any secondary tones or undertones.
+Provide a detailed description that captures the color's character and nuances.
+
+Compare your detection with the metadata color provided and flag any discrepancies.`;
+
+  const userPrompt = `Please analyze these gemstone image(s) and detect the primary color.
+
+Metadata indicates the color is: "${metadataColor}"
+
+Carefully examine:
+1. The dominant color/hue of the gemstone
+2. Any secondary tones or undertones
+3. Saturation and intensity of the color
+4. Whether the stone appears colorless or has distinct coloration
+5. Any color zoning or variations within the stone
+
+Provide your detection with confidence score and detailed color description.
+Flag if your detection doesn't match the metadata color.`;
+
+  try {
+    const content = [
+      {
+        type: "text",
+        text: userPrompt,
+      },
+    ];
+
+    // Add all images to the content (base64 encoded)
+    for (const imageBase64 of imagesToAnalyze) {
+      content.push({
+        type: "image_url",
+        image_url: {
+          url: `data:image/webp;base64,${imageBase64}`,
+          detail: imageQuality, // Configurable image quality
+        },
+      });
+    }
+
+    const response = await withTimeout(
+      openai.chat.completions.create({
+        model: VISION_MODEL,
+        temperature: DEFAULT_TEMPERATURE,
+        max_tokens: 1000,
+        messages: [
+          {
+            role: "system",
+            content: systemPrompt,
+          },
+          {
+            role: "user",
+            content,
+          },
+        ],
+        response_format: {
+          type: "json_schema",
+          json_schema: {
+            name: "GemColorDetection",
+            schema: COLOR_DETECTION_SCHEMA,
+            strict: true,
+          },
+        },
+      }),
+      TIMEOUT_MS.IMAGE_ANALYSIS || 30000
+    );
+
+    const result = JSON.parse(response.choices[0].message.content || "{}");
+
+    return {
+      ...result,
+      images_analyzed: imagesToAnalyze.length,
+      model: VISION_MODEL,
+    };
+  } catch (error) {
+    console.error("Color detection failed:", error);
+    throw new Error(`Color detection failed: ${error.message}`);
+  }
+}
+
+/**
  * Select the best primary image from a set of gemstone images
  * @param {Object} options
  * @param {Array<string>} options.images - Array of base64 encoded images
@@ -234,7 +415,12 @@ Flag if your detection doesn't match the metadata cut.`;
  * @returns {Promise<Object>} Selection results with scores and reasoning
  */
 export async function selectPrimaryImage(options) {
-  const { images, gemstoneInfo } = options;
+  const {
+    images,
+    imageData = null, // Image metadata with UUIDs
+    gemstoneInfo,
+    imageQuality = DEFAULT_IMAGE_QUALITY,
+  } = options;
 
   if (!images || images.length === 0) {
     throw new Error("At least one image is required for primary selection");
@@ -268,19 +454,55 @@ Evaluate each image based on:
 3. **Clarity**: Focus, sharpness, detail visibility
 4. **Professional Presentation**: Product photography standards, appeal
 
-**IMPORTANT**: You MUST select the best available image, even if none are perfect.
-Choose the image that best showcases the gemstone, preferring images:
-- WITHOUT measurement instruments, scales, or tools in frame
+**CRITICAL QUALITY STANDARDS**: You MUST select the best available image, even if none are perfect.
+Choose the image that best showcases the gemstone, with STRICT preference for images:
+- WITHOUT measurement instruments, scales, calipers, or tools in frame (major penalty for tools)
 - With the gemstone as the main focus (single stone preferred)
 - With better lighting and clarity
 - With cleaner backgrounds
 - That display the gemstone's color and cut most clearly
 
-Only return -1 if ALL images are completely unusable (corrupted, blank, or don't show a gemstone at all).
-Otherwise, select the BEST of what's available.`;
+**SCORING PRIORITY**:
+1. Images without tools get significant bonus points (+0.3)
+2. Images with minor tools get moderate penalties (-0.2 points)
+3. Images with major tools get heavy penalties (-0.4 points)
+4. Professional presentation and clean composition are essential
+5. Prefer tool-free images but still select the best available option
+
+**CRITICAL**: You MUST ALWAYS select an image (never return -1). Even if images have measurement tools, you must choose the BEST available image. Only return -1 if the images are completely blank, corrupted, or don't contain a gemstone at all.
+
+**SELECTION RULE**: Choose the image that best showcases the gemstone, even with tools present. The presence of measurement tools should be a minor factor, not a disqualifier.`;
+
+  // Select up to 10 non-repeating random images for better variety
+  const maxImages = Math.min(10, images.length);
+
+  // Create mapping using UUIDs if available, otherwise fall back to indices
+  let selectedImageData, imagesToAnalyze;
+
+  if (imageData && imageData.length === images.length) {
+    // Use UUID-based mapping for reliable image selection
+    const shuffledImageData = [...imageData].sort(() => 0.5 - Math.random());
+    selectedImageData = shuffledImageData.slice(0, maxImages);
+    imagesToAnalyze = selectedImageData.map((imgData) => {
+      const originalIndex = imageData.findIndex((img) => img.id === imgData.id);
+      return images[originalIndex];
+    });
+  } else {
+    // Fallback to index-based mapping
+    const originalIndices = Array.from({ length: images.length }, (_, i) => i);
+    const shuffledIndices = [...originalIndices].sort(
+      () => 0.5 - Math.random()
+    );
+    const selectedIndices = shuffledIndices.slice(0, maxImages);
+    selectedImageData = selectedIndices.map((idx) => ({
+      id: `img_${idx}`,
+      index: idx,
+    }));
+    imagesToAnalyze = selectedIndices.map((idx) => images[idx]);
+  }
 
   const userPrompt = `Please analyze these ${
-    images.length
+    imagesToAnalyze.length
   } gemstone images and select the best one for the primary product image.
 
 Gemstone: ${gemstoneInfo.weight_carats || "N/A"}ct ${
@@ -300,7 +522,7 @@ Select the best image as primary and explain your choice.`;
     ];
 
     // Add all images with labels (base64 encoded)
-    for (let i = 0; i < images.length; i++) {
+    for (let i = 0; i < imagesToAnalyze.length; i++) {
       content.push({
         type: "text",
         text: `\n--- Image ${i} ---`,
@@ -308,8 +530,8 @@ Select the best image as primary and explain your choice.`;
       content.push({
         type: "image_url",
         image_url: {
-          url: `data:image/webp;base64,${images[i]}`,
-          detail: "high",
+          url: `data:image/webp;base64,${imagesToAnalyze[i]}`,
+          detail: imageQuality, // Configurable image quality
         },
       });
     }
@@ -343,9 +565,32 @@ Select the best image as primary and explain your choice.`;
 
     const result = JSON.parse(response.choices[0].message.content || "{}");
 
+    // Map the selected index back to the original image using UUID
+    let originalSelectedIndex;
+    let selectedImageInfo = null;
+
+    if (imageData && imageData.length === images.length) {
+      // Use UUID-based mapping
+      selectedImageInfo = selectedImageData[result.selected_index];
+      originalSelectedIndex = imageData.findIndex(
+        (img) => img.id === selectedImageInfo.id
+      );
+    } else {
+      // Fallback to index-based mapping
+      const selectedIndices = Array.from({ length: images.length }, (_, i) => i)
+        .sort(() => 0.5 - Math.random())
+        .slice(0, maxImages);
+      originalSelectedIndex = selectedIndices[result.selected_index];
+    }
+
     return {
       ...result,
-      images_analyzed: images.length,
+      selected_index: originalSelectedIndex, // Return the original index, not shuffled
+      selected_image_uuid:
+        imageData && imageData.length === images.length
+          ? selectedImageInfo?.id
+          : null,
+      images_analyzed: imagesToAnalyze.length,
       model: VISION_MODEL,
     };
   } catch (error) {

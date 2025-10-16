@@ -52,7 +52,45 @@ October 16, 2025
     support this identification.
 ```
 
-### 2. Primary Image Selection
+### 2. Color Detection
+
+**Purpose**: Cross-validate metadata color field against actual gemstone appearance in images to catch data entry errors.
+
+**How it works**:
+
+- Uses GPT-4o-mini (cost-effective vision model) to analyze up to 10 gemstone images
+- Detects primary color from standard gemstone colors (red, pink, orange, yellow, green, blue, purple, brown, black, white, gray, colorless, smoky, amber, violet, teal, coral, peach, mint, multi-color)
+- Provides confidence score (0-1)
+- Compares detected color with metadata
+- Flags mismatches automatically
+- Provides detailed color description and reasoning
+
+**Output**:
+
+```javascript
+{
+  detected_color: "brown",
+  confidence: 0.95,
+  color_description: "smoky brown with deep amber undertones",
+  matches_metadata: false, // Metadata said "colorless"
+  metadata_color: "colorless",
+  reasoning: "The gemstone exhibits a distinct smoky brown coloration...",
+  images_analyzed: 10,
+  model: "gpt-4o-mini"
+}
+```
+
+**Example from Testing**:
+
+```
+  • Detecting color...
+    Detected: brown (confidence: 0.95)
+    Description: smoky brown with deep amber undertones, displaying noticeable color saturation and intensity
+    ⚠️ MISMATCH: Metadata says "colorless" but detected "brown"
+    Reasoning: The gemstone exhibits a distinct smoky brown coloration, which is clearly visible and dominates the appearance. This does not align with the 'colorless' metadata provided.
+```
+
+### 3. Primary Image Selection
 
 **Purpose**: Automatically select the best product image for e-commerce display based on professional photography standards.
 
@@ -109,15 +147,30 @@ cut_detection_confidence NUMERIC(3,2) CHECK (cut_detection_confidence >= 0 AND c
 cut_matches_metadata BOOLEAN,
 cut_detection_reasoning TEXT,
 
+-- Color detection fields
+detected_color TEXT,
+color_detection_confidence NUMERIC(3,2) CHECK (color_detection_confidence >= 0 AND color_detection_confidence <= 1),
+color_matches_metadata BOOLEAN,
+color_detection_reasoning TEXT,
+detected_color_description TEXT,
+
 -- Primary image selection fields
 recommended_primary_image_index INTEGER,
 primary_image_selection_reasoning TEXT,
 image_quality_scores JSONB,
 
--- Index for finding problematic gems
+-- Indexes for finding problematic gems
 CREATE INDEX idx_gemstones_ai_v6_cut_mismatch
   ON gemstones_ai_v6(cut_matches_metadata)
   WHERE cut_matches_metadata = false;
+
+CREATE INDEX idx_gemstones_ai_v6_color_mismatch
+  ON gemstones_ai_v6(color_matches_metadata)
+  WHERE color_matches_metadata = false;
+
+CREATE INDEX idx_gemstones_ai_v6_color_confidence
+  ON gemstones_ai_v6(color_detection_confidence)
+  WHERE color_detection_confidence < 0.6;
 ```
 
 ## Automatic Review Flagging
@@ -126,10 +179,12 @@ Gemstones are automatically flagged for review (`needs_review = true`) if:
 
 1. ✅ **Cut mismatch detected** - AI-detected cut doesn't match metadata
 2. ✅ **Low cut detection confidence** - Confidence < 0.6
-3. ✅ Low text generation confidence - Confidence < 0.7
-4. ✅ Long generation time - > 30 seconds
-5. ✅ Missing required fields
-6. ✅ Placeholder text patterns detected
+3. ✅ **Color mismatch detected** - AI-detected color doesn't match metadata
+4. ✅ **Low color detection confidence** - Confidence < 0.6
+5. ✅ Low text generation confidence - Confidence < 0.7
+6. ✅ Long generation time - > 30 seconds
+7. ✅ Missing required fields
+8. ✅ Placeholder text patterns detected
 
 ## Files Created/Modified
 
@@ -154,17 +209,20 @@ Gemstones are automatically flagged for review (`needs_review = true`) if:
 2. Download images (up to 5)
    ↓
 3. **[NEW]** Perform image analysis
-   ├─ Detect cut type (uses up to 3 images)
+   ├─ Detect cut type (uses up to 10 images)
+   ├─ Detect color (uses up to 10 images)
    ├─ Validate against metadata
    ├─ Flag mismatches
-   └─ Select best primary image (if multiple images)
+   └─ Select best primary image (uses up to 10 images)
    ↓
 4. Generate text content with AI
    ↓
 5. Save to database
    ├─ Text content
    ├─ **[NEW]** Cut detection results
+   ├─ **[NEW]** Color detection results
    ├─ **[NEW]** Primary image selection results
+   ├─ **[NEW]** Update gemstones table with AI color
    └─ **[NEW]** Automatic review flagging
 ```
 
@@ -176,9 +234,10 @@ No additional environment variables required. Uses existing `OPENAI_API_KEY`.
 
 ### Model Selection
 
-- **Cut Detection**: `gpt-4o` (latest vision model, hardcoded)
-- **Primary Image Selection**: `gpt-4o` (latest vision model, hardcoded)
-- **Text Generation**: `gpt-5-mini` (configurable via `V6_TEXT_MODEL` env var)
+- **Cut Detection**: `gpt-4o-mini` (cost-effective vision model)
+- **Color Detection**: `gpt-4o-mini` (cost-effective vision model)
+- **Primary Image Selection**: `gpt-4o-mini` (cost-effective vision model)
+- **Text Generation**: `gpt-4o-mini` (configurable via `V6_TEXT_MODEL` env var)
 
 ### Timeouts
 

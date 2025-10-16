@@ -14,7 +14,7 @@ console.log(`\nTesting gemstone: ${gemstoneId}\n`);
 
 try {
   const result = await generateTextForGemstone(gemstoneId, {
-    model: process.env.V6_TEXT_MODEL || "gpt-5-mini",
+    model: process.env.OPENAI_DESCRIPTION_MODEL || "gpt-4o-mini",
   });
 
   if (result.success) {
@@ -63,10 +63,14 @@ try {
     console.log(
       result.content.technical_description.en.substring(0, 200) + "..."
     );
-    console.log("\nMarketing Highlights:");
-    result.content.marketing_highlights.forEach((h, i) => {
-      console.log(`  ${i + 1}. ${h}`);
-    });
+    console.log("\nMarketing Highlights (EN):");
+    if (result.content.marketing_highlights?.en) {
+      result.content.marketing_highlights.en.forEach((h, i) => {
+        console.log(`  ${i + 1}. ${h}`);
+      });
+    } else {
+      console.log("  No marketing highlights available");
+    }
     console.log("\n" + "=".repeat(80));
   } else {
     console.log(`\n❌ FAILED: ${result.error}`);

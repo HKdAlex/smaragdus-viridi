@@ -25,7 +25,8 @@ import { useTranslations } from "next-intl";
 interface MediaGalleryProps {
   images: DatabaseGemstoneImage[];
   videos: DatabaseGemstoneVideo[];
-  recommendedPrimaryIndex?: number | null; // AI-recommended primary image index
+  recommendedPrimaryIndex?: number | null; // AI-recommended primary image index (deprecated, use selectedImageUuid)
+  selectedImageUuid?: string | null; // AI-selected primary image UUID
 }
 
 type MediaItem = {
@@ -42,6 +43,7 @@ export function MediaGallery({
   images,
   videos,
   recommendedPrimaryIndex,
+  selectedImageUuid,
 }: MediaGalleryProps) {
   const t = useTranslations("gemstones.media");
   const tErrors = useTranslations("errors.media");
@@ -66,18 +68,27 @@ export function MediaGallery({
   ].sort((a, b) => a.order - b.order);
 
   // Find the primary image index to start with
-  // Priority: AI recommendation > is_primary from DB > first image
+  // Priority: AI-selected UUID > AI-recommended index > is_primary from DB > first image
   let initialIndex = 0;
-  if (
+
+  if (selectedImageUuid) {
+    // First priority: Find by UUID (most reliable)
+    const uuidIndex = mediaItems.findIndex(
+      (item) => item.id === selectedImageUuid
+    );
+    if (uuidIndex !== -1) {
+      initialIndex = uuidIndex;
+    }
+  } else if (
     recommendedPrimaryIndex !== null &&
     recommendedPrimaryIndex !== undefined &&
     recommendedPrimaryIndex >= 0 &&
     recommendedPrimaryIndex < mediaItems.length
   ) {
-    // Use AI-recommended index if valid
+    // Fallback to index-based selection (deprecated)
     initialIndex = recommendedPrimaryIndex;
   } else {
-    // Fallback to is_primary from database
+    // Final fallback to is_primary from database
     const primaryImageIndex = mediaItems.findIndex((item) => item.isPrimary);
     initialIndex = primaryImageIndex !== -1 ? primaryImageIndex : 0;
   }

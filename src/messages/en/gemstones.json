@@ -86,7 +86,19 @@
     "fancy-orange": "Fancy Orange",
     "fancy-brown": "Fancy Brown",
     "fancy-gray": "Fancy Gray",
-    "fancy-black": "Fancy Black"
+    "fancy-black": "Fancy Black",
+    "brown": "Brown",
+    "smoky": "Smoky",
+    "amber": "Amber",
+    "violet": "Violet",
+    "teal": "Teal",
+    "coral": "Coral",
+    "peach": "Peach",
+    "mint": "Mint",
+    "orange": "Orange",
+    "purple": "Purple",
+    "gray": "Gray",
+    "multi-color": "Multi-color"
   },
   "clarities": {
     "FL": "FL (Flawless)",

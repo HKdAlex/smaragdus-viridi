@@ -61,13 +61,14 @@ export async function getGemstoneForTextGeneration(gemstoneId) {
     .eq("gemstone_id", gemstoneId)
     .order("is_primary", { ascending: false, nullsFirst: false })
     .order("image_order", { ascending: true })
-    .limit(5);
+    .limit(10);
 
   if (imagesError) {
     console.warn(`Failed to fetch images: ${imagesError.message}`);
   }
 
   const imageUrls = images?.map((m) => m.image_url).filter(Boolean) || [];
+  const imageData = images?.filter((img) => img.image_url) || [];
 
   return {
     ...gemstone,
@@ -75,6 +76,7 @@ export async function getGemstoneForTextGeneration(gemstoneId) {
     origin_country: gemstone.origins?.country || null,
     origin_region: gemstone.origins?.region || null,
     image_urls: imageUrls,
+    image_data: imageData, // Include full image metadata with UUIDs
   };
 }
 
@@ -118,8 +120,14 @@ export async function saveTextGeneration(
     cut_detection_confidence: metadata.cut_detection_confidence || null,
     cut_matches_metadata: metadata.cut_matches_metadata ?? null,
     cut_detection_reasoning: metadata.cut_detection_reasoning || null,
+    detected_color: metadata.detected_color || null,
+    color_detection_confidence: metadata.color_detection_confidence || null,
+    color_matches_metadata: metadata.color_matches_metadata ?? null,
+    color_detection_reasoning: metadata.color_detection_reasoning || null,
+    detected_color_description: metadata.detected_color_description || null,
     recommended_primary_image_index:
       metadata.recommended_primary_image_index ?? null,
+    selected_image_uuid: metadata.selected_image_uuid || null,
     primary_image_selection_reasoning:
       metadata.primary_image_selection_reasoning || null,
     image_quality_scores: metadata.image_quality_scores || null,
@@ -206,6 +214,22 @@ function shouldFlagForReview(content, metadata) {
     return true;
   }
 
+  // Flag if color detection found a mismatch
+  if (metadata.color_matches_metadata === false) {
+    console.log("⚠️ Flagging for review: Color mismatch detected");
+    return true;
+  }
+
+  // Flag if color detection confidence is low
+  if (
+    metadata.color_detection_confidence !== null &&
+    metadata.color_detection_confidence !== undefined &&
+    metadata.color_detection_confidence < 0.6
+  ) {
+    console.log("⚠️ Flagging for review: Low color detection confidence");
+    return true;
+  }
+
   // Check for placeholder text patterns
   const allText = [
     content.technical_description.en,
@@ -241,4 +265,44 @@ function shouldFlagForReview(content, metadata) {
   }
 
   return false;
+}
+
+/**
+ * Update gemstones table with AI-detected color data
+ * @param {string} gemstoneId - UUID of the gemstone
+ * @param {Object} colorData - Color detection results
+ * @returns {Promise<void>}
+ */
+export async function updateGemstoneAIColor(gemstoneId, colorData) {
+  const { error } = await supabase
+    .from("gemstones")
+    .update({
+      ai_color: colorData.detected_color,
+      ai_color_code: colorData.detected_color,
+      ai_color_description: colorData.color_description,
+    })
+    .eq("id", gemstoneId);
+
+  if (error) {
+    throw new Error(`Failed to update AI color: ${error.message}`);
+  }
+}
+
+/**
+ * Update gemstones table with AI-detected cut data
+ * @param {string} gemstoneId - UUID of the gemstone
+ * @param {Object} cutData - Cut detection results
+ * @returns {Promise<void>}
+ */
+export async function updateGemstoneAICut(gemstoneId, cutData) {
+  const { error } = await supabase
+    .from("gemstones")
+    .update({
+      cut: cutData.detected_cut, // Update the main cut field with AI-detected value
+    })
+    .eq("id", gemstoneId);
+
+  if (error) {
+    throw new Error(`Failed to update AI cut: ${error.message}`);
+  }
 }

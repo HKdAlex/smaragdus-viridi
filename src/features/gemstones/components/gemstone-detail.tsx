@@ -193,7 +193,8 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
   // Handle share functionality
   const handleShare = async () => {
     const url = window.location.href;
-    const title = `${gemstone.weight_carats}ct ${gemstone.color} ${gemstone.name}`;
+    const displayColor = gemstone.color;
+    const title = `${gemstone.weight_carats}ct ${displayColor} ${gemstone.name}`;
 
     if (navigator.share) {
       try {
@@ -256,6 +257,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
               recommendedPrimaryIndex={
                 gemstone.v6Text?.recommended_primary_image_index ?? null
               }
+              selectedImageUuid={gemstone.v6Text?.selected_image_uuid ?? null}
             />
           </div>
 
