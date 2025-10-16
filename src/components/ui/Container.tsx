@@ -1,5 +1,6 @@
-import { cn } from "@/lib/utils";
 import type { ComponentPropsWithoutRef, ElementType, ReactNode } from "react";
+
+import { cn } from "@/lib/utils";
 
 type PolymorphicProps<T extends ElementType> = {
   as?: T;
