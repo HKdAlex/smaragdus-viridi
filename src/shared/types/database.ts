@@ -1071,6 +1071,10 @@ export type Database = {
           care_instructions_ru: string | null
           confidence_score: number | null
           created_at: string
+          cut_detection_confidence: number | null
+          cut_detection_reasoning: string | null
+          cut_matches_metadata: boolean | null
+          detected_cut: string | null
           emotional_description_en: string | null
           emotional_description_ru: string | null
           gemstone_id: string
@@ -1078,13 +1082,16 @@ export type Database = {
           generation_time_ms: number | null
           historical_context_en: string | null
           historical_context_ru: string | null
+          image_quality_scores: Json | null
           image_urls: string[] | null
           marketing_highlights: string[] | null
           model_version: string
           narrative_story_en: string | null
           narrative_story_ru: string | null
           needs_review: boolean
+          primary_image_selection_reasoning: string | null
           promotional_text: string | null
+          recommended_primary_image_index: number | null
           review_notes: string | null
           technical_description_en: string | null
           technical_description_ru: string | null
@@ -1096,6 +1103,10 @@ export type Database = {
           care_instructions_ru?: string | null
           confidence_score?: number | null
           created_at?: string
+          cut_detection_confidence?: number | null
+          cut_detection_reasoning?: string | null
+          cut_matches_metadata?: boolean | null
+          detected_cut?: string | null
           emotional_description_en?: string | null
           emotional_description_ru?: string | null
           gemstone_id: string
@@ -1103,13 +1114,16 @@ export type Database = {
           generation_time_ms?: number | null
           historical_context_en?: string | null
           historical_context_ru?: string | null
+          image_quality_scores?: Json | null
           image_urls?: string[] | null
           marketing_highlights?: string[] | null
           model_version: string
           narrative_story_en?: string | null
           narrative_story_ru?: string | null
           needs_review?: boolean
+          primary_image_selection_reasoning?: string | null
           promotional_text?: string | null
+          recommended_primary_image_index?: number | null
           review_notes?: string | null
           technical_description_en?: string | null
           technical_description_ru?: string | null
@@ -1121,6 +1135,10 @@ export type Database = {
           care_instructions_ru?: string | null
           confidence_score?: number | null
           created_at?: string
+          cut_detection_confidence?: number | null
+          cut_detection_reasoning?: string | null
+          cut_matches_metadata?: boolean | null
+          detected_cut?: string | null
           emotional_description_en?: string | null
           emotional_description_ru?: string | null
           gemstone_id?: string
@@ -1128,13 +1146,16 @@ export type Database = {
           generation_time_ms?: number | null
           historical_context_en?: string | null
           historical_context_ru?: string | null
+          image_quality_scores?: Json | null
           image_urls?: string[] | null
           marketing_highlights?: string[] | null
           model_version?: string
           narrative_story_en?: string | null
           narrative_story_ru?: string | null
           needs_review?: boolean
+          primary_image_selection_reasoning?: string | null
           promotional_text?: string | null
+          recommended_primary_image_index?: number | null
           review_notes?: string | null
           technical_description_en?: string | null
           technical_description_ru?: string | null

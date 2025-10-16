@@ -151,10 +151,8 @@ export function SearchResults() {
 
   const totalCount = data?.pagination.totalCount || 0;
 
-  // Fetch filter counts only when we have search results to avoid interference
-  const { data: filterCountsData } = useFilterCountsQuery({
-    enabled: !!data && data.results.length > 0,
-  });
+  // Fetch filter counts - always enable to get filter options
+  const { data: filterCountsData } = useFilterCountsQuery();
 
   // Fetch fuzzy suggestions when no results are found
   useEffect(() => {
