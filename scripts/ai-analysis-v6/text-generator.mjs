@@ -28,7 +28,12 @@ const openai = new OpenAI({
  * @returns {Promise<Object>} Generated content with metadata
  */
 export async function generateGemstoneText(options) {
-  const { metadata, images = null, model = DEFAULT_MODEL, detectedCut = null } = options;
+  const {
+    metadata,
+    images = null,
+    model = DEFAULT_MODEL,
+    detectedCut = null,
+  } = options;
 
   const startTime = Date.now();
 
@@ -79,6 +84,7 @@ export async function generateGemstoneText(options) {
     };
   } catch (error) {
     console.error("Text generation failed:", error);
+    console.error("Error details:", error.response?.data || error.message);
     throw new Error(`Text generation failed: ${error.message}`);
   }
 }
@@ -129,9 +135,10 @@ function buildPromptMessage(metadata, images, detectedCut = null) {
 function formatMetadata(metadata, detectedCut = null) {
   // Use AI-detected cut if available and different from metadata
   const cutToUse = detectedCut || metadata.cut;
-  const cutNote = detectedCut && detectedCut !== metadata.cut 
-    ? ` (AI-verified from images, metadata indicated "${metadata.cut}")` 
-    : "";
+  const cutNote =
+    detectedCut && detectedCut !== metadata.cut
+      ? ` (AI-verified from images, metadata indicated "${metadata.cut}")`
+      : "";
 
   return `
 GEMSTONE METADATA:
