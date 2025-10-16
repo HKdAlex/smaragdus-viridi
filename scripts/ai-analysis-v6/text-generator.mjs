@@ -86,7 +86,10 @@ export async function generateGemstoneText(options) {
     console.error("Text generation failed:", error);
     if (error.response) {
       console.error("Response status:", error.response.status);
-      console.error("Response data:", JSON.stringify(error.response.data, null, 2));
+      console.error(
+        "Response data:",
+        JSON.stringify(error.response.data, null, 2)
+      );
     } else {
       console.error("Error message:", error.message);
       console.error("Error stack:", error.stack);
