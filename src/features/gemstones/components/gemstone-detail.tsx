@@ -24,6 +24,7 @@ import {
   GemstoneCutIcon,
 } from "@/shared/components/ui/gemstone-icons";
 import { Link, useRouter } from "@/i18n/navigation";
+import { useLocale, useTranslations } from "next-intl";
 
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
@@ -37,7 +38,6 @@ import { useAuth } from "@/features/auth/context/auth-context";
 import { useCartContext } from "@/features/cart/context/cart-context";
 import { useGemstoneTranslations } from "../utils/gemstone-translations";
 import { useState } from "react";
-import { useLocale, useTranslations } from "next-intl";
 
 // DetailGemstone interface is now imported from shared types
 
