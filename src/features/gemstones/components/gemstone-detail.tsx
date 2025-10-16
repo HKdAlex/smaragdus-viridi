@@ -37,7 +37,7 @@ import { useAuth } from "@/features/auth/context/auth-context";
 import { useCartContext } from "@/features/cart/context/cart-context";
 import { useGemstoneTranslations } from "../utils/gemstone-translations";
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 // DetailGemstone interface is now imported from shared types
 
@@ -60,8 +60,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [cartMessage, setCartMessage] = useState<string | null>(null);
   const t = useTranslations("catalog.gemstone.detail");
-  const locale =
-    typeof window !== "undefined" ? document.documentElement.lang : undefined;
+  const locale = useLocale(); // Use proper Next.js i18n locale hook
   const {
     translateColor,
     translateCut,
