@@ -605,9 +605,9 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                         </span>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <CutIcon cut={gemstone.cut} className="w-4 h-4" />
+                        <CutIcon cut={gemstone.v6Text?.detected_cut || gemstone.cut} className="w-4 h-4" />
                         <span className="font-semibold text-foreground capitalize">
-                          {translateCut(gemstone.cut)}
+                          {translateCut(gemstone.v6Text?.detected_cut || gemstone.cut)}
                         </span>
                       </div>
                     </div>
