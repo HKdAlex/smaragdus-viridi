@@ -28,8 +28,8 @@ import { Link, useRouter } from "@/i18n/navigation";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { CertificationDisplay } from "./certification-display";
-import type { DetailGemstone } from "@/shared/types";
 import type { Database } from "@/shared/types/database";
+import type { DetailGemstone } from "@/shared/types";
 import { GemstoneDetailV6Tabs } from "./gemstone-detail-v6-tabs";
 import { MediaGallery } from "./media-gallery";
 import { RelatedGemstones } from "./related-gemstones";
@@ -43,10 +43,12 @@ import { useTranslations } from "next-intl";
 
 interface GemstoneDetailProps {
   gemstone: DetailGemstone & {
-    v6Text?: Database["public"]["Tables"]["gemstones_ai_v6"]["Row"] & {
-      // Only include the field that's actually used
-      recommended_primary_image_index?: number | null;
-    } | null;
+    v6Text?:
+      | (Database["public"]["Tables"]["gemstones_ai_v6"]["Row"] & {
+          // Only include the field that's actually used
+          recommended_primary_image_index?: number | null;
+        })
+      | null;
   };
 }
 
@@ -597,9 +599,14 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                         </span>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <CutIcon cut={gemstone.cut} className="w-4 h-4" />
+                        <CutIcon
+                          cut={gemstone.v6Text?.detected_cut || gemstone.cut}
+                          className="w-4 h-4"
+                        />
                         <span className="font-semibold text-foreground capitalize">
-                          {translateCut(gemstone.cut)}
+                          {translateCut(
+                            gemstone.v6Text?.detected_cut || gemstone.cut
+                          )}
                         </span>
                       </div>
                     </div>
