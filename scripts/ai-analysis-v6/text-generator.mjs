@@ -84,7 +84,13 @@ export async function generateGemstoneText(options) {
     };
   } catch (error) {
     console.error("Text generation failed:", error);
-    console.error("Error details:", error.response?.data || error.message);
+    if (error.response) {
+      console.error("Response status:", error.response.status);
+      console.error("Response data:", JSON.stringify(error.response.data, null, 2));
+    } else {
+      console.error("Error message:", error.message);
+      console.error("Error stack:", error.stack);
+    }
     throw new Error(`Text generation failed: ${error.message}`);
   }
 }
