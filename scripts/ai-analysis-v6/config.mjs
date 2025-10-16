@@ -2,7 +2,7 @@
  * Configuration for AI Text Generation v6
  */
 
-export const DEFAULT_MODEL = process.env.V6_TEXT_MODEL || "gpt-4o";
+export const DEFAULT_MODEL = process.env.V6_TEXT_MODEL || "gpt-4o-mini";
 // Temperature for creative content generation
 export const DEFAULT_TEMPERATURE = 1.0; // Creative, varied outputs
 export const MAX_TOKENS_OUTPUT = 4000; // Sufficient for all text fields
