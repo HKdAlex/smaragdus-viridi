@@ -67,11 +67,11 @@ export function Hero({
           {/* Trust strip */}
           {trustItems?.length ? (
             <div className="mt-4 sm:mt-6 md:mt-8">
-              <div className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-2 sm:gap-x-4 sm:gap-y-1 text-xs sm:text-sm text-muted-foreground">
+              <div className="flex flex-col sm:flex-row sm:flex-wrap items-center justify-center gap-3 sm:gap-x-6 sm:gap-y-2 text-sm sm:text-base text-muted-foreground">
                 {trustItems.map((label, idx) => (
-                  <div key={idx} className="flex items-center gap-1.5 sm:gap-2">
-                    <span className="inline-block h-1 w-1 sm:h-1.5 sm:w-1.5 rounded-full bg-primary/80 flex-shrink-0" />
-                    <span className="leading-relaxed">{label}</span>
+                  <div key={idx} className="flex items-center gap-2 sm:gap-2.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-muted/30 border border-border/20 backdrop-blur-sm">
+                    <span className="inline-block h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-primary flex-shrink-0 shadow-sm" />
+                    <span className="leading-relaxed font-medium">{label}</span>
                   </div>
                 ))}
               </div>
