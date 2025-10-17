@@ -1,28 +1,28 @@
 /**
  * Search Results Component
  *
- * Displays paginated search results with filters.
+ * Displays search results with infinite scroll.
  */
 
 "use client";
 
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useMemo, useState } from "react";
 
+import type { CatalogGemstone } from "@/features/gemstones/services/gemstone-fetch.service";
+import { DescriptionSearchToggle } from "./description-search-toggle";
 import { EmptyState } from "@/features/gemstones/components/empty-state";
+import { FuzzySearchBanner } from "./fuzzy-search-banner";
 import { GemstoneGrid } from "@/features/gemstones/components/gemstone-grid";
+import { InfiniteScrollTrigger } from "@/features/gemstones/components/infinite-scroll-trigger";
 import { LoadingState } from "@/features/gemstones/components/loading-state";
-import { PaginationControls } from "@/features/gemstones/components/pagination-controls";
+import { SearchInput } from "./search-input";
 import { useFilterCountsQuery } from "@/features/gemstones/hooks/use-filter-counts-query";
 import { useFilterState } from "@/features/gemstones/hooks/use-filter-state";
 import { useFilterUrlSync } from "@/features/gemstones/hooks/use-filter-url-sync";
-import type { CatalogGemstone } from "@/features/gemstones/services/gemstone-fetch.service";
-import { useSearchQuery } from "@/features/search/hooks/use-search-query";
-import { useTypeSafeRouter } from "@/lib/navigation/type-safe-router";
+import { useInfiniteSearchQuery } from "@/features/search/hooks/use-infinite-search-query";
 import { useSearchParams } from "next/navigation";
-import { DescriptionSearchToggle } from "./description-search-toggle";
-import { FuzzySearchBanner } from "./fuzzy-search-banner";
-import { SearchInput } from "./search-input";
+import { useTypeSafeRouter } from "@/lib/navigation/type-safe-router";
 
 const PAGE_SIZE = 24;
 
@@ -33,6 +33,9 @@ export function SearchResults() {
   const searchParams = useSearchParams();
   const router = useTypeSafeRouter();
 
+  // Ref to prevent multiple simultaneous fetches
+  const isFetchingRef = useRef(false);
+
   // Get search query from URL
   const query = searchParams.get("q") || "";
 
@@ -42,9 +45,6 @@ export function SearchResults() {
 
   // URL synchronization (opt-in side effect)
   useFilterUrlSync(filters);
-
-  // Pagination state
-  const [currentPage, setCurrentPage] = useState(1);
 
   // Fuzzy suggestions state
   const [fuzzySuggestions, setFuzzySuggestions] = useState<
@@ -61,21 +61,28 @@ export function SearchResults() {
     }
   }, []);
 
-  const { data, isLoading, error } = useSearchQuery({
+  // Use infinite query for search results
+  const {
+    allResults,
+    totalCount,
+    usedFuzzySearch,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    error,
+  } = useInfiniteSearchQuery({
     query,
     filters,
-    page: currentPage,
     pageSize: PAGE_SIZE,
     locale,
     searchDescriptions,
   });
 
-  const results = data?.results ?? [];
-
   // Prepare results with properly sorted images and AI data
   // Translation is handled by GemstoneCard using useGemstoneTranslations hook
   const decoratedResults = useMemo<CatalogGemstone[]>(() => {
-    return results.map((gemstone) => {
+    return allResults.map((gemstone) => {
       const baseGemstone = gemstone as CatalogGemstone;
 
       const sortedImages = [...(baseGemstone.images ?? [])].sort((a, b) => {
@@ -95,9 +102,7 @@ export function SearchResults() {
         v6_text: (baseGemstone as any).v6_text,
       };
     });
-  }, [results]);
-
-  const totalCount = data?.pagination.totalCount || 0;
+  }, [allResults]);
 
   // Fetch filter counts - temporarily disabled to test search functionality
   const { data: filterCountsData } = useFilterCountsQuery({
@@ -107,7 +112,7 @@ export function SearchResults() {
   // Fetch fuzzy suggestions when no results are found
   useEffect(() => {
     const fetchFuzzySuggestions = async () => {
-      if (query && data && data.results.length === 0 && !isLoading) {
+      if (query && allResults.length === 0 && !isLoading) {
         try {
           // Use API endpoint instead of direct service call
           const response = await fetch(
@@ -132,25 +137,25 @@ export function SearchResults() {
     };
 
     fetchFuzzySuggestions();
-  }, [query, data, isLoading, locale]);
-
-  // Calculate total pages
-  const totalPages = useMemo(() => {
-    if (!data?.pagination.totalCount) return 0;
-    return Math.ceil(data.pagination.totalCount / PAGE_SIZE);
-  }, [data]);
-
-  // Handle page change
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+  }, [query, allResults.length, isLoading, locale]);
 
   // Handle filter change
   const handleFiltersChange = (newFilters: typeof filters) => {
     updateFilters(newFilters);
-    setCurrentPage(1); // Reset to first page
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+  // Handle load more (with ref-based lock to prevent rapid calls)
+  const handleLoadMore = useCallback(() => {
+    // Use ref to prevent multiple simultaneous fetches
+    if (hasNextPage && !isFetchingNextPage && !isFetchingRef.current) {
+      isFetchingRef.current = true;
+      fetchNextPage().finally(() => {
+        // Reset the lock after fetch completes (success or error)
+        isFetchingRef.current = false;
+      });
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   // Handle suggestion click
   const handleSuggestionClick = (suggestion: string) => {
@@ -192,7 +197,7 @@ export function SearchResults() {
       "search:descriptions",
       enabled ? "true" : "false"
     );
-    setCurrentPage(1);
+    // Query will automatically reset when searchDescriptions changes
   };
 
   return (
@@ -219,7 +224,7 @@ export function SearchResults() {
       </div>
 
       {/* Fuzzy Search Banner */}
-      {data?.usedFuzzySearch && results.length > 0 && (
+      {usedFuzzySearch && allResults.length > 0 && (
         <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950/30">
           <p className="text-sm text-blue-900 dark:text-blue-100">
             <span className="font-medium">
@@ -231,7 +236,7 @@ export function SearchResults() {
       )}
 
       {/* Did You Mean Banner */}
-      {fuzzySuggestions.length > 0 && results.length === 0 && (
+      {fuzzySuggestions.length > 0 && allResults.length === 0 && (
         <FuzzySearchBanner
           originalQuery={query}
           suggestions={fuzzySuggestions}
@@ -261,7 +266,7 @@ export function SearchResults() {
       */}
 
       {/* Results */}
-      {results.length === 0 ? (
+      {allResults.length === 0 ? (
         <EmptyState
           title={query ? t("noResults") : t("enterSearch")}
           message={query ? t("tryDifferent") : t("searchPrompt")}
@@ -270,22 +275,12 @@ export function SearchResults() {
         <>
           <GemstoneGrid gemstones={decoratedResults} />
 
-          {/* Pagination */}
-          {totalPages > 1 && data?.pagination && (
-            <div className="mt-8">
-              <PaginationControls
-                pagination={{
-                  page: data.pagination.page,
-                  pageSize: data.pagination.pageSize,
-                  totalItems: data.pagination.totalCount,
-                  totalPages: data.pagination.totalPages,
-                  hasNextPage: data.pagination.hasNextPage,
-                  hasPrevPage: data.pagination.hasPrevPage,
-                }}
-                onPageChange={handlePageChange}
-              />
-            </div>
-          )}
+          {/* Infinite Scroll Trigger */}
+          <InfiniteScrollTrigger
+            onIntersect={handleLoadMore}
+            isFetching={isFetchingNextPage}
+            hasMore={hasNextPage ?? false}
+          />
         </>
       )}
     </div>

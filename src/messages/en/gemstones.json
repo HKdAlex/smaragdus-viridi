@@ -44,7 +44,9 @@
     "cabochon": "Cabochon",
     "pentagon": "Pentagon",
     "hexagon": "Hexagon",
-    "rectangle": "Rectangle"
+    "rectangle": "Rectangle",
+    "octagon": "Octagon",
+    "square": "Square"
   },
   "colors": {
     "D": "D (Colorless)",
