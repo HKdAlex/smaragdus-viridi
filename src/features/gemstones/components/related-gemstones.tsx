@@ -17,7 +17,7 @@ import { useEffect, useRef, useState } from "react";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Link } from "@/i18n/navigation";
-import { SafeImage } from "@/shared/components/ui/safe-image";
+import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import { useGemstoneTranslations } from "../utils/gemstone-translations";
 import { useTranslations } from "next-intl";
@@ -326,15 +326,14 @@ export function RelatedGemstones({
                   {/* Image */}
                   <div className="relative aspect-square bg-muted rounded-lg overflow-hidden">
                     {primaryImage ? (
-                      <SafeImage
+                      <Image
                         src={primaryImage.image_url}
                         alt={`${
                           (gemstone as DatabaseGemstone).weight_carats
                         }ct ${(gemstone as DatabaseGemstone).color} ${
                           (gemstone as DatabaseGemstone).name
                         }`}
-                        width={256}
-                        height={256}
+                        fill
                         className="object-cover transition-transform duration-300 group-hover:scale-105"
                         sizes="256px"
                       />

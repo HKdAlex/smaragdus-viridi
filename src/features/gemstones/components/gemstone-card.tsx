@@ -25,7 +25,7 @@ import { useLocale, useTranslations } from "next-intl";
 
 import type { CatalogGemstone } from "../services/gemstone-fetch.service";
 import Link from "next/link";
-import { SafeImage } from "@/shared/components/ui/safe-image";
+import Image from "next/image";
 import { useGemstoneTranslations } from "../utils/gemstone-translations";
 
 // ===== TYPES =====
@@ -150,18 +150,16 @@ export function GemstoneCard({
       {/* Image Section */}
       <div className="aspect-square relative bg-muted">
         {primaryImage ? (
-          <SafeImage
+          <Image
             src={primaryImage.image_url}
             alt={`${gemstone.color} ${gemstone.name}`}
-            width={400}
-            height={400}
-            className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-            onError={(error: string) => {
+            onError={() => {
               if (process.env.NODE_ENV === "development") {
                 console.warn(
-                  `Image failed to load for ${gemstone.serial_number}:`,
-                  error
+                  `Image failed to load for ${gemstone.serial_number}: ${primaryImage.image_url}`
                 );
               }
             }}
