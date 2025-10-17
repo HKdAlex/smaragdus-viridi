@@ -2,6 +2,7 @@
   "title": "Gemstone Catalog",
   "description": "Discover our carefully curated collection of premium gemstones from around the world",
   "subtitle": "Discover our premium collection",
+  "allCategories": "All Categories",
   "loading": "Loading gemstones...",
   "loadingMore": "Loading more gemstones...",
   "scrollToLoadMore": "Scroll to load more items",
@@ -145,5 +146,20 @@
       "favorited": "Favorited",
       "share": "Share"
     }
+  },
+  "gemstoneTypes": {
+    "emerald": "Emeralds",
+    "sapphire": "Sapphires", 
+    "garnet": "Garnets",
+    "aquamarine": "Aquamarines",
+    "citrine": "Citrines",
+    "amethyst": "Amethysts",
+    "apatite": "Apatites",
+    "quartz": "Quartz",
+    "peridot": "Peridots",
+    "tanzanite": "Tanzanites",
+    "zircon": "Zircons",
+    "tourmaline": "Tourmalines",
+    "morganite": "Morganites"
   }
 }

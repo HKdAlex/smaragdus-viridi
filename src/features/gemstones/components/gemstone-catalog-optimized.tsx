@@ -23,6 +23,7 @@ import type {
 import { useCallback, useMemo, useRef } from "react";
 
 import { CatalogHeader } from "./catalog-header";
+import { CategoryTabs } from "./category-tabs";
 import { EmptyState } from "./empty-state";
 import { FilterSidebar } from "./filters/filter-sidebar";
 import { GemstoneGrid } from "./gemstone-grid";
@@ -31,6 +32,7 @@ import { LoadingState } from "./loading-state";
 // Filter sidebar component
 import { queryStringToFilters } from "../utils/filter-url.utils";
 // Shared components from Phase 0
+import { useCategoryCounts } from "../hooks/use-category-counts";
 import { useFilterCountsQuery } from "../hooks/use-filter-counts-query";
 import { useFilterState } from "../hooks/use-filter-state";
 import { useFilterUrlSync } from "../hooks/use-filter-url-sync";
@@ -49,17 +51,33 @@ export function GemstoneCatalogOptimized() {
   // Ref to prevent multiple simultaneous fetches
   const isFetchingRef = useRef(false);
 
+  // Get active category from URL
+  const activeCategory = searchParams.get("category") || "all";
+
   // Parse initial filters from URL
   const initialFilters = useMemo(() => {
     const queryString = searchParams.toString();
-    return queryString ? queryStringToFilters(queryString) : {};
-  }, [searchParams]);
+    const filters = queryString ? queryStringToFilters(queryString) : {};
+    
+    // Add category filter if specified
+    if (activeCategory !== "all") {
+      return {
+        ...filters,
+        gemstoneTypes: [activeCategory as any], // Cast to satisfy TypeScript enum
+      };
+    }
+    
+    return filters;
+  }, [searchParams, activeCategory]);
 
   // Local filter state (single source of truth)
   const { filters, setFilters } = useFilterState({ initialFilters });
 
   // URL synchronization (opt-in side effect)
   useFilterUrlSync(filters);
+
+  // Fetch category counts for tabs
+  const { data: categoryData } = useCategoryCounts();
 
   // React Query: Fetch gemstones with infinite scroll
   const {
@@ -96,6 +114,20 @@ export function GemstoneCatalogOptimized() {
       });
     }
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  // Prepare category tabs data
+  const categoryTabs = useMemo(() => {
+    if (!categoryData?.categories) return [];
+    
+    return categoryData.categories
+      .filter(cat => cat.count > 0) // Only show categories with items
+      .map(cat => ({
+        id: cat.name,
+        name: t(`gemstoneTypes.${cat.name}`) || cat.name,
+        count: cat.count,
+        href: `/catalog/${cat.name}`,
+      }));
+  }, [categoryData, t]);
 
   // Show loading state on initial load
   if (gemstonesLoading && allGemstones.length === 0) {
@@ -154,6 +186,14 @@ export function GemstoneCatalogOptimized() {
     <div className="">
       {/* Header */}
       <CatalogHeader title={t("title")} description={t("description")} />
+
+      {/* Category Tabs */}
+      <div className="px-4 mt-6">
+        <CategoryTabs
+          categories={categoryTabs}
+          activeCategory={activeCategory}
+        />
+      </div>
 
       {/* Filter Sidebar */}
       {filterOptions && (
