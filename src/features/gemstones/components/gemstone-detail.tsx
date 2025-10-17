@@ -4,6 +4,7 @@ import {
   ArrowLeft,
   Heart,
   Info,
+  Ruler,
   Scale,
   Share2,
   Shield,
@@ -22,6 +23,7 @@ import {
   CutIcon,
   GemstoneColorIcon,
   GemstoneCutIcon,
+  WeightIcon,
 } from "@/shared/components/ui/gemstone-icons";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
@@ -573,58 +575,63 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                     <div className="w-1 h-5 bg-gradient-to-b from-primary to-primary/60 rounded-full mr-2" />
                     {t("the4Cs")}
                   </h4>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">
-                        {t("caratWeight")}
-                      </span>
-                      <span className="font-semibold text-foreground">
-                        {formatWeight(gemstone.weight_carats)}ct
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center space-x-2">
-                        <GemstoneColorIcon className="w-4 h-4 text-muted-foreground" />
-                        <span className="text-sm text-muted-foreground">
-                          {t("color")}
+                  <div className="space-y-4 text-base leading-relaxed">
+                    {/* Carat Weight */}
+                    <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
+                      <WeightIcon className="w-5 h-5 text-muted-foreground" />
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">
+                          {t("caratWeight")}
+                        </span>
+                        <span className="font-medium text-foreground">
+                          {formatWeight(gemstone.weight_carats)}ct
                         </span>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <ColorIndicator
-                          color={gemstone.ai_color || gemstone.color}
-                          className="w-4 h-4"
-                        />
-                        <span className="font-semibold text-foreground capitalize">
+                    </div>
+
+                    {/* Color */}
+                    <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
+                      <ColorIndicator
+                        color={gemstone.ai_color || gemstone.color}
+                        className="w-5 h-5"
+                      />
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">{t("color")}</span>
+                        <span className="font-medium text-foreground capitalize">
                           {translateColor(gemstone.ai_color || gemstone.color)}
                         </span>
                       </div>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center space-x-2">
-                        <GemstoneCutIcon className="w-4 h-4 text-muted-foreground" />
-                        <span className="text-sm text-muted-foreground">
-                          {t("cut")}
-                        </span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <CutIcon
-                          cut={gemstone.v6Text?.detected_cut || gemstone.cut}
-                          className="w-4 h-4"
-                        />
-                        <span className="font-semibold text-foreground capitalize">
+
+                    {/* Cut */}
+                    <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
+                      <CutIcon
+                        cut={gemstone.v6Text?.detected_cut || gemstone.cut}
+                        className="w-5 h-5"
+                      />
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">{t("cut")}</span>
+                        <span className="font-medium text-foreground capitalize">
                           {translateCut(
                             gemstone.v6Text?.detected_cut || gemstone.cut
                           )}
                         </span>
                       </div>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">
-                        {t("clarity")}
-                      </span>
-                      <span className="font-semibold text-foreground">
-                        {translateClarity(gemstone.clarity)}
-                      </span>
+
+                    {/* Clarity */}
+                    <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
+                      <div className="w-5 h-5 flex items-center justify-center">
+                        <div className="w-3 h-3 rounded-full bg-gray-300 dark:bg-gray-600" />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">
+                          {t("clarity")}
+                        </span>
+                        <span className="font-medium text-foreground">
+                          {translateClarity(gemstone.clarity)}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -635,38 +642,61 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                     <div className="w-1 h-5 bg-gradient-to-b from-primary to-primary/60 rounded-full mr-2" />
                     {t("dimensions")}
                   </h4>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">
-                        {t("length")}
-                      </span>
-                      <span className="font-semibold text-foreground">
-                        {gemstone.length_mm} mm
-                      </span>
+                  <div className="space-y-4 text-base leading-relaxed">
+                    {/* Length */}
+                    <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
+                      <Ruler className="w-5 h-5 text-muted-foreground" />
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">
+                          {t("length")}
+                        </span>
+                        <span className="font-medium text-foreground">
+                          {gemstone.length_mm} mm
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">
-                        {t("width")}
-                      </span>
-                      <span className="font-semibold text-foreground">
-                        {gemstone.width_mm} mm
-                      </span>
+
+                    {/* Width */}
+                    <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
+                      <Ruler className="w-5 h-5 text-muted-foreground" />
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">
+                          {t("width")}
+                        </span>
+                        <span className="font-medium text-foreground">
+                          {gemstone.width_mm} mm
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">
-                        {t("depth")}
-                      </span>
-                      <span className="font-semibold text-foreground">
-                        {gemstone.depth_mm} mm
-                      </span>
+
+                    {/* Depth */}
+                    <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
+                      <Ruler className="w-5 h-5 text-muted-foreground" />
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">
+                          {t("depth")}
+                        </span>
+                        <span className="font-medium text-foreground">
+                          {gemstone.depth_mm} mm
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">
-                        {t("overall")}
-                      </span>
-                      <span className="font-semibold text-foreground">
-                        {formatDimensions()}
-                      </span>
+
+                    {/* Overall */}
+                    <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
+                      <div className="w-5 h-5 flex items-center justify-center">
+                        <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-muted-foreground">
+                          <path d="M3 3h18v18H3V3zm2 2v14h14V5H5zm2 2h10v2H7V7zm0 4h10v2H7v-2zm0 4h7v2H7v-2z"/>
+                        </svg>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">
+                          {t("overall")}
+                        </span>
+                        <span className="font-medium text-foreground">
+                          {formatDimensions()}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
