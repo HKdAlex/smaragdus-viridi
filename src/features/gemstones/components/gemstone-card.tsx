@@ -17,8 +17,6 @@
 import {
   ColorIndicator,
   CutIcon,
-  GemstoneColorIcon,
-  GemstoneCutIcon,
   GemstoneTypeIcon,
 } from "@/shared/components/ui/gemstone-icons";
 import { useLocale, useTranslations } from "next-intl";
@@ -220,61 +218,49 @@ export function GemstoneCard({
           {colorLabel} {typeLabel}
         </h3>
 
-        {/* Compact Metadata Grid */}
+        {/* Improved Metadata Layout */}
         {!isCompact && (
-          <div className="grid grid-cols-2 gap-2 mb-3 text-xs">
-            {/* Weight */}
-            <div className="flex items-center space-x-1">
-              <span className="text-muted-foreground">Weight:</span>
-              <span className="font-medium text-foreground">
-                {gemstone.weight_carats}ct
-              </span>
-            </div>
-
-            {/* Clarity */}
-            <div className="flex items-center space-x-1">
-              <span className="text-muted-foreground">Clarity:</span>
-              <span className="font-medium text-foreground">
-                {clarityLabel ?? t("unknown")}
-              </span>
-            </div>
-
-            {/* Type */}
-            <div className="flex items-center space-x-1">
-              <GemstoneTypeIcon className="w-3 h-3 text-muted-foreground" />
-              <span className="text-muted-foreground">Type:</span>
-              <span className="font-medium text-foreground">
-                {typeLabel}
-              </span>
-            </div>
-
-            {/* Color */}
-            <div className="flex items-center space-x-1">
-              <ColorIndicator color={effectiveColor} className="w-3 h-3" />
-              <span className="text-muted-foreground">Color:</span>
-              <span className="font-medium text-foreground">
-                {colorLabel}
-              </span>
-            </div>
-
-            {/* Cut */}
-            <div className="flex items-center space-x-1 col-span-2">
-              <CutIcon cut={effectiveCut} className="w-3 h-3" />
-              <span className="text-muted-foreground">Cut:</span>
-              <span className="font-medium text-foreground">
-                {cutLabel ?? t("unknown")}
-              </span>
-            </div>
-
-            {/* Origin */}
-            {gemstone.origin && (
-              <div className="flex items-center space-x-1 col-span-2">
-                <span className="text-muted-foreground">Origin:</span>
-                <span className="font-medium text-foreground">
-                  {gemstone.origin.name}
+          <div className="space-y-2 mb-3">
+            {/* Primary Info Row */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <span className="text-xs font-medium text-foreground">
+                  {gemstone.weight_carats}ct
+                </span>
+                <span className="text-xs text-muted-foreground">•</span>
+                <span className="text-xs text-muted-foreground">
+                  {clarityLabel ?? t("unknown")}
                 </span>
               </div>
-            )}
+              {gemstone.origin && (
+                <span className="text-xs text-muted-foreground">
+                  {gemstone.origin.name}
+                </span>
+              )}
+            </div>
+
+            {/* Secondary Info Row */}
+            <div className="flex items-center space-x-4 text-xs">
+              <div className="flex items-center space-x-1">
+                <GemstoneTypeIcon className="w-3 h-3 text-muted-foreground" />
+                <span className="text-muted-foreground">{t("type")}:</span>
+                <span className="font-medium text-foreground">{typeLabel}</span>
+              </div>
+              
+              <div className="flex items-center space-x-1">
+                <ColorIndicator color={effectiveColor} className="w-3 h-3" />
+                <span className="text-muted-foreground">{t("color")}:</span>
+                <span className="font-medium text-foreground">{colorLabel}</span>
+              </div>
+              
+              <div className="flex items-center space-x-1">
+                <CutIcon cut={effectiveCut} className="w-3 h-3" />
+                <span className="text-muted-foreground">{t("cut")}:</span>
+                <span className="font-medium text-foreground">
+                  {cutLabel ?? t("unknown")}
+                </span>
+              </div>
+            </div>
           </div>
         )}
 
@@ -286,7 +272,7 @@ export function GemstoneCard({
             </div>
             <div>{clarityLabel ?? t("unknown")}</div>
             {gemstone.origin && (
-              <div>Origin: {gemstone.origin.name}</div>
+              <div>{t("product.origin")}: {gemstone.origin.name}</div>
             )}
           </div>
         )}
