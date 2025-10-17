@@ -21,6 +21,28 @@
     "alexandrite": "Александрит",
     "agate": "Агат"
   },
+  "typesPlural": {
+    "diamond": "Бриллианты",
+    "emerald": "Изумруды",
+    "ruby": "Рубины",
+    "sapphire": "Сапфиры",
+    "amethyst": "Аметисты",
+    "topaz": "Топазы",
+    "garnet": "Гранаты",
+    "peridot": "Перидоты",
+    "citrine": "Цитрины",
+    "tanzanite": "Танзаниты",
+    "aquamarine": "Аквамарины",
+    "morganite": "Морганиты",
+    "tourmaline": "Турмалины",
+    "zircon": "Цирконы",
+    "apatite": "Апатиты",
+    "quartz": "Кварц",
+    "paraiba": "Параибы",
+    "spinel": "Шпинели",
+    "alexandrite": "Александриты",
+    "agate": "Агаты"
+  },
   "cuts": {
     "round": "Круглая",
     "princess": "Принцесса",

@@ -62,6 +62,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
     translateCut,
     translateClarity,
     translateGemstoneType,
+    translateGemstoneTypePlural,
   } = useGemstoneTranslations();
 
   const isAlreadyInCart = isInCart(gemstone.id);
@@ -221,7 +222,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
               </Link>
               <span className="text-muted-foreground/60">/</span>
               <span className="text-foreground capitalize font-medium">
-                {translateGemstoneType(gemstone.name)}s
+                {translateGemstoneTypePlural(gemstone.name)}
               </span>
               <span className="text-muted-foreground/60">/</span>
               <span className="text-foreground font-medium">

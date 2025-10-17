@@ -21,6 +21,28 @@
     "alexandrite": "Alexandrite",
     "agate": "Agate"
   },
+  "typesPlural": {
+    "diamond": "Diamonds",
+    "emerald": "Emeralds",
+    "ruby": "Rubies",
+    "sapphire": "Sapphires",
+    "amethyst": "Amethysts",
+    "topaz": "Topazes",
+    "garnet": "Garnets",
+    "peridot": "Peridots",
+    "citrine": "Citrines",
+    "tanzanite": "Tanzanites",
+    "aquamarine": "Aquamarines",
+    "morganite": "Morganites",
+    "tourmaline": "Tourmalines",
+    "zircon": "Zircons",
+    "apatite": "Apatites",
+    "quartz": "Quartz",
+    "paraiba": "Paraibas",
+    "spinel": "Spinels",
+    "alexandrite": "Alexandrites",
+    "agate": "Agates"
+  },
   "cuts": {
     "round": "Round",
     "princess": "Princess",

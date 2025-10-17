@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
  */
 export function useGemstoneTranslations() {
   const tTypes = useTranslations("gemstones.types");
+  const tTypesPlural = useTranslations("gemstones.typesPlural");
   const tColors = useTranslations("gemstones.colors");
   const tCuts = useTranslations("gemstones.cuts");
   const tClarities = useTranslations("gemstones.clarities");
@@ -13,6 +14,10 @@ export function useGemstoneTranslations() {
 
   const translateGemstoneType = (type: string) => {
     return tTypes(type as any) || type;
+  };
+
+  const translateGemstoneTypePlural = (type: string) => {
+    return tTypesPlural(type as any) || type;
   };
 
   const translateColor = (color: string) => {
@@ -41,6 +46,7 @@ export function useGemstoneTranslations() {
 
   return {
     translateGemstoneType,
+    translateGemstoneTypePlural,
     translateColor,
     translateCut,
     translateClarity,
