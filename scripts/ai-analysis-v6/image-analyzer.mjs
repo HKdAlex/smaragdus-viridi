@@ -186,8 +186,8 @@ export async function detectGemstoneCut(options) {
     throw new Error("At least one image is required for cut detection");
   }
 
-  // Select up to 10 non-repeating random images for better variety
-  const maxImages = Math.min(10, images.length);
+  // Analyze ALL images if 15 or fewer, otherwise sample 10 for cost efficiency
+  const maxImages = images.length <= 15 ? images.length : Math.min(10, images.length);
 
   // Create mapping between shuffled indices and original indices
   const originalIndices = Array.from({ length: images.length }, (_, i) => i);
@@ -306,8 +306,8 @@ export async function detectGemstoneColor(options) {
     throw new Error("At least one image is required for color detection");
   }
 
-  // Select up to 10 non-repeating random images for better variety
-  const maxImages = Math.min(10, images.length);
+  // Analyze ALL images if 15 or fewer, otherwise sample 10 for cost efficiency
+  const maxImages = images.length <= 15 ? images.length : Math.min(10, images.length);
 
   // Create mapping between shuffled indices and original indices
   const originalIndices = Array.from({ length: images.length }, (_, i) => i);
@@ -462,19 +462,24 @@ Choose the image that best showcases the gemstone, with STRICT preference for im
 - With cleaner backgrounds
 - That display the gemstone's color and cut most clearly
 
-**SCORING PRIORITY**:
-1. Images without tools get significant bonus points (+0.3)
-2. Images with minor tools get moderate penalties (-0.2 points)
-3. Images with major tools get heavy penalties (-0.4 points)
-4. Professional presentation and clean composition are essential
-5. Prefer tool-free images but still select the best available option
+**SCORING PRIORITY (CRITICAL)**:
+1. Images WITHOUT any measurement tools or gauges: START at 1.0 base score
+2. Images WITH measurement tools/gauges/calipers/rulers: MAXIMUM score is 0.4 (heavy penalty)
+3. The penalty for measurement tools is SEVERE - clean images should almost always win
+4. Professional presentation, lighting, and composition are secondary factors
+5. A mediocre clean image is better than a perfect image with tools
 
-**CRITICAL**: You MUST ALWAYS select an image (never return -1). Even if images have measurement tools, you must choose the BEST available image. Only return -1 if the images are completely blank, corrupted, or don't contain a gemstone at all.
+**TOOL PENALTY ENFORCEMENT**:
+- Clean gemstone images (no tools): Score range 0.6-1.0
+- Images with ANY measurement tools: Score range 0.0-0.4 (capped!)
+- This ensures tool-free images are strongly preferred
 
-**SELECTION RULE**: Choose the image that best showcases the gemstone, even with tools present. The presence of measurement tools should be a minor factor, not a disqualifier.`;
+**CRITICAL**: You MUST ALWAYS select an image (never return -1). If ALL images have tools, choose the one where the tool is least intrusive. Only return -1 if images are completely blank, corrupted, or don't contain a gemstone at all.
 
-  // Select up to 10 non-repeating random images for better variety
-  const maxImages = Math.min(10, images.length);
+**SELECTION RULE**: STRONGLY prefer images without measurement tools. Clean presentation is the #1 priority.`;
+
+  // Analyze ALL images if 15 or fewer, otherwise sample 10 for cost efficiency
+  const maxImages = images.length <= 15 ? images.length : Math.min(10, images.length);
 
   // Create mapping using UUIDs if available, otherwise fall back to indices
   let selectedImageData, imagesToAnalyze;

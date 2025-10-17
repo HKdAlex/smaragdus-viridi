@@ -1,27 +1,28 @@
 #!/usr/bin/env node
 /**
- * Batch process 10 gemstones for AI v6 text generation
+ * Batch process 10 gemstones WITH IMAGES for AI v6 text generation
+ * This will test: cut detection, color detection, and primary image selection
  */
 
 import { generateTextForGemstone } from "./ai-analysis-v6/pipeline.mjs";
 
 const gemstoneIds = [
-  "c8ac7c5d-8f05-4eb5-b1d5-257fdb21d108", // agate 1.42ct
-  "33895fc9-a3f5-4a67-aa08-157a869dbc51", // emerald 1.04ct
-  "dd55657a-651c-435f-9576-a8a72300f72f", // emerald 1.29ct
-  "d3d715a9-88c9-4dad-b746-ba64afa8c72d", // emerald 0.40ct
-  "48edaac6-5db6-4448-aa04-3183bf8427d1", // emerald 0.27ct
-  "a46a0c3b-a97d-4dea-8735-3088484eb8ef", // emerald 0.30ct
-  "89c9e7cd-0425-49ea-94d7-cfc738c9bb53", // emerald 0.27ct
-  "62c0fc25-9189-4ccc-abaa-6f6634e41a57", // emerald 0.56ct
-  "df57fa9f-9f58-4f03-806c-4383bdc6df27", // emerald 0.64ct
-  "baa18cdf-a227-45be-b9b9-10d2dd7d27e9", // emerald 0.35ct
+  "bc22729e-b621-4299-a4bb-69a60ff06357", // emerald 2.56ct (18 images)
+  "1d5a748c-5d29-4d63-86ec-c529fbe6e0fa", // citrine 2.70ct (15 images)
+  "9d6045a0-5696-4f92-bbde-3a45b91a8b1a", // apatite 1.09ct (15 images)
+  "a05dec50-4210-4581-a6dd-9e65f2356f98", // apatite 0.92ct (15 images)
+  "130b9f04-7bb1-41ef-8224-9450a2c00545", // sapphire 7.14ct (15 images)
+  "34163c7f-b85d-4484-84ca-c5a5455dd50d", // quartz 8.90ct (15 images)
+  "d45e1f46-edd9-47d1-beb5-f399ebec9c30", // emerald 1.33ct (15 images)
+  "5a56b19c-dfb0-4fa4-ab34-6a99c782f9ec", // emerald 2.25ct (15 images)
+  "b20562df-99ab-4070-a877-64b709f8eeb9", // garnet 1.47ct (15 images)
+  "1ba06f16-a8b4-4a96-91cf-f89c60ec0ef5", // garnet 1.12ct (15 images)
 ];
 
 console.log("=".repeat(80));
-console.log("AI TEXT GENERATION V6 - BATCH TEST (10 GEMSTONES)");
+console.log("AI TEXT GENERATION V6 - BATCH TEST WITH IMAGES");
 console.log("=".repeat(80));
-console.log(`\nProcessing ${gemstoneIds.length} gemstones...\n`);
+console.log(`\nProcessing ${gemstoneIds.length} gemstones (with image analysis)...\n`);
 
 const results = [];
 let successCount = 0;
@@ -47,12 +48,23 @@ for (let i = 0; i < gemstoneIds.length; i++) {
       totalCost += result.generation.cost_usd || 0;
       totalTime += elapsed;
 
-      console.log(
-        `✅ SUCCESS - ${result.gemstone.name} (${result.gemstone.serial_number})`
-      );
+      console.log(`✅ SUCCESS - ${result.gemstone.name} (${result.gemstone.serial_number})`);
       console.log(`   Confidence: ${result.generation.confidence.toFixed(2)}`);
       console.log(`   Cost: $${(result.generation.cost_usd || 0).toFixed(4)}`);
       console.log(`   Time: ${(elapsed / 1000).toFixed(1)}s`);
+
+      // Show image analysis results
+      if (result.imageAnalysis) {
+        if (result.imageAnalysis.cutDetection) {
+          console.log(`   Cut: ${result.imageAnalysis.cutDetection.detected_cut} (confidence: ${result.imageAnalysis.cutDetection.confidence.toFixed(2)})`);
+        }
+        if (result.imageAnalysis.colorDetection) {
+          console.log(`   Color: ${result.imageAnalysis.colorDetection.detected_color} (confidence: ${result.imageAnalysis.colorDetection.confidence.toFixed(2)})`);
+        }
+        if (result.imageAnalysis.primaryImageSelection) {
+          console.log(`   Primary Image: #${result.imageAnalysis.primaryImageSelection.selected_index} (score: ${result.imageAnalysis.primaryImageSelection.quality_score.toFixed(2)})`);
+        }
+      }
 
       results.push({
         id: gemstoneId,
@@ -88,9 +100,7 @@ if (successCount > 0) {
   console.log(`\n💰 Total Cost: $${totalCost.toFixed(4)}`);
   console.log(`💰 Average Cost: $${(totalCost / successCount).toFixed(4)}`);
   console.log(`⏱️  Total Time: ${(totalTime / 1000).toFixed(1)}s`);
-  console.log(
-    `⏱️  Average Time: ${(totalTime / successCount / 1000).toFixed(1)}s`
-  );
+  console.log(`⏱️  Average Time: ${(totalTime / successCount / 1000).toFixed(1)}s`);
 
   const avgConfidence =
     results
@@ -100,14 +110,24 @@ if (successCount > 0) {
 }
 
 console.log("\n" + "=".repeat(80));
-console.log("GEMSTONE LINKS");
+console.log("GEMSTONE LINKS (EN)");
 console.log("=".repeat(80));
-console.log("\nYou can view the results at:");
+console.log("\nEnglish version:");
 results.forEach((r, i) => {
   if (r.success) {
     console.log(`${i + 1}. http://localhost:3000/en/catalog/${r.id}`);
-    console.log(`   ${r.name} - ${r.serial_number}`);
   }
 });
+
+console.log("\n" + "=".repeat(80));
+console.log("GEMSTONE LINKS (RU)");
+console.log("=".repeat(80));
+console.log("\nRussian version:");
+results.forEach((r, i) => {
+  if (r.success) {
+    console.log(`${i + 1}. http://localhost:3000/ru/catalog/${r.id}`);
+  }
+});
+
 console.log("\n");
 

@@ -54,14 +54,14 @@ export async function getGemstoneForTextGeneration(gemstoneId) {
     throw new Error(`Failed to fetch gemstone: ${gemError.message}`);
   }
 
-  // Fetch associated images (primary first)
+  // Fetch associated images (primary first) - get up to 20 images for analysis
   const { data: images, error: imagesError } = await supabase
     .from("gemstone_images")
     .select("id, image_url, image_order, is_primary")
     .eq("gemstone_id", gemstoneId)
     .order("is_primary", { ascending: false, nullsFirst: false })
     .order("image_order", { ascending: true })
-    .limit(10);
+    .limit(20);
 
   if (imagesError) {
     console.warn(`Failed to fetch images: ${imagesError.message}`);

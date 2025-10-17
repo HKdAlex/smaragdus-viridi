@@ -91,3 +91,4 @@ COMMENT ON TABLE color_translations IS 'Multilingual translations for color name
 COMMENT ON COLUMN colors.color_code IS 'Unique color identifier (e.g., brown, smoky)';
 COMMENT ON COLUMN colors.hex_value IS 'Hex color code for UI display';
 COMMENT ON COLUMN colors.sort_order IS 'Display order for UI';
+

@@ -10,3 +10,4 @@ COMMENT ON COLUMN gemstones_ai_v6.selected_image_uuid IS 'UUID of the image sele
 -- Add index for faster lookups
 CREATE INDEX idx_gemstones_ai_v6_selected_image_uuid ON gemstones_ai_v6(selected_image_uuid);
 
+

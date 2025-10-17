@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { supabaseAdmin } from "@/lib/supabase";
 
 export async function GET(
@@ -61,7 +62,8 @@ export async function GET(
     // Fetch v6 text (if available) - only the fields used by the component
     const { data: v6Text, error: v6Error } = await supabase
       .from("gemstones_ai_v6")
-      .select(`
+      .select(
+        `
         technical_description_en,
         technical_description_ru,
         emotional_description_en,
@@ -74,7 +76,8 @@ export async function GET(
         care_instructions_ru,
         marketing_highlights,
         promotional_text
-      `)
+      `
+      )
       .eq("gemstone_id", id)
       .single();
 
@@ -88,7 +91,9 @@ export async function GET(
       v6Text: v6Text || null,
     };
 
-    console.log(`✅ [GemstoneAPI] Successfully fetched gemstone: ${gemstone.name}`);
+    console.log(
+      `✅ [GemstoneAPI] Successfully fetched gemstone: ${gemstone.name}`
+    );
 
     return NextResponse.json(result);
   } catch (error) {

@@ -151,9 +151,9 @@ export function SearchResults() {
 
   const totalCount = data?.pagination.totalCount || 0;
 
-  // Fetch filter counts - enable when we have search results to avoid interference
+  // Fetch filter counts - temporarily disabled to test search functionality
   const { data: filterCountsData } = useFilterCountsQuery({
-    enabled: !!data && data.results.length > 0,
+    enabled: false, // Temporarily disable to test search functionality
   });
 
   // Fetch fuzzy suggestions when no results are found
@@ -299,7 +299,8 @@ export function SearchResults() {
         />
       </div>
 
-      {/* Filter Sidebar - only show when we have search results and filter counts */}
+      {/* Filter Sidebar - temporarily disabled to test search functionality */}
+      {/*
       {filterCountsData && data && data.results.length > 0 && (
         <FilterSidebar
           filters={filters}
@@ -309,6 +310,7 @@ export function SearchResults() {
           defaultOpen={false}
         />
       )}
+      */}
 
       {/* Results */}
       {results.length === 0 ? (
