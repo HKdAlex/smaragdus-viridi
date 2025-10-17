@@ -66,7 +66,7 @@ export function Hero({
 
           {/* Trust strip */}
           {trustItems?.length ? (
-            <div className="mt-4 sm:mt-6 md:mt-8 flex flex-grow items-center justify-center">
+            <div className="mt-8 sm:mt-10 md:mt-12 flex flex-grow items-center justify-center">
               <div className="flex flex-col sm:flex-row sm:flex-wrap items-center justify-center gap-3 sm:gap-x-6 sm:gap-y-2 text-sm sm:text-base text-foreground">
                 {trustItems.map((label, idx) => (
                   <div
