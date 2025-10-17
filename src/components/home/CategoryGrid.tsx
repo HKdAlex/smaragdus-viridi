@@ -45,7 +45,7 @@ export function CategoryGrid({ items }: { items: CategoryItem[] }) {
               className="group focus:outline-none"
             >
               <Card
-                className={`relative overflow-hidden ${radius} ${shadowSoft} transition-transform ${duration} ${ease} will-change-transform group-hover:-translate-y-1 hover:${shadowHover}`}
+                className={`relative overflow-hidden ${radius} bg-white/10 dark:bg-white/5 border border-white/20 dark:border-white/10 backdrop-blur-md shadow-lg transition-transform ${duration} ${ease} will-change-transform group-hover:-translate-y-1 hover:${shadowHover}`}
               >
                 <div className="relative aspect-[4/3]">
                   <Image
@@ -61,11 +61,11 @@ export function CategoryGrid({ items }: { items: CategoryItem[] }) {
                 <div className="p-4 sm:p-5 md:p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="font-serif text-lg sm:text-xl md:text-2xl text-foreground leading-tight">
+                      <h3 className="font-serif text-lg sm:text-xl md:text-2xl text-white leading-tight">
                         {item.title}
                       </h3>
                       {item.subtitle ? (
-                        <p className="text-xs sm:text-sm text-muted-foreground mt-1 leading-relaxed">
+                        <p className="text-xs sm:text-sm text-white/80 mt-1 leading-relaxed">
                           {item.subtitle}
                         </p>
                       ) : null}
