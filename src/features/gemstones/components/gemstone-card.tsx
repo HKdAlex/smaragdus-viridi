@@ -18,9 +18,9 @@ import {
   ColorIndicator,
   CutIcon,
   GemstoneTypeIcon,
-  WeightIcon,
 } from "@/shared/components/ui/gemstone-icons";
 import { useLocale, useTranslations } from "next-intl";
+import { Scale } from "lucide-react";
 
 import type { CatalogGemstone } from "../services/gemstone-fetch.service";
 import Image from "next/image";
@@ -212,8 +212,8 @@ export function GemstoneCard({
       <div className={isCompact ? "p-2" : "p-3 sm:p-4"}>
         {/* Title */}
         <h3
-          className={`font-semibold text-foreground capitalize leading-tight mb-2 ${
-            isCompact ? "text-xs" : "text-sm sm:text-base"
+          className={`font-semibold text-foreground capitalize leading-tight mb-3 ${
+            isCompact ? "text-xs" : "text-base sm:text-lg"
           }`}
         >
           {colorLabel} {typeLabel}
@@ -225,7 +225,7 @@ export function GemstoneCard({
             <div className="space-y-3">
               {/* Weight */}
               <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
-                <WeightIcon className="w-5 h-5 text-muted-foreground" />
+                <Scale className="w-5 h-5 text-muted-foreground" />
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">
                     {t("product.weight")}
