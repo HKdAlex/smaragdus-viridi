@@ -23,7 +23,6 @@ import {
   CutIcon,
   GemstoneColorIcon,
   GemstoneCutIcon,
-  WeightIcon,
 } from "@/shared/components/ui/gemstone-icons";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
@@ -578,7 +577,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                   <div className="space-y-4 text-base leading-relaxed">
                     {/* Carat Weight */}
                     <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
-                      <WeightIcon className="w-5 h-5 text-muted-foreground" />
+                      <Scale className="w-5 h-5 text-muted-foreground" />
                       <div className="flex items-center justify-between">
                         <span className="text-muted-foreground">
                           {t("caratWeight")}
