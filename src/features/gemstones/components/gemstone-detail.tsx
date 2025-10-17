@@ -18,12 +18,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
-import {
-  ColorIndicator,
-  CutIcon,
-  GemstoneColorIcon,
-  GemstoneCutIcon,
-} from "@/shared/components/ui/gemstone-icons";
+import { ColorIndicator, CutIcon } from "@/shared/components/ui/gemstone-icons";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
 
@@ -595,7 +590,9 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                         className="w-5 h-5"
                       />
                       <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">{t("color")}</span>
+                        <span className="text-muted-foreground">
+                          {t("color")}
+                        </span>
                         <span className="font-medium text-foreground capitalize">
                           {translateColor(gemstone.ai_color || gemstone.color)}
                         </span>
@@ -609,7 +606,9 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                         className="w-5 h-5"
                       />
                       <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">{t("cut")}</span>
+                        <span className="text-muted-foreground">
+                          {t("cut")}
+                        </span>
                         <span className="font-medium text-foreground capitalize">
                           {translateCut(
                             gemstone.v6Text?.detected_cut || gemstone.cut
@@ -684,8 +683,12 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                     {/* Overall */}
                     <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
                       <div className="w-5 h-5 flex items-center justify-center">
-                        <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-muted-foreground">
-                          <path d="M3 3h18v18H3V3zm2 2v14h14V5H5zm2 2h10v2H7V7zm0 4h10v2H7v-2zm0 4h7v2H7v-2z"/>
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                          className="w-4 h-4 text-muted-foreground"
+                        >
+                          <path d="M3 3h18v18H3V3zm2 2v14h14V5H5zm2 2h10v2H7V7zm0 4h10v2H7v-2zm0 4h7v2H7v-2z" />
                         </svg>
                       </div>
                       <div className="flex items-center justify-between">

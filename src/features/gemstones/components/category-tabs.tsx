@@ -107,7 +107,7 @@ export function CategoryTabs({
                     {tab.name}
                     <span
                       className={cn(
-                        "rounded-full px-2 py-0.5 text-xs font-medium",
+                        "rounded-full px-2 py-0.5 text-xs font-medium flex items-center justify-center",
                         isActive
                           ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300"
                           : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"
