@@ -9,10 +9,13 @@
 
 "use client";
 
+import {
+  FILTER_PARAM_KEYS,
+  filtersToQueryString,
+} from "../utils/filter-url.utils";
 import { useEffect, useRef } from "react";
 
 import type { AdvancedGemstoneFilters } from "../types/filter.types";
-import { filtersToQueryString } from "../utils/filter-url.utils";
 import { usePathname } from "@/i18n/navigation";
 import { useTypeSafeRouter } from "@/lib/navigation/type-safe-router";
 
@@ -50,20 +53,42 @@ export function useFilterUrlSync(
   useEffect(() => {
     if (!enabled) return;
 
-    // Clear previous timeout
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
 
-    // Debounce URL updates
     timeoutRef.current = setTimeout(() => {
-      const queryString = filtersToQueryString(filters);
-      const currentQuery = window.location.search.slice(1);
+      if (typeof window === "undefined") {
+        return;
+      }
 
-      // Only update if query actually changed
-      if (queryString !== currentQuery) {
-        const newUrl = queryString ? `${pathname}?${queryString}` : pathname;
+      const currentParams = new URLSearchParams(window.location.search);
+      const nextParams = new URLSearchParams();
 
+      currentParams.forEach((value, key) => {
+        if (
+          !FILTER_PARAM_KEYS.includes(key as (typeof FILTER_PARAM_KEYS)[number])
+        ) {
+          nextParams.set(key, value);
+        }
+      });
+
+      const filtersQueryString = filtersToQueryString(filters);
+
+      if (filtersQueryString) {
+        const filterParams = new URLSearchParams(filtersQueryString);
+        filterParams.forEach((value, key) => {
+          nextParams.set(key, value);
+        });
+      }
+
+      const nextQueryString = nextParams.toString();
+      const currentQueryString = currentParams.toString();
+
+      if (nextQueryString !== currentQueryString) {
+        const newUrl = nextQueryString
+          ? `${pathname}?${nextQueryString}`
+          : pathname;
         router.replaceDynamic(newUrl, { scroll: false });
       }
     }, debounceMs);

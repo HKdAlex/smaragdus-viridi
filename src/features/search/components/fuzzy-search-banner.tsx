@@ -35,6 +35,12 @@ export function FuzzySearchBanner({
 
   const topSuggestion = suggestions[0];
 
+  // Helper to translate category types
+  const translateCategory = (type: string): string => {
+    const categoryKey = `categories.${type}` as const;
+    return t(categoryKey);
+  };
+
   return (
     <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/30">
       <div className="flex items-start gap-3">
@@ -64,7 +70,7 @@ export function FuzzySearchBanner({
                 <Search className="h-3.5 w-3.5" />
                 <span>{suggestion.suggestion}</span>
                 <span className="text-xs text-amber-600 dark:text-amber-400">
-                  ({suggestion.type})
+                  ({translateCategory(suggestion.type)})
                 </span>
               </button>
             ))}

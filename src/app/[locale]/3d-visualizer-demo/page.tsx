@@ -603,7 +603,7 @@ export default async function VisualizerDemoPage({
       </div>
 
       {/* Main Demo Section */}
-      <div className="space-y-8">
+      <div className="">
         <div className="text-center">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">
             Featured Gemstone Collection

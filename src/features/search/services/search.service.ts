@@ -32,13 +32,11 @@ export class SearchService {
 
     const rpcPayload = {
       search_query: query || "",
-      search_locale: locale,
-      filters: {
-        ...((filters || {}) as any),
-        searchDescriptions: !!searchDescriptions,
-      },
-      page_num: page,
+      effective_locale: locale,
+      filters: (filters || {}) as any,
+      page_number: page,
       page_size: pageSize,
+      description_enabled: !!searchDescriptions,
     };
 
     // Try exact search first
@@ -70,10 +68,7 @@ export class SearchService {
         {
           ...rpcPayload,
           search_query: query,
-          filters: {
-            ...((fuzzyFilters || {}) as any),
-            searchDescriptions: !!searchDescriptions,
-          },
+          filters: fuzzyFilters as any,
         }
       );
 
@@ -176,6 +171,50 @@ export class SearchService {
       console.error("[SearchService] Error fetching images:", imagesError);
     }
 
+    // Fetch AI v6 data (detected cut, selected image, etc.)
+    const { data: v6Data, error: v6Error } = await supabaseAdmin
+      .from("gemstones_ai_v6")
+      .select(
+        "gemstone_id, selected_image_uuid, recommended_primary_image_index, detected_cut"
+      )
+      .in("gemstone_id", gemstoneIds);
+
+    if (v6Error) {
+      console.error("[SearchService] Error fetching v6 metadata:", v6Error);
+    }
+
+    // Fetch ai_color from base gemstones table
+    const { data: aiColorData, error: aiColorError } = await supabaseAdmin
+      .from("gemstones")
+      .select("id, ai_color")
+      .in("id", gemstoneIds);
+
+    if (aiColorError) {
+      console.error("[SearchService] Error fetching ai_color:", aiColorError);
+    }
+
+    const v6ByGemstone = new Map<
+      string,
+      {
+        selected_image_uuid: string | null;
+        recommended_primary_image_index: number | null;
+        detected_cut: string | null;
+      }
+    >();
+    (v6Data || []).forEach((record) => {
+      v6ByGemstone.set(record.gemstone_id, {
+        selected_image_uuid: record.selected_image_uuid ?? null,
+        recommended_primary_image_index:
+          record.recommended_primary_image_index ?? null,
+        detected_cut: record.detected_cut ?? null,
+      });
+    });
+
+    const aiColorByGemstone = new Map<string, string | null>();
+    (aiColorData || []).forEach((record) => {
+      aiColorByGemstone.set(record.id, record.ai_color ?? null);
+    });
+
     // Group images by gemstone_id
     const imagesByGemstone = new Map<string, any[]>();
     (imagesData || []).forEach((img) => {
@@ -185,11 +224,24 @@ export class SearchService {
       imagesByGemstone.get(img.gemstone_id)!.push(img);
     });
 
-    // Map results with images
-    const results = data.map((row: any) => ({
-      ...row,
-      images: imagesByGemstone.get(row.id) || [],
-    }));
+    // Map results with images and AI data
+    const results = data.map((row: any) => {
+      const v6Info = v6ByGemstone.get(row.id);
+      const aiColor = aiColorByGemstone.get(row.id);
+
+      return {
+        ...row,
+        images: imagesByGemstone.get(row.id) || [],
+        selected_image_uuid: v6Info?.selected_image_uuid ?? null,
+        recommended_primary_image_index:
+          v6Info?.recommended_primary_image_index ?? null,
+        // Include AI-detected values for consistent display with catalog
+        ai_color: aiColor,
+        v6_text: v6Info?.detected_cut
+          ? { detected_cut: v6Info.detected_cut }
+          : null,
+      };
+    });
 
     return {
       results: results as any,
@@ -246,7 +298,8 @@ export class SearchService {
    */
   static async getSuggestions(
     query: string,
-    limit: number = 10
+    limit: number = 10,
+    locale: string = "en"
   ): Promise<SearchSuggestionsResponse> {
     if (!supabaseAdmin) {
       throw new Error("Database connection failed");
@@ -254,10 +307,11 @@ export class SearchService {
 
     const supabase = supabaseAdmin;
 
-    // Call the get_search_suggestions RPC function
+    // Call the get_search_suggestions RPC function with locale
     const { data, error } = await supabase.rpc("get_search_suggestions", {
       query,
       limit_count: limit,
+      search_locale: locale,
     });
 
     if (error) {

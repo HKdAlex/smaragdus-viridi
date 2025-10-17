@@ -95,13 +95,22 @@ export async function GET(request: NextRequest) {
         delivery_days,
         internal_code,
         serial_number,
+        ai_color,
         created_at,
         updated_at,
-        images:gemstone_images!inner(id, image_url, is_primary),
+        images:gemstone_images!inner(id, image_url, is_primary, image_order),
         origin:origins(id, name, country),
         certifications:certifications(id, certificate_type),
         ai_analysis:ai_analysis_results!left(id, confidence_score, analysis_type),
-        v6_text:gemstones_ai_v6!left(emotional_description_en, emotional_description_ru, marketing_highlights)
+        v6_text:gemstones_ai_v6!left(
+          emotional_description_en,
+          emotional_description_ru,
+          marketing_highlights,
+          marketing_highlights_ru,
+          recommended_primary_image_index,
+          selected_image_uuid,
+          detected_cut
+        )
       `,
       { count: "exact" }
     );
@@ -305,15 +314,27 @@ export async function GET(request: NextRequest) {
     // Transform data to match frontend expectations
     const transformedData = processedData.map((gemstone: any) => {
       const v6 = gemstone.v6_text || null;
+      const selectedImageUuid = v6?.selected_image_uuid ?? null;
+      const recommendedPrimaryIndex =
+        v6?.recommended_primary_image_index ?? null;
+
+      const sortedImages = (gemstone.images || []).sort((a: any, b: any) => {
+        const orderA = typeof a.image_order === "number" ? a.image_order : 0;
+        const orderB = typeof b.image_order === "number" ? b.image_order : 0;
+        return orderA - orderB;
+      });
+
       return {
         ...gemstone,
-        images: gemstone.images || [],
+        images: sortedImages,
         origin: gemstone.origin || null,
         certifications: gemstone.certifications || [],
         ai_analysis: (gemstone.ai_analysis || []).filter(
           (analysis: any) => analysis.confidence_score >= 0.5
         ),
         v6_text: v6,
+        selected_image_uuid: selectedImageUuid,
+        recommended_primary_image_index: recommendedPrimaryIndex,
       };
     });
 

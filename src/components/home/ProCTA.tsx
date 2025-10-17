@@ -31,7 +31,7 @@ export function ProCTA({
         >
           {backgroundImageSrc ? (
             <div
-              className="absolute inset-0 opacity-[0.08] dark:opacity-[0.15]"
+              className="absolute inset-0 opacity-[0.08] dark:opacity-[0.15] pointer-events-none"
               aria-hidden
             >
               <img

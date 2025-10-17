@@ -30,3 +30,4 @@ COMMENT ON COLUMN gemstones_ai_v6.color_matches_metadata IS 'Whether AI-detected
 COMMENT ON COLUMN gemstones_ai_v6.color_detection_reasoning IS 'AI reasoning for color detection';
 COMMENT ON COLUMN gemstones_ai_v6.detected_color_description IS 'Detailed color description from AI (e.g., smoky brown with amber undertones)';
 
+

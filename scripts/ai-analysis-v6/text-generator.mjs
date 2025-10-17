@@ -163,10 +163,25 @@ function formatMetadata(metadata, detectedCut = null, detectedColor = null) {
   // Use AI-detected color if available, otherwise use metadata
   const colorToUse = detectedColor || metadata.color;
 
+  // Format quantity information
+  const quantity = metadata.quantity || 1;
+  const quantityText =
+    quantity === 1
+      ? "1 stone (use singular language)"
+      : `${quantity} stones (use ${
+          quantity === 2 ? "pair" : quantity === 3 ? "trio" : "plural"
+        } language)`;
+
+  // Format price (stored in cents, convert to dollars)
+  const priceInDollars = (metadata.price_amount / 100).toFixed(2);
+
   return `
 GEMSTONE METADATA:
 - Type: ${metadata.name}
-- Weight: ${metadata.weight_carats} carats
+- Quantity: ${quantityText}
+- Weight: ${metadata.weight_carats} carats (${
+    quantity > 1 ? "total weight for all stones" : "single stone"
+  })
 - Dimensions: ${metadata.length_mm} × ${metadata.width_mm} × ${
     metadata.depth_mm
   } mm
@@ -176,9 +191,11 @@ GEMSTONE METADATA:
 - Origin: ${metadata.origin_name || "Unknown"}${
     metadata.origin_country ? `, ${metadata.origin_country}` : ""
   }${metadata.origin_region ? ` (${metadata.origin_region})` : ""}
-- Price: ${metadata.price_amount} ${metadata.price_currency}
+- Price: $${priceInDollars} ${metadata.price_currency}
 
-IMPORTANT: Do NOT include the serial number in any generated descriptions. It is for internal reference only and should never appear in customer-facing content (technical description, emotional description, story, etc.).
+IMPORTANT: 
+1. Do NOT include the serial number in any generated descriptions. It is for internal reference only and should never appear in customer-facing content (technical description, emotional description, story, etc.).
+2. Use the correct singular/plural language based on the QUANTITY field above throughout ALL generated text.
 `.trim();
 }
 
@@ -231,11 +248,27 @@ WRITING STYLE:
 - Marketing highlights: Concise, compelling, benefit-focused (3-5 points)
 - Promotional text: Aspirational, occasion-focused (100-150 words)
 
+QUANTITY-AWARE LANGUAGE (CRITICAL):
+Pay close attention to the QUANTITY field in the metadata:
+- If quantity = 1: Use singular forms ("this gemstone", "it displays", "the stone")
+- If quantity = 2: Use pair language ("this matched pair", "these two stones", "they display")
+- If quantity = 3: Use trio language ("this trio", "these three gemstones", "they showcase")
+- If quantity > 3: Use plural forms with count ("these [N] gemstones", "this collection of [N] stones")
+
+Examples of quantity-aware descriptions:
+- Quantity 1: "This exquisite sapphire displays remarkable clarity and vibrant color..."
+- Quantity 2: "This matched pair of rubies exhibits exceptional color uniformity, with both stones displaying..."
+- Quantity 3: "This trio of emeralds showcases vibrant green hues, with all three stones presenting..."
+- Quantity 5: "This collection of five diamonds demonstrates consistent quality, with each stone exhibiting..."
+
+Apply quantity-aware language consistently across ALL generated text fields (technical, emotional, story, etc.).
+
 BILINGUAL REQUIREMENTS:
 - Russian translations must be natural, not literal
 - Maintain cultural appropriateness for both markets
 - Preserve meaning and emotional impact across languages
 - Use proper gemological terminology in both languages
+- Apply quantity-aware language in Russian too (этот камень / эта пара / эти три камня)
 
 QUALITY STANDARDS:
 - Ground all technical claims in the provided metadata

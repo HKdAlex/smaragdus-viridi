@@ -270,7 +270,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                 <div className="space-y-3">
                   {/* Main Title - First, with gradient shadow */}
                   <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight capitalize bg-gradient-to-br from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent drop-shadow-sm">
-                    {translateColor(gemstone.color)}{" "}
+                    {translateColor(gemstone.ai_color || gemstone.color)}{" "}
                     {translateGemstoneType(gemstone.name)}
                   </h1>
 
@@ -566,7 +566,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
                 {/* 4Cs */}
                 <div className="bg-gradient-to-br from-muted/30 to-card p-6 rounded-xl border border-border shadow-sm">
                   <h4 className="font-bold text-base text-foreground mb-4 flex items-center">
@@ -591,11 +591,11 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                       </div>
                       <div className="flex items-center space-x-2">
                         <ColorIndicator
-                          color={gemstone.color}
+                          color={gemstone.ai_color || gemstone.color}
                           className="w-4 h-4"
                         />
                         <span className="font-semibold text-foreground capitalize">
-                          {translateColor(gemstone.color)}
+                          {translateColor(gemstone.ai_color || gemstone.color)}
                         </span>
                       </div>
                     </div>

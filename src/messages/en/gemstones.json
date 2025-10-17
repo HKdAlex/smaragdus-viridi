@@ -43,7 +43,8 @@
     "triangle": "Triangle",
     "cabochon": "Cabochon",
     "pentagon": "Pentagon",
-    "hexagon": "Hexagon"
+    "hexagon": "Hexagon",
+    "rectangle": "Rectangle"
   },
   "colors": {
     "D": "D (Colorless)",

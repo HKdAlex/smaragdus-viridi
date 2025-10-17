@@ -92,3 +92,4 @@ COMMENT ON COLUMN colors.color_code IS 'Unique color identifier (e.g., brown, sm
 COMMENT ON COLUMN colors.hex_value IS 'Hex color code for UI display';
 COMMENT ON COLUMN colors.sort_order IS 'Display order for UI';
 
+

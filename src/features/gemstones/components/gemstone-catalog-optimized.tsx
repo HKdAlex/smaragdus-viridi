@@ -15,20 +15,20 @@
 
 "use client";
 
-// Types
 import type {
   AdvancedGemstoneFilters,
   FilterOptions,
 } from "../types/filter.types";
+// Types
 import { useCallback, useMemo, useState } from "react";
 
 import { CatalogHeader } from "./catalog-header";
 import { EmptyState } from "./empty-state";
-// Filter sidebar component
 import { FilterSidebar } from "./filters/filter-sidebar";
 import { GemstoneGrid } from "./gemstone-grid";
 import { LoadingState } from "./loading-state";
 import { PaginationControls } from "./pagination-controls";
+// Filter sidebar component
 import { queryStringToFilters } from "../utils/filter-url.utils";
 // Shared components from Phase 0
 import { useFilterCountsQuery } from "../hooks/use-filter-counts-query";
@@ -143,7 +143,7 @@ export function GemstoneCatalogOptimized() {
     : undefined;
 
   return (
-    <div className="space-y-8">
+    <div className="">
       {/* Header */}
       <CatalogHeader title={t("title")} description={t("description")} />
 

@@ -39,6 +39,8 @@ export interface CatalogGemstone extends DatabaseGemstone {
   displayCut?: string;
   displayClarity?: string;
   relevance_score?: number;
+  selected_image_uuid?: string | null;
+  recommended_primary_image_index?: number | null;
 }
 
 export interface PaginationMeta {

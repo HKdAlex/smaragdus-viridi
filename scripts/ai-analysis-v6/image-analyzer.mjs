@@ -187,7 +187,8 @@ export async function detectGemstoneCut(options) {
   }
 
   // Analyze ALL images if 15 or fewer, otherwise sample 10 for cost efficiency
-  const maxImages = images.length <= 15 ? images.length : Math.min(10, images.length);
+  const maxImages =
+    images.length <= 15 ? images.length : Math.min(10, images.length);
 
   // Create mapping between shuffled indices and original indices
   const originalIndices = Array.from({ length: images.length }, (_, i) => i);
@@ -198,22 +199,32 @@ export async function detectGemstoneCut(options) {
   const systemPrompt = `You are an expert gemologist with extensive experience in identifying gemstone cuts and shapes.
 Your task is to analyze the provided gemstone images and determine the cut/shape with high accuracy.
 
-Common cuts include:
-- Round (circular)
-- Princess (square with pointed corners)
-- Emerald (rectangular with cut corners)
-- Cushion (square/rectangular with rounded corners)
-- Oval
-- Pear (teardrop)
-- Marquise (football/navette)
-- Asscher (square with cropped corners)
-- Radiant (rectangular with cropped corners)
-- Heart
-- Trillion (triangular)
-- Baguette (long rectangular)
+IMPORTANT: You MUST use one of these EXACT cut names (lowercase):
+- round (circular)
+- oval
+- pear (teardrop)
+- emerald (rectangular with cut corners, also called step cut)
+- princess (square with pointed corners)
+- cushion (square/rectangular with rounded corners)
+- asscher (square with cropped corners, octagonal outline)
+- radiant (rectangular with trimmed corners, brilliant faceting)
+- heart (heart shape)
+- marquise (football/navette, pointed at both ends)
+- baguette (long rectangular)
+- cabochon (smooth domed top, no facets)
+- hexagon (six-sided)
+- pentagon (five-sided)
+- triangle (three-sided, also called trillion)
+- rhombus (four-sided diamond shape)
+- trapezoid (four-sided with parallel sides)
+- fantasy (freeform/artistic cuts)
 
-Analyze the shape, faceting pattern, and proportions carefully.
-Compare your detection with the metadata cut provided and flag any discrepancies.`;
+CRITICAL RULES:
+1. Use EXACTLY these names (lowercase) - do not add suffixes like "-shaped", "-cut", or variations
+2. For example: use "triangle" NOT "triangular", "pentagon" NOT "pentagonal"
+3. If uncertain between two cuts, choose the most common one
+4. Analyze shape, faceting pattern, and proportions carefully
+5. Compare with metadata and flag discrepancies`;
 
   const userPrompt = `Please analyze these gemstone image(s) and detect the cut/shape.
 
@@ -307,7 +318,8 @@ export async function detectGemstoneColor(options) {
   }
 
   // Analyze ALL images if 15 or fewer, otherwise sample 10 for cost efficiency
-  const maxImages = images.length <= 15 ? images.length : Math.min(10, images.length);
+  const maxImages =
+    images.length <= 15 ? images.length : Math.min(10, images.length);
 
   // Create mapping between shuffled indices and original indices
   const originalIndices = Array.from({ length: images.length }, (_, i) => i);
@@ -479,7 +491,8 @@ Choose the image that best showcases the gemstone, with STRICT preference for im
 **SELECTION RULE**: STRONGLY prefer images without measurement tools. Clean presentation is the #1 priority.`;
 
   // Analyze ALL images if 15 or fewer, otherwise sample 10 for cost efficiency
-  const maxImages = images.length <= 15 ? images.length : Math.min(10, images.length);
+  const maxImages =
+    images.length <= 15 ? images.length : Math.min(10, images.length);
 
   // Create mapping using UUIDs if available, otherwise fall back to indices
   let selectedImageData, imagesToAnalyze;
@@ -572,14 +585,29 @@ Select the best image as primary and explain your choice.`;
 
     // Map the selected index back to the original image using UUID
     let originalSelectedIndex;
-    let selectedImageInfo = null;
+    let selectedImageUuid = null;
 
     if (imageData && imageData.length === images.length) {
       // Use UUID-based mapping
-      selectedImageInfo = selectedImageData[result.selected_index];
+      const selectedImageInfo = selectedImageData[result.selected_index];
+
+      if (!selectedImageInfo) {
+        throw new Error(
+          `Selected index ${result.selected_index} is out of bounds for selectedImageData (length: ${selectedImageData.length})`
+        );
+      }
+
       originalSelectedIndex = imageData.findIndex(
         (img) => img.id === selectedImageInfo.id
       );
+
+      if (originalSelectedIndex === -1) {
+        throw new Error(
+          `Could not find image with UUID ${selectedImageInfo.id} in original imageData`
+        );
+      }
+
+      selectedImageUuid = selectedImageInfo.id;
     } else {
       // Fallback to index-based mapping
       const selectedIndices = Array.from({ length: images.length }, (_, i) => i)
@@ -591,10 +619,7 @@ Select the best image as primary and explain your choice.`;
     return {
       ...result,
       selected_index: originalSelectedIndex, // Return the original index, not shuffled
-      selected_image_uuid:
-        imageData && imageData.length === images.length
-          ? selectedImageInfo?.id
-          : null,
+      selected_image_uuid: selectedImageUuid, // UUID of the selected image
       images_analyzed: imagesToAnalyze.length,
       model: VISION_MODEL,
     };

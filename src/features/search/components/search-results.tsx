@@ -6,27 +6,23 @@
 
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { useEffect, useMemo, useState } from "react";
 
-import type { CatalogGemstone } from "@/features/gemstones/services/gemstone-fetch.service";
-import { DescriptionSearchToggle } from "./description-search-toggle";
 import { EmptyState } from "@/features/gemstones/components/empty-state";
-import { FilterSidebar } from "@/features/gemstones/components/filters/filter-sidebar";
-import { FuzzySearchBanner } from "./fuzzy-search-banner";
 import { GemstoneGrid } from "@/features/gemstones/components/gemstone-grid";
 import { LoadingState } from "@/features/gemstones/components/loading-state";
 import { PaginationControls } from "@/features/gemstones/components/pagination-controls";
-import { SearchInput } from "./search-input";
-import { TranslationService } from "@/features/translations/services/translation.service";
-import { queryKeys } from "@/lib/react-query/query-keys";
 import { useFilterCountsQuery } from "@/features/gemstones/hooks/use-filter-counts-query";
 import { useFilterState } from "@/features/gemstones/hooks/use-filter-state";
 import { useFilterUrlSync } from "@/features/gemstones/hooks/use-filter-url-sync";
-import { useQuery } from "@tanstack/react-query";
-import { useSearchParams } from "next/navigation";
+import type { CatalogGemstone } from "@/features/gemstones/services/gemstone-fetch.service";
 import { useSearchQuery } from "@/features/search/hooks/use-search-query";
 import { useTypeSafeRouter } from "@/lib/navigation/type-safe-router";
+import { useSearchParams } from "next/navigation";
+import { DescriptionSearchToggle } from "./description-search-toggle";
+import { FuzzySearchBanner } from "./fuzzy-search-banner";
+import { SearchInput } from "./search-input";
 
 const PAGE_SIZE = 24;
 
@@ -74,80 +70,32 @@ export function SearchResults() {
     searchDescriptions,
   });
 
-  const { data: typeTranslations } = useQuery({
-    queryKey: queryKeys.translations.list(locale, "type"),
-    queryFn: () => TranslationService.getGemstoneTypes(locale),
-    staleTime: 24 * 60 * 60 * 1000,
-  });
-
-  const { data: colorTranslations } = useQuery({
-    queryKey: queryKeys.translations.list(locale, "color"),
-    queryFn: () => TranslationService.getGemColors(locale),
-    staleTime: 24 * 60 * 60 * 1000,
-  });
-
-  const { data: cutTranslations } = useQuery({
-    queryKey: queryKeys.translations.list(locale, "cut"),
-    queryFn: () => TranslationService.getGemCuts(locale),
-    staleTime: 24 * 60 * 60 * 1000,
-  });
-
-  const { data: clarityTranslations } = useQuery({
-    queryKey: queryKeys.translations.list(locale, "clarity"),
-    queryFn: () => TranslationService.getGemClarities(locale),
-    staleTime: 24 * 60 * 60 * 1000,
-  });
-
   const results = data?.results ?? [];
+
+  // Prepare results with properly sorted images and AI data
+  // Translation is handled by GemstoneCard using useGemstoneTranslations hook
   const decoratedResults = useMemo<CatalogGemstone[]>(() => {
     return results.map((gemstone) => {
       const baseGemstone = gemstone as CatalogGemstone;
-      const baseTypeCode = baseGemstone.type_code ?? baseGemstone.name ?? "";
-      const baseColorCode = baseGemstone.color_code ?? baseGemstone.color ?? "";
-      const baseCutCode = baseGemstone.cut_code ?? baseGemstone.cut ?? "";
-      const baseClarityCode =
-        baseGemstone.clarity_code ?? baseGemstone.clarity ?? "";
 
-      const displayName =
-        (baseTypeCode && typeTranslations?.get(baseTypeCode)?.name) ??
-        typeTranslations?.get(baseGemstone.name)?.name ??
-        baseGemstone.name;
-
-      const displayColor =
-        (baseColorCode && colorTranslations?.get(baseColorCode)?.name) ??
-        colorTranslations?.get(baseGemstone.color)?.name ??
-        baseGemstone.color;
-
-      const displayCut =
-        typeof baseGemstone.cut === "string"
-          ? (baseCutCode && cutTranslations?.get(baseCutCode)?.name) ??
-            cutTranslations?.get(baseGemstone.cut)?.name ??
-            baseGemstone.cut
-          : undefined;
-
-      const displayClarity =
-        typeof baseGemstone.clarity === "string"
-          ? (baseClarityCode &&
-              clarityTranslations?.get(baseClarityCode)?.name) ??
-            clarityTranslations?.get(baseGemstone.clarity)?.name ??
-            baseGemstone.clarity
-          : undefined;
+      const sortedImages = [...(baseGemstone.images ?? [])].sort((a, b) => {
+        const orderA = typeof a.image_order === "number" ? a.image_order : 0;
+        const orderB = typeof b.image_order === "number" ? b.image_order : 0;
+        return orderA - orderB;
+      });
 
       return {
         ...baseGemstone,
-        displayName,
-        displayColor,
-        displayCut,
-        displayClarity,
+        images: sortedImages,
+        selected_image_uuid: baseGemstone.selected_image_uuid,
+        recommended_primary_image_index:
+          baseGemstone.recommended_primary_image_index,
+        // Pass through AI data if available
+        ai_color: (baseGemstone as any).ai_color,
+        v6_text: (baseGemstone as any).v6_text,
       };
     });
-  }, [
-    results,
-    typeTranslations,
-    colorTranslations,
-    cutTranslations,
-    clarityTranslations,
-  ]);
+  }, [results]);
 
   const totalCount = data?.pagination.totalCount || 0;
 

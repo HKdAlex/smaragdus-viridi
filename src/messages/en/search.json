@@ -6,6 +6,15 @@
   "serialNumber": "Serial Number",
   "type": "Type",
   "color": "Color",
+  "cut": "Cut",
+  "clarity": "Clarity",
+  "categories": {
+    "serial_number": "serial number",
+    "type": "type",
+    "color": "color",
+    "cut": "cut",
+    "clarity": "clarity"
+  },
   "resultsFor": "Search results for",
   "searchResults": "Search Results",
   "noResults": "No results found",

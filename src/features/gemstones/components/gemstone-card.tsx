@@ -21,12 +21,12 @@ import {
   GemstoneCutIcon,
   GemstoneTypeIcon,
 } from "@/shared/components/ui/gemstone-icons";
+import { useLocale, useTranslations } from "next-intl";
 
 import type { CatalogGemstone } from "../services/gemstone-fetch.service";
 import Link from "next/link";
 import { SafeImage } from "@/shared/components/ui/safe-image";
 import { useGemstoneTranslations } from "../utils/gemstone-translations";
-import { useTranslations } from "next-intl";
 
 // ===== TYPES =====
 
@@ -83,6 +83,7 @@ export function GemstoneCard({
   className = "",
 }: GemstoneCardProps) {
   const t = useTranslations("catalog");
+  const locale = useLocale();
   const {
     translateColor,
     translateCut,
@@ -90,17 +91,45 @@ export function GemstoneCard({
     translateGemstoneType,
   } = useGemstoneTranslations();
 
+  // Prioritization logic:
+  // 1. Use pre-translated displayX values if available (from search/catalog decorators)
+  // 2. Otherwise, prioritize AI-detected values and translate them
+  // 3. Finally fall back to manual values and translate them
+
   const typeLabel =
     gemstone.displayName ?? translateGemstoneType(gemstone.name);
-  const colorLabel = gemstone.displayColor ?? translateColor(gemstone.color);
+
+  // For color and cut, prioritize AI-detected values for the actual data
+  // but respect pre-translated displayColor/displayCut for the label
+  const effectiveColor = (gemstone as any).ai_color || gemstone.color;
+  const effectiveCut = (gemstone as any).v6_text?.detected_cut || gemstone.cut;
+
+  const colorLabel = gemstone.displayColor ?? translateColor(effectiveColor);
   const cutLabel =
-    gemstone.displayCut ?? (gemstone.cut ? translateCut(gemstone.cut) : null);
+    gemstone.displayCut ?? (effectiveCut ? translateCut(effectiveCut) : null);
   const clarityLabel =
     gemstone.displayClarity ??
     (gemstone.clarity ? translateClarity(gemstone.clarity) : null);
 
-  const primaryImage =
-    gemstone.images?.find((img) => img.is_primary) || gemstone.images?.[0];
+  const primaryImage = (() => {
+    if (gemstone.selected_image_uuid && gemstone.images?.length) {
+      const match = gemstone.images.find(
+        (img) => img.id === gemstone.selected_image_uuid
+      );
+      if (match) return match;
+    }
+
+    if (
+      typeof gemstone.recommended_primary_image_index === "number" &&
+      gemstone.images?.[gemstone.recommended_primary_image_index]
+    ) {
+      return gemstone.images[gemstone.recommended_primary_image_index];
+    }
+
+    return (
+      gemstone.images?.find((img) => img.is_primary) || gemstone.images?.[0]
+    );
+  })();
 
   const formatPrice = (amount: number, currency: string) => {
     return new Intl.NumberFormat("en-US", {
@@ -157,7 +186,7 @@ export function GemstoneCard({
 
         {gemstone.in_stock && (
           <div className="absolute top-2 left-2 bg-green-600 text-white text-xs px-2 py-1 rounded shadow-sm">
-            Available
+            {t("product.inStock")}
           </div>
         )}
 
@@ -213,7 +242,7 @@ export function GemstoneCard({
               <span className="text-xs text-muted-foreground">
                 {t("color")}:
               </span>
-              <ColorIndicator color={gemstone.color} className="w-3 h-3" />
+              <ColorIndicator color={effectiveColor} className="w-3 h-3" />
               <span className="text-xs font-medium text-foreground">
                 {colorLabel}
               </span>
@@ -223,7 +252,7 @@ export function GemstoneCard({
             <div className="flex items-center space-x-2">
               <GemstoneCutIcon className="w-4 h-4 text-muted-foreground" />
               <span className="text-xs text-muted-foreground">{t("cut")}:</span>
-              <CutIcon cut={gemstone.cut} className="w-4 h-4" />
+              <CutIcon cut={effectiveCut} className="w-4 h-4" />
               <span className="text-xs font-medium text-foreground">
                 {cutLabel ?? t("unknown")}
               </span>
@@ -263,16 +292,26 @@ export function GemstoneCard({
           )}
         </div>
 
-        {/* Show emotional description snippet if available (prefer v6) */}
-        {((gemstone as any).v6_text?.emotional_description_en ||
-          gemstone.description_emotional_en ||
-          gemstone.description_emotional_ru) && (
-          <p className="text-sm text-muted-foreground line-clamp-2 mt-3 px-2">
-            {(gemstone as any).v6_text?.emotional_description_en ||
-              gemstone.description_emotional_en ||
-              gemstone.description_emotional_ru}
-          </p>
-        )}
+        {/* Show emotional description snippet if available (prefer v6, locale-aware) */}
+        {(() => {
+          const v6Text = (gemstone as any).v6_text;
+          const description =
+            locale === "ru"
+              ? v6Text?.emotional_description_ru ||
+                gemstone.description_emotional_ru ||
+                v6Text?.emotional_description_en ||
+                gemstone.description_emotional_en
+              : v6Text?.emotional_description_en ||
+                gemstone.description_emotional_en ||
+                v6Text?.emotional_description_ru ||
+                gemstone.description_emotional_ru;
+
+          return description ? (
+            <p className="text-sm text-muted-foreground line-clamp-2 mt-3 px-2">
+              {description}
+            </p>
+          ) : null;
+        })()}
       </div>
     </>
   );

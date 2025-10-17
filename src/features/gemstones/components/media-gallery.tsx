@@ -1,5 +1,10 @@
 "use client";
 
+import { Dialog, DialogContent } from "@/shared/components/ui/dialog";
+import type {
+  DatabaseGemstoneImage,
+  DatabaseGemstoneVideo,
+} from "@/shared/types";
 import {
   ChevronLeft,
   ChevronRight,
@@ -10,17 +15,12 @@ import {
   VolumeX,
   X,
 } from "lucide-react";
-import type {
-  DatabaseGemstoneImage,
-  DatabaseGemstoneVideo,
-} from "@/shared/types";
-import { Dialog, DialogContent } from "@/shared/components/ui/dialog";
 import { useEffect, useRef, useState } from "react";
 
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import Image from "next/image";
 import { useTranslations } from "next-intl";
+import Image from "next/image";
 
 interface MediaGalleryProps {
   images: DatabaseGemstoneImage[];
@@ -95,7 +95,7 @@ export function MediaGallery({
 
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
-  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(true); // Start as true since videos autoplay
   const [isVideoMuted, setIsVideoMuted] = useState(true);
   const [videoCurrentTime, setVideoCurrentTime] = useState(0);
   const [videoDuration, setVideoDuration] = useState(0);
@@ -146,17 +146,17 @@ export function MediaGallery({
   // Navigation
   const goToPrevious = () => {
     setCurrentIndex((prev) => (prev === 0 ? mediaItems.length - 1 : prev - 1));
-    setIsVideoPlaying(false);
+    // Videos will autoplay via useEffect
   };
 
   const goToNext = () => {
     setCurrentIndex((prev) => (prev === mediaItems.length - 1 ? 0 : prev + 1));
-    setIsVideoPlaying(false);
+    // Videos will autoplay via useEffect
   };
 
   const goToMedia = (index: number) => {
     setCurrentIndex(index);
-    setIsVideoPlaying(false);
+    // Videos will autoplay via useEffect
   };
 
   // Download functionality
@@ -187,7 +187,7 @@ export function MediaGallery({
   // Reset video state when switching media
   useEffect(() => {
     if (currentMedia?.type === "video") {
-      setIsVideoPlaying(false);
+      setIsVideoPlaying(true); // Videos autoplay
       setVideoCurrentTime(0);
     }
     // Reset image error when media changes
@@ -236,6 +236,9 @@ export function MediaGallery({
               poster={currentMedia.thumbnailUrl}
               className="w-full h-full object-contain rounded-lg"
               muted={isVideoMuted}
+              autoPlay
+              loop
+              playsInline
               onTimeUpdate={handleVideoTimeUpdate}
               onLoadedMetadata={handleVideoLoadedMetadata}
               onPlay={() => setIsVideoPlaying(true)}
@@ -401,20 +404,15 @@ export function MediaGallery({
                 />
               ) : (
                 <div className="relative w-full h-full bg-muted">
-                  {media.thumbnailUrl ? (
-                    <Image
-                      src={media.thumbnailUrl}
-                      alt={t("videoThumbnail")}
-                      fill
-                      className="object-cover"
-                      sizes="80px"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-muted flex items-center justify-center">
-                      <Play className="w-6 h-6 text-muted-foreground" />
-                    </div>
-                  )}
-                  <div className="absolute inset-0 bg-black/20 dark:bg-black/30 flex items-center justify-center">
+                  <video
+                    src={media.url}
+                    className="w-full h-full object-cover"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                  />
+                  <div className="absolute inset-0 bg-black/20 dark:bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                     <Play className="w-4 h-4 text-white dark:text-foreground" />
                   </div>
                 </div>

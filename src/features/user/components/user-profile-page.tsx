@@ -1,19 +1,6 @@
 "use client";
 
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui/card";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/shared/components/ui/tabs";
-import {
   Calendar,
   CreditCard,
   Heart,
@@ -23,15 +10,28 @@ import {
   ShoppingCart,
   User,
 } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
 import type { ProfileStats, UserProfile } from "../types/user-profile.types";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/shared/components/ui/tabs";
 
+import { ActivityFeed } from "./activity-feed";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { Separator } from "@/shared/components/ui/separator";
-import { useTranslations } from "next-intl";
-import { ActivityFeed } from "./activity-feed";
 import { OrderHistory } from "./order-history";
 import { ProfileSettings } from "./profile-settings";
+import { Separator } from "@/shared/components/ui/separator";
+import { useTranslations } from "next-intl";
 
 interface UserProfilePageProps {
   user: UserProfile;
@@ -89,7 +89,7 @@ export function UserProfilePage({
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
-      <div className="space-y-8">
+      <div className="">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>

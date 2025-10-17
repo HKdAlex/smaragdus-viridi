@@ -1,11 +1,11 @@
 /**
  * Search Suggestions API Route
- * 
+ *
  * GET /api/search/suggestions?query=ruby&limit=10
- * 
+ *
  * Provides autocomplete suggestions using trigram similarity.
  * Returns suggestions from serial numbers, types, colors, and origins.
- * 
+ *
  * Features:
  * - Fuzzy matching with pg_trgm
  * - Multiple suggestion categories
@@ -14,8 +14,9 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { searchSuggestionsSchema } from "@/lib/validators/search.validator";
+
 import { SearchService } from "@/features/search/services/search.service";
+import { searchSuggestionsSchema } from "@/lib/validators/search.validator";
 
 export const runtime = "edge";
 export const dynamic = "force-dynamic";
@@ -27,20 +28,22 @@ export const dynamic = "force-dynamic";
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    
+
     // Parse and validate query params
     const query = searchParams.get("query");
     const limit = Number(searchParams.get("limit") || 10);
-    
+    const locale = searchParams.get("locale") || "en";
+
     // Validate
     const validatedData = searchSuggestionsSchema.parse({ query, limit });
-    
+
     // Get suggestions
     const suggestions = await SearchService.getSuggestions(
       validatedData.query,
-      validatedData.limit
+      validatedData.limit,
+      locale
     );
-    
+
     // Return suggestions
     return NextResponse.json(suggestions, {
       status: 200,
@@ -51,7 +54,7 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("[API /search/suggestions] Error:", error);
-    
+
     // Zod validation errors
     if (error instanceof Error && error.name === "ZodError") {
       return NextResponse.json(
@@ -62,7 +65,7 @@ export async function GET(request: NextRequest) {
         { status: 400 }
       );
     }
-    
+
     // Service errors
     if (error instanceof Error) {
       return NextResponse.json(
@@ -73,7 +76,7 @@ export async function GET(request: NextRequest) {
         { status: 500 }
       );
     }
-    
+
     // Unknown errors
     return NextResponse.json(
       {
@@ -84,4 +87,3 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-

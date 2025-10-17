@@ -24,7 +24,8 @@ export interface SearchSuggestionsResponse {
  */
 async function fetchSearchSuggestions(
   query: string,
-  limit: number = 10
+  limit: number = 10,
+  locale: string = "en"
 ): Promise<SearchSuggestionsResponse> {
   if (!query || query.length < 2) {
     return { suggestions: [] };
@@ -33,6 +34,7 @@ async function fetchSearchSuggestions(
   const params = new URLSearchParams({
     query,
     limit: limit.toString(),
+    locale,
   });
 
   const response = await fetch(`/api/search/suggestions?${params}`);
@@ -53,24 +55,25 @@ async function fetchSearchSuggestions(
  * - Returns empty array immediately for short queries
  *
  * @param query - Search query (minimum 2 characters)
- * @param options - Query options
+ * @param options - Query options including locale
  */
 export function useSearchSuggestionsQuery(
   query: string,
   options: {
     enabled?: boolean;
     limit?: number;
+    locale?: string;
   } = {}
 ) {
-  const { enabled = true, limit = 10 } = options;
+  const { enabled = true, limit = 10, locale = "en" } = options;
 
   // Normalize query
   const normalizedQuery = query.trim();
   const isQueryValid = normalizedQuery.length >= 2;
 
   return useQuery({
-    queryKey: ["searchSuggestions", normalizedQuery, limit],
-    queryFn: () => fetchSearchSuggestions(normalizedQuery, limit),
+    queryKey: ["searchSuggestions", normalizedQuery, limit, locale],
+    queryFn: () => fetchSearchSuggestions(normalizedQuery, limit, locale),
     enabled: enabled && isQueryValid,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes

@@ -37,6 +37,7 @@ export async function getGemstoneForTextGeneration(gemstoneId) {
       clarity_code,
       cut,
       cut_code,
+      quantity,
       price_amount,
       price_currency,
       origin_id,

@@ -6,6 +6,15 @@
   "serialNumber": "Серийный номер",
   "type": "Тип",
   "color": "Цвет",
+  "cut": "Огранка",
+  "clarity": "Чистота",
+  "categories": {
+    "serial_number": "серийный номер",
+    "type": "тип",
+    "color": "цвет",
+    "cut": "огранка",
+    "clarity": "чистота"
+  },
   "resultsFor": "Результаты поиска для",
   "searchResults": "Результаты поиска",
   "noResults": "Результаты не найдены",

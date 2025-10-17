@@ -12,9 +12,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 
 import { useSearchSuggestionsQuery } from "../hooks/use-search-suggestions-query";
-import { useTranslations } from "next-intl";
 import { useTypeSafeRouter } from "@/lib/navigation/type-safe-router";
 
 export interface SearchInputProps {
@@ -36,6 +36,7 @@ export function SearchInput({
 }: SearchInputProps) {
   const t = useTranslations("search");
   const router = useTypeSafeRouter();
+  const locale = useLocale();
 
   const [query, setQuery] = useState(defaultValue);
   const [debouncedQuery, setDebouncedQuery] = useState(defaultValue);
@@ -54,9 +55,10 @@ export function SearchInput({
     return () => clearTimeout(timer);
   }, [query]);
 
-  // Fetch suggestions
+  // Fetch suggestions with current locale
   const { data, isLoading } = useSearchSuggestionsQuery(debouncedQuery, {
     enabled: showSuggestions && debouncedQuery.length >= 2,
+    locale,
   });
 
   const suggestions = data?.suggestions || [];
@@ -166,10 +168,27 @@ export function SearchInput({
     const badges = {
       serial_number: {
         label: t("serialNumber"),
-        color: "bg-blue-100 text-blue-800",
+        color: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
       },
-      type: { label: t("type"), color: "bg-purple-100 text-purple-800" },
-      color: { label: t("color"), color: "bg-green-100 text-green-800" },
+      type: {
+        label: t("type"),
+        color:
+          "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
+      },
+      color: {
+        label: t("color"),
+        color:
+          "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+      },
+      cut: {
+        label: t("cut"),
+        color:
+          "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200",
+      },
+      clarity: {
+        label: t("clarity"),
+        color: "bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200",
+      },
     };
     return badges[category as keyof typeof badges] || badges.type;
   };

@@ -44,8 +44,8 @@
   "total": "Итого",
   "subtotal": "Промежуточный итог",
   "quantity": "Количество",
-  "available": "Доступно",
-  "unavailable": "Недоступно",
+  "available": "В наличии",
+  "unavailable": "Нет в наличии",
   "inStock": "В наличии",
   "outOfStock": "Нет в наличии",
   "about": {

@@ -64,6 +64,7 @@ const nextConfig: NextConfig = {
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: https: blob:",
               "font-src 'self' data:",
+              "media-src 'self' *.supabase.co blob: data:",
               "connect-src 'self' *.supabase.co wss: ws:",
               "frame-src 'self'",
               "object-src 'none'",

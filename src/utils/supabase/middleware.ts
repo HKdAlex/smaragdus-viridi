@@ -311,6 +311,7 @@ function addSecurityHeaders(response: NextResponse) {
     "script-src 'self' 'unsafe-inline' 'unsafe-eval' *.supabase.co",
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: https: *.supabase.co",
+    "media-src 'self' *.supabase.co blob: data:",
     "connect-src 'self' *.supabase.co",
     "font-src 'self'",
     "frame-ancestors 'none'",
