@@ -90,21 +90,21 @@ export function CartItem({
       </div>
 
       {/* Main content */}
-      <div className="flex gap-4 ml-6">
+      <div className="flex gap-4 ml-6 items-stretch">
         {/* Gemstone Image */}
-        <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0">
+        <div className="relative w-24 h-full min-h-[120px] flex-shrink-0">
           {primaryImage ? (
             <Image
               src={primaryImage.image_url}
               alt={gemstone.name}
               fill
               className="object-cover rounded-lg shadow-sm"
-              sizes="(max-width: 640px) 80px, 96px"
+              sizes="96px"
             />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-muted to-muted/60 rounded-lg flex items-center justify-center">
               <svg
-                className="h-6 w-6 text-muted-foreground"
+                className="h-8 w-8 text-muted-foreground"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"

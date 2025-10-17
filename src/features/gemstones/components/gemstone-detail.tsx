@@ -1,6 +1,13 @@
 "use client";
 
 import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
+import { ColorIndicator, CutIcon } from "@/shared/components/ui/gemstone-icons";
+import {
   Heart,
   Info,
   Ruler,
@@ -11,13 +18,6 @@ import {
   Sparkles,
   Truck,
 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui/card";
-import { ColorIndicator, CutIcon } from "@/shared/components/ui/gemstone-icons";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
 
@@ -228,7 +228,6 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                 {gemstone.serial_number}
               </span>
             </nav>
-
           </div>
         </div>
       </div>
