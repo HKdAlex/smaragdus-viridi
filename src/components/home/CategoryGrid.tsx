@@ -1,10 +1,4 @@
-import {
-  duration,
-  ease,
-  radius,
-  shadowHover,
-  shadowSoft,
-} from "@/lib/ux/tokens";
+import { duration, ease, radius, shadowHover } from "@/lib/ux/tokens";
 
 import { Card } from "@/shared/components/ui/card";
 import { Container } from "@/components/ui/Container";

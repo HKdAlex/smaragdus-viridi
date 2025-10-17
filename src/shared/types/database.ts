@@ -2310,6 +2310,7 @@ export type Database = {
           origin_id: string
           price_amount: number
           price_currency: string
+          quantity: number
           relevance_score: number
           serial_number: string
           total_count: number
