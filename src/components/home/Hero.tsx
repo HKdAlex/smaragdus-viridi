@@ -32,7 +32,7 @@ export function Hero({
     <section className="bg-background">
       <Container className="grid items-center gap-8 sm:gap-10 md:gap-12 lg:grid-cols-2 py-12 sm:py-16 md:py-20 lg:py-24">
         {/* Copy */}
-        <div>
+        <div className="text-center lg:text-left">
           <h1 className="font-serif tracking-tight text-2xl sm:text-3xl md:text-5xl lg:text-6xl leading-tight text-foreground">
             {title}
           </h1>
@@ -40,7 +40,7 @@ export function Hero({
             {subtitle}
           </p>
 
-          <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4">
+          <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
             <Button asChild size="lg" className={`${duration} ${ease}`}>
               <Link
                 href={primaryHref}
@@ -66,7 +66,7 @@ export function Hero({
 
           {/* Trust strip */}
           {trustItems?.length ? (
-            <div className="mt-4 sm:mt-6 md:mt-8">
+            <div className="mt-4 sm:mt-6 md:mt-8 flex justify-center lg:justify-start">
               <div className="flex flex-col sm:flex-row sm:flex-wrap items-center justify-center gap-3 sm:gap-x-6 sm:gap-y-2 text-sm sm:text-base text-foreground">
                 {trustItems.map((label, idx) => (
                   <div

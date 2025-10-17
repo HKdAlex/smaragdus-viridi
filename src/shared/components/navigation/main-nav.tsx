@@ -149,7 +149,7 @@ export function MainNav() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <div className="flex items-center">
-            <Logo variant="inline" size="xxl" href="/" showText={true} />
+            <Logo variant="inline" size="xl" href="/" showText={true} />
           </div>
 
           {/* Desktop Navigation */}
