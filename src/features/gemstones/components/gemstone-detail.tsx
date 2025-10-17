@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  ArrowLeft,
   Heart,
   Info,
   Ruler,
@@ -230,15 +229,6 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
               </span>
             </nav>
 
-            {/* Back Button */}
-            <Button
-              variant="ghost"
-              onClick={() => router.back()}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              {t("backToCatalog")}
-            </Button>
           </div>
         </div>
       </div>
