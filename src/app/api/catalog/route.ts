@@ -92,6 +92,7 @@ export async function GET(request: NextRequest) {
         premium_price_amount,
         premium_price_currency,
         in_stock,
+        quantity,
         delivery_days,
         internal_code,
         serial_number,
