@@ -90,9 +90,9 @@ export function CartItem({
       </div>
 
       {/* Main content */}
-      <div className="flex gap-4 ml-6 items-stretch">
+      <div className="flex gap-4 ml-6 items-stretch min-h-[120px]">
         {/* Gemstone Image */}
-        <div className="relative w-24 h-full min-h-[120px] flex-shrink-0">
+        <div className="relative w-24 h-full flex-shrink-0">
           {primaryImage ? (
             <Image
               src={primaryImage.image_url}
