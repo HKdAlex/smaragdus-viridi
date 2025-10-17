@@ -279,11 +279,15 @@ export function MainNav() {
               </Link>
             )}
 
-            {/* Theme toggle */}
-            <ThemeToggle />
+            {/* Theme toggle - hidden on mobile, shown in mobile menu */}
+            <div className="hidden md:block">
+              <ThemeToggle />
+            </div>
 
-            {/* Language switcher */}
-            <LanguageSwitcher />
+            {/* Language switcher - hidden on mobile, shown in mobile menu */}
+            <div className="hidden md:block">
+              <LanguageSwitcher />
+            </div>
 
             {/* Auth buttons */}
             <div className="hidden sm:flex items-center space-x-3">
@@ -410,6 +414,20 @@ export function MainNav() {
                     {item.name}
                   </Link>
                 ))}
+
+              {/* Mobile controls section */}
+              <div className="px-3 py-2 space-y-3 border-t border-border">
+                {/* Theme toggle and language switcher */}
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-muted-foreground">
+                    {t("settings")}
+                  </span>
+                  <div className="flex items-center space-x-2">
+                    <ThemeToggle />
+                    <LanguageSwitcher />
+                  </div>
+                </div>
+              </div>
 
               {/* Mobile auth buttons */}
               <div className="px-3 py-2 space-y-2">
