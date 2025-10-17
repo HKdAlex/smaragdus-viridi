@@ -146,6 +146,15 @@ export function CartItem({
               {translateCut(gemstone.cut)}
             </span>
 
+            {/* Color */}
+            <div className="flex items-center gap-2">
+              <ColorIndicator color={gemstone.color} className="w-4 h-4" />
+              <span className="text-muted-foreground">Color</span>
+            </div>
+            <span className="font-medium text-foreground">
+              {translateColor(gemstone.color)}
+            </span>
+
             {/* Weight */}
             <div className="flex items-center gap-2">
               <Scale className="w-4 h-4 text-muted-foreground" />
