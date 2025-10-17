@@ -5,6 +5,7 @@ import {
   CutIcon,
   GemstoneTypeIcon,
 } from "@/shared/components/ui/gemstone-icons";
+import { Scale } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
 import type { CartItem as CartItemType } from "@/shared/types";
@@ -76,33 +77,34 @@ export function CartItem({
   }
 
   return (
-    <div className="border border-border rounded-lg p-4 bg-card hover:shadow-sm transition-shadow">
-      {/* Selection checkbox and item content */}
-      <div className="flex space-x-4">
-        {/* Selection checkbox */}
-        <div className="flex items-center min-h-[64px] sm:min-h-[80px]">
-          <input
-            type="checkbox"
-            checked={isSelected}
-            onChange={handleSelectionChange}
-            className="w-4 h-4 text-primary bg-background border-border rounded focus:ring-primary focus:ring-2"
-            disabled={isLoading}
-          />
-        </div>
+    <div className="group relative bg-card border border-border rounded-xl p-5 hover:shadow-md hover:border-primary/20 transition-all duration-200">
+      {/* Selection checkbox */}
+      <div className="absolute top-4 left-4 z-10">
+        <input
+          type="checkbox"
+          checked={isSelected}
+          onChange={handleSelectionChange}
+          className="w-4 h-4 text-primary bg-background border-border rounded focus:ring-primary focus:ring-2"
+          disabled={isLoading}
+        />
+      </div>
+
+      {/* Main content */}
+      <div className="flex gap-4 ml-6">
         {/* Gemstone Image */}
-        <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0">
+        <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0">
           {primaryImage ? (
             <Image
               src={primaryImage.image_url}
               alt={gemstone.name}
               fill
-              className="object-cover rounded-md"
-              sizes="(max-width: 640px) 64px, 80px"
+              className="object-cover rounded-lg shadow-sm"
+              sizes="(max-width: 640px) 80px, 96px"
             />
           ) : (
-            <div className="w-full h-full bg-muted rounded-md flex items-center justify-center">
+            <div className="w-full h-full bg-gradient-to-br from-muted to-muted/60 rounded-lg flex items-center justify-center">
               <svg
-                className="h-5 w-5 sm:h-6 sm:w-6 text-muted-foreground"
+                className="h-6 w-6 text-muted-foreground"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -119,44 +121,58 @@ export function CartItem({
         </div>
 
         {/* Gemstone Details */}
-        <div className="flex-1 min-w-0 space-y-2">
-          {/* Gemstone Type and Color with Icons */}
-          <div className="flex items-center space-x-2">
-            <GemstoneTypeIcon className="w-4 h-4 text-primary" />
-            <h3 className="font-medium text-foreground text-sm sm:text-base">
+        <div className="flex-1 min-w-0 space-y-3">
+          {/* Title */}
+          <div className="space-y-1">
+            <h3 className="font-semibold text-foreground text-base sm:text-lg leading-tight">
               {translateGemstoneType(gemstone.name)}
             </h3>
+            <div className="flex items-center gap-2">
+              <ColorIndicator color={gemstone.color} className="w-4 h-4" />
+              <span className="text-sm text-muted-foreground">
+                {translateColor(gemstone.color)}
+              </span>
+            </div>
           </div>
 
-          {/* Color with Icon */}
-          <div className="flex items-center space-x-2">
-            <ColorIndicator color={gemstone.color} className="w-3 h-3" />
-            <span className="text-sm text-muted-foreground">
-              {translateColor(gemstone.color)}
+          {/* Properties Grid */}
+          <div className="grid grid-cols-[auto_1fr] gap-3 text-sm">
+            {/* Cut */}
+            <div className="flex items-center gap-2">
+              <CutIcon cut={gemstone.cut} className="w-4 h-4 text-muted-foreground" />
+              <span className="text-muted-foreground">Cut</span>
+            </div>
+            <span className="font-medium text-foreground">
+              {translateCut(gemstone.cut)}
+            </span>
+
+            {/* Weight */}
+            <div className="flex items-center gap-2">
+              <Scale className="w-4 h-4 text-muted-foreground" />
+              <span className="text-muted-foreground">Weight</span>
+            </div>
+            <span className="font-medium text-foreground">
+              {gemstone.weight_carats}ct
+            </span>
+
+            {/* Serial Number */}
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 flex items-center justify-center">
+                <div className="w-2 h-2 rounded-full bg-muted-foreground" />
+              </div>
+              <span className="text-muted-foreground">Serial</span>
+            </div>
+            <span className="font-mono text-xs text-muted-foreground">
+              {gemstone.serial_number}
             </span>
           </div>
 
-          {/* Cut with Icon and Weight */}
-          <div className="flex items-center gap-3 text-xs sm:text-sm text-muted-foreground">
-            <div className="flex items-center space-x-1">
-              <CutIcon cut={gemstone.cut} className="w-3 h-3" />
-              <span className="bg-muted/50 px-2 py-1 rounded-md font-medium">
-                {translateCut(gemstone.cut)}
-              </span>
-            </div>
-            <span>•</span>
-            <span className="font-medium">{gemstone.weight_carats}ct</span>
-          </div>
-
-          {/* Serial Number */}
-          <p className="text-xs text-muted-foreground font-mono">
-            {gemstone.serial_number}
-          </p>
-
           {/* Price */}
-          <p className="text-sm font-semibold text-foreground">
-            {item.formatted_unit_price} {t("each")}
-          </p>
+          <div className="pt-2 border-t border-border">
+            <p className="text-lg font-bold text-foreground">
+              {item.formatted_unit_price} <span className="text-sm font-normal text-muted-foreground">{t("each")}</span>
+            </p>
+          </div>
         </div>
 
         {/* Remove Button */}
@@ -166,7 +182,7 @@ export function CartItem({
             size="sm"
             onClick={handleRemove}
             disabled={isLoading || isRemoving}
-            className="text-muted-foreground hover:text-destructive p-2 min-h-[64px] sm:min-h-[80px] min-w-[44px] flex items-center justify-center"
+            className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 p-2 rounded-lg transition-colors"
             aria-label={t("removeFromCart", { name: gemstone.name })}
           >
             {isRemoving ? (
