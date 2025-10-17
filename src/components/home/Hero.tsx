@@ -33,10 +33,10 @@ export function Hero({
       <Container className="grid items-center gap-8 sm:gap-10 md:gap-12 lg:grid-cols-2 py-12 sm:py-16 md:py-20 lg:py-24">
         {/* Copy */}
         <div className="text-center lg:text-left flex flex-col h-full">
-          <h1 className="font-serif tracking-tight text-2xl sm:text-3xl md:text-5xl lg:text-6xl leading-tight text-foreground">
+          <h1 className="font-serif tracking-tight text-4xl sm:text-3xl md:text-5xl lg:text-6xl leading-tight text-foreground px-2">
             {title}
           </h1>
-          <p className="mt-3 sm:mt-4 md:mt-6 text-xl sm:text-base md:text-base lg:text-base text-muted-foreground max-w-prose leading-relaxed text-center px-4 sm:px-6 md:px-8">
+          <p className="mt-3 sm:mt-4 md:mt-6 text-lg sm:text-base md:text-base lg:text-base text-muted-foreground max-w-prose leading-relaxed text-center px-4 sm:px-6 md:px-8">
             {subtitle}
           </p>
 
