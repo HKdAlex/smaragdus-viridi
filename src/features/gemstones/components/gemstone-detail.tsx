@@ -56,6 +56,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [cartMessage, setCartMessage] = useState<string | null>(null);
   const t = useTranslations("catalog.gemstone.detail");
+  const tCart = useTranslations("cart");
   const locale = useLocale(); // Use proper Next.js i18n locale hook
   const {
     translateColor,
@@ -131,7 +132,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
     });
 
     if (!user) {
-      setCartMessage("Please sign in to add items to your cart");
+      setCartMessage(tCart("messages.signInRequired"));
       setTimeout(() => setCartMessage(null), 3000);
       return;
     }
@@ -145,7 +146,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
     }
 
     if (!gemstone.in_stock) {
-      setCartMessage("This item is currently out of stock");
+      setCartMessage(tCart("messages.outOfStock"));
       setTimeout(() => setCartMessage(null), 3000);
       return;
     }
@@ -163,10 +164,10 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
       console.log("✅ Add to cart result:", success);
 
       if (success) {
-        setCartMessage("✅ Added to cart!");
+        setCartMessage(tCart("messages.addedToCart"));
         setTimeout(() => setCartMessage(null), 3000);
       } else {
-        setCartMessage("❌ Failed to add item to cart");
+        setCartMessage(tCart("messages.failedToAdd"));
         setTimeout(() => setCartMessage(null), 5000);
       }
     } catch (error) {

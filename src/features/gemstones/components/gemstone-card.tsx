@@ -20,11 +20,11 @@ import {
   GemstoneTypeIcon,
 } from "@/shared/components/ui/gemstone-icons";
 import { useLocale, useTranslations } from "next-intl";
-import { Scale } from "lucide-react";
 
 import type { CatalogGemstone } from "../services/gemstone-fetch.service";
 import Image from "next/image";
 import Link from "next/link";
+import { Scale } from "lucide-react";
 import { useGemstoneTranslations } from "../utils/gemstone-translations";
 
 // ===== TYPES =====

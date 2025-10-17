@@ -77,5 +77,15 @@
     "decreaseQuantity": "Decrease quantity",
     "increaseQuantity": "Increase quantity",
     "quantity": "Quantity"
+  },
+  "messages": {
+    "addedToCart": "✅ Added to cart!",
+    "failedToAdd": "❌ Failed to add item to cart",
+    "signInRequired": "Please sign in to add items to your cart",
+    "outOfStock": "This item is currently out of stock",
+    "itemAdded": "Item added to cart successfully",
+    "itemRemoved": "Item removed from cart",
+    "cartUpdated": "Cart updated successfully",
+    "cartCleared": "Cart cleared successfully"
   }
 }
