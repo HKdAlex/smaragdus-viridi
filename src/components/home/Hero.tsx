@@ -36,7 +36,7 @@ export function Hero({
           <h1 className="font-serif tracking-tight text-2xl sm:text-3xl md:text-5xl lg:text-6xl leading-tight text-foreground">
             {title}
           </h1>
-          <p className="mt-3 sm:mt-4 md:mt-6 text-sm sm:text-base md:text-lg text-muted-foreground max-w-prose leading-relaxed">
+          <p className="mt-3 sm:mt-4 md:mt-6 text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground max-w-prose leading-relaxed text-center px-4 sm:px-6 md:px-8">
             {subtitle}
           </p>
 
