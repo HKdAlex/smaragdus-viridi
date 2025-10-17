@@ -237,14 +237,37 @@ export function MainNav() {
                     className="fixed left-1/2 top-1/4 -translate-x-1/2 w-full max-w-2xl px-4"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <SearchInput
-                      autoFocus
-                      className="w-full shadow-2xl"
-                      onSearch={(query) => {
-                        setSearchOpen(false);
-                        router.push(`/search?q=${encodeURIComponent(query)}` as any);
-                      }}
-                    />
+                    <div className="relative">
+                      <SearchInput
+                        autoFocus
+                        className="w-full shadow-2xl"
+                        onSearch={(query) => {
+                          setSearchOpen(false);
+                          router.push(`/search?q=${encodeURIComponent(query)}` as any);
+                        }}
+                      />
+                      {/* Close button for mobile */}
+                      <button
+                        type="button"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 md:hidden p-1 text-muted-foreground hover:text-primary transition-colors"
+                        onClick={() => setSearchOpen(false)}
+                        aria-label={tAccessibility("close")}
+                      >
+                        <svg
+                          className="h-5 w-5"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth="1.5"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
@@ -341,7 +364,7 @@ export function MainNav() {
             {/* Mobile menu button */}
             <button
               type="button"
-              className="md:hidden p-2 text-muted-foreground hover:text-primary transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+              className="md:hidden p-2 text-muted-foreground hover:text-primary transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center relative z-[60]"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label={tAccessibility("toggleMenu")}
             >
