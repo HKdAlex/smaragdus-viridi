@@ -94,7 +94,7 @@ export function Logo({
       />
       {showText && (
         <span
-          className={`font-bold ${textSize} text-foreground transition-colors duration-300 hidden sm:block`}
+          className={`font-bold ${textSize} text-foreground transition-colors duration-300 hidden sm:block px-2 sm:px-3 text-center`}
         >
           Crystallique
         </span>
