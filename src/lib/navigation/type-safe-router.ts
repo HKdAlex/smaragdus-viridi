@@ -8,6 +8,7 @@
  */
 
 import { useRouter as useNextRouter, usePathname } from "next/navigation";
+import { useMemo } from "react";
 
 export interface TypeSafeRouter {
   /**
@@ -49,7 +50,7 @@ export interface TypeSafeRouter {
 export function useTypeSafeRouter(): TypeSafeRouter {
   const router = useNextRouter();
 
-  return {
+  return useMemo(() => ({
     pushDynamic: (url: string, options?: { scroll?: boolean }) => {
       router.push(url, options);
     },
@@ -60,7 +61,7 @@ export function useTypeSafeRouter(): TypeSafeRouter {
     forward: () => router.forward(),
     refresh: () => router.refresh(),
     prefetch: (href: string) => router.prefetch(href),
-  };
+  }), [router]);
 }
 
 /**

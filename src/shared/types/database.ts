@@ -2284,14 +2284,22 @@ export type Database = {
         }[]
       }
       search_gemstones_multilingual: {
-        Args: {
-          description_enabled?: boolean
-          effective_locale?: string
-          filters?: Json
-          page_number?: number
-          page_size?: number
-          search_query: string
-        }
+        Args:
+          | {
+              description_enabled?: boolean
+              effective_locale?: string
+              filters?: Json
+              page_number?: number
+              page_size?: number
+              search_query: string
+            }
+          | {
+              filters?: Json
+              page_num?: number
+              page_size?: number
+              search_locale?: string
+              search_query: string
+            }
         Returns: {
           clarity: string
           clarity_code: string
@@ -2310,7 +2318,6 @@ export type Database = {
           origin_id: string
           price_amount: number
           price_currency: string
-          quantity: number
           relevance_score: number
           serial_number: string
           total_count: number

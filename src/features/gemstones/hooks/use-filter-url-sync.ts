@@ -98,5 +98,5 @@ export function useFilterUrlSync(
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [filters, enabled, debounceMs, router, pathname]);
+  }, [filters, enabled, debounceMs]);
 }

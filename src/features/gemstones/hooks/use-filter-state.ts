@@ -43,9 +43,12 @@ export function useFilterState(
   const [filters, setFilters] = useState<AdvancedGemstoneFilters>(initialFilters);
 
   // Sync filters when initialFilters change (e.g., from URL changes)
+  // Only sync if initialFilters is not the default empty object
   useEffect(() => {
-    setFilters(initialFilters);
-  }, [initialFilters]);
+    if (Object.keys(initialFilters).length > 0) {
+      setFilters(initialFilters);
+    }
+  }, [JSON.stringify(initialFilters)]);
 
   const updateFilters = useCallback((updates: Partial<AdvancedGemstoneFilters>) => {
     setFilters(prev => ({ ...prev, ...updates }));

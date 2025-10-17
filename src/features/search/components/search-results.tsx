@@ -43,6 +43,9 @@ export function SearchResults() {
   const { filters, updateFilters, resetFilters, filterCount } =
     useFilterState();
 
+  // Memoize filters to prevent unnecessary re-renders
+  const memoizedFilters = useMemo(() => filters, [JSON.stringify(filters)]);
+
   // URL synchronization (opt-in side effect)
   useFilterUrlSync(filters);
 
@@ -73,7 +76,7 @@ export function SearchResults() {
     error,
   } = useInfiniteSearchQuery({
     query,
-    filters,
+    filters: memoizedFilters,
     pageSize: PAGE_SIZE,
     locale,
     searchDescriptions,
