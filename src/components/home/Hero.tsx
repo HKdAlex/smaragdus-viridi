@@ -30,17 +30,17 @@ export function Hero({
 }: HeroProps) {
   return (
     <section className="bg-background">
-      <Container className="grid items-center gap-10 md:gap-12 lg:grid-cols-2 py-16 sm:py-20 lg:py-24">
+      <Container className="grid items-center gap-8 sm:gap-10 md:gap-12 lg:grid-cols-2 py-12 sm:py-16 md:py-20 lg:py-24">
         {/* Copy */}
         <div>
-          <h1 className="font-serif tracking-tight text-3xl md:text-5xl lg:text-6xl leading-tight text-foreground">
+          <h1 className="font-serif tracking-tight text-2xl sm:text-3xl md:text-5xl lg:text-6xl leading-tight text-foreground">
             {title}
           </h1>
-          <p className="mt-4 md:mt-6 text-base md:text-lg text-muted-foreground max-w-prose">
+          <p className="mt-3 sm:mt-4 md:mt-6 text-sm sm:text-base md:text-lg text-muted-foreground max-w-prose leading-relaxed">
             {subtitle}
           </p>
 
-          <div className="mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4">
+          <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4">
             <Button asChild size="lg" className={`${duration} ${ease}`}>
               <Link
                 href={primaryHref}
@@ -66,10 +66,10 @@ export function Hero({
 
           {/* Trust strip */}
           {trustItems?.length ? (
-            <div className="mt-6 md:mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
+            <div className="mt-4 sm:mt-6 md:mt-8 flex flex-wrap items-center gap-x-4 sm:gap-x-6 gap-y-2 text-xs sm:text-sm text-muted-foreground">
               {trustItems.map((label, idx) => (
-                <div key={idx} className="flex items-center gap-2">
-                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary/80" />
+                <div key={idx} className="flex items-center gap-1.5 sm:gap-2">
+                  <span className="inline-block h-1 w-1 sm:h-1.5 sm:w-1.5 rounded-full bg-primary/80" />
                   <span>{label}</span>
                 </div>
               ))}
@@ -78,7 +78,7 @@ export function Hero({
         </div>
 
         {/* Visual */}
-        <div className="relative mx-auto max-w-md md:max-w-none w-full">
+        <div className="relative mx-auto max-w-sm sm:max-w-md md:max-w-none w-full order-first lg:order-last">
           <div
             className={`relative ${radius} ${shadowSoft} overflow-hidden bg-black dark:bg-black`}
             aria-hidden="true"
@@ -96,7 +96,7 @@ export function Hero({
                   "radial-gradient(60% 60% at 70% 30%, rgba(182,140,58,0.12) 0%, transparent 60%)",
               }}
             />
-            <div className="relative aspect-[4/3] md:aspect-[5/3]">
+            <div className="relative aspect-[4/3] sm:aspect-[4/3] md:aspect-[5/3]">
               <Image
                 src={imageSrc}
                 alt={imageAlt}

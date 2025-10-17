@@ -3,6 +3,7 @@ import { duration, ease, radius, shadowSoft } from "@/lib/ux/tokens";
 import { Card } from "@/shared/components/ui/card";
 import { Container } from "@/components/ui/Container";
 import type { LucideIcon } from "lucide-react";
+import Image from "next/image";
 
 export type ValueItem = {
   icon: LucideIcon;
@@ -18,25 +19,27 @@ export function ValueProps({ items }: { items: ValueItem[] }) {
         className="pointer-events-none absolute inset-0 opacity-[0.03] dark:opacity-[0.05] hidden md:block"
         aria-hidden
       >
-        <img
+        <Image
           src="/images/hero/hero-1.webp"
           alt=""
-          className="h-full w-full object-cover"
+          fill
+          className="object-cover"
           loading="lazy"
+          sizes="100vw"
         />
       </div>
-      <Container className="py-16 sm:py-20 lg:py-24">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+      <Container className="py-12 sm:py-16 md:py-20 lg:py-24">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
           {items.map(({ icon: Icon, title, description }) => (
             <Card
               key={title}
-              className={`p-6 md:p-7 ${radius} ${shadowSoft} transition-transform ${duration} ${ease} hover:-translate-y-0.5`}
+              className={`p-4 sm:p-5 md:p-6 lg:p-7 ${radius} ${shadowSoft} transition-transform ${duration} ${ease} hover:-translate-y-0.5`}
             >
-              <Icon className="h-6 w-6 text-primary" aria-hidden />
-              <h3 className="mt-4 font-serif text-xl text-foreground">
+              <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-primary" aria-hidden />
+              <h3 className="mt-3 sm:mt-4 font-serif text-lg sm:text-xl text-foreground leading-tight">
                 {title}
               </h3>
-              <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+              <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed">
                 {description}
               </p>
             </Card>

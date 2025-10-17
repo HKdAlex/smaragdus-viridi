@@ -17,7 +17,7 @@ export function Container<T extends ElementType = "div">(
   return (
     <Tag
       className={cn(
-        "container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl",
+        "container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 max-w-7xl",
         className
       )}
       {...(rest as object)}

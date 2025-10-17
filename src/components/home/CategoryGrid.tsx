@@ -27,15 +27,17 @@ export function CategoryGrid({ items }: { items: CategoryItem[] }) {
         className="pointer-events-none absolute inset-0 opacity-[0.05] dark:opacity-[0.08] hidden md:block"
         aria-hidden
       >
-        <img
+        <Image
           src="/images/hero/hero-3.webp"
           alt=""
-          className="h-full w-full object-cover"
+          fill
+          className="object-cover"
           loading="lazy"
+          sizes="100vw"
         />
       </div>
-      <Container className="py-16 sm:py-20 lg:py-24">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+      <Container className="py-12 sm:py-16 md:py-20 lg:py-24">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
           {items.map((item) => (
             <Link
               key={item.title}
@@ -56,14 +58,14 @@ export function CategoryGrid({ items }: { items: CategoryItem[] }) {
                   />
                 </div>
 
-                <div className="p-5 md:p-6">
+                <div className="p-4 sm:p-5 md:p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="font-serif text-xl md:text-2xl text-foreground">
+                      <h3 className="font-serif text-lg sm:text-xl md:text-2xl text-foreground leading-tight">
                         {item.title}
                       </h3>
                       {item.subtitle ? (
-                        <p className="text-sm text-muted-foreground mt-1">
+                        <p className="text-xs sm:text-sm text-muted-foreground mt-1 leading-relaxed">
                           {item.subtitle}
                         </p>
                       ) : null}
