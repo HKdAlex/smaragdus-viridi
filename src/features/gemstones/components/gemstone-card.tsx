@@ -221,10 +221,12 @@ export function GemstoneCard({
         {/* Metadata Table Layout */}
         {!isCompact && (
           <div className="mb-3 text-xs">
-            <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+            <div className="space-y-1">
               {/* Weight */}
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">{t("product.weight")}:</span>
+                <span className="text-muted-foreground">
+                  {t("product.weight")}:
+                </span>
                 <span className="font-medium text-foreground">
                   {gemstone.weight_carats}ct
                 </span>
@@ -232,7 +234,9 @@ export function GemstoneCard({
 
               {/* Clarity */}
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">{t("filters.clarity")}:</span>
+                <span className="text-muted-foreground">
+                  {t("filters.clarity")}:
+                </span>
                 <span className="font-medium text-foreground">
                   {clarityLabel ?? t("unknown")}
                 </span>
@@ -243,7 +247,9 @@ export function GemstoneCard({
                 <span className="text-muted-foreground">{t("type")}:</span>
                 <div className="flex items-center space-x-1">
                   <GemstoneTypeIcon className="w-3 h-3 text-muted-foreground" />
-                  <span className="font-medium text-foreground">{typeLabel}</span>
+                  <span className="font-medium text-foreground">
+                    {typeLabel}
+                  </span>
                 </div>
               </div>
 
@@ -252,12 +258,14 @@ export function GemstoneCard({
                 <span className="text-muted-foreground">{t("color")}:</span>
                 <div className="flex items-center space-x-1">
                   <ColorIndicator color={effectiveColor} className="w-3 h-3" />
-                  <span className="font-medium text-foreground">{colorLabel}</span>
+                  <span className="font-medium text-foreground">
+                    {colorLabel}
+                  </span>
                 </div>
               </div>
 
               {/* Cut */}
-              <div className="flex items-center justify-between col-span-2">
+              <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">{t("cut")}:</span>
                 <div className="flex items-center space-x-1">
                   <CutIcon cut={effectiveCut} className="w-3 h-3" />
@@ -269,8 +277,10 @@ export function GemstoneCard({
 
               {/* Origin */}
               {gemstone.origin && (
-                <div className="flex items-center justify-between col-span-2">
-                  <span className="text-muted-foreground">{t("product.origin")}:</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">
+                    {t("product.origin")}:
+                  </span>
                   <span className="font-medium text-foreground">
                     {gemstone.origin.name}
                   </span>
