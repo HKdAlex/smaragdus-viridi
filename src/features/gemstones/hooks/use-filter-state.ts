@@ -9,7 +9,7 @@
 
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { AdvancedGemstoneFilters } from '../types/filter.types';
 import { getActiveFilterCount } from '../types/filter.types';
 
@@ -41,6 +41,11 @@ export function useFilterState(
   const { initialFilters = {} } = options;
 
   const [filters, setFilters] = useState<AdvancedGemstoneFilters>(initialFilters);
+
+  // Sync filters when initialFilters change (e.g., from URL changes)
+  useEffect(() => {
+    setFilters(initialFilters);
+  }, [initialFilters]);
 
   const updateFilters = useCallback((updates: Partial<AdvancedGemstoneFilters>) => {
     setFilters(prev => ({ ...prev, ...updates }));

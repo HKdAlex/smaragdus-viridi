@@ -6,9 +6,9 @@
 
 "use client";
 
+import { useCallback, useMemo } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useMemo } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -39,7 +39,7 @@ export function CategoryTabs({
   const handleTabClick = useCallback(
     (categoryId: string) => {
       const params = new URLSearchParams(searchParams);
-      
+
       if (categoryId === "all") {
         params.delete("category");
       } else {
@@ -84,7 +84,10 @@ export function CategoryTabs({
       {/* Desktop Tabs */}
       <div className="hidden sm:block">
         <div className="border-b border-gray-200 dark:border-gray-700">
-          <nav className="-mb-px flex space-x-8 overflow-x-auto" aria-label="Category tabs">
+          <nav
+            className="-mb-px flex space-x-8 overflow-x-auto"
+            aria-label="Category tabs"
+          >
             {allTabs.map((tab) => {
               const isActive = tab.id === activeCategory;
               return (

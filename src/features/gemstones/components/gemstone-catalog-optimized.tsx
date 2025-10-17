@@ -58,7 +58,7 @@ export function GemstoneCatalogOptimized() {
   const initialFilters = useMemo(() => {
     const queryString = searchParams.toString();
     const filters = queryString ? queryStringToFilters(queryString) : {};
-    
+
     // Add category filter if specified
     if (activeCategory !== "all") {
       return {
@@ -66,7 +66,7 @@ export function GemstoneCatalogOptimized() {
         gemstoneTypes: [activeCategory as any], // Cast to satisfy TypeScript enum
       };
     }
-    
+
     return filters;
   }, [searchParams, activeCategory]);
 
@@ -118,10 +118,10 @@ export function GemstoneCatalogOptimized() {
   // Prepare category tabs data
   const categoryTabs = useMemo(() => {
     if (!categoryData?.categories) return [];
-    
+
     return categoryData.categories
-      .filter(cat => cat.count > 0) // Only show categories with items
-      .map(cat => ({
+      .filter((cat) => cat.count > 0) // Only show categories with items
+      .map((cat) => ({
         id: cat.name,
         name: t(`gemstoneTypes.${cat.name}`) || cat.name,
         count: cat.count,

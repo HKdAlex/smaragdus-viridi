@@ -6,8 +6,8 @@
 
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@supabase/supabase-js";
+import { useQuery } from "@tanstack/react-query";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
