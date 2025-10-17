@@ -258,15 +258,15 @@ export const CUT_LABELS: Record<GemCut, string> = {
 };
 
 export const CLARITY_LABELS: Record<GemClarity, string> = {
-  FL: "FL (Flawless)",
-  IF: "IF (Internally Flawless)",
-  VVS1: "VVS1 (Very Very Slightly Included)",
-  VVS2: "VVS2 (Very Very Slightly Included)",
-  VS1: "VS1 (Very Slightly Included)",
-  VS2: "VS2 (Very Slightly Included)",
-  SI1: "SI1 (Slightly Included)",
-  SI2: "SI2 (Slightly Included)",
-  I1: "I1 (Included)",
+  FL: "FL",
+  IF: "IF",
+  VVS1: "VVS1",
+  VVS2: "VVS2",
+  VS1: "VS1",
+  VS2: "VS2",
+  SI1: "SI1",
+  SI2: "SI2",
+  I1: "I1",
 };
 
 export const SORT_LABELS: Record<GemstoneSort, string> = {
