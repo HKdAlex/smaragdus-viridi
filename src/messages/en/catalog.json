@@ -61,7 +61,8 @@
     "origin": "Origin",
     "weight": "Weight",
     "dimensions": "Dimensions",
-    "treatment": "Treatment"
+    "treatment": "Treatment",
+    "quantity": "Quantity"
   },
   "standardFilters": "Standard Filters",
   "visualFilters": "Visual Filters",
@@ -130,6 +131,7 @@
       "signInToAdd": "Sign In to Add",
       "requestInfo": "Request Info",
       "price": "Price",
+      "quantity": "Quantity",
       "qualityGrades": {
         "excellent": "Excellent",
         "veryGood": "Very Good",

@@ -14,6 +14,7 @@
 
 "use client";
 
+import { CheckCircle, Package, Scale } from "lucide-react";
 import {
   ColorIndicator,
   CutIcon,
@@ -24,7 +25,6 @@ import { useLocale, useTranslations } from "next-intl";
 import type { CatalogGemstone } from "../services/gemstone-fetch.service";
 import Image from "next/image";
 import Link from "next/link";
-import { Scale } from "lucide-react";
 import { useGemstoneTranslations } from "../utils/gemstone-translations";
 
 // ===== TYPES =====
@@ -174,18 +174,7 @@ export function GemstoneCard({
           {gemstone.serial_number}
         </div> */}
 
-        {/* Stock Status */}
-        {!gemstone.in_stock && (
-          <div className="absolute top-2 left-2 bg-destructive text-destructive-foreground text-xs px-2 py-1 rounded shadow-sm">
-            Out of Stock
-          </div>
-        )}
-
-        {gemstone.in_stock && (
-          <div className="absolute top-2 left-2 bg-green-600 text-white text-xs px-2 py-1 rounded shadow-sm">
-            {t("product.inStock")}
-          </div>
-        )}
+        {/* Stock Status Badge - REMOVED as per user request */}
 
         {/* AI Analysis Indicator */}
         {hasMeaningfulAIAnalysis(gemstone.ai_analysis) &&
@@ -250,6 +239,46 @@ export function GemstoneCard({
                   </span>
                 </div>
               </div>
+
+              {/* In Stock */}
+              <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
+                <CheckCircle
+                  className={`w-5 h-5 ${
+                    gemstone.in_stock ? "text-emerald-500" : "text-red-500"
+                  }`}
+                />
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">
+                    {t("product.inStock")}
+                  </span>
+                  <span
+                    className={`font-medium ${
+                      gemstone.in_stock
+                        ? "text-emerald-600 dark:text-emerald-400"
+                        : "text-red-600 dark:text-red-400"
+                    }`}
+                  >
+                    {gemstone.in_stock
+                      ? t("product.inStock")
+                      : t("product.outOfStock")}
+                  </span>
+                </div>
+              </div>
+
+              {/* Quantity */}
+              {gemstone.quantity !== null && gemstone.quantity > 0 && (
+                <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
+                  <Package className="w-5 h-5 text-muted-foreground" />
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">
+                      {t("product.quantity")}
+                    </span>
+                    <span className="font-medium text-foreground">
+                      {gemstone.quantity}
+                    </span>
+                  </div>
+                </div>
+              )}
 
               {/* Type */}
               <div className="grid grid-cols-[auto_1fr] gap-3 items-center">

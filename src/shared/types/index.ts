@@ -117,6 +117,7 @@ export interface DetailGemstone {
   serial_number: string;
   internal_code: string | null;
   in_stock: boolean | null;
+  quantity: number | null;
   delivery_days: number | null;
   origin_id: string | null;
   ai_analyzed: boolean | null;

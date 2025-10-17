@@ -6,10 +6,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
-import { ColorIndicator, CutIcon } from "@/shared/components/ui/gemstone-icons";
 import {
+  CheckCircle,
   Heart,
   Info,
+  Package,
   Ruler,
   Scale,
   Share2,
@@ -18,6 +19,7 @@ import {
   Sparkles,
   Truck,
 } from "lucide-react";
+import { ColorIndicator, CutIcon } from "@/shared/components/ui/gemstone-icons";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
 
@@ -622,6 +624,46 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                         </span>
                       </div>
                     </div>
+
+                    {/* In Stock */}
+                    <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
+                      <CheckCircle
+                        className={`w-5 h-5 ${
+                          gemstone.in_stock
+                            ? "text-emerald-500"
+                            : "text-red-500"
+                        }`}
+                      />
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">
+                          {t("inStock")}
+                        </span>
+                        <span
+                          className={`font-medium ${
+                            gemstone.in_stock
+                              ? "text-emerald-600 dark:text-emerald-400"
+                              : "text-red-600 dark:text-red-400"
+                          }`}
+                        >
+                          {gemstone.in_stock ? t("inStock") : t("outOfStock")}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Quantity */}
+                    {gemstone.quantity !== null && gemstone.quantity > 0 && (
+                      <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
+                        <Package className="w-5 h-5 text-muted-foreground" />
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground">
+                            {t("quantity")}
+                          </span>
+                          <span className="font-medium text-foreground">
+                            {gemstone.quantity}
+                          </span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 

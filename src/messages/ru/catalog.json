@@ -61,7 +61,8 @@
     "origin": "Происхождение",
     "weight": "Вес",
     "dimensions": "Размеры",
-    "treatment": "Обработка"
+    "treatment": "Обработка",
+    "quantity": "Количество"
   },
   "standardFilters": "Стандартные фильтры",
   "visualFilters": "Визуальные фильтры",
@@ -130,6 +131,7 @@
       "signInToAdd": "Войдите",
       "requestInfo": "Запросить информацию",
       "price": "Цена",
+      "quantity": "Количество",
       "qualityGrades": {
         "excellent": "Отличное",
         "veryGood": "Очень хорошее",
