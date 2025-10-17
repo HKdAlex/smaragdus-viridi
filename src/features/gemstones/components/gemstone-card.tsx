@@ -18,6 +18,7 @@ import {
   ColorIndicator,
   CutIcon,
   GemstoneTypeIcon,
+  WeightIcon,
 } from "@/shared/components/ui/gemstone-icons";
 import { useLocale, useTranslations } from "next-intl";
 
@@ -220,33 +221,41 @@ export function GemstoneCard({
 
         {/* Metadata Table Layout */}
         {!isCompact && (
-          <div className="mb-3 text-sm">
-            <div className="space-y-2">
+          <div className="mb-3 text-base leading-relaxed">
+            <div className="space-y-3">
               {/* Weight */}
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">
-                  {t("product.weight")}
-                </span>
-                <span className="font-medium text-foreground">
-                  {gemstone.weight_carats}ct
-                </span>
+              <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
+                <WeightIcon className="w-5 h-5 text-muted-foreground" />
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">
+                    {t("product.weight")}
+                  </span>
+                  <span className="font-medium text-foreground">
+                    {gemstone.weight_carats}ct
+                  </span>
+                </div>
               </div>
 
               {/* Clarity */}
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">
-                  {t("filters.clarity")}
-                </span>
-                <span className="font-medium text-foreground">
-                  {clarityLabel ?? t("unknown")}
-                </span>
+              <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
+                <div className="w-5 h-5 flex items-center justify-center">
+                  <div className="w-3 h-3 rounded-full bg-gray-300 dark:bg-gray-600" />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">
+                    {t("filters.clarity")}
+                  </span>
+                  <span className="font-medium text-foreground">
+                    {clarityLabel ?? t("unknown")}
+                  </span>
+                </div>
               </div>
 
               {/* Type */}
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">{t("type")}</span>
-                <div className="flex items-center space-x-1">
-                  <GemstoneTypeIcon className="w-3 h-3 text-muted-foreground" />
+              <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
+                <GemstoneTypeIcon className="w-5 h-5 text-muted-foreground" />
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">{t("type")}</span>
                   <span className="font-medium text-foreground">
                     {typeLabel}
                   </span>
@@ -254,10 +263,10 @@ export function GemstoneCard({
               </div>
 
               {/* Color */}
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">{t("color")}</span>
-                <div className="flex items-center space-x-1">
-                  <ColorIndicator color={effectiveColor} className="w-3 h-3" />
+              <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
+                <ColorIndicator color={effectiveColor} className="w-5 h-5" />
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">{t("color")}</span>
                   <span className="font-medium text-foreground">
                     {colorLabel}
                   </span>
@@ -265,10 +274,10 @@ export function GemstoneCard({
               </div>
 
               {/* Cut */}
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">{t("cut")}</span>
-                <div className="flex items-center space-x-1">
-                  <CutIcon cut={effectiveCut} className="w-3 h-3" />
+              <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
+                <CutIcon cut={effectiveCut} className="w-5 h-5" />
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">{t("cut")}</span>
                   <span className="font-medium text-foreground">
                     {cutLabel ?? t("unknown")}
                   </span>
@@ -277,13 +286,20 @@ export function GemstoneCard({
 
               {/* Origin */}
               {gemstone.origin && (
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">
-                    {t("product.origin")}
-                  </span>
-                  <span className="font-medium text-foreground">
-                    {gemstone.origin.name}
-                  </span>
+                <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
+                  <div className="w-5 h-5 flex items-center justify-center">
+                    <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-muted-foreground">
+                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                    </svg>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">
+                      {t("product.origin")}
+                    </span>
+                    <span className="font-medium text-foreground">
+                      {gemstone.origin.name}
+                    </span>
+                  </div>
                 </div>
               )}
             </div>

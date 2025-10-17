@@ -96,7 +96,7 @@ export function CategoryTabs({
                   onClick={() => handleTabClick(tab.id)}
                   className={cn(
                     "whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium transition-colors",
-                    "focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2",
+                    "focus:outline-none focus:ring-2  focus:ring-offset-2",
                     isActive
                       ? "border-emerald-500 text-gray-900 dark:text-gray-100"
                       : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
@@ -128,7 +128,7 @@ export function CategoryTabs({
         <select
           value={activeCategory}
           onChange={(e) => handleTabClick(e.target.value)}
-          className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+          className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
         >
           {allTabs.map((tab) => (
             <option key={tab.id} value={tab.id}>
