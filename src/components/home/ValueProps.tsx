@@ -39,10 +39,10 @@ export function ValueProps({ items }: { items: ValueItem[] }) {
                 className="h-5 w-5 sm:h-6 sm:w-6 text-primary"
                 aria-hidden
               />
-              <h3 className="mt-3 sm:mt-4 font-serif text-lg sm:text-xl text-white leading-tight">
+              <h3 className="mt-3 sm:mt-4 font-serif text-lg sm:text-xl text-foreground leading-tight">
                 {title}
               </h3>
-              <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-white/80 leading-relaxed">
+              <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed">
                 {description}
               </p>
             </Card>

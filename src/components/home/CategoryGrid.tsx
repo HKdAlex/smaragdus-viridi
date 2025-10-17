@@ -55,11 +55,11 @@ export function CategoryGrid({ items }: { items: CategoryItem[] }) {
                 <div className="p-4 sm:p-5 md:p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="font-serif text-lg sm:text-xl md:text-2xl text-white leading-tight">
+                      <h3 className="font-serif text-lg sm:text-xl md:text-2xl text-foreground leading-tight">
                         {item.title}
                       </h3>
                       {item.subtitle ? (
-                        <p className="text-xs sm:text-sm text-white/80 mt-1 leading-relaxed">
+                        <p className="text-xs sm:text-sm text-muted-foreground mt-1 leading-relaxed">
                           {item.subtitle}
                         </p>
                       ) : null}
