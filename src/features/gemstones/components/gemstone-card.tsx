@@ -225,6 +225,39 @@ export function GemstoneCard({
                 </div>
               </div>
 
+              {/* Type */}
+              <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
+                <GemstoneTypeIcon className="w-5 h-5 text-muted-foreground" />
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">{t("type")}</span>
+                  <span className="font-medium text-foreground">
+                    {typeLabel}
+                  </span>
+                </div>
+              </div>
+
+              {/* Color */}
+              <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
+                <ColorIndicator color={effectiveColor} className="w-5 h-5" />
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">{t("color")}</span>
+                  <span className="font-medium text-foreground">
+                    {colorLabel}
+                  </span>
+                </div>
+              </div>
+
+              {/* Cut */}
+              <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
+                <CutIcon cut={effectiveCut} className="w-5 h-5" />
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">{t("cut")}</span>
+                  <span className="font-medium text-foreground">
+                    {cutLabel ?? t("unknown")}
+                  </span>
+                </div>
+              </div>
+
               {/* Clarity */}
               <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
                 <div className="w-5 h-5 flex items-center justify-center">
@@ -279,39 +312,6 @@ export function GemstoneCard({
                   </div>
                 </div>
               )}
-
-              {/* Type */}
-              <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
-                <GemstoneTypeIcon className="w-5 h-5 text-muted-foreground" />
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">{t("type")}</span>
-                  <span className="font-medium text-foreground">
-                    {typeLabel}
-                  </span>
-                </div>
-              </div>
-
-              {/* Color */}
-              <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
-                <ColorIndicator color={effectiveColor} className="w-5 h-5" />
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">{t("color")}</span>
-                  <span className="font-medium text-foreground">
-                    {colorLabel}
-                  </span>
-                </div>
-              </div>
-
-              {/* Cut */}
-              <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
-                <CutIcon cut={effectiveCut} className="w-5 h-5" />
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">{t("cut")}</span>
-                  <span className="font-medium text-foreground">
-                    {cutLabel ?? t("unknown")}
-                  </span>
-                </div>
-              </div>
 
               {/* Origin */}
               {gemstone.origin && (
