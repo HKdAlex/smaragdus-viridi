@@ -3,6 +3,11 @@
   "description": "Discover our carefully curated collection of premium gemstones from around the world",
   "subtitle": "Discover our premium collection",
   "loading": "Loading gemstones...",
+  "loadingMore": "Loading more gemstones...",
+  "scrollToLoadMore": "Scroll to load more items",
+  "showing": "Showing",
+  "allItemsLoaded": "You've reached the end of our collection",
+  "thankYouForBrowsing": "Thank you for browsing our collection",
   "noResults": "No gemstones found",
   "showingResults": "Showing {current} of {total} gemstones",
   "search": {

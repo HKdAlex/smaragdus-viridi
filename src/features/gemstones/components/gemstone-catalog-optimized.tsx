@@ -20,21 +20,21 @@ import type {
   FilterOptions,
 } from "../types/filter.types";
 // Types
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef } from "react";
 
 import { CatalogHeader } from "./catalog-header";
 import { EmptyState } from "./empty-state";
 import { FilterSidebar } from "./filters/filter-sidebar";
 import { GemstoneGrid } from "./gemstone-grid";
+import { InfiniteScrollTrigger } from "./infinite-scroll-trigger";
 import { LoadingState } from "./loading-state";
-import { PaginationControls } from "./pagination-controls";
 // Filter sidebar component
 import { queryStringToFilters } from "../utils/filter-url.utils";
 // Shared components from Phase 0
 import { useFilterCountsQuery } from "../hooks/use-filter-counts-query";
 import { useFilterState } from "../hooks/use-filter-state";
 import { useFilterUrlSync } from "../hooks/use-filter-url-sync";
-import { useGemstoneQuery } from "../hooks/use-gemstone-query";
+import { useInfiniteGemstoneQuery } from "../hooks/use-infinite-gemstone-query";
 // React Query hooks
 import { useSearchParams } from "next/navigation";
 // Filter state hooks
@@ -45,6 +45,9 @@ const PAGE_SIZE = 24;
 export function GemstoneCatalogOptimized() {
   const t = useTranslations("catalog");
   const searchParams = useSearchParams();
+
+  // Ref to prevent multiple simultaneous fetches
+  const isFetchingRef = useRef(false);
 
   // Parse initial filters from URL
   const initialFilters = useMemo(() => {
@@ -58,15 +61,16 @@ export function GemstoneCatalogOptimized() {
   // URL synchronization (opt-in side effect)
   useFilterUrlSync(filters);
 
-  // Pagination state
-  const [currentPage, setCurrentPage] = useState(1);
-
-  // React Query: Fetch gemstones
+  // React Query: Fetch gemstones with infinite scroll
   const {
-    data: gemstonesData,
+    allGemstones,
+    totalCount,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
     isLoading: gemstonesLoading,
     error: gemstonesError,
-  } = useGemstoneQuery(filters, currentPage, PAGE_SIZE);
+  } = useInfiniteGemstoneQuery(filters, PAGE_SIZE);
 
   // React Query: Fetch filter counts
   const { data: filterCountsData, isLoading: filterCountsLoading } =
@@ -76,20 +80,26 @@ export function GemstoneCatalogOptimized() {
   const handleFiltersChange = useCallback(
     (newFilters: AdvancedGemstoneFilters) => {
       setFilters(newFilters);
-      setCurrentPage(1); // Reset to first page on filter change
+      // Infinite query automatically resets when filters change
     },
     [setFilters]
   );
 
-  // Handle page changes
-  const handlePageChange = useCallback((page: number) => {
-    setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, []);
+  // Handle load more (with ref-based lock to prevent rapid calls)
+  const handleLoadMore = useCallback(() => {
+    // Use ref to prevent multiple simultaneous fetches
+    if (hasNextPage && !isFetchingNextPage && !isFetchingRef.current) {
+      isFetchingRef.current = true;
+      fetchNextPage().finally(() => {
+        // Reset the lock after fetch completes (success or error)
+        isFetchingRef.current = false;
+      });
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   // Show loading state on initial load
-  if (gemstonesLoading && !gemstonesData) {
-    return <LoadingState />;
+  if (gemstonesLoading && allGemstones.length === 0) {
+    return <LoadingState showHeader={true} />;
   }
 
   // Show error state
@@ -102,8 +112,6 @@ export function GemstoneCatalogOptimized() {
     );
   }
 
-  const gemstones = gemstonesData?.data || [];
-  const pagination = gemstonesData?.pagination;
   const aggregatedOptions = filterCountsData?.aggregated;
 
   // Convert AggregatedFilterOptions to FilterOptions for FilterSidebar
@@ -161,19 +169,17 @@ export function GemstoneCatalogOptimized() {
       {/* Results Section */}
       <div className="px-4">
         {/* Results Header */}
-        {pagination && (
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg sm:text-xl font-semibold text-foreground">
-              {pagination.totalItems} {t("gemstonesFound")}
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              {t("page")} {pagination.page} {t("of")} {pagination.totalPages}
-            </p>
-          </div>
-        )}
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-lg sm:text-xl font-semibold text-foreground">
+            {totalCount} {t("gemstonesFound")}
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            {t("showing")} {allGemstones.length} {t("of")} {totalCount}
+          </p>
+        </div>
 
         {/* Gemstones Grid or Empty State */}
-        {gemstones.length === 0 ? (
+        {allGemstones.length === 0 ? (
           <EmptyState
             title={t("noGemstonesFound")}
             message={t("adjustFiltersMessage")}
@@ -181,19 +187,17 @@ export function GemstoneCatalogOptimized() {
         ) : (
           <>
             <GemstoneGrid
-              gemstones={gemstones}
+              gemstones={allGemstones}
               loading={gemstonesLoading}
               variant="catalog"
             />
 
-            {/* Pagination */}
-            {pagination && pagination.totalPages > 1 && (
-              <PaginationControls
-                pagination={pagination}
-                onPageChange={handlePageChange}
-                loading={gemstonesLoading}
-              />
-            )}
+            {/* Infinite Scroll Trigger */}
+            <InfiniteScrollTrigger
+              onIntersect={handleLoadMore}
+              isFetching={isFetchingNextPage}
+              hasMore={hasNextPage ?? false}
+            />
           </>
         )}
       </div>
