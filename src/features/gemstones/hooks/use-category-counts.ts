@@ -31,7 +31,8 @@ async function fetchCategoryCounts(): Promise<CategoryCountsResponse> {
     .from("gemstones")
     .select("name")
     .eq("in_stock", true)
-    .gt("price_amount", 0);
+    .gt("price_amount", 0)
+    .limit(10000); // Increase limit to get all gemstones
 
   if (error) {
     throw new Error(`Failed to fetch category counts: ${error.message}`);

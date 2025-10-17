@@ -24,8 +24,8 @@ import {
 import { useLocale, useTranslations } from "next-intl";
 
 import type { CatalogGemstone } from "../services/gemstone-fetch.service";
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 import { useGemstoneTranslations } from "../utils/gemstone-translations";
 
 // ===== TYPES =====
@@ -170,10 +170,10 @@ export function GemstoneCard({
           </div>
         )}
 
-        {/* Serial Number Overlay */}
-        <div className="absolute bottom-2 right-2 bg-black/75 dark:bg-black/90 text-white text-xs px-2 py-1 rounded backdrop-blur-sm">
+        {/* Serial Number Overlay - Hidden */}
+        {/* <div className="absolute bottom-2 right-2 bg-black/75 dark:bg-black/90 text-white text-xs px-2 py-1 rounded backdrop-blur-sm">
           {gemstone.serial_number}
-        </div>
+        </div> */}
 
         {/* Stock Status */}
         {!gemstone.in_stock && (
@@ -213,65 +213,83 @@ export function GemstoneCard({
       <div className={isCompact ? "p-2" : "p-3 sm:p-4"}>
         {/* Title */}
         <h3
-          className={`font-semibold text-foreground capitalize leading-tight mb-3 ${
+          className={`font-semibold text-foreground capitalize leading-tight mb-2 ${
             isCompact ? "text-xs" : "text-sm sm:text-base"
           }`}
         >
           {colorLabel} {typeLabel}
         </h3>
 
-        {/* Attributes */}
+        {/* Compact Metadata Grid */}
         {!isCompact && (
-          <div className="space-y-2 mb-3">
-            {/* Gemstone Type */}
-            <div className="flex items-center space-x-2">
-              <GemstoneTypeIcon className="w-4 h-4 text-muted-foreground" />
-              <span className="text-xs text-muted-foreground">
-                {t("type")}:
+          <div className="grid grid-cols-2 gap-2 mb-3 text-xs">
+            {/* Weight */}
+            <div className="flex items-center space-x-1">
+              <span className="text-muted-foreground">Weight:</span>
+              <span className="font-medium text-foreground">
+                {gemstone.weight_carats}ct
               </span>
-              <span className="text-xs font-medium text-foreground">
+            </div>
+
+            {/* Clarity */}
+            <div className="flex items-center space-x-1">
+              <span className="text-muted-foreground">Clarity:</span>
+              <span className="font-medium text-foreground">
+                {clarityLabel ?? t("unknown")}
+              </span>
+            </div>
+
+            {/* Type */}
+            <div className="flex items-center space-x-1">
+              <GemstoneTypeIcon className="w-3 h-3 text-muted-foreground" />
+              <span className="text-muted-foreground">Type:</span>
+              <span className="font-medium text-foreground">
                 {typeLabel}
               </span>
             </div>
 
             {/* Color */}
-            <div className="flex items-center space-x-2">
-              <GemstoneColorIcon className="w-4 h-4 text-muted-foreground" />
-              <span className="text-xs text-muted-foreground">
-                {t("color")}:
-              </span>
+            <div className="flex items-center space-x-1">
               <ColorIndicator color={effectiveColor} className="w-3 h-3" />
-              <span className="text-xs font-medium text-foreground">
+              <span className="text-muted-foreground">Color:</span>
+              <span className="font-medium text-foreground">
                 {colorLabel}
               </span>
             </div>
 
             {/* Cut */}
-            <div className="flex items-center space-x-2">
-              <GemstoneCutIcon className="w-4 h-4 text-muted-foreground" />
-              <span className="text-xs text-muted-foreground">{t("cut")}:</span>
-              <CutIcon cut={effectiveCut} className="w-4 h-4" />
-              <span className="text-xs font-medium text-foreground">
+            <div className="flex items-center space-x-1 col-span-2">
+              <CutIcon cut={effectiveCut} className="w-3 h-3" />
+              <span className="text-muted-foreground">Cut:</span>
+              <span className="font-medium text-foreground">
                 {cutLabel ?? t("unknown")}
               </span>
             </div>
+
+            {/* Origin */}
+            {gemstone.origin && (
+              <div className="flex items-center space-x-1 col-span-2">
+                <span className="text-muted-foreground">Origin:</span>
+                <span className="font-medium text-foreground">
+                  {gemstone.origin.name}
+                </span>
+              </div>
+            )}
           </div>
         )}
 
-        {/* Additional Info */}
-        <div
-          className={`space-y-1 text-muted-foreground mb-3 ${
-            isCompact ? "text-xs" : "text-xs sm:text-sm"
-          }`}
-        >
-          <div className="font-medium text-foreground">
-            {gemstone.weight_carats}ct
+        {/* Compact Additional Info */}
+        {isCompact && (
+          <div className="space-y-1 text-muted-foreground mb-3 text-xs">
+            <div className="font-medium text-foreground">
+              {gemstone.weight_carats}ct
+            </div>
+            <div>{clarityLabel ?? t("unknown")}</div>
+            {gemstone.origin && (
+              <div>Origin: {gemstone.origin.name}</div>
+            )}
           </div>
-          <div>{clarityLabel ?? t("unknown")}</div>
-          {gemstone.origin && (
-            <div className="text-xs">Origin: {gemstone.origin.name}</div>
-          )}
-        </div>
+        )}
 
         {/* Price and Delivery */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-2 border-t border-border gap-2">

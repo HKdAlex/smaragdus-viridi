@@ -98,7 +98,7 @@ export function CategoryTabs({
                     "whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium transition-colors",
                     "focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2",
                     isActive
-                      ? "border-emerald-500 text-emerald-600 dark:text-emerald-400"
+                      ? "border-emerald-500 text-gray-900 dark:text-gray-100"
                       : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
                   )}
                   aria-current={isActive ? "page" : undefined}
