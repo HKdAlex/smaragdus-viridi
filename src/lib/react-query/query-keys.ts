@@ -14,6 +14,8 @@ export const queryKeys = {
     lists: () => [...queryKeys.gemstones.all, "list"] as const,
     list: (filters: AdvancedGemstoneFilters, page: number, pageSize: number) =>
       [...queryKeys.gemstones.lists(), { filters, page, pageSize }] as const,
+    infinite: (filters: AdvancedGemstoneFilters, pageSize: number) =>
+      [...queryKeys.gemstones.all, "infinite", { filters, pageSize }] as const,
     details: () => [...queryKeys.gemstones.all, "detail"] as const,
     detail: (id: string) => [...queryKeys.gemstones.details(), id] as const,
   },

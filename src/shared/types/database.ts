@@ -72,6 +72,13 @@ export type Database = {
             foreignKeyName: "ai_analysis_results_gemstone_id_fkey"
             columns: ["gemstone_id"]
             isOneToOne: false
+            referencedRelation: "gemstones_enriched"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_analysis_results_gemstone_id_fkey"
+            columns: ["gemstone_id"]
+            isOneToOne: false
             referencedRelation: "gemstones_with_best_data"
             referencedColumns: ["id"]
           },
@@ -211,6 +218,13 @@ export type Database = {
             foreignKeyName: "cart_items_gemstone_id_fkey"
             columns: ["gemstone_id"]
             isOneToOne: false
+            referencedRelation: "gemstones_enriched"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cart_items_gemstone_id_fkey"
+            columns: ["gemstone_id"]
+            isOneToOne: false
             referencedRelation: "gemstones_with_best_data"
             referencedColumns: ["id"]
           },
@@ -257,6 +271,13 @@ export type Database = {
             columns: ["gemstone_id"]
             isOneToOne: false
             referencedRelation: "gemstones"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "certifications_gemstone_id_fkey"
+            columns: ["gemstone_id"]
+            isOneToOne: false
+            referencedRelation: "gemstones_enriched"
             referencedColumns: ["id"]
           },
           {
@@ -512,6 +533,13 @@ export type Database = {
             foreignKeyName: "favorites_gemstone_id_fkey"
             columns: ["gemstone_id"]
             isOneToOne: false
+            referencedRelation: "gemstones_enriched"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "favorites_gemstone_id_fkey"
+            columns: ["gemstone_id"]
+            isOneToOne: false
             referencedRelation: "gemstones_with_best_data"
             referencedColumns: ["id"]
           },
@@ -645,6 +673,13 @@ export type Database = {
             foreignKeyName: "gem_image_extractions_gemstone_id_fkey"
             columns: ["gemstone_id"]
             isOneToOne: false
+            referencedRelation: "gemstones_enriched"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gem_image_extractions_gemstone_id_fkey"
+            columns: ["gemstone_id"]
+            isOneToOne: false
             referencedRelation: "gemstones_with_best_data"
             referencedColumns: ["id"]
           },
@@ -715,6 +750,13 @@ export type Database = {
             columns: ["gemstone_id"]
             isOneToOne: false
             referencedRelation: "gemstones"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gemstone_images_gemstone_id_fkey"
+            columns: ["gemstone_id"]
+            isOneToOne: false
+            referencedRelation: "gemstones_enriched"
             referencedColumns: ["id"]
           },
           {
@@ -806,6 +848,13 @@ export type Database = {
             columns: ["gemstone_id"]
             isOneToOne: false
             referencedRelation: "gemstones"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gemstone_videos_gemstone_id_fkey"
+            columns: ["gemstone_id"]
+            isOneToOne: false
+            referencedRelation: "gemstones_enriched"
             referencedColumns: ["id"]
           },
           {
@@ -1118,6 +1167,13 @@ export type Database = {
             foreignKeyName: "gemstones_ai_v5_gemstone_id_fkey"
             columns: ["gemstone_id"]
             isOneToOne: true
+            referencedRelation: "gemstones_enriched"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gemstones_ai_v5_gemstone_id_fkey"
+            columns: ["gemstone_id"]
+            isOneToOne: true
             referencedRelation: "gemstones_with_best_data"
             referencedColumns: ["id"]
           },
@@ -1257,6 +1313,13 @@ export type Database = {
             columns: ["gemstone_id"]
             isOneToOne: true
             referencedRelation: "gemstones"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gemstones_ai_v6_gemstone_id_fkey"
+            columns: ["gemstone_id"]
+            isOneToOne: true
+            referencedRelation: "gemstones_enriched"
             referencedColumns: ["id"]
           },
           {
@@ -1488,6 +1551,13 @@ export type Database = {
             columns: ["gemstone_id"]
             isOneToOne: false
             referencedRelation: "gemstones"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_gemstone_id_fkey"
+            columns: ["gemstone_id"]
+            isOneToOne: false
+            referencedRelation: "gemstones_enriched"
             referencedColumns: ["id"]
           },
           {
@@ -1727,6 +1797,64 @@ export type Database = {
           value: string | null
         }
         Relationships: []
+      }
+      gemstones_enriched: {
+        Row: {
+          ai_analyzed: boolean | null
+          ai_color: string | null
+          care_instructions_en: string | null
+          care_instructions_ru: string | null
+          clarity: string | null
+          clarity_code: string | null
+          color: string | null
+          color_code: string | null
+          color_detection_confidence: number | null
+          confidence_score: number | null
+          created_at: string | null
+          cut: string | null
+          cut_code: string | null
+          cut_detection_confidence: number | null
+          description: string | null
+          detected_color: string | null
+          detected_color_description: string | null
+          detected_cut: string | null
+          emotional_description_en: string | null
+          emotional_description_ru: string | null
+          historical_context_en: string | null
+          historical_context_ru: string | null
+          id: string | null
+          in_stock: boolean | null
+          marketing_highlights_en: string[] | null
+          marketing_highlights_ru: string[] | null
+          metadata_status: string | null
+          model_version: string | null
+          name: string | null
+          narrative_story_en: string | null
+          narrative_story_ru: string | null
+          needs_review: boolean | null
+          origin_id: string | null
+          price_amount: number | null
+          price_currency: string | null
+          promotional_text_en: string | null
+          promotional_text_ru: string | null
+          recommended_primary_image_index: number | null
+          selected_image_uuid: string | null
+          serial_number: string | null
+          technical_description_en: string | null
+          technical_description_ru: string | null
+          type_code: string | null
+          updated_at: string | null
+          weight_carats: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gemstones_origin_id_fkey"
+            columns: ["origin_id"]
+            isOneToOne: false
+            referencedRelation: "origins"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       gemstones_with_best_data: {
         Row: {
@@ -2089,7 +2217,7 @@ export type Database = {
         }[]
       }
       get_search_suggestions: {
-        Args: { limit_count?: number; query: string }
+        Args: { limit_count?: number; query: string; search_locale?: string }
         Returns: {
           category: string
           relevance: number
@@ -2157,30 +2285,35 @@ export type Database = {
       }
       search_gemstones_multilingual: {
         Args: {
+          description_enabled?: boolean
+          effective_locale?: string
           filters?: Json
-          page_num?: number
+          page_number?: number
           page_size?: number
-          search_locale?: string
           search_query: string
         }
         Returns: {
-          clarity: Database["public"]["Enums"]["gem_clarity"]
-          color: Database["public"]["Enums"]["gem_color"]
+          clarity: string
+          clarity_code: string
+          color: string
+          color_code: string
           created_at: string
-          cut: Database["public"]["Enums"]["gem_cut"]
+          cut: string
+          cut_code: string
           description: string
           has_ai_analysis: boolean
           has_certification: boolean
           id: string
           in_stock: boolean
-          metadata_status: Database["public"]["Enums"]["metadata_status"]
-          name: Database["public"]["Enums"]["gemstone_type"]
+          metadata_status: string
+          name: string
           origin_id: string
           price_amount: number
-          price_currency: Database["public"]["Enums"]["currency_code"]
+          price_currency: string
           relevance_score: number
           serial_number: string
           total_count: number
+          type_code: string
           updated_at: string
           weight_carats: number
         }[]
