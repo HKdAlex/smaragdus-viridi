@@ -127,12 +127,6 @@ export function CartItem({
             <h3 className="font-semibold text-foreground text-base sm:text-lg leading-tight">
               {translateGemstoneType(gemstone.name)}
             </h3>
-            <div className="flex items-center gap-2">
-              <ColorIndicator color={gemstone.color} className="w-4 h-4" />
-              <span className="text-sm text-muted-foreground">
-                {translateColor(gemstone.color)}
-              </span>
-            </div>
           </div>
 
           {/* Properties Grid */}
