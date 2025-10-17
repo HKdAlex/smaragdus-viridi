@@ -144,7 +144,7 @@ export function MainNav() {
   );
 
   return (
-    <header className="bg-background border-b border-border transition-colors duration-300 sticky top-0 z-50 backdrop-blur-sm bg-background/95">
+    <header className="bg-background border-b border-border transition-colors duration-300 sticky top-0 z-[60] backdrop-blur-sm bg-background/95">
       <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8" aria-label="Top">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
@@ -243,7 +243,9 @@ export function MainNav() {
                         className="w-full shadow-2xl"
                         onSearch={(query) => {
                           setSearchOpen(false);
-                          router.push(`/search?q=${encodeURIComponent(query)}` as any);
+                          router.push(
+                            `/search?q=${encodeURIComponent(query)}` as any
+                          );
                         }}
                       />
                       {/* Close button for mobile */}
@@ -364,7 +366,7 @@ export function MainNav() {
             {/* Mobile menu button */}
             <button
               type="button"
-              className="md:hidden p-2 text-muted-foreground hover:text-primary transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center relative z-[60]"
+              className="md:hidden p-2 text-muted-foreground hover:text-primary transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label={tAccessibility("toggleMenu")}
             >
