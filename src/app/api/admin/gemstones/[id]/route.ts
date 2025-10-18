@@ -19,10 +19,10 @@ const getAdminClient = () => {
 // GET /api/admin/gemstones/[id] - Get single gemstone
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     const { data, error } = await getAdminClient()
       .from("gemstones")
@@ -54,10 +54,10 @@ export async function GET(
 // PUT /api/admin/gemstones/[id] - Update gemstone
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
 
     // Filter out AI-specific fields (these are empty in gemstones table)
@@ -142,10 +142,10 @@ export async function PUT(
 // DELETE /api/admin/gemstones/[id] - Delete gemstone
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     const { error } = await getAdminClient()
       .from("gemstones")

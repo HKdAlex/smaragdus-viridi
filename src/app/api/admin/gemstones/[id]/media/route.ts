@@ -19,10 +19,10 @@ const getAdminClient = () => {
 // PUT /api/admin/gemstones/[id]/media - Set primary image/video
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const { mediaId, mediaType } = await request.json();
 
     if (!mediaId || !mediaType) {
@@ -82,10 +82,10 @@ export async function PUT(
 // DELETE /api/admin/gemstones/[id]/media - Delete media
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const { mediaId, mediaType } = await request.json();
 
     if (!mediaId || !mediaType) {
