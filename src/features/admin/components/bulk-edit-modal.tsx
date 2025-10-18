@@ -370,7 +370,9 @@ export function BulkEditModal({
                             }
                           >
                             <SelectTrigger>
-                              <SelectValue />
+                              <span className="text-sm">
+                                {bulkEditData.priceCurrency || "USD"}
+                              </span>
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="USD">USD</SelectItem>
@@ -451,7 +453,13 @@ export function BulkEditModal({
                             }
                           >
                             <SelectTrigger>
-                              <SelectValue />
+                              <span className="text-sm">
+                                {bulkEditData.inStock === true
+                                  ? t("inStock")
+                                  : bulkEditData.inStock === false
+                                  ? t("outOfStock")
+                                  : t("inStock")}
+                              </span>
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="true">

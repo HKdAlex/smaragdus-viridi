@@ -213,6 +213,21 @@
       "clarity": "Clarity",
       "cut": "Cut"
     },
+    "messages": {
+      "duplicateSuccess": "Gemstone duplicated successfully",
+      "archiveSuccess": "Gemstone archived successfully",
+      "restoreSuccess": "Gemstone restored successfully"
+    },
+    "errors": {
+      "duplicateError": "Failed to duplicate gemstone:",
+      "duplicateFailed": "Failed to duplicate gemstone",
+      "archiveError": "Failed to archive gemstone:",
+      "archiveFailed": "Failed to archive gemstone",
+      "restoreError": "Failed to restore gemstone:",
+      "restoreFailed": "Failed to restore gemstone",
+      "exportFailed": "Export failed: {error}",
+      "exportError": "Export error:"
+    },
     "gemstones": {
       "types": {
         "diamond": "Diamond",
@@ -445,6 +460,18 @@
       "origin": "Origin",
       "stockStatus": "Stock Status"
     },
+    "priceRangeTitle": "Price Range (USD)",
+    "weightRangeTitle": "Weight Range (carats)",
+    "stockStatus": "Stock Status",
+    "allItems": "All Items",
+    "inStockOnly": "In Stock Only",
+    "outOfStockOnly": "Out of Stock Only",
+    "origin": "Origin",
+    "gemstoneType": "Gemstone Type",
+    "color": "Color",
+    "cut": "Cut",
+    "clarity": "Clarity",
+    "noLimit": "No limit",
     "searchNamePlaceholder": "Enter a name for this search",
     "cancel": "Cancel",
     "confirm": "Confirm",

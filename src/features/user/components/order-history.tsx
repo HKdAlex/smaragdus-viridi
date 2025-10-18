@@ -13,7 +13,6 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/shared/components/ui/select";
 import { ChevronRight, MapPin, Package, Plus, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -142,7 +141,15 @@ export function OrderHistory({
             }
           >
             <SelectTrigger className="w-40">
-              <SelectValue placeholder={t("filterByStatus")} />
+              <span className="text-sm">
+                {statusFilter && statusFilter !== "all" ? (
+                  translateOrderStatus(statusFilter as OrderStatus, "user")
+                ) : (
+                  <span className="text-muted-foreground">
+                    {t("filterByStatus")}
+                  </span>
+                )}
+              </span>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{t("allOrders")}</SelectItem>

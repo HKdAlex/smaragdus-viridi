@@ -7,6 +7,13 @@ import {
   CardTitle,
 } from "@/shared/components/ui/card";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/shared/components/ui/select";
+import {
   Filter,
   History,
   Save,
@@ -15,13 +22,6 @@ import {
   SortDesc,
   X,
 } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/components/ui/select";
 import { useEffect, useState } from "react";
 
 import { Badge } from "@/shared/components/ui/badge";
@@ -137,7 +137,12 @@ export function EnhancedSearch({
     value: string
   ) => {
     const numValue = value ? parseFloat(value) : undefined;
-    setFilters({ ...filters, [field]: numValue });
+    // Convert price values from dollars to cents for API
+    const convertedValue =
+      (field === "priceMin" || field === "priceMax") && numValue
+        ? Math.round(numValue * 100)
+        : numValue;
+    setFilters({ ...filters, [field]: convertedValue });
   };
 
   const handleMultiSelectChange = (
@@ -213,6 +218,12 @@ export function EnhancedSearch({
     "peridot",
     "citrine",
     "tanzanite",
+    "aquamarine",
+    "morganite",
+    "tourmaline",
+    "zircon",
+    "apatite",
+    "quartz",
   ];
 
   const gemColors = [
@@ -661,7 +672,13 @@ export function EnhancedSearch({
                 onValueChange={handleStockFilterChange}
               >
                 <SelectTrigger className="w-full sm:w-48 min-h-[44px]">
-                  <SelectValue />
+                  <span className="text-sm">
+                    {filters.inStock === undefined
+                      ? t("allItems")
+                      : filters.inStock
+                      ? t("inStockOnly")
+                      : t("outOfStockOnly")}
+                  </span>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">{t("allItems")}</SelectItem>

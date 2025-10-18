@@ -269,7 +269,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                       <Scale className="w-5 h-5 text-primary" />
                     </div>
                     <div className="text-xl font-semibold text-muted-foreground">
-                      {formatWeight(gemstone.weight_carats)} ct
+                      {formatWeight(gemstone.weight_carats)}
                     </div>
                   </div>
                 </div>

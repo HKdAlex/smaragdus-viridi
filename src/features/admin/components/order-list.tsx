@@ -1,17 +1,28 @@
 "use client";
 
 import {
+  ArrowUpDown,
+  Eye,
+  MoreHorizontal,
+  Package,
+  Search,
+  X,
+} from "lucide-react";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
+import type {
+  OrderListProps,
+  OrderStatus,
+} from "../types/order-management.types";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/shared/components/ui/select";
 import {
   Table,
@@ -21,28 +32,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/shared/components/ui/table";
-import {
-  ArrowUpDown,
-  Eye,
-  MoreHorizontal,
-  Package,
-  Search,
-  X,
-} from "lucide-react";
-import type {
-  OrderListProps,
-  OrderStatus,
-} from "../types/order-management.types";
 
-import { useOrderTranslations } from "@/features/orders/utils/order-translations";
-import { useRouter } from "@/i18n/navigation";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
-import { format } from "date-fns";
-import { useTranslations } from "next-intl";
-import { useState } from "react";
 import { ORDER_STATUS_CONFIG } from "../types/order-management.types";
+import { format } from "date-fns";
+import { useOrderTranslations } from "@/features/orders/utils/order-translations";
+import { useRouter } from "@/i18n/navigation";
+import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 export function OrderList({
   orders,
@@ -175,7 +174,15 @@ export function OrderList({
             }
           >
             <SelectTrigger className="w-32">
-              <SelectValue placeholder={t("filterByStatus")} />
+              <span className="text-sm">
+                {statusFilter && statusFilter !== "all" ? (
+                  translateOrderStatus(statusFilter as OrderStatus, "admin")
+                ) : (
+                  <span className="text-muted-foreground">
+                    {t("filterByStatus")}
+                  </span>
+                )}
+              </span>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{t("allStatuses")}</SelectItem>

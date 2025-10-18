@@ -213,6 +213,21 @@
       "clarity": "Чистота",
       "cut": "Огранка"
     },
+    "messages": {
+      "duplicateSuccess": "Камень успешно скопирован",
+      "archiveSuccess": "Камень успешно архивирован",
+      "restoreSuccess": "Камень успешно восстановлен"
+    },
+    "errors": {
+      "duplicateError": "Не удалось скопировать камень:",
+      "duplicateFailed": "Не удалось скопировать камень",
+      "archiveError": "Не удалось архивировать камень:",
+      "archiveFailed": "Не удалось архивировать камень",
+      "restoreError": "Не удалось восстановить камень:",
+      "restoreFailed": "Не удалось восстановить камень",
+      "exportFailed": "Экспорт не удался: {error}",
+      "exportError": "Ошибка экспорта:"
+    },
     "gemstones": {
       "types": {
         "diamond": "Бриллиант",
@@ -429,6 +444,18 @@
       "origin": "Происхождение",
       "stockStatus": "Наличие"
     },
+    "priceRangeTitle": "Диапазон цен (USD)",
+    "weightRangeTitle": "Диапазон веса (карат)",
+    "stockStatus": "Статус наличия",
+    "allItems": "Все товары",
+    "inStockOnly": "Только в наличии",
+    "outOfStockOnly": "Только нет в наличии",
+    "origin": "Происхождение",
+    "gemstoneType": "Тип камня",
+    "color": "Цвет",
+    "cut": "Огранка",
+    "clarity": "Чистота",
+    "noLimit": "Без ограничений",
     "searchNamePlaceholder": "Введите название для этого поиска",
     "cancel": "Отмена",
     "confirm": "Подтвердить",

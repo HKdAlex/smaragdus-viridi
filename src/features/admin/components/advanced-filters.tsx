@@ -11,7 +11,6 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/shared/components/ui/select";
 import { ChevronDown, ChevronUp, Filter, RotateCcw, X } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -479,7 +478,13 @@ export function AdvancedFilters({
                 }
               >
                 <SelectTrigger>
-                  <SelectValue />
+                  <span className="text-sm">
+                    {localFilters.stockStatus === "all"
+                      ? t("allItems")
+                      : localFilters.stockStatus === "in_stock"
+                      ? t("inStockOnly")
+                      : t("outOfStockOnly")}
+                  </span>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">{t("allItems")}</SelectItem>

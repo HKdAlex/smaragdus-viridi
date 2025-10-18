@@ -7,20 +7,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "@/shared/components/ui/select";
+import { Eye, EyeOff, Lock, Save, User } from "lucide-react";
 import type {
   ChangePasswordRequest,
   CurrencyCode,
   UpdateProfileRequest,
   UserProfile,
 } from "../types/user-profile.types";
-import { Eye, EyeOff, Lock, Save, User } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/components/ui/select";
 
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
@@ -28,8 +27,8 @@ import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import { Separator } from "@/shared/components/ui/separator";
-import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
 
 interface ProfileSettingsProps {
   user: UserProfile;
@@ -203,7 +202,17 @@ export function ProfileSettings({
                 }
               >
                 <SelectTrigger>
-                  <SelectValue placeholder={t("selectCurrency")} />
+                  <span className="text-sm">
+                    {profileForm.preferred_currency ? (
+                      currencies.find(
+                        (c) => c.value === profileForm.preferred_currency
+                      )?.label || profileForm.preferred_currency
+                    ) : (
+                      <span className="text-muted-foreground">
+                        {t("selectCurrency")}
+                      </span>
+                    )}
+                  </span>
                 </SelectTrigger>
                 <SelectContent>
                   {currencies.map((currency) => (
@@ -227,7 +236,17 @@ export function ProfileSettings({
                 }
               >
                 <SelectTrigger>
-                  <SelectValue placeholder={t("selectLanguage")} />
+                  <span className="text-sm">
+                    {profileForm.language_preference ? (
+                      languages.find(
+                        (l) => l.value === profileForm.language_preference
+                      )?.label || profileForm.language_preference
+                    ) : (
+                      <span className="text-muted-foreground">
+                        {t("selectLanguage")}
+                      </span>
+                    )}
+                  </span>
                 </SelectTrigger>
                 <SelectContent>
                   {languages.map((language) => (
