@@ -733,7 +733,8 @@
       "totalPrice": "Общая цена",
       "description": "Описание",
       "promotionalText": "Рекламный текст",
-      "marketingHighlights": "Маркетинговые особенности"
+      "marketingHighlights": "Маркетинговые особенности",
+      "mediaUpload": "Загрузка медиа"
     },
     "actions": {
       "cancel": "Отмена",
@@ -745,7 +746,13 @@
       "serialNumberExists": "Серийный номер уже существует",
       "unexpectedError": "Произошла неожиданная ошибка",
       "generalError": "Произошла ошибка"
-    }
+    },
+    "uploading": "Загрузка файлов...",
+    "dropFiles": "Перетащите файлы сюда",
+    "uploadMedia": "Загрузить медиа камня",
+    "dragDropDescription": "Перетащите изображения и видео, или нажмите для выбора",
+    "supportedFormats": "Поддерживается: JPEG, PNG, WebP (до 50MB), MP4, WebM (до 500MB)",
+    "uploadedMedia": "Загруженные медиа"
   },
   "gemstoneManagement": {
     "title": "Управление драгоценными камнями",

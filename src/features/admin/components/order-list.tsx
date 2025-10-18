@@ -66,6 +66,7 @@ export function OrderList({
         !searchQuery ||
         order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
         order.order_number?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        order.order_number?.replace(/^cq-/, 'CQ-').includes(searchQuery) ||
         order.user?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         order.user?.email?.toLowerCase().includes(searchQuery.toLowerCase());
 
@@ -200,7 +201,7 @@ export function OrderList({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-20">{t("orderNumber")}</TableHead>
+              <TableHead className="w-24 whitespace-nowrap">{t("orderNumber")}</TableHead>
               <TableHead>{t("customer")}</TableHead>
               <TableHead>
                 <Button
@@ -244,8 +245,8 @@ export function OrderList({
                   }`}
                   onClick={() => handleOrderClick(order)}
                 >
-                  <TableCell className="font-mono text-sm">
-                    {order.order_number || order.id.slice(0, 8) + "..."}
+                  <TableCell className="font-mono text-sm whitespace-nowrap">
+                    {order.order_number?.replace(/^cq-/, 'CQ-') || order.id.slice(0, 8) + "..."}
                   </TableCell>
                   <TableCell>
                     <div>

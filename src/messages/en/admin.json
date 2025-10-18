@@ -749,7 +749,8 @@
       "totalPrice": "Total Price",
       "description": "Description",
       "promotionalText": "Promotional Text",
-      "marketingHighlights": "Marketing Highlights"
+      "marketingHighlights": "Marketing Highlights",
+      "mediaUpload": "Media Upload"
     },
     "actions": {
       "cancel": "Cancel",
@@ -761,7 +762,13 @@
       "serialNumberExists": "Serial number already exists",
       "unexpectedError": "An unexpected error occurred",
       "generalError": "An error occurred"
-    }
+    },
+    "uploading": "Uploading files...",
+    "dropFiles": "Drop files here",
+    "uploadMedia": "Upload gemstone media",
+    "dragDropDescription": "Drag & drop images and videos, or click to select",
+    "supportedFormats": "Supports: JPEG, PNG, WebP (up to 50MB), MP4, WebM (up to 500MB)",
+    "uploadedMedia": "Uploaded Media"
   },
   "gemstoneManagement": {
     "title": "Gemstone Management",

@@ -29,6 +29,11 @@ import {
   type GemstoneFormData,
   type GemstoneWithRelations,
 } from "../services/gemstone-admin-service";
+import {
+  MediaUploadService,
+  type MediaUploadResult,
+} from "../services/media-upload-service";
+import { MediaUpload } from "./media-upload";
 
 interface GemstoneFormProps {
   gemstone?: GemstoneWithRelations;
@@ -47,6 +52,16 @@ const GEMSTONE_TYPES = [
   "peridot",
   "citrine",
   "tanzanite",
+  "aquamarine",
+  "morganite",
+  "tourmaline",
+  "zircon",
+  "apatite",
+  "quartz",
+  "paraiba",
+  "spinel",
+  "alexandrite",
+  "agate",
 ] as const;
 
 const GEM_COLORS = [
@@ -76,16 +91,23 @@ const GEM_COLORS = [
 
 const GEM_CUTS = [
   "round",
-  "princess",
-  "emerald",
   "oval",
   "marquise",
   "pear",
+  "emerald",
+  "princess",
   "cushion",
   "radiant",
-  "asscher",
-  "heart",
   "fantasy",
+  "baguette",
+  "asscher",
+  "rhombus",
+  "trapezoid",
+  "triangle",
+  "heart",
+  "cabochon",
+  "pentagon",
+  "hexagon",
 ] as const;
 
 const GEM_CLARITIES = [
@@ -122,6 +144,7 @@ export function GemstoneForm({
   const [marketingHighlights, setMarketingHighlights] = useState<string[]>([]);
   const [currentHighlight, setCurrentHighlight] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [uploadedMedia, setUploadedMedia] = useState<MediaUploadResult[]>([]);
 
   const [formData, setFormData] = useState<GemstoneFormData>({
     name: gemstone?.name || "diamond",
@@ -167,6 +190,34 @@ export function GemstoneForm({
   useEffect(() => {
     if (gemstone?.marketing_highlights) {
       setMarketingHighlights(gemstone.marketing_highlights);
+    }
+  }, [gemstone]);
+
+  // Load existing media if editing
+  useEffect(() => {
+    if (gemstone?.id) {
+      MediaUploadService.getGemstoneMedia(gemstone.id).then((result) => {
+        if (result.success && result.data) {
+          // Convert existing media to MediaUploadResult format
+          const existingMedia: MediaUploadResult[] = [
+            ...(result.data.images?.map((img) => ({
+              id: img.id,
+              url: img.image_url,
+              type: "image" as const,
+              originalName: img.original_filename || "image",
+              size: 0, // Size not available from database
+            })) || []),
+            ...(result.data.videos?.map((vid) => ({
+              id: vid.id,
+              url: vid.video_url,
+              type: "video" as const,
+              originalName: "video",
+              size: 0, // Size not available from database
+            })) || []),
+          ];
+          setUploadedMedia(existingMedia);
+        }
+      });
     }
   }, [gemstone]);
 
@@ -743,6 +794,19 @@ export function GemstoneForm({
               </div>
             )}
           </div>
+
+          {/* Media Upload */}
+          <MediaUpload
+            gemstoneId={gemstone?.id}
+            serialNumber={formData.serial_number}
+            onUploadComplete={(results) => {
+              setUploadedMedia((prev) => [...prev, ...results]);
+            }}
+            onUploadError={(error) => {
+              setErrors((prev) => ({ ...prev, media: error }));
+            }}
+            disabled={isLoading}
+          />
 
           {/* Form Actions */}
           <div className="flex justify-end gap-4 pt-6 border-t">
