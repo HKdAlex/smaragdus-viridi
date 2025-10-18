@@ -1,12 +1,6 @@
 "use client";
 
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui/card";
-import {
   AlertCircle,
   ArrowLeft,
   Calendar,
@@ -19,25 +13,31 @@ import {
   User,
   X,
 } from "lucide-react";
-import Image from "next/image";
-import { useCallback, useEffect, useState } from "react";
-
-import { useGemstoneTranslations } from "@/features/gemstones/utils/gemstone-translations";
-import { useRouter } from "@/i18n/navigation";
-import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
-import { Separator } from "@/shared/components/ui/separator";
-import type { Order } from "@/shared/types";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
 import {
   getOrderStatusColors,
   getOrderStatusIcon,
   getOrderStatusVariant,
 } from "@/shared/utils/order-status";
-import { format } from "date-fns";
-import { useTranslations } from "next-intl";
-import type { OrderTimeline as OrderTimelineType } from "../types/order-tracking.types";
-import { useOrderTranslations } from "../utils/order-translations";
+import { useCallback, useEffect, useState } from "react";
+
+import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
+import Image from "next/image";
+import type { Order } from "@/shared/types";
 import { OrderTimeline } from "./order-timeline";
+import type { OrderTimeline as OrderTimelineType } from "../types/order-tracking.types";
+import { Separator } from "@/shared/components/ui/separator";
+import { format } from "date-fns";
+import { useGemstoneTranslations } from "@/features/gemstones/utils/gemstone-translations";
+import { useOrderTranslations } from "../utils/order-translations";
+import { useRouter } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 
 interface OrderDetailsPageProps {
   orderId: string;
