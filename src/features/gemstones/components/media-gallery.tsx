@@ -1,10 +1,5 @@
 "use client";
 
-import { Dialog, DialogContent } from "@/shared/components/ui/dialog";
-import type {
-  DatabaseGemstoneImage,
-  DatabaseGemstoneVideo,
-} from "@/shared/types";
 import {
   ChevronLeft,
   ChevronRight,
@@ -15,12 +10,17 @@ import {
   VolumeX,
   X,
 } from "lucide-react";
+import type {
+  DatabaseGemstoneImage,
+  DatabaseGemstoneVideo,
+} from "@/shared/types";
+import { Dialog, DialogContent } from "@/shared/components/ui/dialog";
 import { useEffect, useRef, useState } from "react";
 
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { useTranslations } from "next-intl";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 
 interface MediaGalleryProps {
   images: DatabaseGemstoneImage[];
@@ -101,6 +101,11 @@ export function MediaGallery({
   const [videoDuration, setVideoDuration] = useState(0);
   const [imageError, setImageError] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Touch/swipe state
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [isSwiping, setIsSwiping] = useState(false);
 
   const currentMedia = mediaItems[currentIndex];
 
@@ -379,6 +384,19 @@ export function MediaGallery({
             </Badge>
           </div>
         )}
+
+        {/* Swipe Indicator */}
+        {isSwiping && mediaItems.length > 1 && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="bg-black/30 dark:bg-black/50 backdrop-blur-sm rounded-full px-4 py-2">
+              <p className="text-white dark:text-foreground text-sm font-medium">
+                {touchStart && touchEnd && touchStart - touchEnd > 0
+                  ? "← Swipe left for next"
+                  : "→ Swipe right for previous"}
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Thumbnail Navigation - Optimized for square images */}
@@ -494,6 +512,19 @@ export function MediaGallery({
                 {currentIndex + 1} / {mediaItems.length}
               </Badge>
             </div>
+
+            {/* Lightbox Swipe Indicator */}
+            {isSwiping && mediaItems.length > 1 && (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="bg-black/50 dark:bg-black/70 backdrop-blur-sm rounded-full px-6 py-3">
+                  <p className="text-white dark:text-foreground text-base font-medium">
+                    {touchStart && touchEnd && touchStart - touchEnd > 0
+                      ? "← Swipe left for next"
+                      : "→ Swipe right for previous"}
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>

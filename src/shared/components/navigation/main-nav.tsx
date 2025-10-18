@@ -3,13 +3,13 @@
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { useMemo, useRef, useState } from "react";
 
-import { Button } from "@/shared/components/ui/button";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import { Logo } from "@/shared/components/ui/logo";
-import { SearchInput } from "@/features/search/components/search-input";
-import { ThemeToggle } from "@/shared/components/ui/theme-toggle";
 import { useAuth } from "@/features/auth/context/auth-context";
 import { useCartContext } from "@/features/cart/context/cart-context";
+import { SearchInput } from "@/features/search/components/search-input";
+import { Button } from "@/shared/components/ui/button";
+import { Logo } from "@/shared/components/ui/logo";
+import { ThemeToggle } from "@/shared/components/ui/theme-toggle";
 import { useTranslations } from "next-intl";
 
 // Safe admin status hook that doesn't throw if AdminProvider is not available
@@ -86,14 +86,15 @@ export function MainNav() {
     return baseNavigation;
   }, [t, isAdmin]);
 
-  // User navigation (shown when logged in)
+  // User navigation (shown when logged in, hidden for admin users)
   const userNavigation: NavItem[] = useMemo(() => {
-    const baseUserNavigation = [{ name: t("profile"), href: "/profile" }];
-
-    // Hide "Orders" for admin users
-    if (!isAdmin) {
-      baseUserNavigation.unshift({ name: t("orders"), href: "/orders" });
+    // Hide all user navigation for admin users
+    if (isAdmin) {
+      return [];
     }
+
+    const baseUserNavigation = [{ name: t("profile"), href: "/profile" }];
+    baseUserNavigation.unshift({ name: t("orders"), href: "/orders" });
 
     return baseUserNavigation;
   }, [t, isAdmin]);
@@ -275,8 +276,8 @@ export function MainNav() {
               )}
             </div>
 
-            {/* Cart button */}
-            {user && (
+            {/* Cart button - hidden for admin users */}
+            {user && !isAdmin && (
               <Link
                 href="/cart"
                 className="p-2 text-muted-foreground hover:text-primary transition-colors relative"

@@ -65,6 +65,7 @@ export function OrderList({
       const matchesSearch =
         !searchQuery ||
         order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        order.order_number?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         order.user?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         order.user?.email?.toLowerCase().includes(searchQuery.toLowerCase());
 
@@ -199,7 +200,7 @@ export function OrderList({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-20">{t("orderId")}</TableHead>
+              <TableHead className="w-20">{t("orderNumber")}</TableHead>
               <TableHead>{t("customer")}</TableHead>
               <TableHead>
                 <Button
@@ -244,7 +245,7 @@ export function OrderList({
                   onClick={() => handleOrderClick(order)}
                 >
                   <TableCell className="font-mono text-sm">
-                    {order.id.slice(0, 8)}...
+                    {order.order_number || order.id.slice(0, 8) + "..."}
                   </TableCell>
                   <TableCell>
                     <div>

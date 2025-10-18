@@ -122,7 +122,9 @@
     "filtersSidebar": "Фильтры",
     "visualMode": "Визуальный режим",
     "standardMode": "Стандартный режим",
-    "modeToggleLabel": "Режим фильтров"
+    "modeToggleLabel": "Режим фильтров",
+    "cancel": "Отмена",
+    "apply": "Применить"
   },
   "visual": {
     "cutShape": "Форма огранки",

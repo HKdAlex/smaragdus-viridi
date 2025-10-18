@@ -188,7 +188,7 @@ export function GemstoneCatalogOptimized() {
       <CatalogHeader title={t("title")} description={t("description")} />
 
       {/* Category Tabs */}
-      <div className="px-4 mt-6">
+      <div className="px-2 sm:px-4 mt-6">
         <CategoryTabs
           categories={categoryTabs}
           activeCategory={activeCategory}
@@ -207,9 +207,9 @@ export function GemstoneCatalogOptimized() {
       )}
 
       {/* Results Section */}
-      <div className="px-4">
+      <div className="px-2 sm:px-4">
         {/* Results Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-4 sm:mb-6 mt-4 sm:mt-0">
           <h2 className="text-lg sm:text-xl font-semibold text-foreground">
             {totalCount} {t("gemstonesFound")}
           </h2>

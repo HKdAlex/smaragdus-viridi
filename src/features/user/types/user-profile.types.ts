@@ -46,6 +46,7 @@ export interface UserOrder {
   readonly currency_code: string;
   readonly created_at: string;
   readonly updated_at: string;
+  readonly order_number?: string | null;
   readonly items: UserOrderItem[];
   readonly delivery_address?: DeliveryAddress;
 }

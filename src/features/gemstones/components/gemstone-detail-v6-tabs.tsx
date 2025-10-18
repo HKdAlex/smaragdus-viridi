@@ -46,20 +46,20 @@ export function GemstoneDetailV6Tabs({
   ];
 
   return (
-    <Card className="border-0 shadow-2xl bg-gradient-to-br from-card via-card to-muted/20">
+    <Card className="border border-white/10 shadow-2xl bg-white/5 dark:bg-black/20 backdrop-blur-xl">
       <CardContent className="p-0">
         {/* Tab Navigation */}
-        <div className="flex border-b border-border bg-muted/30">
+        <div className="flex border-b border-white/10 bg-white/5 dark:bg-black/10 backdrop-blur-sm">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 px-6 py-4 text-sm font-semibold transition-all ${
+                className={`flex-1 px-3 sm:px-6 py-3 sm:py-4 text-sm font-semibold transition-all ${
                   activeTab === tab.id
-                    ? "text-primary border-b-2 border-primary bg-background"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    ? "text-primary border-b-2 border-primary bg-white/10 dark:bg-black/20 backdrop-blur-sm"
+                    : "text-muted-foreground hover:text-foreground hover:bg-white/5 dark:hover:bg-black/10"
                 }`}
               >
                 <div className="flex items-center justify-center gap-2">
@@ -72,7 +72,7 @@ export function GemstoneDetailV6Tabs({
         </div>
 
         {/* Tab Content */}
-        <div className="p-6 sm:p-8 space-y-6">
+        <div className="p-3 sm:p-4 lg:p-8 space-y-4 sm:space-y-6">
           {/* Overview Tab */}
           {activeTab === "overview" && (
             <div className="space-y-6 animate-in fade-in duration-300">
@@ -139,7 +139,7 @@ export function GemstoneDetailV6Tabs({
                 return (
                   highlights &&
                   highlights.length > 0 && (
-                    <div className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl p-6 border border-primary/20">
+                    <div className="bg-white/5 dark:bg-black/20 backdrop-blur-xl rounded-xl p-6 border border-white/10">
                       <h3 className="font-bold text-primary mb-4 flex items-center gap-2">
                         <Sparkles className="w-5 h-5" />
                         {t("keyHighlights")}
@@ -194,7 +194,7 @@ export function GemstoneDetailV6Tabs({
                         {t("narrativeStory")}
                       </h3>
                       <p className="text-xs text-muted-foreground">
-                        The journey of this gem
+                        {t("journey")}
                       </p>
                     </div>
                   </div>
@@ -220,7 +220,7 @@ export function GemstoneDetailV6Tabs({
                         {t("historicalContext")}
                       </h3>
                       <p className="text-xs text-muted-foreground">
-                        Through the ages
+                        {t("throughAges")}
                       </p>
                     </div>
                   </div>
@@ -250,7 +250,7 @@ export function GemstoneDetailV6Tabs({
                         {t("careInstructions")}
                       </h3>
                       <p className="text-xs text-muted-foreground">
-                        Keep it pristine
+                        {t("keepPristine")}
                       </p>
                     </div>
                   </div>

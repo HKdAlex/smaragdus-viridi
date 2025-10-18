@@ -52,6 +52,7 @@
     "noOrdersFound": "No orders found",
     "loadingOrders": "Loading orders...",
     "orderId": "Order ID",
+    "orderNumber": "Order Number",
     "customer": "Customer",
     "date": "Date",
     "status": "Status",
@@ -197,6 +198,8 @@
     "inStock": "In Stock",
     "outOfStock": "Out of Stock",
     "deliveryDays": "{days} days",
+    "days": "days",
+    "carats": "ct",
     "labels": {
       "clarity": "Clarity",
       "cut": "Cut"

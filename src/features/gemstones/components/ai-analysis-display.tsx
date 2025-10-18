@@ -32,6 +32,7 @@ import { DataComparisonCard } from "./data-comparison-card";
 import type { DatabaseAIAnalysisResult } from "@/shared/types";
 import { Progress } from "@/shared/components/ui/progress";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 interface AIAnalysisDisplayProps {
   gemstoneId: string;
@@ -50,6 +51,7 @@ export function AIAnalysisDisplay({
   aiAnalysisDate,
   gemstone,
 }: AIAnalysisDisplayProps) {
+  const t = useTranslations("catalog");
   const [activeTab, setActiveTab] = useState("overview");
   const [showRawData, setShowRawData] = useState(false);
   const [selectedAnalysis, setSelectedAnalysis] = useState(0);
@@ -57,7 +59,7 @@ export function AIAnalysisDisplay({
   // More robust check for AI analysis availability
   if (!aiAnalyzed || !analysisData || analysisData.length === 0) {
     return (
-      <Card className="border-dashed border-muted-foreground/30">
+      <Card className="border-dashed border-white/20 bg-white/5 dark:bg-black/20 backdrop-blur-xl">
         <CardContent className="p-8 text-center">
           <div className="flex flex-col items-center gap-4">
             <div className="w-16 h-16 bg-muted/30 rounded-full flex items-center justify-center">
@@ -188,7 +190,7 @@ export function AIAnalysisDisplay({
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Enhanced Header */}
-      <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 shadow-lg">
+      <Card className="bg-white/5 dark:bg-black/20 backdrop-blur-xl border border-white/10 shadow-lg">
         <CardHeader className="pb-4">
           <CardTitle className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-3">
@@ -232,7 +234,9 @@ export function AIAnalysisDisplay({
               {/* Analysis Date */}
               {aiAnalysisDate && (
                 <div className="text-right">
-                  <div className="text-xs text-muted-foreground">Analyzed</div>
+                  <div className="text-xs text-muted-foreground">
+                    {t("analyzed")}
+                  </div>
                   <div className="text-sm font-medium text-foreground">
                     {new Date(aiAnalysisDate).toLocaleDateString()}
                   </div>
@@ -258,7 +262,9 @@ export function AIAnalysisDisplay({
 
             {data?.weight && (
               <div className="bg-card/80 border border-border rounded-lg p-3 sm:p-4 text-center">
-                <div className="text-xs text-muted-foreground">AI Weight</div>
+                <div className="text-xs text-muted-foreground">
+                  {t("aiWeight")}
+                </div>
                 <div className="font-bold text-sm text-foreground">
                   {data.weight.value} {data.weight.unit}
                 </div>
@@ -267,7 +273,9 @@ export function AIAnalysisDisplay({
 
             {data?.shape_cut && (
               <div className="bg-card/80 border border-border rounded-lg p-3 sm:p-4 text-center">
-                <div className="text-xs text-muted-foreground">AI Shape</div>
+                <div className="text-xs text-muted-foreground">
+                  {t("aiShape")}
+                </div>
                 <div className="font-bold text-sm text-foreground capitalize">
                   {data.shape_cut.value}
                 </div>
@@ -571,7 +579,7 @@ export function AIAnalysisDisplay({
             )}
 
             {/* Extracted Gemstone Data */}
-            <Card>
+            <Card className="border border-white/10 shadow-lg bg-white/5 dark:bg-black/20 backdrop-blur-xl">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Code2 className="w-5 h-5 text-primary" />
@@ -583,11 +591,11 @@ export function AIAnalysisDisplay({
                   {/* Physical Properties */}
                   <div className="space-y-3">
                     <h4 className="font-medium text-sm text-muted-foreground">
-                      Physical Properties
+                      {t("physicalProperties")}
                     </h4>
                     {data?.weight && (
                       <div className="flex justify-between">
-                        <span className="text-sm">Weight</span>
+                        <span className="text-sm">{t("weight")}</span>
                         <span className="font-medium text-sm">
                           {data.weight.value} {data.weight.unit}
                           <Badge variant="outline" className="ml-2 text-xs">
@@ -600,7 +608,7 @@ export function AIAnalysisDisplay({
                       <>
                         {data.dimensions.length_mm && (
                           <div className="flex justify-between">
-                            <span className="text-sm">Length</span>
+                            <span className="text-sm">{t("length")}</span>
                             <span className="font-medium text-sm">
                               {data.dimensions.length_mm} mm
                               <Badge variant="outline" className="ml-2 text-xs">
@@ -611,7 +619,7 @@ export function AIAnalysisDisplay({
                         )}
                         {data.dimensions.width_mm && (
                           <div className="flex justify-between">
-                            <span className="text-sm">Width</span>
+                            <span className="text-sm">{t("width")}</span>
                             <span className="font-medium text-sm">
                               {data.dimensions.width_mm} mm
                             </span>
@@ -674,13 +682,13 @@ export function AIAnalysisDisplay({
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <DataComparisonCard
-                label="Weight (carats)"
+                label={t("weightCarats")}
                 manualValue={gemstone.weight_carats}
                 aiValue={gemstone.ai_weight_carats}
                 confidence={gemstone.ai_extraction_confidence}
               />
               <DataComparisonCard
-                label="Dimensions (mm)"
+                label={t("dimensionsMm")}
                 manualValue={
                   gemstone.length_mm
                     ? `${gemstone.length_mm} × ${gemstone.width_mm} × ${gemstone.depth_mm}`
@@ -818,10 +826,12 @@ export function AIAnalysisDisplay({
 
                       <div className="space-y-3">
                         <h4 className="font-medium text-sm text-muted-foreground">
-                          Batch Information
+                          {t("batchInformation")}
                         </h4>
                         <div className="flex justify-between">
-                          <span className="text-sm">Total Images Analyzed</span>
+                          <span className="text-sm">
+                            {t("totalImagesAnalyzed")}
+                          </span>
                           <span className="font-medium">
                             {data?.processing_metadata?.total_images_analyzed ||
                               data?.processing_metadata?.image_batch_info

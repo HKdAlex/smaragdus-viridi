@@ -201,7 +201,7 @@ export function GemstoneCard({
       <div className={isCompact ? "p-2" : "p-3 sm:p-4"}>
         {/* Title */}
         <h3
-          className={`font-semibold text-foreground capitalize leading-tight mb-3 ${
+          className={`font-semibold text-foreground capitalize leading-tight mb-3 mt-2 sm:mt-0 ${
             isCompact ? "text-xs" : "text-base sm:text-lg"
           }`}
         >
@@ -366,7 +366,9 @@ export function GemstoneCard({
 
           {gemstone.delivery_days && (
             <div className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded self-start sm:self-auto">
-              {gemstone.delivery_days} days
+              {t("gemstone.detail.daysDelivery", {
+                days: gemstone.delivery_days,
+              })}
             </div>
           )}
         </div>
@@ -400,7 +402,7 @@ export function GemstoneCard({
     return (
       <button
         onClick={() => onSelect(gemstone.id)}
-        className={`bg-card border border-border rounded-lg overflow-hidden
+        className={`bg-white/5 dark:bg-black/20 backdrop-blur-xl border border-white/10 rounded-lg overflow-hidden
                    hover:shadow-lg hover:shadow-primary/10
                    transition-all duration-300 group
                    hover:border-primary/30 w-full text-left
@@ -420,7 +422,7 @@ export function GemstoneCard({
   return (
     <Link
       href={linkHref}
-      className={`bg-card border border-border rounded-lg overflow-hidden
+      className={`bg-white/5 dark:bg-black/20 backdrop-blur-xl border border-white/10 rounded-lg overflow-hidden
                  hover:shadow-lg hover:shadow-primary/10
                  transition-all duration-300 group
                  hover:border-primary/30 block

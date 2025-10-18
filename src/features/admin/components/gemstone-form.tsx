@@ -278,7 +278,7 @@ export function GemstoneForm({
   };
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
+    <Card className="w-full max-w-7xl mx-auto">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Gem className="w-5 h-5" />
@@ -287,7 +287,7 @@ export function GemstoneForm({
       </CardHeader>
 
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form onSubmit={handleSubmit} className="space-y-6">
           {errors.submit && (
             <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-800 flex items-center gap-2">
               <AlertCircle className="w-4 h-4" />
@@ -296,8 +296,8 @@ export function GemstoneForm({
           )}
 
           {/* Basic Information */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="space-y-2 md:col-span-2">
               <label
                 htmlFor="serial_number"
                 className="text-sm font-medium text-foreground"
@@ -624,7 +624,7 @@ export function GemstoneForm({
           </div>
 
           {/* Stock and Delivery */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="in_stock"
@@ -653,7 +653,7 @@ export function GemstoneForm({
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2 md:col-span-2">
               <label htmlFor="total_price">{t("labels.totalPrice")}</label>
               <div className="text-lg font-semibold text-green-600">
                 {formData.price_amount
@@ -666,32 +666,35 @@ export function GemstoneForm({
             </div>
           </div>
 
-          {/* Description */}
-          <div className="space-y-2">
-            <label htmlFor="description">{t("labels.description")}</label>
-            <Textarea
-              id="description"
-              value={formData.description || ""}
-              onChange={(e) => handleInputChange("description", e.target.value)}
-              placeholder={t("descriptionPlaceholder")}
-              rows={4}
-            />
-          </div>
+          {/* Description and Promotional Text */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label htmlFor="description">{t("labels.description")}</label>
+              <Textarea
+                id="description"
+                value={formData.description || ""}
+                onChange={(e) =>
+                  handleInputChange("description", e.target.value)
+                }
+                placeholder={t("descriptionPlaceholder")}
+                rows={4}
+              />
+            </div>
 
-          {/* Promotional Text */}
-          <div className="space-y-2">
-            <label htmlFor="promotional_text">
-              {t("labels.promotionalText")}
-            </label>
-            <Textarea
-              id="promotional_text"
-              value={formData.promotional_text || ""}
-              onChange={(e) =>
-                handleInputChange("promotional_text", e.target.value)
-              }
-              placeholder={t("promotionalTextPlaceholder")}
-              rows={3}
-            />
+            <div className="space-y-2">
+              <label htmlFor="promotional_text">
+                {t("labels.promotionalText")}
+              </label>
+              <Textarea
+                id="promotional_text"
+                value={formData.promotional_text || ""}
+                onChange={(e) =>
+                  handleInputChange("promotional_text", e.target.value)
+                }
+                placeholder={t("promotionalTextPlaceholder")}
+                rows={4}
+              />
+            </div>
           </div>
 
           {/* Marketing Highlights */}

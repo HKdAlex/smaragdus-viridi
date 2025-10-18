@@ -212,7 +212,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30">
       {/* Header Section with Breadcrumbs */}
       <div className="bg-background/80 backdrop-blur-sm border-b border-border sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-3 sm:py-4">
           <div className="flex items-center justify-between">
             {/* Breadcrumb Navigation */}
             <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
@@ -236,7 +236,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
         <div className="grid grid-cols-1 xl:grid-cols-5 gap-6 sm:gap-8 items-start">
           {/* Media Gallery - Takes up more space on larger screens */}
           <div className="xl:col-span-3">
@@ -254,7 +254,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
           <div className="xl:col-span-2 space-y-4">
             {/* Luxury Header Card - Redesigned */}
             <Card className="border-0 shadow-2xl bg-gradient-to-br from-card via-card/95 to-muted/40 backdrop-blur-xl overflow-hidden">
-              <CardContent className="p-6 space-y-6">
+              <CardContent className="p-3 sm:p-4 space-y-4 sm:space-y-6">
                 {/* Title Section */}
                 <div className="space-y-3">
                   {/* Main Title - First, with gradient shadow */}
@@ -305,7 +305,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                   return (
                     highlights &&
                     highlights.length > 0 && (
-                      <div className="relative bg-gradient-to-br from-primary/5 via-primary/3 to-transparent rounded-2xl p-6 border border-primary/5 backdrop-blur-sm overflow-hidden">
+                      <div className="relative bg-white/5 dark:bg-black/20 backdrop-blur-xl rounded-2xl p-6 border border-white/10 overflow-hidden">
                         {/* Elegant corner accent */}
                         <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/10 to-transparent rounded-bl-full blur-2xl" />
 
@@ -530,8 +530,8 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
 
         {/* Fallback: Legacy Description when no V6 */}
         {!gemstone.v6Text && gemstone.description && (
-          <Card className="mt-8 border-0 shadow-lg bg-gradient-to-br from-card to-muted/20 backdrop-blur-sm">
-            <CardContent className="p-6">
+          <Card className="mt-8 border border-white/10 shadow-lg bg-white/5 dark:bg-black/20 backdrop-blur-xl">
+            <CardContent className="p-3 sm:p-4">
               <h3 className="text-xl font-bold text-foreground mb-4 flex items-center">
                 <div className="w-1 h-6 bg-gradient-to-b from-primary to-primary/60 rounded-full mr-3" />
                 {t("description")}
@@ -545,24 +545,24 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
 
         {/* Technical Specifications - Full width below */}
         <div className="mt-8 space-y-8">
-          <Card className="border-0 shadow-2xl bg-gradient-to-br from-card via-muted/20 to-card backdrop-blur-sm">
-            <CardHeader className="pb-6">
-              <CardTitle className="flex items-center text-2xl font-bold text-foreground">
+          <Card className="border border-white/10 shadow-2xl bg-white/5 dark:bg-black/20 backdrop-blur-xl">
+            <CardHeader className="pb-4 sm:pb-6">
+              <CardTitle className="flex items-center text-xl sm:text-2xl font-bold text-foreground">
                 <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/60 rounded-lg flex items-center justify-center mr-3">
                   <Shield className="w-5 h-5 text-primary-foreground" />
                 </div>
                 {t("technicalSpecifications")}
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+            <CardContent className="p-3 sm:p-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-8">
                 {/* 4Cs */}
-                <div className="bg-gradient-to-br from-muted/30 to-card p-6 rounded-xl border border-border shadow-sm">
-                  <h4 className="font-bold text-base text-foreground mb-4 flex items-center">
+                <div className="bg-white/5 dark:bg-black/20 backdrop-blur-xl p-3 sm:p-4 rounded-xl border border-white/10 shadow-lg">
+                  <h4 className="font-bold text-sm sm:text-base text-foreground mb-3 sm:mb-4 flex items-center">
                     <div className="w-1 h-5 bg-gradient-to-b from-primary to-primary/60 rounded-full mr-2" />
                     {t("the4Cs")}
                   </h4>
-                  <div className="space-y-4 text-base leading-relaxed">
+                  <div className="space-y-3 sm:space-y-4 text-sm sm:text-base leading-relaxed">
                     {/* Carat Weight */}
                     <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
                       <Scale className="w-5 h-5 text-muted-foreground" />
@@ -668,12 +668,12 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                 </div>
 
                 {/* Dimensions */}
-                <div className="bg-gradient-to-br from-muted/30 to-card p-6 rounded-xl border border-border shadow-sm">
-                  <h4 className="font-bold text-base text-foreground mb-4 flex items-center">
+                <div className="bg-white/5 dark:bg-black/20 backdrop-blur-xl p-3 sm:p-4 rounded-xl border border-white/10 shadow-lg">
+                  <h4 className="font-bold text-sm sm:text-base text-foreground mb-3 sm:mb-4 flex items-center">
                     <div className="w-1 h-5 bg-gradient-to-b from-primary to-primary/60 rounded-full mr-2" />
                     {t("dimensions")}
                   </h4>
-                  <div className="space-y-4 text-base leading-relaxed">
+                  <div className="space-y-3 sm:space-y-4 text-sm sm:text-base leading-relaxed">
                     {/* Length */}
                     <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
                       <Ruler className="w-5 h-5 text-muted-foreground" />

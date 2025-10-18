@@ -122,7 +122,9 @@
     "filtersSidebar": "Filters",
     "visualMode": "Visual Mode",
     "standardMode": "Standard Mode",
-    "modeToggleLabel": "Filter Mode"
+    "modeToggleLabel": "Filter Mode",
+    "cancel": "Cancel",
+    "apply": "Apply"
   },
   "visual": {
     "cutShape": "Cut Shape",

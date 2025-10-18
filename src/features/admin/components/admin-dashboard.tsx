@@ -1,6 +1,12 @@
 "use client";
 
 import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
+import {
   BarChart3,
   Edit,
   Gem,
@@ -14,12 +20,6 @@ import {
   Users,
   X,
 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui/card";
 import { useEffect, useState } from "react";
 
 import { AdminAnalytics } from "./admin-analytics";
@@ -29,10 +29,10 @@ import { AdminSettings } from "./admin-settings";
 import { AdminUserManager } from "./admin-user-manager";
 // Import admin components (will be created in subsequent phases)
 import { Button } from "@/shared/components/ui/button";
-import { OrderManagement } from "./order-management";
-import { StatisticsService } from "../services/statistics-service";
-import { useAdmin } from "../context/admin-context";
 import { useTranslations } from "next-intl";
+import { useAdmin } from "../context/admin-context";
+import { StatisticsService } from "../services/statistics-service";
+import { OrderManagement } from "./order-management";
 
 type AdminTab =
   | "dashboard"
@@ -241,7 +241,13 @@ export function AdminDashboard() {
                     <div className="font-medium text-sm sm:text-base break-words">
                       {tab.name}
                     </div>
-                    <div className="text-xs sm:text-sm text-muted-foreground break-words leading-relaxed whitespace-normal overflow-wrap-anywhere">
+                    <div
+                      className={`text-xs sm:text-sm break-words leading-relaxed whitespace-normal overflow-wrap-anywhere ${
+                        isActive
+                          ? "text-primary-foreground/80"
+                          : "text-muted-foreground"
+                      }`}
+                    >
                       {tab.description}
                     </div>
                   </div>
@@ -462,7 +468,7 @@ function AdminDashboardOverview() {
                 <div className="font-medium text-sm sm:text-base break-words">
                   {t("quickActions.uploadGemstones")}
                 </div>
-                <div className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
+                <div className="text-xs sm:text-sm text-primary-foreground/80 line-clamp-2">
                   {t("quickActions.uploadGemstonesDesc")}
                 </div>
               </div>

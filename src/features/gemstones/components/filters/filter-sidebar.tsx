@@ -143,14 +143,39 @@ export function FilterSidebar({
           {/* Header */}
           <SheetHeader className="sticky top-0 z-10 bg-background border-b border-border">
             <div className="space-y-4">
-              <SheetTitle className="text-xl font-bold">
-                {t("sidebar.filtersSidebar")}
-                {activeFilterCount > 0 && (
-                  <span className="ml-2 text-sm font-normal text-muted-foreground">
-                    ({activeFilterCount})
-                  </span>
+              <div className="flex items-center justify-between">
+                <SheetTitle className="text-xl font-bold">
+                  {t("sidebar.filtersSidebar")}
+                  {activeFilterCount > 0 && (
+                    <span className="ml-2 text-sm font-normal text-muted-foreground">
+                      ({activeFilterCount})
+                    </span>
+                  )}
+                </SheetTitle>
+
+                {/* Mobile Close Button */}
+                {isMobile && (
+                  <button
+                    onClick={() => setIsOpen(false)}
+                    className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted"
+                    aria-label="Close filters"
+                  >
+                    <svg
+                      className="h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth="1.5"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
                 )}
-              </SheetTitle>
+              </div>
 
               {/* Mode Toggle */}
               <div className="inline-flex rounded-lg border border-border bg-muted p-1 w-full">
@@ -196,6 +221,26 @@ export function FilterSidebar({
               />
             )}
           </SheetBody>
+
+          {/* Mobile Action Buttons */}
+          {isMobile && (
+            <div className="sticky bottom-0 bg-background border-t border-border p-4 space-y-3">
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="flex-1 px-4 py-3 bg-muted text-muted-foreground hover:text-foreground rounded-lg font-medium transition-colors"
+                >
+                  {t("sidebar.cancel")}
+                </button>
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="flex-1 px-4 py-3 bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg font-medium transition-colors"
+                >
+                  {t("sidebar.apply")}
+                </button>
+              </div>
+            </div>
+          )}
         </SheetContent>
       </Sheet>
     </>

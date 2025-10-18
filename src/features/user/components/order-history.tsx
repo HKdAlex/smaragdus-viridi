@@ -54,6 +54,7 @@ export function OrderHistory({
     const matchesSearch =
       !searchQuery ||
       order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      order.order_number?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (order.items ?? []).some((item) =>
         item.gemstone.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
@@ -191,7 +192,9 @@ export function OrderHistory({
                   <div className="flex items-center space-x-3">
                     <div>
                       <CardTitle className="text-lg">
-                        {t("orderNumber", { number: order.id.slice(0, 8) })}
+                        {t("orderNumber", {
+                          number: order.order_number || order.id.slice(0, 8),
+                        })}
                       </CardTitle>
                       <CardDescription>
                         {format(

@@ -4,12 +4,12 @@ import type {
   DetailGemstone,
 } from "@/shared/types";
 
-import type { Database } from "@/shared/types/database";
 import { GemstoneDetail } from "@/features/gemstones/components/gemstone-detail";
-import { Suspense } from "react";
+import { supabase } from "@/lib/supabase";
+import type { Database } from "@/shared/types/database";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { Suspense } from "react";
 
 // DetailGemstone interface is now imported from shared types
 
@@ -157,7 +157,7 @@ async function fetchGemstoneById(
 function GemstoneDetailSkeleton() {
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
         <div className="animate-pulse">
           {/* Breadcrumb skeleton */}
           <div className="h-4 bg-muted rounded w-64 mb-6"></div>
@@ -204,7 +204,7 @@ export default async function GemstoneDetailPage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
         <Suspense fallback={<GemstoneDetailSkeleton />}>
           <GemstoneDetail gemstone={gemstone} />
         </Suspense>

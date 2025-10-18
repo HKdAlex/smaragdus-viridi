@@ -23,6 +23,7 @@ export interface OrderResult {
     total_amount: number;
     currency_code: string;
     created_at: string;
+    order_number?: string | null;
     items: Array<{
       gemstone_id: string;
       quantity: number;
@@ -158,6 +159,7 @@ export class OrderService {
             | "CHF"
             | "JPY",
           created_at: order.created_at || new Date().toISOString(),
+          order_number: order.order_number,
           items: orderItems.map((item) => ({
             gemstone_id: item.gemstone_id,
             quantity: item.quantity,
