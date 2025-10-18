@@ -33,7 +33,6 @@ import type { CatalogGemstone } from "@/features/gemstones/services/gemstone-fet
 import { EmptyState } from "@/features/gemstones/components/empty-state";
 import { ExportService } from "../services/export-service";
 import { GemstoneActionsMenu } from "./gemstone-actions-menu";
-import { GemstoneDetailView } from "./gemstone-detail-view";
 import type { GemstoneWithRelations } from "../services/gemstone-admin-service";
 // Services
 import { LoadingState } from "@/features/gemstones/components/loading-state";
@@ -77,9 +76,6 @@ export function GemstoneListRefactored({
   );
   const [bulkEditOpen, setBulkEditOpen] = useState(false);
   const [exporting, setExporting] = useState(false);
-  const [detailViewOpen, setDetailViewOpen] = useState(false);
-  const [selectedGemstoneForView, setSelectedGemstoneForView] =
-    useState<GemstoneWithRelations | null>(null);
 
   // React Query: Fetch gemstones
   const {
@@ -159,20 +155,13 @@ export function GemstoneListRefactored({
     setBulkEditOpen(true);
   }, [selectedGemstones]);
 
-  // Detail view handlers
+  // Detail view handlers - now uses the unified onView callback
   const handleViewDetail = useCallback(
     (gemstone: CatalogGemstone | GemstoneWithRelations) => {
-      setSelectedGemstoneForView(gemstone as GemstoneWithRelations);
-      setDetailViewOpen(true);
       onView?.(gemstone as GemstoneWithRelations);
     },
     [onView]
   );
-
-  const handleCloseDetailView = useCallback(() => {
-    setDetailViewOpen(false);
-    setSelectedGemstoneForView(null);
-  }, []);
 
   // Action handlers
   const handleEditGemstone = useCallback(
@@ -384,15 +373,6 @@ export function GemstoneListRefactored({
           selectedGemstones={selectedGemstones}
           onClose={() => setBulkEditOpen(false)}
           onSuccess={handleBulkEditSuccess}
-        />
-      )}
-
-      {/* Detail View Modal */}
-      {detailViewOpen && selectedGemstoneForView && (
-        <GemstoneDetailView
-          gemstone={selectedGemstoneForView}
-          isOpen={detailViewOpen}
-          onClose={handleCloseDetailView}
         />
       )}
     </div>

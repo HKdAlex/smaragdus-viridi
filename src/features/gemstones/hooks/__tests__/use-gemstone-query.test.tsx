@@ -4,15 +4,15 @@
  * Tests React Query integration for gemstone fetching
  */
 
+import type {
+  CatalogGemstone,
+  FetchGemstonesResult,
+} from "../../services/gemstone-fetch.service";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { describe, expect, it, vi } from "vitest";
 import { renderHook, waitFor } from "@testing-library/react";
 
 import type { AdvancedGemstoneFilters } from "../../types/filter.types";
-import type {
-  CatalogGemstone,
-  FetchGemstonesResult,
-} from "../../services/gemstone-fetch.service";
 import { GemstoneFetchService } from "../../services/gemstone-fetch.service";
 import React from "react";
 import { useGemstoneQuery } from "../use-gemstone-query";
@@ -49,7 +49,7 @@ const baseGemstone: CatalogGemstone = {
   internal_code: null,
   serial_number: "SER-1",
   origin_id: null,
-  ai_analyzed: null,
+  ai_text_generated_v6: false,
   ai_confidence_score: null,
   ai_analysis_date: null,
   ai_data_completeness: null,
@@ -66,6 +66,33 @@ const baseGemstone: CatalogGemstone = {
   search_vector_ru: null,
   description_vector_en: null,
   description_vector_ru: null,
+  // Add missing AI fields
+  ai_analysis_v5: false,
+  ai_analysis_v5_date: null,
+  ai_clarity: null,
+  ai_color: null,
+  ai_color_code: null,
+  ai_color_description: null,
+  ai_cut: null,
+  ai_depth_mm: null,
+  ai_description_cost_usd: null,
+  ai_length_mm: null,
+  ai_origin: null,
+  ai_width_mm: null,
+  ai_description_date: null,
+  ai_description_model: null,
+  ai_extracted_date: null,
+  ai_extraction_confidence: null,
+  ai_quality_grade: null,
+  ai_text_generated_v6_date: null,
+  ai_treatment: null,
+  ai_weight_carats: null,
+  description_emotional_en: null,
+  description_emotional_ru: null,
+  description_technical_en: null,
+  description_technical_ru: null,
+  narrative_story_en: null,
+  narrative_story_ru: null,
 };
 
 const createMockGemstone = (

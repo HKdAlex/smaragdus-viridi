@@ -23,7 +23,7 @@ export async function loginAction(formData: FormData) {
   return { success: true };
 }
 
-export async function signupAction(formData: FormData) {
+export async function signupAction(formData: FormData, locale: string = "en") {
   const supabase = await createClient();
 
   const data = {
@@ -38,7 +38,7 @@ export async function signupAction(formData: FormData) {
   }
 
   revalidatePath("/", "layout");
-  redirect("/auth/check-email");
+  redirect(`/${locale}/check-email`);
 }
 
 export async function logoutAction() {

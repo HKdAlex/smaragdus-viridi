@@ -24,7 +24,6 @@ import { adminCache } from "../services/admin-cache";
 import { BulkEditModal } from "./bulk-edit-modal";
 import { EnhancedSearch, type SearchFilters } from "./enhanced-search";
 import { GemstoneActionsMenu } from "./gemstone-actions-menu";
-import { GemstoneDetailView } from "./gemstone-detail-view";
 
 interface GemstoneListOptimizedProps {
   onCreateNew?: () => void;
@@ -84,9 +83,6 @@ export function GemstoneListOptimized({
   );
   const [bulkEditOpen, setBulkEditOpen] = useState(false);
   const [exporting, setExporting] = useState(false);
-  const [detailViewOpen, setDetailViewOpen] = useState(false);
-  const [selectedGemstoneForView, setSelectedGemstoneForView] =
-    useState<GemstoneWithRelations | null>(null);
   const [searchFilters, setSearchFilters] = useState<SearchFilters>({
     query: "",
     sortBy: "created_at",
@@ -285,16 +281,13 @@ export function GemstoneListOptimized({
     setBulkEditOpen(false);
   }, []);
 
-  // Detail view
-  const handleViewDetail = useCallback((gemstone: GemstoneWithRelations) => {
-    setSelectedGemstoneForView(gemstone);
-    setDetailViewOpen(true);
-  }, []);
-
-  const handleDetailViewClose = useCallback(() => {
-    setDetailViewOpen(false);
-    setSelectedGemstoneForView(null);
-  }, []);
+  // Detail view - now uses the unified onView callback
+  const handleViewDetail = useCallback(
+    (gemstone: GemstoneWithRelations) => {
+      onView?.(gemstone);
+    },
+    [onView]
+  );
 
   // Individual operations
   const handleDuplicate = useCallback(
@@ -843,15 +836,6 @@ export function GemstoneListOptimized({
         selectedGemstones={selectedGemstones}
         onSuccess={handleBulkEditSuccess}
       />
-
-      {/* Gemstone Detail View Modal */}
-      {selectedGemstoneForView && (
-        <GemstoneDetailView
-          gemstone={selectedGemstoneForView}
-          isOpen={detailViewOpen}
-          onClose={handleDetailViewClose}
-        />
-      )}
     </div>
   );
 }

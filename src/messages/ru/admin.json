@@ -336,6 +336,15 @@
   },
   "gemstoneDetail": {
     "title": "Детали камня",
+    "additionalInfo": "Дополнительная информация",
+    "backToList": "← Назад к списку",
+    "createdAt": "Дата создания",
+    "editGemstone": "Редактировать камень",
+    "gemstoneDetails": "Детали камня",
+    "gemstoneImage": "Изображение камня",
+    "status": "Статус",
+    "statusAndPricing": "Статус и ценообразование",
+    "updatedAt": "Дата обновления",
     "inStock": "В наличии",
     "outOfStock": "Нет в наличии",
     "dimensions": "Размеры",
@@ -754,6 +763,9 @@
     "descriptionPlaceholder": "Подробное описание камня...",
     "promotionalTextPlaceholder": "Специальный рекламный контент или особенности...",
     "marketingHighlightPlaceholder": "Добавить маркетинговую особенность...",
+    "technicalDescriptionPlaceholder": "Техническое описание свойств и характеристик камня...",
+    "emotionalDescriptionPlaceholder": "Эмоциональное описание, вызывающее чувства и связи...",
+    "narrativeStoryPlaceholder": "Повествовательная история о путешествии и значении камня...",
     "labels": {
       "serialNumber": "Серийный номер *",
       "internalCode": "Внутренний код",
@@ -774,13 +786,18 @@
       "description": "Описание",
       "promotionalText": "Рекламный текст",
       "marketingHighlights": "Маркетинговые особенности",
-      "mediaUpload": "Загрузка медиа"
+      "mediaUpload": "Загрузка медиа",
+      "aiGeneratedContent": "Контент, созданный ИИ",
+      "technicalDescription": "Техническое описание",
+      "emotionalDescription": "Эмоциональное описание",
+      "narrativeStory": "Повествовательная история"
     },
     "actions": {
       "cancel": "Отмена",
       "create": "Создать камень",
       "update": "Обновить камень",
-      "addHighlight": "Добавить"
+      "addHighlight": "Добавить",
+      "add": "Добавить"
     },
     "errors": {
       "serialNumberExists": "Серийный номер уже существует",

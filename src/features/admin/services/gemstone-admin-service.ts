@@ -45,6 +45,18 @@ export interface GemstoneFormData {
   description?: string;
   promotional_text?: string;
   marketing_highlights?: string[];
+  // AI-generated fields (English)
+  description_technical_en?: string;
+  description_emotional_en?: string;
+  narrative_story_en?: string;
+  promotional_text_en?: string;
+  marketing_highlights_en?: string[];
+  // AI-generated fields (Russian)
+  description_technical_ru?: string;
+  description_emotional_ru?: string;
+  narrative_story_ru?: string;
+  promotional_text_ru?: string;
+  marketing_highlights_ru?: string[];
 }
 
 export interface GemstoneWithRelations extends DatabaseGemstone {
@@ -52,6 +64,19 @@ export interface GemstoneWithRelations extends DatabaseGemstone {
   images?: DatabaseGemstoneImage[];
   videos?: DatabaseGemstoneVideo[];
   certifications?: DatabaseCertification[];
+  ai_v6?: {
+    technical_description_en?: string | null;
+    emotional_description_en?: string | null;
+    narrative_story_en?: string | null;
+    promotional_text?: string | null;
+    marketing_highlights?: string[] | null;
+    // Russian fields
+    technical_description_ru?: string | null;
+    emotional_description_ru?: string | null;
+    narrative_story_ru?: string | null;
+    promotional_text_ru?: string | null;
+    marketing_highlights_ru?: string[] | null;
+  } | null;
 }
 
 export interface BulkImportResult {
@@ -215,6 +240,49 @@ export class GemstoneAdminService {
         return { success: false, error: error.message };
       }
 
+      // Handle AI v6 fields if present
+      if ((formData as any).ai_v6) {
+        const aiV6Data = (formData as any).ai_v6;
+
+        // Check if AI v6 record exists
+        const { data: existingAiV6 } = await supabaseAdmin!
+          .from("gemstones_ai_v6")
+          .select("gemstone_id")
+          .eq("gemstone_id", id)
+          .single();
+
+        if (existingAiV6) {
+          // Update existing AI v6 record
+          const { error: aiV6Error } = await supabaseAdmin!
+            .from("gemstones_ai_v6")
+            .update({
+              ...aiV6Data,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("gemstone_id", id);
+
+          if (aiV6Error) {
+            logger.error("Failed to update AI v6 data", aiV6Error);
+            // Don't fail the entire operation, just log the error
+          }
+        } else {
+          // Create new AI v6 record
+          const { error: aiV6Error } = await supabaseAdmin!
+            .from("gemstones_ai_v6")
+            .insert({
+              gemstone_id: id,
+              ...aiV6Data,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            });
+
+          if (aiV6Error) {
+            logger.error("Failed to create AI v6 data", aiV6Error);
+            // Don't fail the entire operation, just log the error
+          }
+        }
+      }
+
       logger.info("Gemstone updated successfully", {
         id: data.id,
         serialNumber: data.serial_number,
@@ -338,7 +406,8 @@ export class GemstoneAdminService {
           origin:origins(*),
           images:gemstone_images(*),
           videos:gemstone_videos(*),
-          certifications:certifications(*)
+          certifications:certifications(*),
+          ai_v6:gemstones_ai_v6(*)
         `
         )
         .eq("id", id)

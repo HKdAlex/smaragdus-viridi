@@ -2,7 +2,6 @@ import type {
   DatabaseGemstoneImage,
   DatabaseGemstoneVideo,
 } from "@/shared/types";
-
 import { supabase, supabaseAdmin } from "@/lib/supabase";
 
 export interface MediaUploadResult {
@@ -56,13 +55,14 @@ export class MediaUploadService {
         const storagePath = `gemstones/${gemstoneId}/images/${fileName}`;
 
         // Upload to Supabase Storage
-        const { data: uploadData, error: uploadError } =
-          await (supabaseAdmin || supabase).storage
-            .from("gemstone-media")
-            .upload(storagePath, file, {
-              cacheControl: "3600",
-              upsert: false,
-            });
+        const { data: uploadData, error: uploadError } = await (
+          supabaseAdmin || supabase
+        ).storage
+          .from("gemstone-media")
+          .upload(storagePath, file, {
+            cacheControl: "3600",
+            upsert: false,
+          });
 
         if (uploadError) {
           console.error("Failed to upload image:", uploadError);
@@ -78,7 +78,9 @@ export class MediaUploadService {
           .getPublicUrl(storagePath);
 
         // Save to database
-        const { data: imageRecord, error: dbError } = await (supabaseAdmin || supabase)
+        const { data: imageRecord, error: dbError } = await (
+          supabaseAdmin || supabase
+        )
           .from("gemstone_images")
           .insert({
             gemstone_id: gemstoneId,
@@ -147,13 +149,14 @@ export class MediaUploadService {
         const storagePath = `gemstones/${gemstoneId}/videos/${fileName}`;
 
         // Upload to Supabase Storage
-        const { data: uploadData, error: uploadError } =
-          await (supabaseAdmin || supabase).storage
-            .from("gemstone-media")
-            .upload(storagePath, file, {
-              cacheControl: "3600",
-              upsert: false,
-            });
+        const { data: uploadData, error: uploadError } = await (
+          supabaseAdmin || supabase
+        ).storage
+          .from("gemstone-media")
+          .upload(storagePath, file, {
+            cacheControl: "3600",
+            upsert: false,
+          });
 
         if (uploadError) {
           console.error("Failed to upload video:", uploadError);
@@ -169,7 +172,9 @@ export class MediaUploadService {
           .getPublicUrl(storagePath);
 
         // Save to database
-        const { data: videoRecord, error: dbError } = await (supabaseAdmin || supabase)
+        const { data: videoRecord, error: dbError } = await (
+          supabaseAdmin || supabase
+        )
           .from("gemstone_videos")
           .insert({
             gemstone_id: gemstoneId,
@@ -220,7 +225,9 @@ export class MediaUploadService {
         type === "image" ? "gemstone_images" : "gemstone_videos";
 
       // Get media records to get URLs for storage deletion
-      const { data: mediaRecords, error: fetchError } = await (supabaseAdmin || supabase)
+      const { data: mediaRecords, error: fetchError } = await (
+        supabaseAdmin || supabase
+      )
         .from(tableName)
         .select("id, image_url, video_url, original_path")
         .in("id", mediaIds);
@@ -257,7 +264,9 @@ export class MediaUploadService {
           })
           .filter((path): path is string => path !== null) || [];
       if (storagePaths.length > 0) {
-        const { error: storageError } = await (supabaseAdmin || supabase).storage
+        const { error: storageError } = await (
+          supabaseAdmin || supabase
+        ).storage
           .from("gemstone-media")
           .remove(storagePaths);
 
@@ -288,7 +297,7 @@ export class MediaUploadService {
     try {
       // Use admin client if available (server-side), otherwise use regular client
       const client = supabaseAdmin || supabase;
-      
+
       const [imagesResult, videosResult] = await Promise.all([
         client
           .from("gemstone_images")
@@ -328,6 +337,87 @@ export class MediaUploadService {
       return {
         success: false,
         error: "An unexpected error occurred while fetching media",
+      };
+    }
+  }
+
+  /**
+   * Set primary image for a gemstone
+   */
+  static async setPrimaryImage(
+    gemstoneId: string,
+    imageId: string
+  ): Promise<{ success: boolean; error?: string }> {
+    try {
+      const client = supabaseAdmin || supabase;
+
+      // First, unset all primary flags for this gemstone
+      await client
+        .from("gemstone_images")
+        .update({ is_primary: false })
+        .eq("gemstone_id", gemstoneId);
+
+      // Then set the selected image as primary
+      const { error } = await client
+        .from("gemstone_images")
+        .update({ is_primary: true })
+        .eq("id", imageId)
+        .eq("gemstone_id", gemstoneId);
+
+      if (error) {
+        return {
+          success: false,
+          error: `Failed to set primary image: ${error.message}`,
+        };
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error("Unexpected error setting primary image:", error);
+      return {
+        success: false,
+        error: "An unexpected error occurred while setting primary image",
+      };
+    }
+  }
+
+  /**
+   * Set primary video for a gemstone
+   */
+  static async setPrimaryVideo(
+    gemstoneId: string,
+    videoId: string
+  ): Promise<{ success: boolean; error?: string }> {
+    try {
+      const client = supabaseAdmin || supabase;
+
+      // Note: Videos don't have is_primary field, but we can use video_order = 0 to indicate primary
+      // First, set all videos to order > 0
+      await client
+        .from("gemstone_videos")
+        .update({ video_order: 1 })
+        .eq("gemstone_id", gemstoneId);
+
+      // Then set the selected video as primary (order = 0)
+      const { error } = await client
+        .from("gemstone_videos")
+        .update({ video_order: 0 })
+        .eq("id", videoId)
+        .eq("gemstone_id", gemstoneId);
+
+      if (error) {
+        return {
+          success: false,
+          error: `Failed to set primary video: ${error.message}`,
+        };
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error("Unexpected error setting primary video:", error);
+      return {
+        success: false,
+        error: "An unexpected error occurred while setting primary video",
       };
     }
   }

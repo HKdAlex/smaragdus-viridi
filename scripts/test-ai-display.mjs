@@ -72,7 +72,7 @@ async function testAIDisplay() {
   }
 
   // Simulate the component logic
-  const aiAnalyzed = gemstone.ai_analyzed || false;
+  const aiAnalyzed = gemstone.ai_text_generated_v6 || false;
   const analysisData = aiAnalysisResults || [];
 
   console.log("  Component Logic:");

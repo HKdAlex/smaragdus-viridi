@@ -41,7 +41,7 @@ import {
   MediaUploadService,
   type MediaUploadResult,
 } from "../services/media-upload-service";
-import { MediaUpload } from "./media-upload";
+import { EnhancedMediaUpload } from "./enhanced-media-upload";
 
 interface GemstoneFormProps {
   gemstone?: GemstoneWithRelations;
@@ -67,32 +67,60 @@ export function GemstoneForm({
   const [isLoading, setIsLoading] = useState(false);
   const [origins, setOrigins] = useState<DatabaseOrigin[]>([]);
   const [marketingHighlights, setMarketingHighlights] = useState<string[]>([]);
+  const [marketingHighlightsEn, setMarketingHighlightsEn] = useState<string[]>(
+    []
+  );
+  const [marketingHighlightsRu, setMarketingHighlightsRu] = useState<string[]>(
+    []
+  );
   const [currentHighlight, setCurrentHighlight] = useState("");
+  const [currentHighlightEn, setCurrentHighlightEn] = useState("");
+  const [currentHighlightRu, setCurrentHighlightRu] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [uploadedMedia, setUploadedMedia] = useState<MediaUploadResult[]>([]);
 
-  const [formData, setFormData] = useState<GemstoneFormData>({
-    name: gemstone?.name || DEFAULT_GEMSTONE_VALUES.type,
-    color: gemstone?.color || DEFAULT_GEMSTONE_VALUES.color,
-    cut: gemstone?.cut || DEFAULT_GEMSTONE_VALUES.cut,
-    clarity: gemstone?.clarity || DEFAULT_GEMSTONE_VALUES.clarity,
-    weight_carats: gemstone?.weight_carats || 0,
-    length_mm: gemstone?.length_mm || 0,
-    width_mm: gemstone?.width_mm || 0,
-    depth_mm: gemstone?.depth_mm || 0,
-    origin_id: gemstone?.origin_id || undefined,
-    price_amount: gemstone?.price_amount || 0,
-    price_currency:
-      gemstone?.price_currency || DEFAULT_GEMSTONE_VALUES.currency,
-    premium_price_amount: gemstone?.premium_price_amount || undefined,
-    premium_price_currency: gemstone?.premium_price_currency || undefined,
-    in_stock: gemstone?.in_stock ?? true,
-    delivery_days: gemstone?.delivery_days || undefined,
-    internal_code: gemstone?.internal_code || undefined,
-    serial_number: gemstone?.serial_number || "",
-    description: gemstone?.description || undefined,
-    promotional_text: gemstone?.promotional_text || undefined,
-    marketing_highlights: gemstone?.marketing_highlights || undefined,
+  const [formData, setFormData] = useState<GemstoneFormData>(() => {
+    return {
+      name: gemstone?.name || DEFAULT_GEMSTONE_VALUES.type,
+      color: gemstone?.color || DEFAULT_GEMSTONE_VALUES.color,
+      cut: gemstone?.cut || DEFAULT_GEMSTONE_VALUES.cut,
+      clarity: gemstone?.clarity || DEFAULT_GEMSTONE_VALUES.clarity,
+      weight_carats: gemstone?.weight_carats || 0,
+      length_mm: gemstone?.length_mm || 0,
+      width_mm: gemstone?.width_mm || 0,
+      depth_mm: gemstone?.depth_mm || 0,
+      origin_id: gemstone?.origin_id || undefined,
+      price_amount: gemstone?.price_amount || 0,
+      price_currency:
+        gemstone?.price_currency || DEFAULT_GEMSTONE_VALUES.currency,
+      premium_price_amount: gemstone?.premium_price_amount || undefined,
+      premium_price_currency: gemstone?.premium_price_currency || undefined,
+      in_stock: gemstone?.in_stock ?? true,
+      delivery_days: gemstone?.delivery_days || undefined,
+      internal_code: gemstone?.internal_code || undefined,
+      serial_number: gemstone?.serial_number || "",
+      description: gemstone?.description || undefined,
+      promotional_text: gemstone?.promotional_text || undefined,
+      marketing_highlights: gemstone?.marketing_highlights || undefined,
+      // AI-generated fields (English)
+      description_technical_en:
+        gemstone?.ai_v6?.technical_description_en || undefined,
+      description_emotional_en:
+        gemstone?.ai_v6?.emotional_description_en || undefined,
+      narrative_story_en: gemstone?.ai_v6?.narrative_story_en || undefined,
+      promotional_text_en: gemstone?.ai_v6?.promotional_text || undefined,
+      marketing_highlights_en:
+        gemstone?.ai_v6?.marketing_highlights || undefined,
+      // AI-generated fields (Russian)
+      description_technical_ru:
+        gemstone?.ai_v6?.technical_description_ru || undefined,
+      description_emotional_ru:
+        gemstone?.ai_v6?.emotional_description_ru || undefined,
+      narrative_story_ru: gemstone?.ai_v6?.narrative_story_ru || undefined,
+      promotional_text_ru: gemstone?.ai_v6?.promotional_text_ru || undefined,
+      marketing_highlights_ru:
+        gemstone?.ai_v6?.marketing_highlights_ru || undefined,
+    };
   });
 
   // Load origins for dropdown
@@ -112,10 +140,61 @@ export function GemstoneForm({
     loadOrigins();
   }, []);
 
-  // Load marketing highlights if editing
+  // Update form data when gemstone changes
   useEffect(() => {
-    if (gemstone?.marketing_highlights) {
-      setMarketingHighlights(gemstone.marketing_highlights);
+    if (gemstone) {
+      setFormData({
+        name: gemstone.name || DEFAULT_GEMSTONE_VALUES.type,
+        color: gemstone.color || DEFAULT_GEMSTONE_VALUES.color,
+        cut: gemstone.cut || DEFAULT_GEMSTONE_VALUES.cut,
+        clarity: gemstone.clarity || DEFAULT_GEMSTONE_VALUES.clarity,
+        weight_carats: gemstone.weight_carats || 0,
+        length_mm: gemstone.length_mm || 0,
+        width_mm: gemstone.width_mm || 0,
+        depth_mm: gemstone.depth_mm || 0,
+        origin_id: gemstone.origin_id || undefined,
+        price_amount: gemstone.price_amount || 0,
+        price_currency:
+          gemstone.price_currency || DEFAULT_GEMSTONE_VALUES.currency,
+        premium_price_amount: gemstone.premium_price_amount || undefined,
+        premium_price_currency: gemstone.premium_price_currency || undefined,
+        in_stock: gemstone.in_stock ?? true,
+        delivery_days: gemstone.delivery_days || undefined,
+        internal_code: gemstone.internal_code || undefined,
+        serial_number: gemstone.serial_number || "",
+        description: gemstone.description || undefined,
+        promotional_text: gemstone.promotional_text || undefined,
+        marketing_highlights: gemstone.marketing_highlights || undefined,
+        // AI-generated fields (English)
+        description_technical_en:
+          gemstone.ai_v6?.technical_description_en || undefined,
+        description_emotional_en:
+          gemstone.ai_v6?.emotional_description_en || undefined,
+        narrative_story_en: gemstone.ai_v6?.narrative_story_en || undefined,
+        promotional_text_en: gemstone.ai_v6?.promotional_text || undefined,
+        marketing_highlights_en:
+          gemstone.ai_v6?.marketing_highlights || undefined,
+        // AI-generated fields (Russian)
+        description_technical_ru:
+          gemstone.ai_v6?.technical_description_ru || undefined,
+        description_emotional_ru:
+          gemstone.ai_v6?.emotional_description_ru || undefined,
+        narrative_story_ru: gemstone.ai_v6?.narrative_story_ru || undefined,
+        promotional_text_ru: gemstone.ai_v6?.promotional_text_ru || undefined,
+        marketing_highlights_ru:
+          gemstone.ai_v6?.marketing_highlights_ru || undefined,
+      });
+
+      // Load marketing highlights
+      if (gemstone.marketing_highlights) {
+        setMarketingHighlights(gemstone.marketing_highlights);
+      }
+      if (gemstone.ai_v6?.marketing_highlights) {
+        setMarketingHighlightsEn(gemstone.ai_v6.marketing_highlights);
+      }
+      if (gemstone.ai_v6?.marketing_highlights_ru) {
+        setMarketingHighlightsRu(gemstone.ai_v6.marketing_highlights_ru);
+      }
     }
   }, [gemstone]);
 
@@ -164,6 +243,28 @@ export function GemstoneForm({
 
   const removeMarketingHighlight = (index: number) => {
     setMarketingHighlights((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const addMarketingHighlightEn = () => {
+    if (currentHighlightEn.trim()) {
+      setMarketingHighlightsEn((prev) => [...prev, currentHighlightEn.trim()]);
+      setCurrentHighlightEn("");
+    }
+  };
+
+  const removeMarketingHighlightEn = (index: number) => {
+    setMarketingHighlightsEn((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const addMarketingHighlightRu = () => {
+    if (currentHighlightRu.trim()) {
+      setMarketingHighlightsRu((prev) => [...prev, currentHighlightRu.trim()]);
+      setCurrentHighlightRu("");
+    }
+  };
+
+  const removeMarketingHighlightRu = (index: number) => {
+    setMarketingHighlightsRu((prev) => prev.filter((_, i) => i !== index));
   };
 
   const validateForm = async (): Promise<boolean> => {
@@ -216,6 +317,25 @@ export function GemstoneForm({
         ...formData,
         marketing_highlights:
           marketingHighlights.length > 0 ? marketingHighlights : undefined,
+        // Map AI v6 fields to correct database columns
+        ai_v6: {
+          technical_description_en: formData.description_technical_en,
+          emotional_description_en: formData.description_emotional_en,
+          narrative_story_en: formData.narrative_story_en,
+          promotional_text: formData.promotional_text_en,
+          marketing_highlights:
+            marketingHighlightsEn.length > 0
+              ? marketingHighlightsEn
+              : undefined,
+          technical_description_ru: formData.description_technical_ru,
+          emotional_description_ru: formData.description_emotional_ru,
+          narrative_story_ru: formData.narrative_story_ru,
+          promotional_text_ru: formData.promotional_text_ru,
+          marketing_highlights_ru:
+            marketingHighlightsRu.length > 0
+              ? marketingHighlightsRu
+              : undefined,
+        },
       };
 
       let result;
@@ -690,21 +810,8 @@ export function GemstoneForm({
             </div>
           </div>
 
-          {/* Description and Promotional Text */}
+          {/* Promotional Text */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label htmlFor="description">{t("labels.description")}</label>
-              <Textarea
-                id="description"
-                value={formData.description || ""}
-                onChange={(e) =>
-                  handleInputChange("description", e.target.value)
-                }
-                placeholder={t("descriptionPlaceholder")}
-                rows={4}
-              />
-            </div>
-
             <div className="space-y-2">
               <label htmlFor="promotional_text">
                 {t("labels.promotionalText")}
@@ -768,8 +875,270 @@ export function GemstoneForm({
             )}
           </div>
 
+          {/* AI-Generated Content */}
+          <div className="space-y-6">
+            <div className="flex items-center gap-2">
+              <Gem className="w-5 h-5" />
+              <h3 className="text-lg font-medium">
+                {t("labels.aiGeneratedContent")}
+              </h3>
+            </div>
+
+            {/* English Fields */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-muted-foreground">
+                  🇺🇸 English Content
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label htmlFor="description_technical_en">
+                    {t("labels.technicalDescription")} (EN)
+                  </label>
+                  <Textarea
+                    id="description_technical_en"
+                    value={formData.description_technical_en || ""}
+                    onChange={(e) =>
+                      handleInputChange(
+                        "description_technical_en",
+                        e.target.value
+                      )
+                    }
+                    placeholder={t("technicalDescriptionPlaceholder")}
+                    rows={4}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label htmlFor="description_emotional_en">
+                    {t("labels.emotionalDescription")} (EN)
+                  </label>
+                  <Textarea
+                    id="description_emotional_en"
+                    value={formData.description_emotional_en || ""}
+                    onChange={(e) =>
+                      handleInputChange(
+                        "description_emotional_en",
+                        e.target.value
+                      )
+                    }
+                    placeholder={t("emotionalDescriptionPlaceholder")}
+                    rows={4}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label htmlFor="narrative_story_en">
+                    {t("labels.narrativeStory")} (EN)
+                  </label>
+                  <Textarea
+                    id="narrative_story_en"
+                    value={formData.narrative_story_en || ""}
+                    onChange={(e) =>
+                      handleInputChange("narrative_story_en", e.target.value)
+                    }
+                    placeholder={t("narrativeStoryPlaceholder")}
+                    rows={4}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label htmlFor="promotional_text_en">
+                    {t("labels.promotionalText")} (EN)
+                  </label>
+                  <Textarea
+                    id="promotional_text_en"
+                    value={formData.promotional_text_en || ""}
+                    onChange={(e) =>
+                      handleInputChange("promotional_text_en", e.target.value)
+                    }
+                    placeholder={t("promotionalTextPlaceholder")}
+                    rows={4}
+                  />
+                </div>
+              </div>
+
+              {/* AI Marketing Highlights */}
+              <div className="space-y-4">
+                <label className="text-sm font-medium text-foreground">
+                  {t("labels.marketingHighlights")} (EN)
+                </label>
+                <div className="flex gap-2">
+                  <Input
+                    value={currentHighlightEn}
+                    onChange={(e) => setCurrentHighlightEn(e.target.value)}
+                    placeholder={t("marketingHighlightPlaceholder")}
+                    onKeyPress={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        addMarketingHighlightEn();
+                      }
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    onClick={addMarketingHighlightEn}
+                    variant="outline"
+                    size="sm"
+                  >
+                    <Plus className="w-4 h-4 mr-1" />
+                    {t("actions.add")}
+                  </Button>
+                </div>
+                {marketingHighlightsEn.length > 0 && (
+                  <div className="space-y-2">
+                    {marketingHighlightsEn.map((highlight, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center gap-2 p-2 bg-muted rounded-lg"
+                      >
+                        <span className="flex-1">{highlight}</span>
+                        <Button
+                          type="button"
+                          onClick={() => removeMarketingHighlightEn(index)}
+                          variant="ghost"
+                          size="sm"
+                        >
+                          <Minus className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Russian Fields */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-muted-foreground">
+                  🇷🇺 Russian Content
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label htmlFor="description_technical_ru">
+                    {t("labels.technicalDescription")} (RU)
+                  </label>
+                  <Textarea
+                    id="description_technical_ru"
+                    value={formData.description_technical_ru || ""}
+                    onChange={(e) =>
+                      handleInputChange(
+                        "description_technical_ru",
+                        e.target.value
+                      )
+                    }
+                    placeholder={t("technicalDescriptionPlaceholder")}
+                    rows={4}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label htmlFor="description_emotional_ru">
+                    {t("labels.emotionalDescription")} (RU)
+                  </label>
+                  <Textarea
+                    id="description_emotional_ru"
+                    value={formData.description_emotional_ru || ""}
+                    onChange={(e) =>
+                      handleInputChange(
+                        "description_emotional_ru",
+                        e.target.value
+                      )
+                    }
+                    placeholder={t("emotionalDescriptionPlaceholder")}
+                    rows={4}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label htmlFor="narrative_story_ru">
+                    {t("labels.narrativeStory")} (RU)
+                  </label>
+                  <Textarea
+                    id="narrative_story_ru"
+                    value={formData.narrative_story_ru || ""}
+                    onChange={(e) =>
+                      handleInputChange("narrative_story_ru", e.target.value)
+                    }
+                    placeholder={t("narrativeStoryPlaceholder")}
+                    rows={4}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label htmlFor="promotional_text_ru">
+                    {t("labels.promotionalText")} (RU)
+                  </label>
+                  <Textarea
+                    id="promotional_text_ru"
+                    value={formData.promotional_text_ru || ""}
+                    onChange={(e) =>
+                      handleInputChange("promotional_text_ru", e.target.value)
+                    }
+                    placeholder={t("promotionalTextPlaceholder")}
+                    rows={4}
+                  />
+                </div>
+              </div>
+
+              {/* Russian Marketing Highlights */}
+              <div className="space-y-4">
+                <label className="text-sm font-medium text-foreground">
+                  {t("labels.marketingHighlights")} (RU)
+                </label>
+                <div className="flex gap-2">
+                  <Input
+                    value={currentHighlightRu}
+                    onChange={(e) => setCurrentHighlightRu(e.target.value)}
+                    placeholder={t("marketingHighlightPlaceholder")}
+                    onKeyPress={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        addMarketingHighlightRu();
+                      }
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    onClick={addMarketingHighlightRu}
+                    variant="outline"
+                    size="sm"
+                  >
+                    <Plus className="w-4 h-4 mr-1" />
+                    {t("actions.add")}
+                  </Button>
+                </div>
+                {marketingHighlightsRu.length > 0 && (
+                  <div className="space-y-2">
+                    {marketingHighlightsRu.map((highlight, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center gap-2 p-2 bg-muted rounded-lg"
+                      >
+                        <span className="flex-1">{highlight}</span>
+                        <Button
+                          type="button"
+                          onClick={() => removeMarketingHighlightRu(index)}
+                          variant="ghost"
+                          size="sm"
+                        >
+                          <Minus className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
           {/* Media Upload */}
-          <MediaUpload
+          <EnhancedMediaUpload
             gemstoneId={gemstone?.id}
             serialNumber={formData.serial_number}
             onUploadComplete={(results) => {

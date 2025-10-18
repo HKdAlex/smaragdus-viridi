@@ -695,7 +695,6 @@ export type Database = {
       gemstone_images: {
         Row: {
           ai_analysis_date: string | null
-          ai_analyzed: boolean | null
           ai_primary_reasoning: string | null
           ai_primary_score: number | null
           alt_text: string | null
@@ -712,7 +711,6 @@ export type Database = {
         }
         Insert: {
           ai_analysis_date?: string | null
-          ai_analyzed?: boolean | null
           ai_primary_reasoning?: string | null
           ai_primary_score?: number | null
           alt_text?: string | null
@@ -729,7 +727,6 @@ export type Database = {
         }
         Update: {
           ai_analysis_date?: string | null
-          ai_analyzed?: boolean | null
           ai_primary_reasoning?: string | null
           ai_primary_score?: number | null
           alt_text?: string | null
@@ -802,7 +799,6 @@ export type Database = {
       gemstone_videos: {
         Row: {
           ai_analysis_date: string | null
-          ai_analyzed: boolean | null
           created_at: string | null
           duration_seconds: number | null
           gemstone_id: string
@@ -816,7 +812,6 @@ export type Database = {
         }
         Insert: {
           ai_analysis_date?: string | null
-          ai_analyzed?: boolean | null
           created_at?: string | null
           duration_seconds?: number | null
           gemstone_id: string
@@ -830,7 +825,6 @@ export type Database = {
         }
         Update: {
           ai_analysis_date?: string | null
-          ai_analyzed?: boolean | null
           created_at?: string | null
           duration_seconds?: number | null
           gemstone_id?: string
@@ -878,7 +872,6 @@ export type Database = {
           ai_analysis_date: string | null
           ai_analysis_v5: boolean
           ai_analysis_v5_date: string | null
-          ai_analyzed: boolean | null
           ai_clarity: string | null
           ai_color: string | null
           ai_color_code: string | null
@@ -950,7 +943,6 @@ export type Database = {
           ai_analysis_date?: string | null
           ai_analysis_v5?: boolean
           ai_analysis_v5_date?: string | null
-          ai_analyzed?: boolean | null
           ai_clarity?: string | null
           ai_color?: string | null
           ai_color_code?: string | null
@@ -1024,7 +1016,6 @@ export type Database = {
           ai_analysis_date?: string | null
           ai_analysis_v5?: boolean
           ai_analysis_v5_date?: string | null
-          ai_analyzed?: boolean | null
           ai_clarity?: string | null
           ai_color?: string | null
           ai_color_code?: string | null

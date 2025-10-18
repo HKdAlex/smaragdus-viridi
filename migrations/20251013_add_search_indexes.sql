@@ -32,8 +32,8 @@ CREATE INDEX IF NOT EXISTS idx_gemstones_color_trgm ON gemstones
 USING GIN (color gin_trgm_ops);
 
 -- Create composite index for common filter combinations
-CREATE INDEX IF NOT EXISTS idx_gemstones_type_color ON gemstones (gemstone_type, color)
-WHERE gemstone_type IS NOT NULL AND color IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_gemstones_name_color ON gemstones (name, color)
+WHERE name IS NOT NULL AND color IS NOT NULL;
 
 CREATE INDEX IF NOT EXISTS idx_gemstones_price_weight ON gemstones (price_amount, weight_carats)
 WHERE price_amount > 0 AND weight_carats > 0;

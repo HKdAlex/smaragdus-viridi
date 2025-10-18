@@ -94,20 +94,19 @@ export async function GET(request: NextRequest) {
         *,
         origin:origins(*),
         images:gemstone_images(*),
-        certifications:certifications(*)
+        certifications:certifications(*),
+        ai_v6:gemstones_ai_v6(*)
       `,
       { count: "exact" }
     );
 
     // Apply search filter
     if (search) {
-      query = query.or(`
-        serial_number.ilike.%${search}%,
-        internal_code.ilike.%${search}%,
-        name.ilike.%${search}%,
-        color.ilike.%${search}%,
-        cut.ilike.%${search}%
-      `);
+      // Search only text columns to avoid enum casting issues
+      // PostgREST doesn't support ::text casting in filters
+      query = query.or(
+        `serial_number.ilike.%${search}%,internal_code.ilike.%${search}%,description.ilike.%${search}%`
+      );
     }
 
     // Apply categorical filters

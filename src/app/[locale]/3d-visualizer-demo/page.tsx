@@ -15,12 +15,12 @@ import {
   Sparkles,
 } from "lucide-react";
 
+import { Lazy3DVisualizer } from "@/features/visualization";
+import { VisualizationDemo } from "@/features/visualization/components/visualization-demo";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Gemstone } from "@/shared/types";
-import { Lazy3DVisualizer } from "@/features/visualization";
 import { Metadata } from "next";
-import { VisualizationDemo } from "@/features/visualization/components/visualization-demo";
 import { getTranslations } from "next-intl/server";
 
 export async function generateMetadata({
@@ -70,7 +70,6 @@ const sampleGemstones: Gemstone[] = [
     internal_code: "DEMO-001",
     serial_number: "DIA-001-FL",
     origin_id: null,
-    ai_analyzed: false,
     ai_confidence_score: null,
     ai_analysis_date: null,
     ai_data_completeness: null,
@@ -152,7 +151,6 @@ const sampleGemstones: Gemstone[] = [
     internal_code: "DEMO-002",
     serial_number: "EMR-002-VVS1",
     origin_id: null,
-    ai_analyzed: false,
     ai_confidence_score: null,
     ai_analysis_date: null,
     ai_data_completeness: null,
@@ -234,7 +232,6 @@ const sampleGemstones: Gemstone[] = [
     internal_code: "DEMO-003",
     serial_number: "RUB-003-VS1",
     origin_id: null,
-    ai_analyzed: false,
     ai_confidence_score: null,
     ai_analysis_date: null,
     ai_data_completeness: null,
@@ -316,7 +313,6 @@ const sampleGemstones: Gemstone[] = [
     internal_code: "DEMO-004",
     serial_number: "SAP-004-VVS2",
     origin_id: null,
-    ai_analyzed: false,
     ai_confidence_score: null,
     ai_analysis_date: null,
     ai_data_completeness: null,
@@ -398,7 +394,6 @@ const sampleGemstones: Gemstone[] = [
     internal_code: "DEMO-005",
     serial_number: "DIA-005-FY",
     origin_id: null,
-    ai_analyzed: false,
     ai_confidence_score: null,
     ai_analysis_date: null,
     ai_data_completeness: null,
@@ -480,7 +475,6 @@ const sampleGemstones: Gemstone[] = [
     internal_code: "DEMO-006",
     serial_number: "AMT-006-VS2",
     origin_id: null,
-    ai_analyzed: false,
     ai_confidence_score: null,
     ai_analysis_date: null,
     ai_data_completeness: null,

@@ -120,7 +120,7 @@ export interface DetailGemstone {
   quantity: number | null;
   delivery_days: number | null;
   origin_id: string | null;
-  ai_analyzed: boolean | null;
+  ai_text_generated_v6: boolean;
   ai_confidence_score: number | null;
   ai_analysis_date: string | null;
   created_at: string | null;

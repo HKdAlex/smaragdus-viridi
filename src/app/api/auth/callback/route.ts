@@ -4,10 +4,12 @@ import { createServerSupabaseClient as createClient } from "@/lib/supabase";
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  let next = searchParams.get("next") ?? "/profile";
+  const locale = searchParams.get("locale") || "en";
+  let next = searchParams.get("next") ?? `/${locale}/profile`;
 
-  if (!next.startsWith("/")) {
-    next = "/";
+  // Ensure next path starts with locale
+  if (!next.startsWith(`/${locale}`)) {
+    next = `/${locale}${next.startsWith("/") ? next : `/${next}`}`;
   }
 
   if (code) {
@@ -28,5 +30,5 @@ export async function GET(request: Request) {
     }
   }
 
-  return NextResponse.redirect(`${origin}/auth/auth-code-error`);
+  return NextResponse.redirect(`${origin}/${locale}/auth/auth-code-error`);
 }

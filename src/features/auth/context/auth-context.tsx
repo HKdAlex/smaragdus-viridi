@@ -3,16 +3,21 @@
 import { AuthChangeEvent, Session, User } from "@supabase/supabase-js";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 
+import type { DatabaseUserProfile } from "@/shared/types";
 import { getUserProfile } from "@/features/auth/actions/auth-actions";
 import { supabase } from "@/lib/supabase";
-import type { DatabaseUserProfile } from "@/shared/types";
 
 interface AuthContextType {
   user: User | null;
   profile: DatabaseUserProfile | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<any>;
-  signUp: (email: string, password: string, name: string) => Promise<any>;
+  signUp: (
+    email: string,
+    password: string,
+    name: string,
+    locale?: string
+  ) => Promise<any>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -146,7 +151,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const signUp = async (email: string, password: string, name: string) => {
+  const signUp = async (
+    email: string,
+    password: string,
+    name: string,
+    locale: string = "en"
+  ) => {
     setLoading(true);
     try {
       const { error } = await supabase.auth.signUp({
@@ -155,7 +165,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         options: {
           data: {
             name: name,
+            locale: locale,
           },
+          emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback?locale=${locale}&next=/${locale}/profile`,
         },
       });
 

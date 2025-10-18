@@ -351,6 +351,15 @@
   },
   "gemstoneDetail": {
     "title": "Gemstone Details",
+    "additionalInfo": "Additional Information",
+    "backToList": "← Back to List",
+    "createdAt": "Created At",
+    "editGemstone": "Edit Gemstone",
+    "gemstoneDetails": "Gemstone Details",
+    "gemstoneImage": "Gemstone Image",
+    "status": "Status",
+    "statusAndPricing": "Status and Pricing",
+    "updatedAt": "Updated At",
     "basicInformation": "Basic Information",
     "serialNumber": "Serial Number",
     "internalCode": "Internal Code",
@@ -770,6 +779,9 @@
     "descriptionPlaceholder": "Detailed description of the gemstone...",
     "promotionalTextPlaceholder": "Special promotional content or highlights...",
     "marketingHighlightPlaceholder": "Add a marketing highlight...",
+    "technicalDescriptionPlaceholder": "Technical description of the gemstone's properties and characteristics...",
+    "emotionalDescriptionPlaceholder": "Emotional description that evokes feelings and connections...",
+    "narrativeStoryPlaceholder": "Storytelling narrative about the gemstone's journey and significance...",
     "labels": {
       "serialNumber": "Serial Number *",
       "internalCode": "Internal Code",
@@ -790,13 +802,18 @@
       "description": "Description",
       "promotionalText": "Promotional Text",
       "marketingHighlights": "Marketing Highlights",
-      "mediaUpload": "Media Upload"
+      "mediaUpload": "Media Upload",
+      "aiGeneratedContent": "AI-Generated Content",
+      "technicalDescription": "Technical Description",
+      "emotionalDescription": "Emotional Description",
+      "narrativeStory": "Narrative Story"
     },
     "actions": {
       "cancel": "Cancel",
       "create": "Create Gemstone",
       "update": "Update Gemstone",
-      "addHighlight": "Add"
+      "addHighlight": "Add",
+      "add": "Add"
     },
     "errors": {
       "serialNumberExists": "Serial number already exists",
