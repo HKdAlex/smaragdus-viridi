@@ -19,25 +19,25 @@ import {
   User,
   X,
 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
+import { useCallback, useEffect, useState } from "react";
 
+import { useGemstoneTranslations } from "@/features/gemstones/utils/gemstone-translations";
+import { useRouter } from "@/i18n/navigation";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import type { Order } from "@/shared/types";
-import { OrderTimeline } from "./order-timeline";
-import type { OrderTimeline as OrderTimelineType } from "../types/order-tracking.types";
 import { Separator } from "@/shared/components/ui/separator";
-import { format } from "date-fns";
-import { useGemstoneTranslations } from "@/features/gemstones/utils/gemstone-translations";
-import { useOrderTranslations } from "../utils/order-translations";
-import { useRouter } from "@/i18n/navigation";
-import { useTranslations } from "next-intl";
+import type { Order } from "@/shared/types";
 import {
   getOrderStatusColors,
   getOrderStatusIcon,
   getOrderStatusVariant,
 } from "@/shared/utils/order-status";
+import { format } from "date-fns";
+import { useTranslations } from "next-intl";
+import type { OrderTimeline as OrderTimelineType } from "../types/order-tracking.types";
+import { useOrderTranslations } from "../utils/order-translations";
+import { OrderTimeline } from "./order-timeline";
 
 interface OrderDetailsPageProps {
   orderId: string;
@@ -202,7 +202,8 @@ export function OrderDetailsPageV3({
                   {t("orderDetails")}
                 </h1>
                 <p className="text-xs sm:text-sm text-muted-foreground truncate">
-                  {t("orderNumber")}: {order.order_number || order.id.slice(0, 8)}
+                  {t("orderNumber")}:{" "}
+                  {order.order_number || order.id.slice(0, 8)}
                 </p>
               </div>
             </div>
@@ -224,14 +225,14 @@ export function OrderDetailsPageV3({
       </div>
 
       {/* Main Content - Mobile First */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
           {/* Left Column - Order Items & Timeline */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-3 space-y-6">
             {/* Order Items - Mobile Optimized */}
             <Card className="border border-white/10 shadow-xl bg-white/5 backdrop-blur-md bg-gradient-to-br from-white/10 to-white/5">
               <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl">
+                <CardTitle className="flex items-center gap-2 sm:gap-3 text-xl sm:text-2xl font-bold">
                   <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                   {t("orderItems")}
                   <Badge variant="outline" className="ml-auto text-xs">
@@ -294,7 +295,7 @@ export function OrderDetailsPageV3({
                             {t("serialNumber")}: {item.gemstone?.serial_number}
                           </p>
                         </div>
-                        
+
                         {/* Price - Mobile Optimized */}
                         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-2">
                           <div className="space-y-1">
@@ -334,11 +335,11 @@ export function OrderDetailsPageV3({
           </div>
 
           {/* Right Column - Enhanced Order Summary - Mobile Optimized */}
-          <div className="space-y-6">
+          <div className="lg:col-span-2 space-y-6">
             {/* Order Summary - Mobile Optimized */}
             <Card className="border border-white/10 shadow-xl bg-white/5 backdrop-blur-md bg-gradient-to-br from-white/10 to-white/5 lg:sticky lg:top-24">
               <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl">
+                <CardTitle className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl font-semibold">
                   <CreditCard className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                   {t("orderSummary")}
                 </CardTitle>

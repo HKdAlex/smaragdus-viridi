@@ -110,7 +110,7 @@ export function OrderTimeline({
     return (
       <Card className={className}>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 text-lg sm:text-xl font-semibold">
             <Clock className="w-5 h-5" />
             {t('orderHistory')}
           </CardTitle>
@@ -128,7 +128,7 @@ export function OrderTimeline({
   return (
     <Card className={className}>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+        <CardTitle className="flex items-center gap-2 text-lg sm:text-xl font-semibold">
           <Clock className="w-5 h-5" />
           {t('orderHistory')}
         </CardTitle>
