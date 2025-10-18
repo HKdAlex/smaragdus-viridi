@@ -66,6 +66,7 @@ export interface GemstoneWithRelations extends DatabaseGemstone {
   images?: DatabaseGemstoneImage[];
   videos?: DatabaseGemstoneVideo[];
   certifications?: DatabaseCertification[];
+  ai_analyzed?: boolean | null; // From gemstones_enriched view (aliased from ai_text_generated_v6)
   ai_v6?: {
     technical_description_en?: string | null;
     emotional_description_en?: string | null;
@@ -414,17 +415,8 @@ export class GemstoneAdminService {
       logger.info("Fetching gemstone by ID", { id });
 
       const { data, error } = await supabase
-        .from("gemstones")
-        .select(
-          `
-          *,
-          origin:origins(*),
-          images:gemstone_images(*),
-          videos:gemstone_videos(*),
-          certifications:certifications(*),
-          ai_v6:gemstones_ai_v6(*)
-        `
-        )
+        .from("gemstones_enriched")
+        .select("*")
         .eq("id", id)
         .single();
 
@@ -438,11 +430,41 @@ export class GemstoneAdminService {
         serialNumber: data.serial_number,
       });
 
-      // Transform data to handle null vs undefined for origin
+      // Transform data to match expected interface
       const transformedData = {
         ...data,
-        origin: data.origin || undefined,
-      };
+        origin: data.origin_id ? { id: data.origin_id } : undefined,
+        images: [],
+        videos: [],
+        certifications: [],
+        ai_v6: data.technical_description_en
+          ? {
+              technical_description_en: data.technical_description_en,
+              technical_description_ru: data.technical_description_ru,
+              emotional_description_en: data.emotional_description_en,
+              emotional_description_ru: data.emotional_description_ru,
+              narrative_story_en: data.narrative_story_en,
+              narrative_story_ru: data.narrative_story_ru,
+              historical_context_en: data.historical_context_en,
+              historical_context_ru: data.historical_context_ru,
+              care_instructions_en: data.care_instructions_en,
+              care_instructions_ru: data.care_instructions_ru,
+              promotional_text: data.promotional_text_en,
+              promotional_text_ru: data.promotional_text_ru,
+              marketing_highlights: data.marketing_highlights_en,
+              marketing_highlights_ru: data.marketing_highlights_ru,
+              recommended_primary_image_index:
+                data.recommended_primary_image_index,
+              selected_image_uuid: data.selected_image_uuid,
+              detected_cut: data.detected_cut,
+              detected_color: data.detected_color,
+              detected_color_description: data.detected_color_description,
+              model_version: data.model_version,
+              confidence_score: data.confidence_score,
+              needs_review: data.needs_review,
+            }
+          : null,
+      } as unknown as GemstoneWithRelations;
 
       return { success: true, data: transformedData };
     } catch (error) {

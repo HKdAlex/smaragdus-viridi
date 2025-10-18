@@ -115,7 +115,9 @@ export function GemstoneDetailPage({
   };
 
   const getAIStatusBadge = () => {
-    if (gemstone.ai_text_generated_v6) {
+    // Check if AI content exists via ai_analyzed field (from gemstones_enriched view)
+    // This field is actually ai_text_generated_v6 from the gemstones table
+    if (gemstone.ai_analyzed) {
       return (
         <Badge variant="default" className="bg-green-100 text-green-800">
           <CheckCircle className="w-3 h-3 mr-1" />

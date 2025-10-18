@@ -40,35 +40,33 @@ export interface GemstoneCardProps {
 
 // ===== HELPER FUNCTIONS =====
 
-const hasMeaningfulAIAnalysis = (
-  aiAnalysis: CatalogGemstone["ai_analysis"]
-): boolean => {
-  if (!aiAnalysis || !Array.isArray(aiAnalysis) || aiAnalysis.length === 0) {
-    return false;
-  }
+const hasMeaningfulAIAnalysis = (gemstone: CatalogGemstone): boolean => {
+  // Check if gemstone has AI-generated content with sufficient confidence
+  const v6Text = gemstone.v6_text;
+  if (!v6Text) return false;
 
-  return aiAnalysis.some((analysis) => {
-    const hasHighConfidence =
-      analysis.confidence_score && analysis.confidence_score >= 0.5;
-    const hasExtractedData =
-      analysis.extracted_data &&
-      typeof analysis.extracted_data === "object" &&
-      Object.keys(analysis.extracted_data).length > 0;
-
-    return hasHighConfidence && hasExtractedData;
-  });
+  return !!(
+    v6Text.emotional_description_en ||
+    v6Text.emotional_description_ru ||
+    v6Text.marketing_highlights_en ||
+    v6Text.marketing_highlights_ru
+  );
 };
 
-const getBestAIAnalysis = (aiAnalysis: CatalogGemstone["ai_analysis"]) => {
-  if (!aiAnalysis || !Array.isArray(aiAnalysis) || aiAnalysis.length === 0) {
-    return null;
-  }
+const getBestAIAnalysis = (gemstone: CatalogGemstone) => {
+  const v6Text = gemstone.v6_text;
+  if (!v6Text) return null;
 
-  return aiAnalysis.reduce((best, current) => {
-    const currentScore = current.confidence_score || 0;
-    const bestScore = best.confidence_score || 0;
-    return currentScore > bestScore ? current : best;
-  });
+  return {
+    confidence_score: 0.9, // High confidence for v6 content
+    analysis_type: "comprehensive_analysis",
+    extracted_data: {
+      emotional_description_en: v6Text.emotional_description_en,
+      emotional_description_ru: v6Text.emotional_description_ru,
+      marketing_highlights_en: v6Text.marketing_highlights_en,
+      marketing_highlights_ru: v6Text.marketing_highlights_ru,
+    },
+  };
 };
 
 // ===== COMPONENT =====
@@ -177,9 +175,9 @@ export function GemstoneCard({
         {/* Stock Status Badge - REMOVED as per user request */}
 
         {/* AI Analysis Indicator */}
-        {hasMeaningfulAIAnalysis(gemstone.ai_analysis) &&
+        {hasMeaningfulAIAnalysis(gemstone) &&
           (() => {
-            const bestAnalysis = getBestAIAnalysis(gemstone.ai_analysis);
+            const bestAnalysis = getBestAIAnalysis(gemstone);
             return (
               <div className="absolute top-2 right-2 flex items-center space-x-1">
                 <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground text-xs px-2 py-1 rounded flex items-center space-x-1 shadow-sm">

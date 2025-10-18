@@ -34,6 +34,15 @@ export interface CatalogGemstone extends DatabaseGemstone {
         created_at: string;
       }[]
     | null;
+  v6_text?: {
+    emotional_description_en?: string | null;
+    emotional_description_ru?: string | null;
+    marketing_highlights_en?: string[] | null;
+    marketing_highlights_ru?: string[] | null;
+    recommended_primary_image_index?: number | null;
+    selected_image_uuid?: string | null;
+    detected_cut?: string | null;
+  } | null;
   displayName?: string;
   displayColor?: string;
   displayCut?: string;

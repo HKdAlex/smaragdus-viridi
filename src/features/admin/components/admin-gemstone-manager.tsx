@@ -1,15 +1,18 @@
 "use client";
 
+import type {
+  BulkImportResult,
+  GemstoneWithRelations,
+} from "../services/gemstone-admin-service";
 import { Plus, Upload } from "lucide-react";
 
 import { BulkImportModal } from "./bulk-import-modal";
-import type { BulkImportResult } from "../services/gemstone-admin-service";
 import { Button } from "@/shared/components/ui/button";
-import type { GemstoneWithRelations } from "../services/gemstone-admin-service";
+import { GemstoneAdminApiService } from "../services/gemstone-admin-api-service";
 import { GemstoneAdminService } from "../services/gemstone-admin-service";
+import { GemstoneDetailPage } from "./gemstone-detail-page";
 import { GemstoneForm } from "./gemstone-form";
 import { GemstoneListOptimized } from "./gemstone-list-optimized";
-import { GemstoneDetailPage } from "./gemstone-detail-page";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
@@ -22,20 +25,37 @@ export function AdminGemstoneManager() {
   const [selectedGemstone, setSelectedGemstone] =
     useState<GemstoneWithRelations | null>(null);
   const [isBulkImportOpen, setIsBulkImportOpen] = useState(false);
-
   const handleCreateNew = () => {
     setSelectedGemstone(null);
     setViewMode("create");
   };
 
-  const handleEdit = (gemstone: GemstoneWithRelations) => {
-    setSelectedGemstone(gemstone);
-    setViewMode("edit");
+  const handleEdit = async (gemstone: GemstoneWithRelations) => {
+    // Fetch full gemstone data with images for edit view
+    const result = await GemstoneAdminApiService.getGemstoneById(gemstone.id);
+    if (result.success) {
+      setSelectedGemstone(result.data as GemstoneWithRelations);
+      setViewMode("edit");
+    } else {
+      console.error("Failed to fetch gemstone details:", result.error);
+      // Fallback to basic gemstone data
+      setSelectedGemstone(gemstone);
+      setViewMode("edit");
+    }
   };
 
-  const handleView = (gemstone: GemstoneWithRelations) => {
-    setSelectedGemstone(gemstone);
-    setViewMode("view");
+  const handleView = async (gemstone: GemstoneWithRelations) => {
+    // Fetch full gemstone data with images for detail view
+    const result = await GemstoneAdminApiService.getGemstoneById(gemstone.id);
+    if (result.success) {
+      setSelectedGemstone(result.data as GemstoneWithRelations);
+      setViewMode("view");
+    } else {
+      console.error("Failed to fetch gemstone details:", result.error);
+      // Fallback to basic gemstone data
+      setSelectedGemstone(gemstone);
+      setViewMode("view");
+    }
   };
 
   const handleDelete = async (gemstone: GemstoneWithRelations) => {

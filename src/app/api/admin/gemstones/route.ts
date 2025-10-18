@@ -88,17 +88,10 @@ export async function GET(request: NextRequest) {
     // Calculate offset for pagination
     const offset = (page - 1) * pageSize;
 
-    // Build the base query with joins
-    let query = supabase.from("gemstones").select(
-      `
-        *,
-        origin:origins(*),
-        images:gemstone_images(*),
-        certifications:certifications(*),
-        ai_v6:gemstones_ai_v6(*)
-      `,
-      { count: "exact" }
-    );
+    // Build the base query using gemstones_enriched view
+    let query = supabase
+      .from("gemstones_enriched")
+      .select("*", { count: "exact" });
 
     // Apply search filter
     if (search) {
@@ -256,6 +249,36 @@ export async function GET(request: NextRequest) {
       page,
       pageSize,
     });
+
+    // Fetch images for all gemstones
+    if (gemstones && gemstones.length > 0) {
+      const gemstoneIds = gemstones
+        .map((g) => g.id)
+        .filter((id): id is string => id !== null);
+      if (gemstoneIds.length > 0) {
+        const { data: imagesData } = await supabase
+          .from("gemstone_images")
+          .select("gemstone_id, id, image_url, is_primary, image_order")
+          .in("gemstone_id", gemstoneIds)
+          .order("image_order");
+
+        // Group images by gemstone_id
+        const imagesByGemstone = (imagesData || []).reduce((acc, img) => {
+          if (!acc[img.gemstone_id]) {
+            acc[img.gemstone_id] = [];
+          }
+          acc[img.gemstone_id].push(img);
+          return acc;
+        }, {} as Record<string, any[]>);
+
+        // Add images to each gemstone
+        gemstones.forEach((gemstone) => {
+          if (gemstone.id) {
+            (gemstone as any).images = imagesByGemstone[gemstone.id] || [];
+          }
+        });
+      }
+    }
 
     // Get statistics
     const { data: statsData, error: statsError } = await supabase

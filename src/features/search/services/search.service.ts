@@ -171,48 +171,40 @@ export class SearchService {
       console.error("[SearchService] Error fetching images:", imagesError);
     }
 
-    // Fetch AI v6 data (detected cut, selected image, etc.)
-    const { data: v6Data, error: v6Error } = await supabaseAdmin
-      .from("gemstones_ai_v6")
+    // Fetch AI data from gemstones_enriched view
+    const { data: enrichedData, error: enrichedError } = await supabaseAdmin
+      .from("gemstones_enriched")
       .select(
-        "gemstone_id, selected_image_uuid, recommended_primary_image_index, detected_cut"
+        "id, selected_image_uuid, recommended_primary_image_index, detected_cut, ai_color"
       )
-      .in("gemstone_id", gemstoneIds);
-
-    if (v6Error) {
-      console.error("[SearchService] Error fetching v6 metadata:", v6Error);
-    }
-
-    // Fetch ai_color from base gemstones table
-    const { data: aiColorData, error: aiColorError } = await supabaseAdmin
-      .from("gemstones")
-      .select("id, ai_color")
       .in("id", gemstoneIds);
 
-    if (aiColorError) {
-      console.error("[SearchService] Error fetching ai_color:", aiColorError);
+    if (enrichedError) {
+      console.error(
+        "[SearchService] Error fetching enriched data:",
+        enrichedError
+      );
     }
 
-    const v6ByGemstone = new Map<
+    const enrichedByGemstone = new Map<
       string,
       {
         selected_image_uuid: string | null;
         recommended_primary_image_index: number | null;
         detected_cut: string | null;
+        ai_color: string | null;
       }
     >();
-    (v6Data || []).forEach((record) => {
-      v6ByGemstone.set(record.gemstone_id, {
-        selected_image_uuid: record.selected_image_uuid ?? null,
-        recommended_primary_image_index:
-          record.recommended_primary_image_index ?? null,
-        detected_cut: record.detected_cut ?? null,
-      });
-    });
-
-    const aiColorByGemstone = new Map<string, string | null>();
-    (aiColorData || []).forEach((record) => {
-      aiColorByGemstone.set(record.id, record.ai_color ?? null);
+    (enrichedData || []).forEach((record) => {
+      if (record.id) {
+        enrichedByGemstone.set(record.id, {
+          selected_image_uuid: record.selected_image_uuid ?? null,
+          recommended_primary_image_index:
+            record.recommended_primary_image_index ?? null,
+          detected_cut: record.detected_cut ?? null,
+          ai_color: record.ai_color ?? null,
+        });
+      }
     });
 
     // Group images by gemstone_id
@@ -226,19 +218,18 @@ export class SearchService {
 
     // Map results with images and AI data
     const results = data.map((row: any) => {
-      const v6Info = v6ByGemstone.get(row.id);
-      const aiColor = aiColorByGemstone.get(row.id);
+      const enrichedInfo = enrichedByGemstone.get(row.id);
 
       return {
         ...row,
         images: imagesByGemstone.get(row.id) || [],
-        selected_image_uuid: v6Info?.selected_image_uuid ?? null,
+        selected_image_uuid: enrichedInfo?.selected_image_uuid ?? null,
         recommended_primary_image_index:
-          v6Info?.recommended_primary_image_index ?? null,
+          enrichedInfo?.recommended_primary_image_index ?? null,
         // Include AI-detected values for consistent display with catalog
-        ai_color: aiColor,
-        v6_text: v6Info?.detected_cut
-          ? { detected_cut: v6Info.detected_cut }
+        ai_color: enrichedInfo?.ai_color ?? null,
+        v6_text: enrichedInfo?.detected_cut
+          ? { detected_cut: enrichedInfo.detected_cut }
           : null,
       };
     });

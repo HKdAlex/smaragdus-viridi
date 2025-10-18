@@ -2,6 +2,22 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { supabaseAdmin } from "@/lib/supabase";
 
+// Simple in-memory cache for filter options (5 minute TTL)
+const filterOptionsCache = new Map<string, { data: any; timestamp: number }>();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+function getCachedFilterOptions(key: string) {
+  const cached = filterOptionsCache.get(key);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    return cached.data;
+  }
+  return null;
+}
+
+function setCachedFilterOptions(key: string, data: any) {
+  filterOptionsCache.set(key, { data, timestamp: Date.now() });
+}
+
 type GemstoneFilters = {
   search?: string;
   gemstoneTypes?: string[];
@@ -78,8 +94,8 @@ export async function GET(request: NextRequest) {
       pageSize: Math.min(parseInt(searchParams.get("pageSize") || "24"), 100), // Max 100 per page
     };
 
-    // Build the query with filters
-    let query = supabase.from("gemstones").select(
+    // Build the query with filters using gemstones_enriched view
+    let query = supabase.from("gemstones_enriched").select(
       `
         id,
         name,
@@ -89,29 +105,21 @@ export async function GET(request: NextRequest) {
         clarity,
         price_amount,
         price_currency,
-        premium_price_amount,
-        premium_price_currency,
         in_stock,
-        quantity,
-        delivery_days,
-        internal_code,
         serial_number,
         ai_color,
         created_at,
         updated_at,
+        emotional_description_en,
+        emotional_description_ru,
+        marketing_highlights_en,
+        marketing_highlights_ru,
+        recommended_primary_image_index,
+        selected_image_uuid,
+        detected_cut,
         images:gemstone_images!inner(id, image_url, is_primary, image_order),
         origin:origins(id, name, country),
-        certifications:certifications(id, certificate_type),
-        ai_analysis:ai_analysis_results!left(id, confidence_score, analysis_type),
-        v6_text:gemstones_ai_v6!left(
-          emotional_description_en,
-          emotional_description_ru,
-          marketing_highlights,
-          marketing_highlights_ru,
-          recommended_primary_image_index,
-          selected_image_uuid,
-          detected_cut
-        )
+        certifications:certifications(id, certificate_type)
       `,
       { count: "exact" }
     );
@@ -128,94 +136,106 @@ export async function GET(request: NextRequest) {
     }
 
     if (filters.gemstoneTypes?.length) {
-      // Cast to proper enum type - these should be valid gemstone types
+      // Get valid gemstone types from database with caching
+      let availableTypes = getCachedFilterOptions("gemstone-types");
+
+      if (!availableTypes) {
+        const { data: validTypes } = await supabase
+          .from("gemstones_enriched")
+          .select("name")
+          .not("name", "is", null)
+          .gt("price_amount", 0);
+
+        availableTypes = new Set(
+          (validTypes || []).map((t: any) => t.name).filter(Boolean)
+        );
+        setCachedFilterOptions("gemstone-types", availableTypes);
+      }
+
       const validGemstoneTypes = filters.gemstoneTypes.filter((type) =>
-        [
-          "emerald",
-          "diamond",
-          "ruby",
-          "sapphire",
-          "amethyst",
-          "topaz",
-          "garnet",
-          "peridot",
-          "citrine",
-          "tanzanite",
-          "aquamarine",
-          "morganite",
-          "tourmaline",
-          "zircon",
-          "apatite",
-          "quartz",
-        ].includes(type)
-      ) as any[];
+        availableTypes.has(type)
+      );
+
       if (validGemstoneTypes.length > 0) {
         query = query.in("name", validGemstoneTypes);
       }
     }
 
     if (filters.colors?.length) {
-      // Cast to proper enum type - these should be valid gem colors
-      const validColors = filters.colors.filter((color) =>
-        [
-          "red",
-          "blue",
-          "green",
-          "yellow",
-          "pink",
-          "white",
-          "black",
-          "colorless",
-          "D",
-          "E",
-          "F",
-          "G",
-          "H",
-          "I",
-          "J",
-          "K",
-          "L",
-          "M",
-          "fancy-yellow",
-          "fancy-blue",
-          "fancy-pink",
-          "fancy-green",
-        ].includes(color)
-      ) as any[];
-      if (validColors.length > 0) {
-        query = query.in("color", validColors);
+      // Get valid colors from database with caching
+      let availableColors = getCachedFilterOptions("colors");
+
+      if (!availableColors) {
+        const { data: validColors } = await supabase
+          .from("gemstones_enriched")
+          .select("color")
+          .not("color", "is", null)
+          .gt("price_amount", 0);
+
+        availableColors = new Set(
+          (validColors || []).map((c: any) => c.color).filter(Boolean)
+        );
+        setCachedFilterOptions("colors", availableColors);
+      }
+
+      const validColorFilters = filters.colors.filter((color) =>
+        availableColors.has(color)
+      );
+
+      if (validColorFilters.length > 0) {
+        query = query.in("color", validColorFilters);
       }
     }
 
     if (filters.cuts?.length) {
-      // Cast to proper enum type - these should be valid gem cuts
-      const validCuts = filters.cuts.filter((cut) =>
-        [
-          "round",
-          "oval",
-          "marquise",
-          "pear",
-          "emerald",
-          "princess",
-          "cushion",
-          "radiant",
-          "fantasy",
-        ].includes(cut)
-      ) as any[];
-      if (validCuts.length > 0) {
-        query = query.in("cut", validCuts);
+      // Get valid cuts from database with caching
+      let availableCuts = getCachedFilterOptions("cuts");
+
+      if (!availableCuts) {
+        const { data: validCuts } = await supabase
+          .from("gemstones_enriched")
+          .select("cut")
+          .not("cut", "is", null)
+          .gt("price_amount", 0);
+
+        availableCuts = new Set(
+          (validCuts || []).map((c: any) => c.cut).filter(Boolean)
+        );
+        setCachedFilterOptions("cuts", availableCuts);
+      }
+
+      const validCutFilters = filters.cuts.filter((cut) =>
+        availableCuts.has(cut)
+      );
+
+      if (validCutFilters.length > 0) {
+        query = query.in("cut", validCutFilters);
       }
     }
 
     if (filters.clarities?.length) {
-      // Cast to proper enum type - these should be valid gem clarities
-      const validClarities = filters.clarities.filter((clarity) =>
-        ["FL", "IF", "VVS1", "VVS2", "VS1", "VS2", "SI1", "SI2", "I1"].includes(
-          clarity
-        )
-      ) as any[];
-      if (validClarities.length > 0) {
-        query = query.in("clarity", validClarities);
+      // Get valid clarities from database with caching
+      let availableClarities = getCachedFilterOptions("clarities");
+
+      if (!availableClarities) {
+        const { data: validClarities } = await supabase
+          .from("gemstones_enriched")
+          .select("clarity")
+          .not("clarity", "is", null)
+          .gt("price_amount", 0);
+
+        availableClarities = new Set(
+          (validClarities || []).map((c: any) => c.clarity).filter(Boolean)
+        );
+        setCachedFilterOptions("clarities", availableClarities);
+      }
+
+      const validClarityFilters = filters.clarities.filter((clarity) =>
+        availableClarities.has(clarity)
+      );
+
+      if (validClarityFilters.length > 0) {
+        query = query.in("clarity", validClarityFilters);
       }
     }
 
@@ -298,26 +318,33 @@ export async function GET(request: NextRequest) {
     // Post-process results for complex filters
     let processedData = data || [];
 
-    // Filter for AI analysis if required
+    // Filter for AI analysis if required (using gemstones_ai_v6 data)
     if (filters.hasAIAnalysis) {
       processedData = processedData.filter(
-        (item) =>
-          item.ai_analysis &&
-          Array.isArray(item.ai_analysis) &&
-          item.ai_analysis.length > 0 &&
-          item.ai_analysis.some(
-            (analysis: any) =>
-              analysis.confidence_score && analysis.confidence_score >= 0.5
-          )
+        (item: any) =>
+          item.technical_description_en && // Has AI-generated content
+          item.confidence_score &&
+          item.confidence_score >= 0.5
       );
     }
 
     // Transform data to match frontend expectations
     const transformedData = processedData.map((gemstone: any) => {
-      const v6 = gemstone.v6_text || null;
-      const selectedImageUuid = v6?.selected_image_uuid ?? null;
+      const v6 = gemstone.emotional_description_en
+        ? {
+            emotional_description_en: gemstone.emotional_description_en,
+            emotional_description_ru: gemstone.emotional_description_ru,
+            marketing_highlights_en: gemstone.marketing_highlights_en,
+            marketing_highlights_ru: gemstone.marketing_highlights_ru,
+            recommended_primary_image_index:
+              gemstone.recommended_primary_image_index,
+            selected_image_uuid: gemstone.selected_image_uuid,
+            detected_cut: gemstone.detected_cut,
+          }
+        : null;
+      const selectedImageUuid = gemstone.selected_image_uuid ?? null;
       const recommendedPrimaryIndex =
-        v6?.recommended_primary_image_index ?? null;
+        gemstone.recommended_primary_image_index ?? null;
 
       const sortedImages = (gemstone.images || []).sort((a: any, b: any) => {
         const orderA = typeof a.image_order === "number" ? a.image_order : 0;
@@ -330,9 +357,14 @@ export async function GET(request: NextRequest) {
         images: sortedImages,
         origin: gemstone.origin || null,
         certifications: gemstone.certifications || [],
-        ai_analysis: (gemstone.ai_analysis || []).filter(
-          (analysis: any) => analysis.confidence_score >= 0.5
-        ),
+        ai_analysis: gemstone.technical_description_en
+          ? [
+              {
+                confidence_score: gemstone.confidence_score,
+                analysis_type: "comprehensive_analysis",
+              },
+            ]
+          : [],
         v6_text: v6,
         selected_image_uuid: selectedImageUuid,
         recommended_primary_image_index: recommendedPrimaryIndex,

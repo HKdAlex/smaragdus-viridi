@@ -4,12 +4,12 @@ import type {
   DetailGemstone,
 } from "@/shared/types";
 
-import { GemstoneDetail } from "@/features/gemstones/components/gemstone-detail";
-import { supabase } from "@/lib/supabase";
 import type { Database } from "@/shared/types/database";
+import { GemstoneDetail } from "@/features/gemstones/components/gemstone-detail";
+import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
+import { supabase } from "@/lib/supabase";
 
 // DetailGemstone interface is now imported from shared types
 
@@ -41,27 +41,14 @@ async function fetchGemstoneById(
 
     console.log(`🔍 [GemstoneDetail] Fetching gemstone with ID: ${id}`);
 
-    // Fetch gemstone with all related data (only items with price > 0)
+    // Fetch gemstone with AI content using gemstones_enriched view
     const { data: gemstone, error: gemstoneError } = (await supabase
-      .from("gemstones")
-      .select(
-        `
-        *,
-        origin:origins(*),
-        images:gemstone_images(*),
-        videos:gemstone_videos(*),
-        certifications:certifications(*)
-      `
-      )
+      .from("gemstones_enriched")
+      .select("*")
       .eq("id", id)
       .gt("price_amount", 0) // Only show items with price > 0
       .single()) as {
-      data:
-        | (DetailGemstone & {
-            images?: DatabaseGemstoneImage[];
-            videos?: DatabaseGemstoneVideo[];
-          })
-        | null;
+      data: any | null;
       error: any;
     };
 
@@ -73,42 +60,48 @@ async function fetchGemstoneById(
       return null;
     }
 
-    // Fetch AI analysis results separately
-    const { data: aiAnalysisResults, error: aiError } = (await supabase
-      .from("ai_analysis_results")
-      .select("*")
-      .eq("gemstone_id", id)
-      .order("created_at", { ascending: false })) as {
-      data: any[] | null;
-      error: any;
-    };
-    // Fetch v6 text (if available) - all fields expected by GemstoneDetail component
-    const { data: v6Text, error: v6Error } = (await supabase
-      .from("gemstones_ai_v6")
-      .select("*")
-      .eq("gemstone_id", id)
-      .single()) as { data: V6Row | null; error: any };
+    // Fetch additional related data separately (not in the view)
+    const [imagesResult, videosResult, certificationsResult] =
+      await Promise.all([
+        supabase.from("gemstone_images").select("*").eq("gemstone_id", id),
+        supabase.from("gemstone_videos").select("*").eq("gemstone_id", id),
+        supabase.from("certifications").select("*").eq("gemstone_id", id),
+      ]);
 
-    if (v6Error && v6Error.code !== "PGRST116") {
-      // PGRST116 = Not found
-      console.warn(`⚠️ [GemstoneDetail] Failed to fetch v6 text:`, v6Error);
+    const images = imagesResult.data || [];
+    const videos = videosResult.data || [];
+    const certifications = certificationsResult.data || [];
+
+    if (imagesResult.error) {
+      console.warn(
+        `⚠️ [GemstoneDetail] Failed to fetch images:`,
+        imagesResult.error
+      );
     }
-
-    if (aiError) {
-      console.warn(`⚠️ [GemstoneDetail] Failed to fetch AI analysis:`, aiError);
+    if (videosResult.error) {
+      console.warn(
+        `⚠️ [GemstoneDetail] Failed to fetch videos:`,
+        videosResult.error
+      );
+    }
+    if (certificationsResult.error) {
+      console.warn(
+        `⚠️ [GemstoneDetail] Failed to fetch certifications:`,
+        certificationsResult.error
+      );
     }
 
     // Sort images by order
-    if (gemstone.images && Array.isArray(gemstone.images)) {
-      gemstone.images.sort(
+    if (images && Array.isArray(images)) {
+      images.sort(
         (a: DatabaseGemstoneImage, b: DatabaseGemstoneImage) =>
           a.image_order - b.image_order
       );
     }
 
     // Sort videos by order
-    if (gemstone.videos && Array.isArray(gemstone.videos)) {
-      gemstone.videos.sort(
+    if (videos && Array.isArray(videos)) {
+      videos.sort(
         (a: DatabaseGemstoneVideo, b: DatabaseGemstoneVideo) =>
           a.video_order - b.video_order
       );
@@ -118,32 +111,60 @@ async function fetchGemstoneById(
       id: gemstone.id,
       name: gemstone.name,
       serial_number: gemstone.serial_number,
-      images_count: gemstone.images?.length || 0,
-      videos_count: gemstone.videos?.length || 0,
-      has_origin: !!gemstone.origin,
-      certifications_count: gemstone.certifications?.length || 0,
-      ai_analysis_count: aiAnalysisResults?.length || 0,
+      images_count: images?.length || 0,
+      videos_count: videos?.length || 0,
+      has_origin: !!gemstone.origin_id,
+      certifications_count: certifications?.length || 0,
+      has_ai_content: !!gemstone.technical_description_en,
     });
 
     const finalGemstone = {
       ...gemstone,
-      ai_analysis_results:
-        aiAnalysisResults?.map((result) => ({
-          ...result,
-          confidence_score: result.confidence_score
-            ? Number(result.confidence_score)
-            : null,
-          processing_cost_usd: result.processing_cost_usd
-            ? Number(result.processing_cost_usd)
-            : null,
-          processing_time_ms: result.processing_time_ms
-            ? Number(result.processing_time_ms)
-            : null,
-        })) || [],
-      ai_confidence_score: gemstone.ai_confidence_score
-        ? Number(gemstone.ai_confidence_score)
+      images,
+      videos,
+      certifications,
+      ai_analysis_results: gemstone.technical_description_en
+        ? [
+            {
+              confidence_score: gemstone.confidence_score
+                ? Number(gemstone.confidence_score)
+                : null,
+              analysis_type: "comprehensive_analysis",
+              ai_model_version: gemstone.model_version,
+              created_at: gemstone.updated_at,
+            },
+          ]
+        : [],
+      ai_confidence_score: gemstone.confidence_score
+        ? Number(gemstone.confidence_score)
         : null,
-      v6Text: v6Text || null,
+      v6Text: gemstone.technical_description_en
+        ? {
+            technical_description_en: gemstone.technical_description_en,
+            technical_description_ru: gemstone.technical_description_ru,
+            emotional_description_en: gemstone.emotional_description_en,
+            emotional_description_ru: gemstone.emotional_description_ru,
+            narrative_story_en: gemstone.narrative_story_en,
+            narrative_story_ru: gemstone.narrative_story_ru,
+            historical_context_en: gemstone.historical_context_en,
+            historical_context_ru: gemstone.historical_context_ru,
+            care_instructions_en: gemstone.care_instructions_en,
+            care_instructions_ru: gemstone.care_instructions_ru,
+            promotional_text: gemstone.promotional_text_en,
+            promotional_text_ru: gemstone.promotional_text_ru,
+            marketing_highlights: gemstone.marketing_highlights_en,
+            marketing_highlights_ru: gemstone.marketing_highlights_ru,
+            recommended_primary_image_index:
+              gemstone.recommended_primary_image_index,
+            selected_image_uuid: gemstone.selected_image_uuid,
+            detected_cut: gemstone.detected_cut,
+            detected_color: gemstone.detected_color,
+            detected_color_description: gemstone.detected_color_description,
+            model_version: gemstone.model_version,
+            confidence_score: gemstone.confidence_score,
+            needs_review: gemstone.needs_review,
+          }
+        : null,
     } as DetailGemstone & { v6Text?: V6Row | null };
 
     return finalGemstone;

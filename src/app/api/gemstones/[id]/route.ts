@@ -29,18 +29,10 @@ export async function GET(
 
     console.log(`🔍 [GemstoneAPI] Fetching gemstone with ID: ${id}`);
 
-    // Fetch gemstone with all related data (only items with price > 0)
+    // Fetch gemstone with AI content using gemstones_enriched view
     const { data: gemstone, error: gemstoneError } = await supabase
-      .from("gemstones")
-      .select(
-        `
-        *,
-        origin:origins(*),
-        images:gemstone_images(*),
-        videos:gemstone_videos(*),
-        certifications:certifications(*)
-      `
-      )
+      .from("gemstones_enriched")
+      .select("*")
       .eq("id", id)
       .gt("price_amount", 0)
       .single();
@@ -59,36 +51,46 @@ export async function GET(
       );
     }
 
-    // Fetch v6 text (if available) - only the fields used by the component
-    const { data: v6Text, error: v6Error } = await supabase
-      .from("gemstones_ai_v6")
-      .select(
-        `
-        technical_description_en,
-        technical_description_ru,
-        emotional_description_en,
-        emotional_description_ru,
-        narrative_story_en,
-        narrative_story_ru,
-        historical_context_en,
-        historical_context_ru,
-        care_instructions_en,
-        care_instructions_ru,
-        marketing_highlights,
-        promotional_text
-      `
-      )
-      .eq("gemstone_id", id)
-      .single();
+    // Fetch additional related data separately (not in the view)
+    const [imagesResult, videosResult, certificationsResult] = await Promise.all([
+      supabase.from("gemstone_images").select("*").eq("gemstone_id", id),
+      supabase.from("gemstone_videos").select("*").eq("gemstone_id", id),
+      supabase.from("certifications").select("*").eq("gemstone_id", id)
+    ]);
 
-    if (v6Error && v6Error.code !== "PGRST116") {
-      console.error("❌ [GemstoneAPI] V6 text fetch error:", v6Error);
-      // Don't fail the entire request if v6 text fails
+    const images = imagesResult.data || [];
+    const videos = videosResult.data || [];
+    const certifications = certificationsResult.data || [];
+
+    if (imagesResult.error) {
+      console.warn("⚠️ [GemstoneAPI] Failed to fetch images:", imagesResult.error);
+    }
+    if (videosResult.error) {
+      console.warn("⚠️ [GemstoneAPI] Failed to fetch videos:", videosResult.error);
+    }
+    if (certificationsResult.error) {
+      console.warn("⚠️ [GemstoneAPI] Failed to fetch certifications:", certificationsResult.error);
     }
 
     const result = {
       ...gemstone,
-      v6Text: v6Text || null,
+      images,
+      videos,
+      certifications,
+      v6Text: gemstone.technical_description_en ? {
+        technical_description_en: gemstone.technical_description_en,
+        technical_description_ru: gemstone.technical_description_ru,
+        emotional_description_en: gemstone.emotional_description_en,
+        emotional_description_ru: gemstone.emotional_description_ru,
+        narrative_story_en: gemstone.narrative_story_en,
+        narrative_story_ru: gemstone.narrative_story_ru,
+        historical_context_en: gemstone.historical_context_en,
+        historical_context_ru: gemstone.historical_context_ru,
+        care_instructions_en: gemstone.care_instructions_en,
+        care_instructions_ru: gemstone.care_instructions_ru,
+        marketing_highlights: gemstone.marketing_highlights_en,
+        promotional_text: gemstone.promotional_text_en,
+      } : null,
     };
 
     console.log(
