@@ -52,6 +52,7 @@
     "noOrdersFound": "Заказы не найдены",
     "loadingOrders": "Загрузка заказов...",
     "orderId": "ID заказа",
+    "orderNumber": "Номер заказа",
     "customer": "Клиент",
     "date": "Дата",
     "status": "Статус",

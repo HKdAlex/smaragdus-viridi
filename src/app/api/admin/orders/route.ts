@@ -103,6 +103,7 @@ export async function GET(request: NextRequest) {
         delivery_address: order.delivery_address,
         payment_type: order.payment_type,
         notes: order.notes,
+        order_number: order.order_number,
         created_at: order.created_at,
         updated_at: order.updated_at,
         items: order.order_items || [],
