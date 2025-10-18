@@ -1,20 +1,9 @@
-import {
-  AlertCircle,
-  CheckCircle,
-  Clock,
-  Package,
-  Truck,
-  X,
-} from "lucide-react";
+import { CheckCircle, Clock, Package, Truck, X } from "lucide-react";
+
+import type { Database } from "@/shared/types/database";
 import type { ReactNode } from "react";
 
-export type OrderStatus = 
-  | "pending" 
-  | "confirmed" 
-  | "processing" 
-  | "shipped" 
-  | "delivered" 
-  | "cancelled";
+export type OrderStatus = Database["public"]["Enums"]["order_status"];
 
 export type BadgeVariant = "default" | "secondary" | "destructive" | "outline";
 
@@ -29,35 +18,40 @@ export interface OrderStatusConfig {
 export const ORDER_STATUS_CONFIG: Record<OrderStatus, OrderStatusConfig> = {
   pending: {
     variant: "outline",
-    colors: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30 hover:bg-yellow-500/30",
+    colors:
+      "bg-yellow-500/20 text-yellow-400 border-yellow-500/30 hover:bg-yellow-500/30",
     icon: "Clock",
     label: "Pending",
     description: "Order is awaiting confirmation",
   },
   confirmed: {
     variant: "default",
-    colors: "bg-blue-500/20 text-blue-400 border-blue-500/30 hover:bg-blue-500/30",
+    colors:
+      "bg-blue-500/20 text-blue-400 border-blue-500/30 hover:bg-blue-500/30",
     icon: "CheckCircle",
     label: "Confirmed",
     description: "Order has been confirmed and is being processed",
   },
   processing: {
     variant: "default",
-    colors: "bg-purple-500/20 text-purple-400 border-purple-500/30 hover:bg-purple-500/30",
+    colors:
+      "bg-purple-500/20 text-purple-400 border-purple-500/30 hover:bg-purple-500/30",
     icon: "Package",
     label: "Processing",
     description: "Order is being prepared for shipment",
   },
   shipped: {
     variant: "default",
-    colors: "bg-indigo-500/20 text-indigo-400 border-indigo-500/30 hover:bg-indigo-500/30",
+    colors:
+      "bg-indigo-500/20 text-indigo-400 border-indigo-500/30 hover:bg-indigo-500/30",
     icon: "Truck",
     label: "Shipped",
     description: "Order has been shipped and is in transit",
   },
   delivered: {
     variant: "default",
-    colors: "bg-green-500/20 text-green-400 border-green-500/30 hover:bg-green-500/30",
+    colors:
+      "bg-green-500/20 text-green-400 border-green-500/30 hover:bg-green-500/30",
     icon: "CheckCircle",
     label: "Delivered",
     description: "Order has been successfully delivered",
@@ -105,7 +99,7 @@ export function getOrderStatusIconName(status: string): string {
  */
 export function getOrderStatusIcon(status: string): ReactNode {
   const iconName = getOrderStatusIconName(status);
-  
+
   switch (iconName) {
     case "Clock":
       return <Clock className="w-3 h-3" />;
@@ -140,7 +134,12 @@ export function getOrderStatusDescription(status: string): string {
  * Check if a status is considered "active" (not completed or cancelled)
  */
 export function isActiveOrderStatus(status: string): boolean {
-  const activeStatuses: OrderStatus[] = ["pending", "confirmed", "processing", "shipped"];
+  const activeStatuses: OrderStatus[] = [
+    "pending",
+    "confirmed",
+    "processing",
+    "shipped",
+  ];
   return activeStatuses.includes(status.toLowerCase() as OrderStatus);
 }
 
@@ -170,7 +169,7 @@ export function getOrderStatusProgress(status: string): number {
     delivered: 100,
     cancelled: 0,
   };
-  
+
   const normalizedStatus = status.toLowerCase() as OrderStatus;
   return progressMap[normalizedStatus] || 0;
 }
@@ -187,7 +186,7 @@ export function getNextOrderStatus(status: string): OrderStatus | null {
     delivered: null,
     cancelled: null,
   };
-  
+
   const normalizedStatus = status.toLowerCase() as OrderStatus;
   return statusFlow[normalizedStatus] || null;
 }
@@ -197,7 +196,7 @@ export function getNextOrderStatus(status: string): OrderStatus | null {
  */
 export function getPossibleNextStatuses(status: string): OrderStatus[] {
   const normalizedStatus = status.toLowerCase() as OrderStatus;
-  
+
   switch (normalizedStatus) {
     case "pending":
       return ["confirmed", "cancelled"];
