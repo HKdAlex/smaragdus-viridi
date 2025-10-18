@@ -82,13 +82,17 @@ export async function GET(
         error: any;
       };
 
-      // Get user email from auth (admin only)
+      // Get user email from auth
       let email = null;
       if (isAdmin) {
+        // Admin can see any user's email
         const { data: authUser } = await supabase.auth.admin.getUserById(
           order.user_id
         );
         email = authUser?.user?.email;
+      } else if (isOwner) {
+        // User can see their own email
+        email = user.email;
       }
 
       userInfo = {

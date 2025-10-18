@@ -10,6 +10,10 @@
   "allItemsLoaded": "You've reached the end of our collection",
   "thankYouForBrowsing": "Thank you for browsing our collection",
   "noResults": "No gemstones found",
+  "emptyState": {
+    "title": "No gemstones found",
+    "description": "Try adjusting your search criteria or filters"
+  },
   "showingResults": "Showing {current} of {total} gemstones",
   "search": {
     "placeholder": "Search gemstones...",

@@ -10,6 +10,10 @@
   "allItemsLoaded": "Вы просмотрели всю нашу коллекцию",
   "thankYouForBrowsing": "Спасибо за просмотр нашей коллекции",
   "noResults": "Камни не найдены",
+  "emptyState": {
+    "title": "Камни не найдены",
+    "description": "Попробуйте изменить критерии поиска или фильтры"
+  },
   "showingResults": "Показано {current} из {total} камней",
   "search": {
     "placeholder": "Поиск камней...",

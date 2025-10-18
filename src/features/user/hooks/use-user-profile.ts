@@ -9,6 +9,7 @@ import type {
   UserPreferences,
   UserProfile,
 } from "../types/user-profile.types";
+import { ERROR_CODES, LocalizedError } from "@/shared/constants/error-codes";
 import { useCallback, useEffect, useState } from "react";
 
 import { userProfileService } from "../services/user-profile-service";
@@ -60,7 +61,7 @@ export function useUserProfile(userId?: string): UseUserProfileReturn {
   // Update profile
   const updateProfile = useCallback(
     async (updates: UpdateProfileRequest): Promise<void> => {
-      if (!profile) throw new Error("No profile loaded");
+      if (!profile) throw new LocalizedError(ERROR_CODES.PROFILE_NOT_LOADED);
 
       const response: UpdateProfileResponse =
         await userProfileService.updateProfile(profile.user_id, updates);
@@ -102,7 +103,7 @@ export function useUserProfile(userId?: string): UseUserProfileReturn {
   // Change password
   const changePassword = useCallback(
     async (request: ChangePasswordRequest): Promise<void> => {
-      if (!profile) throw new Error("No profile loaded");
+      if (!profile) throw new LocalizedError(ERROR_CODES.PROFILE_NOT_LOADED);
 
       const response: ChangePasswordResponse =
         await userProfileService.changePassword(profile.user_id, request);

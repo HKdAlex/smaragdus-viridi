@@ -1,3 +1,4 @@
+import { ERROR_CODES, LocalizedError } from "@/shared/constants/error-codes";
 import { NextRequest, NextResponse } from "next/server";
 
 import { supabaseAdmin } from "@/lib/supabase";
@@ -5,7 +6,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 export async function GET(request: NextRequest) {
   try {
     if (!supabaseAdmin) {
-      throw new Error("Service role key not available");
+      throw new LocalizedError(ERROR_CODES.SERVICE_ROLE_KEY_NOT_AVAILABLE);
     }
 
     const supabase = supabaseAdmin;

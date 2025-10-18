@@ -18,6 +18,10 @@
       "interactiveDemo": "Interactive Demo",
       "interactiveDemoDesc": "Try the full-featured visualizer with all controls",
       "technicalFeatures": "Technical Features",
+      "gemstoneGrades": {
+        "dColor": "D Color",
+        "flClarity": "FL Clarity"
+      },
       "technicalFeaturesDesc": "Powered by advanced 3D rendering technology",
       "browserCompatibility": "Browser Compatibility"
     },

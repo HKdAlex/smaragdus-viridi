@@ -73,6 +73,7 @@
   "calculatedAtCheckout": "Calculated at checkout",
   "cancelOrder": "Cancel Order",
   "continueShopping": "Continue Shopping",
+  "viewAllOrders": "View All Orders",
   "currency": "Currency",
   "customerEmail": "Customer Email",
   "customerInfo": "Customer Information",
@@ -84,7 +85,9 @@
   "orderDetails": "Order Details",
   "orderHistory": "Order History",
   "orderId": "Order ID",
+  "orderNumber": "Order Number",
   "orderItems": "Order Items",
+  "items": "Items",
   "orderSummary": "Order Summary",
   "serialNumber": "Serial Number",
   "shipping": "Shipping",
@@ -121,5 +124,9 @@
     "notFound": "Order not found or you don't have access to it",
     "viewAllOrders": "View All Orders",
     "continueShopping": "Continue Shopping"
-  }
+  },
+  "orderInformation": "Order Information",
+  "financialSummary": "Financial Summary",
+  "errorTitle": "Error Loading Order",
+  "orderNotFound": "Order not found or you don't have access to it"
 }

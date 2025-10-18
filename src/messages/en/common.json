@@ -61,6 +61,10 @@
     },
     "exploreCollection": "Explore Our Collection"
   },
+  "pagination": {
+    "previousPage": "Previous page",
+    "nextPage": "Next page"
+  },
   "cart": {
     "title": "Shopping Cart",
     "continueShopping": "Continue Shopping",

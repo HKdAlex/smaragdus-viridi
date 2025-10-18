@@ -5,6 +5,8 @@
  * Tracks queries, result counts, and fuzzy search usage for optimization insights.
  */
 
+import { ERROR_CODES, LocalizedError } from "@/shared/constants/error-codes";
+
 import { supabaseAdmin } from "@/lib/supabase";
 
 export interface TrackSearchParams {
@@ -88,7 +90,7 @@ export class SearchAnalyticsService {
     daysBack: number = 30
   ): Promise<AnalyticsSummary[]> {
     if (!supabaseAdmin) {
-      throw new Error("Database connection failed");
+      throw new LocalizedError(ERROR_CODES.DATABASE_CONNECTION_FAILED);
     }
 
     const { data, error } = await supabaseAdmin.rpc(
@@ -115,7 +117,7 @@ export class SearchAnalyticsService {
     timeBucket: "hour" | "day" | "week" = "day"
   ): Promise<SearchTrend[]> {
     if (!supabaseAdmin) {
-      throw new Error("Database connection failed");
+      throw new LocalizedError(ERROR_CODES.DATABASE_CONNECTION_FAILED);
     }
 
     const { data, error } = await supabaseAdmin.rpc("get_search_trends", {
@@ -209,7 +211,7 @@ export class SearchAnalyticsService {
     }>
   > {
     if (!supabaseAdmin) {
-      throw new Error("Database connection failed");
+      throw new LocalizedError(ERROR_CODES.DATABASE_CONNECTION_FAILED);
     }
 
     const { data, error } = await supabaseAdmin

@@ -73,6 +73,7 @@
   "calculatedAtCheckout": "Рассчитывается при оформлении",
   "cancelOrder": "Отменить Заказ",
   "continueShopping": "Продолжить Покупки",
+  "viewAllOrders": "Посмотреть Все Заказы",
   "currency": "Валюта",
   "customerEmail": "Email Клиента",
   "customerInfo": "Информация о Клиенте",
@@ -84,7 +85,9 @@
   "orderDetails": "Детали Заказа",
   "orderHistory": "История Заказов",
   "orderId": "ID Заказа",
+  "orderNumber": "Номер Заказа",
   "orderItems": "Товары в Заказе",
+  "items": "Товары",
   "orderSummary": "Сводка Заказа",
   "serialNumber": "Серийный Номер",
   "shipping": "Доставка",
@@ -121,5 +124,9 @@
     "notFound": "Заказ не найден или у вас нет доступа к нему",
     "viewAllOrders": "Посмотреть Все Заказы",
     "continueShopping": "Продолжить Покупки"
-  }
+  },
+  "orderInformation": "Информация о Заказе",
+  "financialSummary": "Финансовая Сводка",
+  "errorTitle": "Ошибка Загрузки Заказа",
+  "orderNotFound": "Заказ не найден или у вас нет доступа к нему"
 }

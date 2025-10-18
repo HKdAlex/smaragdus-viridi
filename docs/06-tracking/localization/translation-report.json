@@ -1,8 +1,8 @@
 {
-  "timestamp": "2025-09-14T22:18:56.952Z",
+  "timestamp": "2025-10-18T11:57:27.779Z",
   "summary": {
-    "totalFiles": 16,
-    "completeFiles": 16,
+    "totalFiles": 18,
+    "completeFiles": 18,
     "filesWithIssues": 0,
     "totalMissingKeys": 0,
     "totalExtraKeys": 0
@@ -44,6 +44,11 @@
       "issues": []
     },
     {
+      "filename": "demo.json",
+      "status": "complete",
+      "issues": []
+    },
+    {
       "filename": "errors.json",
       "status": "complete",
       "issues": []
@@ -80,6 +85,11 @@
     },
     {
       "filename": "orders.json",
+      "status": "complete",
+      "issues": []
+    },
+    {
+      "filename": "search.json",
       "status": "complete",
       "issues": []
     },

@@ -90,6 +90,9 @@
       "thumbnail": "Ошибка создания миниатюры"
     }
   },
+  "user": {
+    "profileNotLoaded": "Профиль не загружен"
+  },
   "admin": {
     "loadGemstoneStatsFailed": "Не удалось загрузить статистику камней",
     "loadDashboardStatsFailed": "Не удалось загрузить статистику панели",
@@ -97,6 +100,11 @@
     "loadOriginsFailed": "Не удалось загрузить происхождения",
     "bulkUpdateFailed": "Не удалось выполнить массовое обновление",
     "addToCartError": "Ошибка добавления в корзину",
+    "accessRequired": "Требуется доступ администратора",
+    "analyticsFetchFailed": "Не удалось получить аналитику",
+    "databaseConnectionFailed": "Ошибка подключения к базе данных",
+    "serviceRoleKeyNotAvailable": "Ключ роли сервиса недоступен",
+    "supabaseAdminClientNotInitialized": "Клиент администратора Supabase не инициализирован",
     "gemstoneDetailError": "Ошибка деталей камня",
     "initialSessionError": "Ошибка получения начальной сессии"
   }

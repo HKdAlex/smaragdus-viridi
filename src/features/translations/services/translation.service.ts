@@ -1,3 +1,5 @@
+import { ERROR_CODES, LocalizedError } from "@/shared/constants/error-codes";
+
 import { supabaseAdmin } from "@/lib/supabase";
 
 type TranslationTable =
@@ -94,7 +96,9 @@ export class TranslationService {
     }
 
     if (!supabaseAdmin) {
-      throw new Error("Supabase admin client is not initialized");
+      throw new LocalizedError(
+        ERROR_CODES.SUPABASE_ADMIN_CLIENT_NOT_INITIALIZED
+      );
     }
 
     const { data, error } = await supabaseAdmin

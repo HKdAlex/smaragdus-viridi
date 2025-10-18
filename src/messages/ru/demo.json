@@ -18,6 +18,10 @@
       "interactiveDemo": "Интерактивная Демонстрация",
       "interactiveDemoDesc": "Попробуйте полнофункциональный визуализатор со всеми элементами управления",
       "technicalFeatures": "Технические Возможности",
+      "gemstoneGrades": {
+        "dColor": "Цвет D",
+        "flClarity": "Чистота FL"
+      },
       "technicalFeaturesDesc": "Работает на передовых технологиях 3D рендеринга",
       "browserCompatibility": "Совместимость Браузеров"
     },

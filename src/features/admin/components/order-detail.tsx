@@ -1,20 +1,6 @@
 "use client";
 
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/components/ui/select";
-import {
   ArrowLeft,
   Calendar,
   CreditCard,
@@ -24,20 +10,35 @@ import {
   Truck,
   User,
 } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
 import type {
   OrderDetailProps,
   OrderStatus,
 } from "../types/order-management.types";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/shared/components/ui/select";
 
-import { useOrderTranslations } from "@/features/orders/utils/order-translations";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
+import { EditableStatusBadge } from "./editable-status-badge";
+import { ORDER_STATUS_CONFIG } from "../types/order-management.types";
 import { Separator } from "@/shared/components/ui/separator";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { format } from "date-fns";
-import { useTranslations } from "next-intl";
+import { useOrderTranslations } from "@/features/orders/utils/order-translations";
 import { useState } from "react";
-import { ORDER_STATUS_CONFIG } from "../types/order-management.types";
+import { useTranslations } from "next-intl";
 
 export function OrderDetail({
   order,
@@ -134,7 +135,10 @@ export function OrderDetail({
             </p>
           </div>
         </div>
-        {getStatusBadge(order.status)}
+        <EditableStatusBadge
+          status={order.status}
+          onStatusChange={(newStatus) => handleStatusUpdate(newStatus)}
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -232,7 +236,10 @@ export function OrderDetail({
                 <span className="text-sm font-medium">
                   {t("currentStatus")}
                 </span>
-                {getStatusBadge(order.status)}
+                <EditableStatusBadge
+                  status={order.status}
+                  onStatusChange={(newStatus) => handleStatusUpdate(newStatus)}
+                />
               </div>
 
               {getNextStatuses(order.status).length > 0 && (

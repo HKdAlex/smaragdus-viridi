@@ -214,18 +214,19 @@
       "cut": "Огранка"
     },
     "messages": {
-      "duplicateSuccess": "Камень успешно скопирован",
+      "duplicateSuccess": "Камень успешно продублирован",
       "archiveSuccess": "Камень успешно архивирован",
       "restoreSuccess": "Камень успешно восстановлен"
     },
     "errors": {
-      "duplicateError": "Не удалось скопировать камень:",
-      "duplicateFailed": "Не удалось скопировать камень",
-      "archiveError": "Не удалось архивировать камень:",
-      "archiveFailed": "Не удалось архивировать камень",
-      "restoreError": "Не удалось восстановить камень:",
-      "restoreFailed": "Не удалось восстановить камень",
-      "exportFailed": "Экспорт не удался: {error}",
+      "loadFailed": "Не удалось загрузить камни:",
+      "duplicateFailed": "Не удалось продублировать камень: {error}",
+      "duplicateError": "Ошибка дублирования камня:",
+      "archiveFailed": "Не удалось архивировать камень: {error}",
+      "archiveError": "Ошибка архивирования камня:",
+      "restoreFailed": "Не удалось восстановить камень: {error}",
+      "restoreError": "Ошибка восстановления камня:",
+      "exportFailed": "Ошибка экспорта: {error}",
       "exportError": "Ошибка экспорта:"
     },
     "gemstones": {
@@ -331,39 +332,39 @@
         "I2": "I2 (Включенный)",
         "I3": "I3 (Включенный)"
       }
-    },
-    "messages": {
-      "duplicateSuccess": "Камень успешно продублирован",
-      "archiveSuccess": "Камень успешно архивирован",
-      "restoreSuccess": "Камень успешно восстановлен"
-    },
-    "errors": {
-      "loadFailed": "Не удалось загрузить камни:",
-      "duplicateFailed": "Не удалось продублировать камень: {error}",
-      "duplicateError": "Ошибка дублирования камня:",
-      "archiveFailed": "Не удалось архивировать камень: {error}",
-      "archiveError": "Ошибка архивирования камня:",
-      "restoreFailed": "Не удалось восстановить камень: {error}",
-      "restoreError": "Ошибка восстановления камня:",
-      "exportFailed": "Ошибка экспорта: {error}",
-      "exportError": "Ошибка экспорта:"
     }
   },
   "gemstoneDetail": {
     "title": "Детали камня",
-    "backToList": "Назад к списку",
-    "editGemstone": "Редактировать камень",
-    "gemstoneImage": "Изображение камня",
-    "gemstoneDetails": "Детали камня",
-    "statusAndPricing": "Статус и цены",
-    "additionalInfo": "Дополнительная информация",
-    "status": "Статус",
     "inStock": "В наличии",
     "outOfStock": "Нет в наличии",
     "dimensions": "Размеры",
-    "createdAt": "Создан",
-    "updatedAt": "Обновлен",
-    "notAvailable": "Недоступно"
+    "basicInformation": "Основная информация",
+    "serialNumber": "Серийный номер",
+    "internalCode": "Внутренний код",
+    "gemstoneType": "Тип камня",
+    "stockStatus": "Статус наличия",
+    "gemstoneProperties": "Свойства камня",
+    "color": "Цвет",
+    "cut": "Огранка",
+    "clarity": "Чистота",
+    "weight": "Вес",
+    "dimensions_length": "{length}мм Д",
+    "dimensions_width": "{width}мм Ш",
+    "dimensions_depth": "{depth}мм Г",
+    "pricingInformation": "Информация о ценах",
+    "regularPrice": "Обычная цена",
+    "premiumPrice": "Премиум цена",
+    "deliveryTime": "Время доставки",
+    "businessDays": "{days} рабочих дней",
+    "description": "Описание",
+    "recordInformation": "Информация о записи",
+    "created": "Создано",
+    "lastUpdated": "Последнее обновление",
+    "close": "Закрыть",
+    "notSpecified": "Не указано",
+    "notSet": "Не установлено",
+    "unknown": "Неизвестно"
   },
   "gemstoneActions": {
     "openMenu": "Открыть меню",
@@ -464,7 +465,6 @@
     "confirmBulkUpdateDescription": "Вы собираетесь обновить {count} камней. Это действие нельзя отменить.",
     "changesToApply": "Изменения для применения",
     "price": "Цена",
-    "stockStatus": "Статус наличия",
     "inStock": "В наличии",
     "outOfStock": "Нет в наличии",
     "days": "дней",
@@ -793,6 +793,9 @@
     "dragDropDescription": "Перетащите изображения и видео, или нажмите для выбора",
     "supportedFormats": "Поддерживается: JPEG, PNG, WebP (до 50MB), MP4, WebM (до 500MB)",
     "uploadedMedia": "Загруженные медиа"
+  },
+  "analytics": {
+    "totalSearches": "Всего поисков"
   },
   "gemstoneManagement": {
     "title": "Управление драгоценными камнями",

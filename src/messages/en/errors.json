@@ -90,6 +90,9 @@
       "thumbnail": "Thumbnail generation error"
     }
   },
+  "user": {
+    "profileNotLoaded": "No profile loaded"
+  },
   "admin": {
     "loadGemstoneStatsFailed": "Failed to load gemstone stats",
     "loadDashboardStatsFailed": "Failed to load dashboard stats",
@@ -97,6 +100,11 @@
     "loadOriginsFailed": "Failed to load origins",
     "bulkUpdateFailed": "Bulk update failed",
     "addToCartError": "Add to cart error",
+    "accessRequired": "Admin access required",
+    "analyticsFetchFailed": "Failed to fetch analytics",
+    "databaseConnectionFailed": "Database connection failed",
+    "serviceRoleKeyNotAvailable": "Service role key not available",
+    "supabaseAdminClientNotInitialized": "Supabase admin client is not initialized",
     "gemstoneDetailError": "Gemstone detail error",
     "initialSessionError": "Error getting initial session"
   }

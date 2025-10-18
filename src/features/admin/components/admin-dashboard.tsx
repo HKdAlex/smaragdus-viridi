@@ -1,12 +1,6 @@
 "use client";
 
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui/card";
-import {
   BarChart3,
   Edit,
   Gem,
@@ -20,6 +14,12 @@ import {
   Users,
   X,
 } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
 import { useEffect, useState } from "react";
 
 import { AdminAnalytics } from "./admin-analytics";
@@ -29,10 +29,10 @@ import { AdminSettings } from "./admin-settings";
 import { AdminUserManager } from "./admin-user-manager";
 // Import admin components (will be created in subsequent phases)
 import { Button } from "@/shared/components/ui/button";
-import { useTranslations } from "next-intl";
-import { useAdmin } from "../context/admin-context";
-import { StatisticsService } from "../services/statistics-service";
 import { OrderManagement } from "./order-management";
+import { StatisticsService } from "../services/statistics-service";
+import { useAdmin } from "../context/admin-context";
+import { useTranslations } from "next-intl";
 
 type AdminTab =
   | "dashboard"
@@ -134,7 +134,7 @@ export function AdminDashboard() {
   const renderTabContent = () => {
     switch (activeTab) {
       case "dashboard":
-        return <AdminDashboardOverview />;
+        return <AdminDashboardOverview onNavigateToTab={setActiveTab} />;
       case "orders":
         return <OrderManagement />;
       case "gemstones":
@@ -148,7 +148,7 @@ export function AdminDashboard() {
       case "settings":
         return <AdminSettings />;
       default:
-        return <AdminDashboardOverview />;
+        return <AdminDashboardOverview onNavigateToTab={setActiveTab} />;
     }
   };
 
@@ -210,6 +210,14 @@ export function AdminDashboard() {
       </header>
 
       <div className="flex">
+        {/* Mobile Overlay */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black/50 z-30 md:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+
         {/* Sidebar */}
         <aside
           className={`
@@ -230,7 +238,11 @@ export function AdminDashboard() {
                 <Button
                   key={tab.id}
                   variant={isActive ? "default" : "ghost"}
-                  className="w-full justify-start gap-3 h-auto p-3 sm:p-4 min-h-[56px] text-left py-4"
+                  className={`w-full justify-start gap-3 h-auto p-3 sm:p-4 min-h-[56px] text-left py-4 transition-all duration-200 ${
+                    isActive
+                      ? "bg-primary text-primary-foreground shadow-md"
+                      : "hover:bg-muted/50 hover:text-foreground"
+                  }`}
                   onClick={() => {
                     setActiveTab(tab.id);
                     setSidebarOpen(false); // Close mobile sidebar
@@ -267,7 +279,11 @@ export function AdminDashboard() {
 }
 
 // Dashboard Overview Component
-function AdminDashboardOverview() {
+function AdminDashboardOverview({
+  onNavigateToTab,
+}: {
+  onNavigateToTab: (tab: AdminTab) => void;
+}) {
   const t = useTranslations("admin.dashboard");
   const [stats, setStats] = useState<
     Array<{
@@ -372,12 +388,14 @@ function AdminDashboardOverview() {
 
   if (error) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 sm:space-y-8">
         <div>
-          <h2 className="text-3xl font-bold text-foreground mb-2">
+          <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
             {t("overview.title")}
           </h2>
-          <p className="text-muted-foreground">{t("overview.description")}</p>
+          <p className="text-muted-foreground text-sm sm:text-base">
+            {t("overview.description")}
+          </p>
         </div>
 
         <Card className="border-destructive/20 bg-destructive/5">
@@ -419,7 +437,7 @@ function AdminDashboardOverview() {
           return (
             <Card
               key={stat.title}
-              className="border-0 shadow-lg bg-gradient-to-br from-card to-muted/20"
+              className="border-0 shadow-lg bg-gradient-to-br from-card to-muted/20 hover:shadow-xl transition-shadow duration-300"
             >
               <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center justify-between">
@@ -430,18 +448,26 @@ function AdminDashboardOverview() {
                     <p className="text-xl sm:text-2xl font-bold text-foreground break-words">
                       {stat.value}
                     </p>
-                    <p
-                      className={`text-xs sm:text-sm flex items-center gap-1 ${
-                        stat.trend === "up"
-                          ? "text-green-600 dark:text-green-400"
-                          : "text-red-600 dark:text-red-400"
-                      }`}
-                    >
-                      <TrendingUp className="w-3 h-3 flex-shrink-0" />
-                      <span className="break-words">
-                        {stat.change} {t("stats.fromLastMonth")}
-                      </span>
-                    </p>
+                    {stat.change && (
+                      <p
+                        className={`text-xs sm:text-sm flex items-center gap-1 ${
+                          stat.trend === "up"
+                            ? "text-green-600 dark:text-green-400"
+                            : stat.trend === "down"
+                            ? "text-red-600 dark:text-red-400"
+                            : "text-muted-foreground"
+                        }`}
+                      >
+                        <TrendingUp
+                          className={`w-3 h-3 flex-shrink-0 ${
+                            stat.trend === "down" ? "rotate-180" : ""
+                          }`}
+                        />
+                        <span className="break-words">
+                          {stat.change} {t("stats.fromLastMonth")}
+                        </span>
+                      </p>
+                    )}
                   </div>
                   <div className="h-10 w-10 sm:h-12 sm:w-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0 ml-3">
                     <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
@@ -462,7 +488,10 @@ function AdminDashboardOverview() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Button className="flex items-center gap-3 h-auto p-4 justify-start min-h-[60px] text-left">
+            <Button
+              className="flex items-center gap-3 h-auto p-4 justify-start min-h-[60px] text-left hover:scale-[1.02] transition-transform duration-200"
+              onClick={() => onNavigateToTab("gemstones")}
+            >
               <Upload className="w-5 h-5 flex-shrink-0" />
               <div className="text-left min-w-0 flex-1">
                 <div className="font-medium text-sm sm:text-base break-words">
@@ -476,7 +505,8 @@ function AdminDashboardOverview() {
 
             <Button
               variant="outline"
-              className="flex items-center gap-3 h-auto p-4 justify-start min-h-[60px] text-left"
+              className="flex items-center gap-3 h-auto p-4 justify-start min-h-[60px] text-left hover:scale-[1.02] transition-transform duration-200 border-primary/20 hover:border-primary/40 hover:bg-primary/5"
+              onClick={() => onNavigateToTab("pricing")}
             >
               <Edit className="w-5 h-5 flex-shrink-0" />
               <div className="text-left min-w-0 flex-1">
@@ -491,7 +521,8 @@ function AdminDashboardOverview() {
 
             <Button
               variant="outline"
-              className="flex items-center gap-3 h-auto p-4 justify-start min-h-[60px] text-left"
+              className="flex items-center gap-3 h-auto p-4 justify-start min-h-[60px] text-left hover:scale-[1.02] transition-transform duration-200 border-primary/20 hover:border-primary/40 hover:bg-primary/5"
+              onClick={() => onNavigateToTab("users")}
             >
               <Users className="w-5 h-5 flex-shrink-0" />
               <div className="text-left min-w-0 flex-1">
@@ -516,8 +547,8 @@ function AdminDashboardOverview() {
         </CardHeader>
         <CardContent>
           <div className="space-y-3 sm:space-y-4">
-            <div className="flex items-center gap-3 sm:gap-4 p-3 bg-muted/30 rounded-lg">
-              <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
+            <div className="flex items-center gap-3 sm:gap-4 p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors duration-200">
+              <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0 animate-pulse"></div>
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-sm sm:text-base break-words">
                   {t("recentActivity.newGemstoneAdded")}
@@ -528,7 +559,7 @@ function AdminDashboardOverview() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3 sm:gap-4 p-3 bg-muted/30 rounded-lg">
+            <div className="flex items-center gap-3 sm:gap-4 p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors duration-200">
               <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-sm sm:text-base break-words">
@@ -540,7 +571,7 @@ function AdminDashboardOverview() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3 sm:gap-4 p-3 bg-muted/30 rounded-lg">
+            <div className="flex items-center gap-3 sm:gap-4 p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors duration-200">
               <div className="w-2 h-2 bg-orange-500 rounded-full flex-shrink-0"></div>
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-sm sm:text-base break-words">

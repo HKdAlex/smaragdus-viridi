@@ -10,8 +10,11 @@
  * - Time-based filters (7, 30, 90 days)
  */
 
-import { useState, useEffect } from "react";
+import { ERROR_CODES, LocalizedError } from "@/shared/constants/error-codes";
+import { useEffect, useState } from "react";
+
 import type { AnalyticsMetrics } from "@/features/search/services/analytics.service";
+import { useTranslations } from "next-intl";
 
 interface TimeRange {
   label: string;
@@ -25,6 +28,8 @@ const TIME_RANGES: TimeRange[] = [
 ];
 
 export function SearchAnalyticsDashboard() {
+  const t = useTranslations("errors.admin");
+  const tAnalytics = useTranslations("admin.analytics");
   const [selectedRange, setSelectedRange] = useState<number>(30);
   const [metrics, setMetrics] = useState<AnalyticsMetrics | null>(null);
   const [loading, setLoading] = useState(true);
@@ -45,15 +50,19 @@ export function SearchAnalyticsDashboard() {
 
       if (!response.ok) {
         if (response.status === 403) {
-          throw new Error("Admin access required");
+          throw new LocalizedError(ERROR_CODES.ADMIN_ACCESS_REQUIRED);
         }
-        throw new Error("Failed to fetch analytics");
+        throw new LocalizedError(ERROR_CODES.ANALYTICS_FETCH_FAILED);
       }
 
       const data = await response.json();
       setMetrics(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error");
+      if (err instanceof LocalizedError) {
+        setError(t(err.code.toLowerCase()));
+      } else {
+        setError(err instanceof Error ? err.message : "Unknown error");
+      }
       console.error("[SearchAnalyticsDashboard] Error:", err);
     } finally {
       setLoading(false);
@@ -129,7 +138,7 @@ export function SearchAnalyticsDashboard() {
       {/* Overview Stats */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-5">
         <StatCard
-          title="Total Searches"
+          title={tAnalytics("totalSearches")}
           value={metrics.totalSearches.toLocaleString()}
           icon="🔍"
         />
@@ -296,8 +305,10 @@ interface StatCardProps {
 
 function StatCard({ title, value, icon, trend }: StatCardProps) {
   const trendColors = {
-    success: "border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20",
-    warning: "border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-900/20",
+    success:
+      "border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20",
+    warning:
+      "border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-900/20",
     danger: "border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20",
   };
 
@@ -306,9 +317,7 @@ function StatCard({ title, value, icon, trend }: StatCardProps) {
     : "border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800";
 
   return (
-    <div
-      className={`rounded-lg border p-6 shadow-sm ${borderColor}`}
-    >
+    <div className={`rounded-lg border p-6 shadow-sm ${borderColor}`}>
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
@@ -323,4 +332,3 @@ function StatCard({ title, value, icon, trend }: StatCardProps) {
     </div>
   );
 }
-

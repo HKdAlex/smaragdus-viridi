@@ -35,6 +35,7 @@ import {
 
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
+import { EditableStatusBadge } from "./editable-status-badge";
 import { Input } from "@/shared/components/ui/input";
 import { ORDER_STATUS_CONFIG } from "../types/order-management.types";
 import { format } from "date-fns";
@@ -277,7 +278,14 @@ export function OrderList({
                   <TableCell>
                     {format(new Date(order.created_at), "MMM d, yyyy")}
                   </TableCell>
-                  <TableCell>{getStatusBadge(order.status)}</TableCell>
+                  <TableCell>
+                    <EditableStatusBadge
+                      status={order.status}
+                      onStatusChange={async (newStatus) => {
+                        await handleStatusUpdate(order.id, newStatus);
+                      }}
+                    />
+                  </TableCell>
                   <TableCell>
                     {order.items?.length || 0} {t("items")}
                   </TableCell>

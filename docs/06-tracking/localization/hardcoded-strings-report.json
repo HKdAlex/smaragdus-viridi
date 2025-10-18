@@ -1,85 +1,12 @@
 {
-  "timestamp": "2025-10-18T11:09:13.712Z",
+  "timestamp": "2025-10-18T12:09:59.653Z",
   "summary": {
-    "totalFiles": 237,
-    "filesWithFindings": 16,
-    "totalFindings": 44,
+    "totalFiles": 240,
+    "filesWithFindings": 8,
+    "totalFindings": 29,
     "bySeverity": {
-      "high": [
-        {
-          "line": 48,
-          "text": "Admin access required",
-          "context": "throw new Error(\"Admin access required\");",
-          "pattern": 3,
-          "severity": "high",
-          "file": "src/features/admin/components/search-analytics-dashboard.tsx"
-        },
-        {
-          "line": 50,
-          "text": "Failed to fetch analytics",
-          "context": "throw new Error(\"Failed to fetch analytics\");",
-          "pattern": 3,
-          "severity": "high",
-          "file": "src/features/admin/components/search-analytics-dashboard.tsx"
-        },
-        {
-          "line": 91,
-          "text": "Database connection failed",
-          "context": "throw new Error(\"Database connection failed\");",
-          "pattern": 3,
-          "severity": "high",
-          "file": "src/features/search/services/analytics.service.ts"
-        },
-        {
-          "line": 118,
-          "text": "Database connection failed",
-          "context": "throw new Error(\"Database connection failed\");",
-          "pattern": 3,
-          "severity": "high",
-          "file": "src/features/search/services/analytics.service.ts"
-        },
-        {
-          "line": 212,
-          "text": "Database connection failed",
-          "context": "throw new Error(\"Database connection failed\");",
-          "pattern": 3,
-          "severity": "high",
-          "file": "src/features/search/services/analytics.service.ts"
-        }
-      ],
+      "high": [],
       "medium": [
-        {
-          "line": 132,
-          "text": "Total Searches",
-          "context": "title=\"Total Searches\"",
-          "pattern": 1,
-          "severity": "medium",
-          "file": "src/features/admin/components/search-analytics-dashboard.tsx"
-        },
-        {
-          "line": 18,
-          "text": "No gemstones found",
-          "context": "title = \"No gemstones found\",",
-          "pattern": 1,
-          "severity": "medium",
-          "file": "src/features/gemstones/components/empty-state.tsx"
-        },
-        {
-          "line": 37,
-          "text": "Previous page",
-          "context": "aria-label=\"Previous page\"",
-          "pattern": 1,
-          "severity": "medium",
-          "file": "src/features/gemstones/components/pagination-controls.tsx"
-        },
-        {
-          "line": 50,
-          "text": "Next page",
-          "context": "aria-label=\"Next page\"",
-          "pattern": 1,
-          "severity": "medium",
-          "file": "src/features/gemstones/components/pagination-controls.tsx"
-        },
         {
           "line": 244,
           "text": "Emerald",
@@ -111,54 +38,6 @@
           "pattern": "keyword",
           "severity": "medium",
           "file": "src/features/gemstones/types/filter.types.ts"
-        },
-        {
-          "line": 97,
-          "text": "Supabase admin client is not initialized",
-          "context": "throw new Error(\"Supabase admin client is not initialized\");",
-          "pattern": 3,
-          "severity": "medium",
-          "file": "src/features/translations/services/translation.service.ts"
-        },
-        {
-          "line": 63,
-          "text": "No profile loaded",
-          "context": "if (!profile) throw new Error(\"No profile loaded\");",
-          "pattern": 3,
-          "severity": "medium",
-          "file": "src/features/user/hooks/use-user-profile.ts"
-        },
-        {
-          "line": 105,
-          "text": "No profile loaded",
-          "context": "if (!profile) throw new Error(\"No profile loaded\");",
-          "pattern": 3,
-          "severity": "medium",
-          "file": "src/features/user/hooks/use-user-profile.ts"
-        },
-        {
-          "line": 700,
-          "text": "D Color",
-          "context": "<Badge variant=\"secondary\">D Color</Badge>",
-          "pattern": 0,
-          "severity": "medium",
-          "file": "src/app/[locale]/3d-visualizer-demo/page.tsx"
-        },
-        {
-          "line": 701,
-          "text": "FL Clarity",
-          "context": "<Badge variant=\"secondary\">FL Clarity</Badge>",
-          "pattern": 0,
-          "severity": "medium",
-          "file": "src/app/[locale]/3d-visualizer-demo/page.tsx"
-        },
-        {
-          "line": 8,
-          "text": "Service role key not available",
-          "context": "throw new Error(\"Service role key not available\");",
-          "pattern": 3,
-          "severity": "medium",
-          "file": "src/app/api/admin/statistics/users/route.ts"
         }
       ],
       "low": [
@@ -367,33 +246,6 @@
   },
   "results": [
     {
-      "file": "src/features/admin/components/search-analytics-dashboard.tsx",
-      "findings": [
-        {
-          "line": 48,
-          "text": "Admin access required",
-          "context": "throw new Error(\"Admin access required\");",
-          "pattern": 3,
-          "severity": "high"
-        },
-        {
-          "line": 50,
-          "text": "Failed to fetch analytics",
-          "context": "throw new Error(\"Failed to fetch analytics\");",
-          "pattern": 3,
-          "severity": "high"
-        },
-        {
-          "line": 132,
-          "text": "Total Searches",
-          "context": "title=\"Total Searches\"",
-          "pattern": 1,
-          "severity": "medium"
-        }
-      ],
-      "hasTranslations": false
-    },
-    {
       "file": "src/features/admin/types/order-management.types.ts",
       "findings": [
         {
@@ -516,39 +368,6 @@
       "hasTranslations": false
     },
     {
-      "file": "src/features/gemstones/components/empty-state.tsx",
-      "findings": [
-        {
-          "line": 18,
-          "text": "No gemstones found",
-          "context": "title = \"No gemstones found\",",
-          "pattern": 1,
-          "severity": "medium"
-        }
-      ],
-      "hasTranslations": false
-    },
-    {
-      "file": "src/features/gemstones/components/pagination-controls.tsx",
-      "findings": [
-        {
-          "line": 37,
-          "text": "Previous page",
-          "context": "aria-label=\"Previous page\"",
-          "pattern": 1,
-          "severity": "medium"
-        },
-        {
-          "line": 50,
-          "text": "Next page",
-          "context": "aria-label=\"Next page\"",
-          "pattern": 1,
-          "severity": "medium"
-        }
-      ],
-      "hasTranslations": false
-    },
-    {
       "file": "src/features/gemstones/hooks/use-filter-counts.ts",
       "findings": [
         {
@@ -603,66 +422,6 @@
           "text": "Cut",
           "context": "cut: \"Cut\",",
           "pattern": "keyword",
-          "severity": "medium"
-        }
-      ],
-      "hasTranslations": false
-    },
-    {
-      "file": "src/features/search/services/analytics.service.ts",
-      "findings": [
-        {
-          "line": 91,
-          "text": "Database connection failed",
-          "context": "throw new Error(\"Database connection failed\");",
-          "pattern": 3,
-          "severity": "high"
-        },
-        {
-          "line": 118,
-          "text": "Database connection failed",
-          "context": "throw new Error(\"Database connection failed\");",
-          "pattern": 3,
-          "severity": "high"
-        },
-        {
-          "line": 212,
-          "text": "Database connection failed",
-          "context": "throw new Error(\"Database connection failed\");",
-          "pattern": 3,
-          "severity": "high"
-        }
-      ],
-      "hasTranslations": false
-    },
-    {
-      "file": "src/features/translations/services/translation.service.ts",
-      "findings": [
-        {
-          "line": 97,
-          "text": "Supabase admin client is not initialized",
-          "context": "throw new Error(\"Supabase admin client is not initialized\");",
-          "pattern": 3,
-          "severity": "medium"
-        }
-      ],
-      "hasTranslations": false
-    },
-    {
-      "file": "src/features/user/hooks/use-user-profile.ts",
-      "findings": [
-        {
-          "line": 63,
-          "text": "No profile loaded",
-          "context": "if (!profile) throw new Error(\"No profile loaded\");",
-          "pattern": 3,
-          "severity": "medium"
-        },
-        {
-          "line": 105,
-          "text": "No profile loaded",
-          "context": "if (!profile) throw new Error(\"No profile loaded\");",
-          "pattern": 3,
           "severity": "medium"
         }
       ],
@@ -733,39 +492,6 @@
           "context": "loadActivities: (request?: GetActivityHistoryRequest) => Promise<void>;",
           "pattern": 0,
           "severity": "low"
-        }
-      ],
-      "hasTranslations": false
-    },
-    {
-      "file": "src/app/[locale]/3d-visualizer-demo/page.tsx",
-      "findings": [
-        {
-          "line": 700,
-          "text": "D Color",
-          "context": "<Badge variant=\"secondary\">D Color</Badge>",
-          "pattern": 0,
-          "severity": "medium"
-        },
-        {
-          "line": 701,
-          "text": "FL Clarity",
-          "context": "<Badge variant=\"secondary\">FL Clarity</Badge>",
-          "pattern": 0,
-          "severity": "medium"
-        }
-      ],
-      "hasTranslations": false
-    },
-    {
-      "file": "src/app/api/admin/statistics/users/route.ts",
-      "findings": [
-        {
-          "line": 8,
-          "text": "Service role key not available",
-          "context": "throw new Error(\"Service role key not available\");",
-          "pattern": 3,
-          "severity": "medium"
         }
       ],
       "hasTranslations": false

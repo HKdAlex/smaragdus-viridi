@@ -61,6 +61,10 @@
     },
     "exploreCollection": "Изучить нашу коллекцию"
   },
+  "pagination": {
+    "previousPage": "Предыдущая страница",
+    "nextPage": "Следующая страница"
+  },
   "cart": {
     "title": "Корзина покупок",
     "continueShopping": "Продолжить покупки",

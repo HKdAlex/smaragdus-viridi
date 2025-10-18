@@ -697,8 +697,12 @@ export default async function VisualizerDemoPage({
               Premium Diamond - Round Brilliant Cut
             </CardTitle>
             <div className="flex justify-center gap-2">
-              <Badge variant="secondary">D Color</Badge>
-              <Badge variant="secondary">FL Clarity</Badge>
+              <Badge variant="secondary">
+                {t("3dVisualizerDemo.sections.gemstoneGrades.dColor")}
+              </Badge>
+              <Badge variant="secondary">
+                {t("3dVisualizerDemo.sections.gemstoneGrades.flClarity")}
+              </Badge>
               <Badge variant="secondary">1.5ct</Badge>
             </div>
           </CardHeader>

@@ -8,6 +8,7 @@
 "use client";
 
 import type { PaginationMeta } from "../services/gemstone-fetch.service";
+import { useTranslations } from "next-intl";
 
 export interface PaginationControlsProps {
   pagination: PaginationMeta;
@@ -22,6 +23,7 @@ export function PaginationControls({
   loading = false,
   className = "",
 }: PaginationControlsProps) {
+  const t = useTranslations("common.pagination");
   if (pagination.totalPages <= 1) {
     return null;
   }
@@ -34,7 +36,7 @@ export function PaginationControls({
         onClick={() => onPageChange(pagination.page - 1)}
         disabled={!pagination.hasPrevPage || loading}
         className="px-4 py-2 border border-border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-muted transition-colors"
-        aria-label="Previous page"
+        aria-label={t("previousPage")}
       >
         Previous
       </button>
@@ -47,7 +49,7 @@ export function PaginationControls({
         onClick={() => onPageChange(pagination.page + 1)}
         disabled={!pagination.hasNextPage || loading}
         className="px-4 py-2 border border-border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-muted transition-colors"
-        aria-label="Next page"
+        aria-label={t("nextPage")}
       >
         Next
       </button>
