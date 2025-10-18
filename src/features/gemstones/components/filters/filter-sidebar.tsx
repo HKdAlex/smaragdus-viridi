@@ -138,7 +138,7 @@ export function FilterSidebar({
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetContent
           side={isMobile ? "bottom" : "right"}
-          className="p-0 w-full sm:w-[400px]"
+          className="p-0 w-full sm:w-[400px] pt-16 sm:pt-0"
         >
           {/* Header */}
           <SheetHeader className="sticky top-0 z-10 bg-background border-b border-border">

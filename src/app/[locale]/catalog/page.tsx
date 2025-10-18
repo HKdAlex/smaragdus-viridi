@@ -3,7 +3,7 @@ import { GemstoneCatalogOptimized } from "@/features/gemstones/components/gemsto
 export default function CatalogPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
+      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 pt-20 sm:pt-8">
         <GemstoneCatalogOptimized />
       </div>
     </div>
