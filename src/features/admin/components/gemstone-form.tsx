@@ -19,6 +19,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/shared/components/ui/tabs";
 import { Textarea } from "@/shared/components/ui/textarea";
 import {
   CURRENCY_CODES,
@@ -29,7 +35,22 @@ import {
   GEM_CUTS,
 } from "@/shared/services/database-enums";
 import type { DatabaseGemstone, DatabaseOrigin } from "@/shared/types";
-import { AlertCircle, Gem, Loader2, Minus, Plus, Save, X } from "lucide-react";
+import {
+  AlertCircle,
+  Brain,
+  DollarSign,
+  FileText,
+  Gem,
+  Image,
+  Loader2,
+  Minus,
+  Package,
+  Palette,
+  Plus,
+  Ruler,
+  Save,
+  X,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import {
@@ -392,567 +413,502 @@ export function GemstoneForm({
             </div>
           )}
 
-          {/* Basic Information */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="space-y-2 md:col-span-2">
-              <label
-                htmlFor="serial_number"
-                className="text-sm font-medium text-foreground"
-              >
-                {t("labels.serialNumber")}
-              </label>
-              <Input
-                id="serial_number"
-                value={formData.serial_number}
-                onChange={(e) =>
-                  handleInputChange("serial_number", e.target.value)
-                }
-                placeholder={t("serialNumberPlaceholder")}
-                className={errors.serial_number ? "border-red-500" : ""}
-              />
-              {errors.serial_number && (
-                <p className="text-sm text-red-600">{errors.serial_number}</p>
-              )}
-            </div>
+          {/* Tabbed Form Sections */}
+          <Tabs defaultValue="basic">
+            <TabsList className="grid w-full grid-cols-2 md:grid-cols-6 lg:grid-cols-7">
+              <TabsTrigger value="basic" className="text-xs md:text-sm">
+                <FileText className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                <span className="hidden sm:inline">Basic</span>
+              </TabsTrigger>
+              <TabsTrigger value="properties" className="text-xs md:text-sm">
+                <Palette className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                <span className="hidden sm:inline">Properties</span>
+              </TabsTrigger>
+              <TabsTrigger value="dimensions" className="text-xs md:text-sm">
+                <Ruler className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                <span className="hidden sm:inline">Dimensions</span>
+              </TabsTrigger>
+              <TabsTrigger value="pricing" className="text-xs md:text-sm">
+                <DollarSign className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                <span className="hidden sm:inline">Pricing</span>
+              </TabsTrigger>
+              <TabsTrigger value="inventory" className="text-xs md:text-sm">
+                <Package className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                <span className="hidden sm:inline">Inventory</span>
+              </TabsTrigger>
+              <TabsTrigger value="ai-content" className="text-xs md:text-sm">
+                <Brain className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                <span className="hidden sm:inline">AI Content</span>
+              </TabsTrigger>
+              <TabsTrigger value="media" className="text-xs md:text-sm">
+                <Image className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                <span className="hidden sm:inline">Media</span>
+              </TabsTrigger>
+            </TabsList>
 
-            <div className="space-y-2">
-              <label
-                htmlFor="internal_code"
-                className="text-sm font-medium text-foreground"
-              >
-                {t("labels.internalCode")}
-              </label>
-              <Input
-                id="internal_code"
-                value={formData.internal_code || ""}
-                onChange={(e) =>
-                  handleInputChange("internal_code", e.target.value)
-                }
-                placeholder={t("internalCodePlaceholder")}
-              />
-            </div>
-          </div>
-
-          {/* Gemstone Properties */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">
-                {t("labels.type")}
-              </label>
-              <Select
-                value={formData.name}
-                onValueChange={(value) => handleInputChange("name", value)}
-              >
-                <SelectTrigger className={errors.name ? "border-red-500" : ""}>
-                  <span className="text-sm">
-                    {formData.name ? (
-                      translateGemstoneType(formData.name)
-                    ) : (
-                      <span className="text-muted-foreground">
-                        {t("selectTypePlaceholder")}
-                      </span>
-                    )}
-                  </span>
-                </SelectTrigger>
-                <SelectContent>
-                  {GEMSTONE_TYPES.map((type) => (
-                    <SelectItem key={type} value={type}>
-                      {translateGemstoneType(type)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.name && (
-                <p className="text-sm text-red-600">{errors.name}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">
-                {t("labels.color")}
-              </label>
-              <Select
-                value={formData.color}
-                onValueChange={(value) => handleInputChange("color", value)}
-              >
-                <SelectTrigger className={errors.color ? "border-red-500" : ""}>
-                  <span className="text-sm">
-                    {formData.color ? (
-                      translateColor(formData.color)
-                    ) : (
-                      <span className="text-muted-foreground">
-                        {t("selectColorPlaceholder")}
-                      </span>
-                    )}
-                  </span>
-                </SelectTrigger>
-                <SelectContent>
-                  {GEM_COLORS.map((color) => (
-                    <SelectItem key={color} value={color}>
-                      {translateColor(color)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.color && (
-                <p className="text-sm text-red-600">{errors.color}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">
-                {t("labels.cut")}
-              </label>
-              <Select
-                value={formData.cut}
-                onValueChange={(value) => handleInputChange("cut", value)}
-              >
-                <SelectTrigger className={errors.cut ? "border-red-500" : ""}>
-                  <span className="text-sm">
-                    {formData.cut ? (
-                      translateCut(formData.cut)
-                    ) : (
-                      <span className="text-muted-foreground">
-                        {t("selectCutPlaceholder")}
-                      </span>
-                    )}
-                  </span>
-                </SelectTrigger>
-                <SelectContent>
-                  {GEM_CUTS.map((cut) => (
-                    <SelectItem key={cut} value={cut}>
-                      {translateCut(cut)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.cut && (
-                <p className="text-sm text-red-600">{errors.cut}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">
-                {t("labels.clarity")}
-              </label>
-              <Select
-                value={formData.clarity}
-                onValueChange={(value) => handleInputChange("clarity", value)}
-              >
-                <SelectTrigger
-                  className={errors.clarity ? "border-red-500" : ""}
-                >
-                  <span className="text-sm">
-                    {formData.clarity ? (
-                      translateClarity(formData.clarity)
-                    ) : (
-                      <span className="text-muted-foreground">
-                        {t("selectClarityPlaceholder")}
-                      </span>
-                    )}
-                  </span>
-                </SelectTrigger>
-                <SelectContent>
-                  {GEM_CLARITIES.map((clarity) => (
-                    <SelectItem key={clarity} value={clarity}>
-                      {translateClarity(clarity)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.clarity && (
-                <p className="text-sm text-red-600">{errors.clarity}</p>
-              )}
-            </div>
-          </div>
-
-          {/* Dimensions and Weight */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="space-y-2">
-              <label htmlFor="weight">{t("labels.weight")}</label>
-              <Input
-                id="weight"
-                type="number"
-                step="0.01"
-                min="0"
-                value={formData.weight_carats}
-                onChange={(e) =>
-                  handleInputChange(
-                    "weight_carats",
-                    parseFloat(e.target.value) || 0
-                  )
-                }
-                className={errors.weight_carats ? "border-red-500" : ""}
-              />
-              {errors.weight_carats && (
-                <p className="text-sm text-red-600">{errors.weight_carats}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <label htmlFor="length">{t("labels.length")}</label>
-              <Input
-                id="length"
-                type="number"
-                step="0.1"
-                min="0"
-                value={formData.length_mm}
-                onChange={(e) =>
-                  handleInputChange(
-                    "length_mm",
-                    parseFloat(e.target.value) || 0
-                  )
-                }
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label htmlFor="width">{t("labels.width")}</label>
-              <Input
-                id="width"
-                type="number"
-                step="0.1"
-                min="0"
-                value={formData.width_mm}
-                onChange={(e) =>
-                  handleInputChange("width_mm", parseFloat(e.target.value) || 0)
-                }
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label htmlFor="depth">{t("labels.depth")}</label>
-              <Input
-                id="depth"
-                type="number"
-                step="0.1"
-                min="0"
-                value={formData.depth_mm}
-                onChange={(e) =>
-                  handleInputChange("depth_mm", parseFloat(e.target.value) || 0)
-                }
-              />
-            </div>
-          </div>
-
-          {/* Origin */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">
-              {t("labels.origin")}
-            </label>
-            <Select
-              value={formData.origin_id || ""}
-              onValueChange={(value) =>
-                handleInputChange("origin_id", value || undefined)
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={t("selectOriginPlaceholder")} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">{t("noOriginSpecified")}</SelectItem>
-                {origins.map((origin) => (
-                  <SelectItem key={origin.id} value={origin.id}>
-                    {translateOrigin(origin.name)} - {origin.country}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Pricing */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label htmlFor="price">{t("labels.regularPrice")}</label>
-              <div className="flex gap-2">
-                <Select
-                  value={formData.price_currency}
-                  onValueChange={(value) =>
-                    handleInputChange("price_currency", value)
-                  }
-                >
-                  <SelectTrigger className="w-24">
-                    <span className="text-sm">
-                      {formData.price_currency
-                        ? tCurrencies(formData.price_currency as any) ||
-                          formData.price_currency
-                        : ""}
-                    </span>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CURRENCY_CODES.map((currency) => (
-                      <SelectItem key={currency} value={currency}>
-                        {tCurrencies(currency as any) || currency}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Input
-                  id="price"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={formData.price_amount / 100} // Convert from cents
-                  onChange={(e) =>
-                    handleInputChange(
-                      "price_amount",
-                      Math.round(parseFloat(e.target.value) * 100)
-                    )
-                  }
-                  placeholder="0.00"
-                  className={`flex-1 ${
-                    errors.price_amount ? "border-red-500" : ""
-                  }`}
-                />
-              </div>
-              {errors.price_amount && (
-                <p className="text-sm text-red-600">{errors.price_amount}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <label htmlFor="premium_price">{t("labels.premiumPrice")}</label>
-              <div className="flex gap-2">
-                <Select
-                  value={
-                    formData.premium_price_currency || formData.price_currency
-                  }
-                  onValueChange={(value) =>
-                    handleInputChange("premium_price_currency", value)
-                  }
-                >
-                  <SelectTrigger className="w-24">
-                    <span className="text-sm">
-                      {formData.premium_price_currency ||
-                      formData.price_currency
-                        ? tCurrencies(
-                            (formData.premium_price_currency ||
-                              formData.price_currency) as any
-                          ) ||
-                          formData.premium_price_currency ||
-                          formData.price_currency
-                        : ""}
-                    </span>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CURRENCY_CODES.map((currency) => (
-                      <SelectItem key={currency} value={currency}>
-                        {tCurrencies(currency as any) || currency}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Input
-                  id="premium_price"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={
-                    formData.premium_price_amount
-                      ? formData.premium_price_amount / 100
-                      : ""
-                  }
-                  onChange={(e) =>
-                    handleInputChange(
-                      "premium_price_amount",
-                      e.target.value
-                        ? Math.round(parseFloat(e.target.value) * 100)
-                        : undefined
-                    )
-                  }
-                  placeholder={t("optionalPlaceholder")}
-                  className="flex-1"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Stock and Delivery */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="in_stock"
-                checked={formData.in_stock}
-                onCheckedChange={(checked) =>
-                  handleInputChange("in_stock", checked)
-                }
-              />
-              <label htmlFor="in_stock">{t("labels.inStock")}</label>
-            </div>
-
-            <div className="space-y-2">
-              <label htmlFor="delivery_days">{t("labels.deliveryDays")}</label>
-              <Input
-                id="delivery_days"
-                type="number"
-                min="0"
-                value={formData.delivery_days || ""}
-                onChange={(e) =>
-                  handleInputChange(
-                    "delivery_days",
-                    e.target.value ? parseInt(e.target.value) : undefined
-                  )
-                }
-                placeholder={t("deliveryDaysPlaceholder")}
-              />
-            </div>
-
-            <div className="space-y-2 md:col-span-2">
-              <label htmlFor="total_price">{t("labels.totalPrice")}</label>
-              <div className="text-lg font-semibold text-green-600">
-                {formData.price_amount
-                  ? new Intl.NumberFormat("en-US", {
-                      style: "currency",
-                      currency: formData.price_currency,
-                    }).format(formData.price_amount / 100)
-                  : "$0.00"}
-              </div>
-            </div>
-          </div>
-
-          {/* Promotional Text */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label htmlFor="promotional_text">
-                {t("labels.promotionalText")}
-              </label>
-              <Textarea
-                id="promotional_text"
-                value={formData.promotional_text || ""}
-                onChange={(e) =>
-                  handleInputChange("promotional_text", e.target.value)
-                }
-                placeholder={t("promotionalTextPlaceholder")}
-                rows={4}
-              />
-            </div>
-          </div>
-
-          {/* Marketing Highlights */}
-          <div className="space-y-4">
-            <label className="text-sm font-medium text-foreground">
-              {t("labels.marketingHighlights")}
-            </label>
-            <div className="flex gap-2">
-              <Input
-                value={currentHighlight}
-                onChange={(e) => setCurrentHighlight(e.target.value)}
-                placeholder={t("marketingHighlightPlaceholder")}
-                onKeyPress={(e) =>
-                  e.key === "Enter" &&
-                  (e.preventDefault(), addMarketingHighlight())
-                }
-              />
-              <Button
-                type="button"
-                onClick={addMarketingHighlight}
-                variant="outline"
-              >
-                <Plus className="w-4 h-4" />
-                {t("actions.addHighlight")}
-              </Button>
-            </div>
-
-            {marketingHighlights.length > 0 && (
-              <div className="space-y-2">
-                {marketingHighlights.map((highlight, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center gap-2 p-2 bg-muted rounded-lg"
+            {/* Basic Information Tab */}
+            <TabsContent value="basic" className="space-y-6 mt-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="space-y-2 md:col-span-2">
+                  <label
+                    htmlFor="serial_number"
+                    className="text-sm font-medium text-foreground"
                   >
-                    <span className="flex-1">{highlight}</span>
-                    <Button
-                      type="button"
-                      onClick={() => removeMarketingHighlight(index)}
-                      variant="ghost"
-                      size="sm"
+                    {t("labels.serialNumber")}
+                  </label>
+                  <Input
+                    id="serial_number"
+                    value={formData.serial_number}
+                    onChange={(e) =>
+                      handleInputChange("serial_number", e.target.value)
+                    }
+                    placeholder={t("serialNumberPlaceholder")}
+                    className={errors.serial_number ? "border-red-500" : ""}
+                  />
+                  {errors.serial_number && (
+                    <p className="text-sm text-red-600">
+                      {errors.serial_number}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <label
+                    htmlFor="internal_code"
+                    className="text-sm font-medium text-foreground"
+                  >
+                    {t("labels.internalCode")}
+                  </label>
+                  <Input
+                    id="internal_code"
+                    value={formData.internal_code || ""}
+                    onChange={(e) =>
+                      handleInputChange("internal_code", e.target.value)
+                    }
+                    placeholder={t("internalCodePlaceholder")}
+                  />
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* Gemstone Properties Tab */}
+            <TabsContent value="properties" className="space-y-6 mt-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">
+                    {t("labels.type")}
+                  </label>
+                  <Select
+                    value={formData.name}
+                    onValueChange={(value) => handleInputChange("name", value)}
+                  >
+                    <SelectTrigger
+                      className={errors.name ? "border-red-500" : ""}
                     >
-                      <Minus className="w-4 h-4" />
-                    </Button>
+                      <span className="text-sm">
+                        {formData.name ? (
+                          translateGemstoneType(formData.name)
+                        ) : (
+                          <span className="text-muted-foreground">
+                            {t("selectTypePlaceholder")}
+                          </span>
+                        )}
+                      </span>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {GEMSTONE_TYPES.map((type) => (
+                        <SelectItem key={type} value={type}>
+                          {translateGemstoneType(type)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.name && (
+                    <p className="text-sm text-red-600">{errors.name}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">
+                    {t("labels.color")}
+                  </label>
+                  <Select
+                    value={formData.color}
+                    onValueChange={(value) => handleInputChange("color", value)}
+                  >
+                    <SelectTrigger
+                      className={errors.color ? "border-red-500" : ""}
+                    >
+                      <span className="text-sm">
+                        {formData.color ? (
+                          translateColor(formData.color)
+                        ) : (
+                          <span className="text-muted-foreground">
+                            {t("selectColorPlaceholder")}
+                          </span>
+                        )}
+                      </span>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {GEM_COLORS.map((color) => (
+                        <SelectItem key={color} value={color}>
+                          {translateColor(color)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.color && (
+                    <p className="text-sm text-red-600">{errors.color}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">
+                    {t("labels.cut")}
+                  </label>
+                  <Select
+                    value={formData.cut}
+                    onValueChange={(value) => handleInputChange("cut", value)}
+                  >
+                    <SelectTrigger
+                      className={errors.cut ? "border-red-500" : ""}
+                    >
+                      <span className="text-sm">
+                        {formData.cut ? (
+                          translateCut(formData.cut)
+                        ) : (
+                          <span className="text-muted-foreground">
+                            {t("selectCutPlaceholder")}
+                          </span>
+                        )}
+                      </span>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {GEM_CUTS.map((cut) => (
+                        <SelectItem key={cut} value={cut}>
+                          {translateCut(cut)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.cut && (
+                    <p className="text-sm text-red-600">{errors.cut}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">
+                    {t("labels.clarity")}
+                  </label>
+                  <Select
+                    value={formData.clarity}
+                    onValueChange={(value) =>
+                      handleInputChange("clarity", value)
+                    }
+                  >
+                    <SelectTrigger
+                      className={errors.clarity ? "border-red-500" : ""}
+                    >
+                      <span className="text-sm">
+                        {formData.clarity ? (
+                          translateClarity(formData.clarity)
+                        ) : (
+                          <span className="text-muted-foreground">
+                            {t("selectClarityPlaceholder")}
+                          </span>
+                        )}
+                      </span>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {GEM_CLARITIES.map((clarity) => (
+                        <SelectItem key={clarity} value={clarity}>
+                          {translateClarity(clarity)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.clarity && (
+                    <p className="text-sm text-red-600">{errors.clarity}</p>
+                  )}
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* Dimensions Tab */}
+            <TabsContent value="dimensions" className="space-y-6 mt-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div className="space-y-2">
+                  <label htmlFor="weight">{t("labels.weight")}</label>
+                  <Input
+                    id="weight"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={formData.weight_carats}
+                    onChange={(e) =>
+                      handleInputChange(
+                        "weight_carats",
+                        parseFloat(e.target.value) || 0
+                      )
+                    }
+                    className={errors.weight_carats ? "border-red-500" : ""}
+                  />
+                  {errors.weight_carats && (
+                    <p className="text-sm text-red-600">
+                      {errors.weight_carats}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <label htmlFor="length">{t("labels.length")}</label>
+                  <Input
+                    id="length"
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    value={formData.length_mm}
+                    onChange={(e) =>
+                      handleInputChange(
+                        "length_mm",
+                        parseFloat(e.target.value) || 0
+                      )
+                    }
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label htmlFor="width">{t("labels.width")}</label>
+                  <Input
+                    id="width"
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    value={formData.width_mm}
+                    onChange={(e) =>
+                      handleInputChange(
+                        "width_mm",
+                        parseFloat(e.target.value) || 0
+                      )
+                    }
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label htmlFor="depth">{t("labels.depth")}</label>
+                  <Input
+                    id="depth"
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    value={formData.depth_mm}
+                    onChange={(e) =>
+                      handleInputChange(
+                        "depth_mm",
+                        parseFloat(e.target.value) || 0
+                      )
+                    }
+                  />
+                </div>
+              </div>
+
+              {/* Origin */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">
+                  {t("labels.origin")}
+                </label>
+                <Select
+                  value={formData.origin_id || ""}
+                  onValueChange={(value) =>
+                    handleInputChange("origin_id", value || undefined)
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={t("selectOriginPlaceholder")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">{t("noOriginSpecified")}</SelectItem>
+                    {origins.map((origin) => (
+                      <SelectItem key={origin.id} value={origin.id}>
+                        {translateOrigin(origin.name)} - {origin.country}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </TabsContent>
+
+            {/* Pricing Tab */}
+            <TabsContent value="pricing" className="space-y-6 mt-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label htmlFor="price">{t("labels.regularPrice")}</label>
+                  <div className="flex gap-2">
+                    <Select
+                      value={formData.price_currency}
+                      onValueChange={(value) =>
+                        handleInputChange("price_currency", value)
+                      }
+                    >
+                      <SelectTrigger className="w-24">
+                        <span className="text-sm">
+                          {formData.price_currency
+                            ? tCurrencies(formData.price_currency as any) ||
+                              formData.price_currency
+                            : ""}
+                        </span>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {CURRENCY_CODES.map((currency) => (
+                          <SelectItem key={currency} value={currency}>
+                            {tCurrencies(currency as any) || currency}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Input
+                      id="price"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={formData.price_amount / 100} // Convert from cents
+                      onChange={(e) =>
+                        handleInputChange(
+                          "price_amount",
+                          Math.round(parseFloat(e.target.value) * 100)
+                        )
+                      }
+                      placeholder="0.00"
+                      className={`flex-1 ${
+                        errors.price_amount ? "border-red-500" : ""
+                      }`}
+                    />
                   </div>
-                ))}
+                  {errors.price_amount && (
+                    <p className="text-sm text-red-600">
+                      {errors.price_amount}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <label htmlFor="premium_price">
+                    {t("labels.premiumPrice")}
+                  </label>
+                  <div className="flex gap-2">
+                    <Select
+                      value={
+                        formData.premium_price_currency ||
+                        formData.price_currency
+                      }
+                      onValueChange={(value) =>
+                        handleInputChange("premium_price_currency", value)
+                      }
+                    >
+                      <SelectTrigger className="w-24">
+                        <span className="text-sm">
+                          {formData.premium_price_currency ||
+                          formData.price_currency
+                            ? tCurrencies(
+                                (formData.premium_price_currency ||
+                                  formData.price_currency) as any
+                              ) ||
+                              formData.premium_price_currency ||
+                              formData.price_currency
+                            : ""}
+                        </span>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {CURRENCY_CODES.map((currency) => (
+                          <SelectItem key={currency} value={currency}>
+                            {tCurrencies(currency as any) || currency}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Input
+                      id="premium_price"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={
+                        formData.premium_price_amount
+                          ? formData.premium_price_amount / 100
+                          : ""
+                      }
+                      onChange={(e) =>
+                        handleInputChange(
+                          "premium_price_amount",
+                          e.target.value
+                            ? Math.round(parseFloat(e.target.value) * 100)
+                            : undefined
+                        )
+                      }
+                      placeholder={t("optionalPlaceholder")}
+                      className="flex-1"
+                    />
+                  </div>
+                </div>
               </div>
-            )}
-          </div>
+            </TabsContent>
 
-          {/* AI-Generated Content */}
-          <div className="space-y-6">
-            <div className="flex items-center gap-2">
-              <Gem className="w-5 h-5" />
-              <h3 className="text-lg font-medium">
-                {t("labels.aiGeneratedContent")}
-              </h3>
-            </div>
+            {/* Inventory Tab */}
+            <TabsContent value="inventory" className="space-y-6 mt-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="in_stock"
+                    checked={formData.in_stock}
+                    onCheckedChange={(checked) =>
+                      handleInputChange("in_stock", checked)
+                    }
+                  />
+                  <label htmlFor="in_stock">{t("labels.inStock")}</label>
+                </div>
 
-            {/* English Fields */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-muted-foreground">
-                  🇺🇸 English Content
-                </span>
+                <div className="space-y-2">
+                  <label htmlFor="delivery_days">
+                    {t("labels.deliveryDays")}
+                  </label>
+                  <Input
+                    id="delivery_days"
+                    type="number"
+                    min="0"
+                    value={formData.delivery_days || ""}
+                    onChange={(e) =>
+                      handleInputChange(
+                        "delivery_days",
+                        e.target.value ? parseInt(e.target.value) : undefined
+                      )
+                    }
+                    placeholder={t("deliveryDaysPlaceholder")}
+                  />
+                </div>
+
+                <div className="space-y-2 md:col-span-2">
+                  <label htmlFor="total_price">{t("labels.totalPrice")}</label>
+                  <div className="text-lg font-semibold text-green-600">
+                    {formData.price_amount
+                      ? new Intl.NumberFormat("en-US", {
+                          style: "currency",
+                          currency: formData.price_currency,
+                        }).format(formData.price_amount / 100)
+                      : "$0.00"}
+                  </div>
+                </div>
               </div>
 
+              {/* Promotional Text */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label htmlFor="description_technical_en">
-                    {t("labels.technicalDescription")} (EN)
+                  <label htmlFor="promotional_text">
+                    {t("labels.promotionalText")}
                   </label>
                   <Textarea
-                    id="description_technical_en"
-                    value={formData.description_technical_en || ""}
+                    id="promotional_text"
+                    value={formData.promotional_text || ""}
                     onChange={(e) =>
-                      handleInputChange(
-                        "description_technical_en",
-                        e.target.value
-                      )
-                    }
-                    placeholder={t("technicalDescriptionPlaceholder")}
-                    rows={4}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label htmlFor="description_emotional_en">
-                    {t("labels.emotionalDescription")} (EN)
-                  </label>
-                  <Textarea
-                    id="description_emotional_en"
-                    value={formData.description_emotional_en || ""}
-                    onChange={(e) =>
-                      handleInputChange(
-                        "description_emotional_en",
-                        e.target.value
-                      )
-                    }
-                    placeholder={t("emotionalDescriptionPlaceholder")}
-                    rows={4}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label htmlFor="narrative_story_en">
-                    {t("labels.narrativeStory")} (EN)
-                  </label>
-                  <Textarea
-                    id="narrative_story_en"
-                    value={formData.narrative_story_en || ""}
-                    onChange={(e) =>
-                      handleInputChange("narrative_story_en", e.target.value)
-                    }
-                    placeholder={t("narrativeStoryPlaceholder")}
-                    rows={4}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label htmlFor="promotional_text_en">
-                    {t("labels.promotionalText")} (EN)
-                  </label>
-                  <Textarea
-                    id="promotional_text_en"
-                    value={formData.promotional_text_en || ""}
-                    onChange={(e) =>
-                      handleInputChange("promotional_text_en", e.target.value)
+                      handleInputChange("promotional_text", e.target.value)
                     }
                     placeholder={t("promotionalTextPlaceholder")}
                     rows={4}
@@ -960,36 +916,34 @@ export function GemstoneForm({
                 </div>
               </div>
 
-              {/* AI Marketing Highlights */}
+              {/* Marketing Highlights */}
               <div className="space-y-4">
                 <label className="text-sm font-medium text-foreground">
-                  {t("labels.marketingHighlights")} (EN)
+                  {t("labels.marketingHighlights")}
                 </label>
                 <div className="flex gap-2">
                   <Input
-                    value={currentHighlightEn}
-                    onChange={(e) => setCurrentHighlightEn(e.target.value)}
+                    value={currentHighlight}
+                    onChange={(e) => setCurrentHighlight(e.target.value)}
                     placeholder={t("marketingHighlightPlaceholder")}
-                    onKeyPress={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        addMarketingHighlightEn();
-                      }
-                    }}
+                    onKeyPress={(e) =>
+                      e.key === "Enter" &&
+                      (e.preventDefault(), addMarketingHighlight())
+                    }
                   />
                   <Button
                     type="button"
-                    onClick={addMarketingHighlightEn}
+                    onClick={addMarketingHighlight}
                     variant="outline"
-                    size="sm"
                   >
-                    <Plus className="w-4 h-4 mr-1" />
-                    {t("actions.add")}
+                    <Plus className="w-4 h-4" />
+                    {t("actions.addHighlight")}
                   </Button>
                 </div>
-                {marketingHighlightsEn.length > 0 && (
+
+                {marketingHighlights.length > 0 && (
                   <div className="space-y-2">
-                    {marketingHighlightsEn.map((highlight, index) => (
+                    {marketingHighlights.map((highlight, index) => (
                       <div
                         key={index}
                         className="flex items-center gap-2 p-2 bg-muted rounded-lg"
@@ -997,7 +951,7 @@ export function GemstoneForm({
                         <span className="flex-1">{highlight}</span>
                         <Button
                           type="button"
-                          onClick={() => removeMarketingHighlightEn(index)}
+                          onClick={() => removeMarketingHighlight(index)}
                           variant="ghost"
                           size="sm"
                         >
@@ -1008,147 +962,299 @@ export function GemstoneForm({
                   </div>
                 )}
               </div>
-            </div>
+            </TabsContent>
 
-            {/* Russian Fields */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-muted-foreground">
-                  🇷🇺 Russian Content
-                </span>
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label htmlFor="description_technical_ru">
-                    {t("labels.technicalDescription")} (RU)
-                  </label>
-                  <Textarea
-                    id="description_technical_ru"
-                    value={formData.description_technical_ru || ""}
-                    onChange={(e) =>
-                      handleInputChange(
-                        "description_technical_ru",
-                        e.target.value
-                      )
-                    }
-                    placeholder={t("technicalDescriptionPlaceholder")}
-                    rows={4}
-                  />
+            {/* AI Content Tab */}
+            <TabsContent value="ai-content" className="space-y-6 mt-6">
+              <div className="space-y-6">
+                <div className="flex items-center gap-2">
+                  <Gem className="w-5 h-5" />
+                  <h3 className="text-lg font-medium">
+                    {t("labels.aiGeneratedContent")}
+                  </h3>
                 </div>
 
-                <div className="space-y-2">
-                  <label htmlFor="description_emotional_ru">
-                    {t("labels.emotionalDescription")} (RU)
-                  </label>
-                  <Textarea
-                    id="description_emotional_ru"
-                    value={formData.description_emotional_ru || ""}
-                    onChange={(e) =>
-                      handleInputChange(
-                        "description_emotional_ru",
-                        e.target.value
-                      )
-                    }
-                    placeholder={t("emotionalDescriptionPlaceholder")}
-                    rows={4}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label htmlFor="narrative_story_ru">
-                    {t("labels.narrativeStory")} (RU)
-                  </label>
-                  <Textarea
-                    id="narrative_story_ru"
-                    value={formData.narrative_story_ru || ""}
-                    onChange={(e) =>
-                      handleInputChange("narrative_story_ru", e.target.value)
-                    }
-                    placeholder={t("narrativeStoryPlaceholder")}
-                    rows={4}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label htmlFor="promotional_text_ru">
-                    {t("labels.promotionalText")} (RU)
-                  </label>
-                  <Textarea
-                    id="promotional_text_ru"
-                    value={formData.promotional_text_ru || ""}
-                    onChange={(e) =>
-                      handleInputChange("promotional_text_ru", e.target.value)
-                    }
-                    placeholder={t("promotionalTextPlaceholder")}
-                    rows={4}
-                  />
-                </div>
-              </div>
-
-              {/* Russian Marketing Highlights */}
-              <div className="space-y-4">
-                <label className="text-sm font-medium text-foreground">
-                  {t("labels.marketingHighlights")} (RU)
-                </label>
-                <div className="flex gap-2">
-                  <Input
-                    value={currentHighlightRu}
-                    onChange={(e) => setCurrentHighlightRu(e.target.value)}
-                    placeholder={t("marketingHighlightPlaceholder")}
-                    onKeyPress={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        addMarketingHighlightRu();
-                      }
-                    }}
-                  />
-                  <Button
-                    type="button"
-                    onClick={addMarketingHighlightRu}
-                    variant="outline"
-                    size="sm"
-                  >
-                    <Plus className="w-4 h-4 mr-1" />
-                    {t("actions.add")}
-                  </Button>
-                </div>
-                {marketingHighlightsRu.length > 0 && (
-                  <div className="space-y-2">
-                    {marketingHighlightsRu.map((highlight, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center gap-2 p-2 bg-muted rounded-lg"
-                      >
-                        <span className="flex-1">{highlight}</span>
-                        <Button
-                          type="button"
-                          onClick={() => removeMarketingHighlightRu(index)}
-                          variant="ghost"
-                          size="sm"
-                        >
-                          <Minus className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    ))}
+                {/* English Fields */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-muted-foreground">
+                      🇺🇸 English Content
+                    </span>
                   </div>
-                )}
-              </div>
-            </div>
-          </div>
 
-          {/* Media Upload */}
-          <EnhancedMediaUpload
-            gemstoneId={gemstone?.id}
-            serialNumber={formData.serial_number}
-            onUploadComplete={(results) => {
-              setUploadedMedia((prev) => [...prev, ...results]);
-            }}
-            onUploadError={(error) => {
-              setErrors((prev) => ({ ...prev, media: error }));
-            }}
-            disabled={isLoading}
-          />
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label htmlFor="description_technical_en">
+                        {t("labels.technicalDescription")} (EN)
+                      </label>
+                      <Textarea
+                        id="description_technical_en"
+                        value={formData.description_technical_en || ""}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "description_technical_en",
+                            e.target.value
+                          )
+                        }
+                        placeholder={t("technicalDescriptionPlaceholder")}
+                        rows={4}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label htmlFor="description_emotional_en">
+                        {t("labels.emotionalDescription")} (EN)
+                      </label>
+                      <Textarea
+                        id="description_emotional_en"
+                        value={formData.description_emotional_en || ""}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "description_emotional_en",
+                            e.target.value
+                          )
+                        }
+                        placeholder={t("emotionalDescriptionPlaceholder")}
+                        rows={4}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label htmlFor="narrative_story_en">
+                        {t("labels.narrativeStory")} (EN)
+                      </label>
+                      <Textarea
+                        id="narrative_story_en"
+                        value={formData.narrative_story_en || ""}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "narrative_story_en",
+                            e.target.value
+                          )
+                        }
+                        placeholder={t("narrativeStoryPlaceholder")}
+                        rows={4}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label htmlFor="promotional_text_en">
+                        {t("labels.promotionalText")} (EN)
+                      </label>
+                      <Textarea
+                        id="promotional_text_en"
+                        value={formData.promotional_text_en || ""}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "promotional_text_en",
+                            e.target.value
+                          )
+                        }
+                        placeholder={t("promotionalTextPlaceholder")}
+                        rows={4}
+                      />
+                    </div>
+                  </div>
+
+                  {/* AI Marketing Highlights */}
+                  <div className="space-y-4">
+                    <label className="text-sm font-medium text-foreground">
+                      {t("labels.marketingHighlights")} (EN)
+                    </label>
+                    <div className="flex gap-2">
+                      <Input
+                        value={currentHighlightEn}
+                        onChange={(e) => setCurrentHighlightEn(e.target.value)}
+                        placeholder={t("marketingHighlightPlaceholder")}
+                        onKeyPress={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            addMarketingHighlightEn();
+                          }
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        onClick={addMarketingHighlightEn}
+                        variant="outline"
+                        size="sm"
+                      >
+                        <Plus className="w-4 h-4 mr-1" />
+                        {t("actions.add")}
+                      </Button>
+                    </div>
+                    {marketingHighlightsEn.length > 0 && (
+                      <div className="space-y-2">
+                        {marketingHighlightsEn.map((highlight, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center gap-2 p-2 bg-muted rounded-lg"
+                          >
+                            <span className="flex-1">{highlight}</span>
+                            <Button
+                              type="button"
+                              onClick={() => removeMarketingHighlightEn(index)}
+                              variant="ghost"
+                              size="sm"
+                            >
+                              <Minus className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Russian Fields */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-muted-foreground">
+                      🇷🇺 Russian Content
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label htmlFor="description_technical_ru">
+                        {t("labels.technicalDescription")} (RU)
+                      </label>
+                      <Textarea
+                        id="description_technical_ru"
+                        value={formData.description_technical_ru || ""}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "description_technical_ru",
+                            e.target.value
+                          )
+                        }
+                        placeholder={t("technicalDescriptionPlaceholder")}
+                        rows={4}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label htmlFor="description_emotional_ru">
+                        {t("labels.emotionalDescription")} (RU)
+                      </label>
+                      <Textarea
+                        id="description_emotional_ru"
+                        value={formData.description_emotional_ru || ""}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "description_emotional_ru",
+                            e.target.value
+                          )
+                        }
+                        placeholder={t("emotionalDescriptionPlaceholder")}
+                        rows={4}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label htmlFor="narrative_story_ru">
+                        {t("labels.narrativeStory")} (RU)
+                      </label>
+                      <Textarea
+                        id="narrative_story_ru"
+                        value={formData.narrative_story_ru || ""}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "narrative_story_ru",
+                            e.target.value
+                          )
+                        }
+                        placeholder={t("narrativeStoryPlaceholder")}
+                        rows={4}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label htmlFor="promotional_text_ru">
+                        {t("labels.promotionalText")} (RU)
+                      </label>
+                      <Textarea
+                        id="promotional_text_ru"
+                        value={formData.promotional_text_ru || ""}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "promotional_text_ru",
+                            e.target.value
+                          )
+                        }
+                        placeholder={t("promotionalTextPlaceholder")}
+                        rows={4}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Russian Marketing Highlights */}
+                  <div className="space-y-4">
+                    <label className="text-sm font-medium text-foreground">
+                      {t("labels.marketingHighlights")} (RU)
+                    </label>
+                    <div className="flex gap-2">
+                      <Input
+                        value={currentHighlightRu}
+                        onChange={(e) => setCurrentHighlightRu(e.target.value)}
+                        placeholder={t("marketingHighlightPlaceholder")}
+                        onKeyPress={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            addMarketingHighlightRu();
+                          }
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        onClick={addMarketingHighlightRu}
+                        variant="outline"
+                        size="sm"
+                      >
+                        <Plus className="w-4 h-4 mr-1" />
+                        {t("actions.add")}
+                      </Button>
+                    </div>
+                    {marketingHighlightsRu.length > 0 && (
+                      <div className="space-y-2">
+                        {marketingHighlightsRu.map((highlight, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center gap-2 p-2 bg-muted rounded-lg"
+                          >
+                            <span className="flex-1">{highlight}</span>
+                            <Button
+                              type="button"
+                              onClick={() => removeMarketingHighlightRu(index)}
+                              variant="ghost"
+                              size="sm"
+                            >
+                              <Minus className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* Media Tab */}
+            <TabsContent value="media" className="space-y-6 mt-6">
+              <EnhancedMediaUpload
+                gemstoneId={gemstone?.id}
+                serialNumber={formData.serial_number}
+                onUploadComplete={(results) => {
+                  setUploadedMedia((prev) => [...prev, ...results]);
+                }}
+                onUploadError={(error) => {
+                  setErrors((prev) => ({ ...prev, media: error }));
+                }}
+                disabled={isLoading}
+              />
+            </TabsContent>
+          </Tabs>
 
           {/* Form Actions */}
           <div className="flex justify-end gap-4 pt-6 border-t">

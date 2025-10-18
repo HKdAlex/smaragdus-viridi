@@ -903,10 +903,6 @@ export type Database = {
           delivery_days: number | null
           depth_mm: number
           description: string | null
-          description_emotional_en: string | null
-          description_emotional_ru: string | null
-          description_technical_en: string | null
-          description_technical_ru: string | null
           description_vector_en: unknown | null
           description_vector_ru: unknown | null
           id: string
@@ -919,8 +915,6 @@ export type Database = {
           marketing_highlights: string[] | null
           metadata_status: Database["public"]["Enums"]["metadata_status"] | null
           name: Database["public"]["Enums"]["gemstone_type"]
-          narrative_story_en: string | null
-          narrative_story_ru: string | null
           origin_id: string | null
           premium_price_amount: number | null
           premium_price_currency:
@@ -974,10 +968,6 @@ export type Database = {
           delivery_days?: number | null
           depth_mm: number
           description?: string | null
-          description_emotional_en?: string | null
-          description_emotional_ru?: string | null
-          description_technical_en?: string | null
-          description_technical_ru?: string | null
           description_vector_en?: unknown | null
           description_vector_ru?: unknown | null
           id?: string
@@ -992,8 +982,6 @@ export type Database = {
             | Database["public"]["Enums"]["metadata_status"]
             | null
           name: Database["public"]["Enums"]["gemstone_type"]
-          narrative_story_en?: string | null
-          narrative_story_ru?: string | null
           origin_id?: string | null
           premium_price_amount?: number | null
           premium_price_currency?:
@@ -1047,10 +1035,6 @@ export type Database = {
           delivery_days?: number | null
           depth_mm?: number
           description?: string | null
-          description_emotional_en?: string | null
-          description_emotional_ru?: string | null
-          description_technical_en?: string | null
-          description_technical_ru?: string | null
           description_vector_en?: unknown | null
           description_vector_ru?: unknown | null
           id?: string
@@ -1065,8 +1049,6 @@ export type Database = {
             | Database["public"]["Enums"]["metadata_status"]
             | null
           name?: Database["public"]["Enums"]["gemstone_type"]
-          narrative_story_en?: string | null
-          narrative_story_ru?: string | null
           origin_id?: string | null
           premium_price_amount?: number | null
           premium_price_currency?:
@@ -1888,10 +1870,6 @@ export type Database = {
           delivery_days: number | null
           depth_mm: number | null
           description: string | null
-          description_emotional_en: string | null
-          description_emotional_ru: string | null
-          description_technical_en: string | null
-          description_technical_ru: string | null
           description_vector_en: unknown | null
           description_vector_ru: unknown | null
           id: string | null
@@ -1904,8 +1882,6 @@ export type Database = {
           marketing_highlights: string[] | null
           metadata_status: Database["public"]["Enums"]["metadata_status"] | null
           name: Database["public"]["Enums"]["gemstone_type"] | null
-          narrative_story_en: string | null
-          narrative_story_ru: string | null
           origin_id: string | null
           premium_price_amount: number | null
           premium_price_currency:
@@ -1962,10 +1938,6 @@ export type Database = {
           delivery_days?: number | null
           depth_mm?: number | null
           description?: string | null
-          description_emotional_en?: string | null
-          description_emotional_ru?: string | null
-          description_technical_en?: string | null
-          description_technical_ru?: string | null
           description_vector_en?: unknown | null
           description_vector_ru?: unknown | null
           id?: string | null
@@ -1980,8 +1952,6 @@ export type Database = {
             | Database["public"]["Enums"]["metadata_status"]
             | null
           name?: Database["public"]["Enums"]["gemstone_type"] | null
-          narrative_story_en?: string | null
-          narrative_story_ru?: string | null
           origin_id?: string | null
           premium_price_amount?: number | null
           premium_price_currency?:
@@ -2038,10 +2008,6 @@ export type Database = {
           delivery_days?: number | null
           depth_mm?: number | null
           description?: string | null
-          description_emotional_en?: string | null
-          description_emotional_ru?: string | null
-          description_technical_en?: string | null
-          description_technical_ru?: string | null
           description_vector_en?: unknown | null
           description_vector_ru?: unknown | null
           id?: string | null
@@ -2056,8 +2022,6 @@ export type Database = {
             | Database["public"]["Enums"]["metadata_status"]
             | null
           name?: Database["public"]["Enums"]["gemstone_type"] | null
-          narrative_story_en?: string | null
-          narrative_story_ru?: string | null
           origin_id?: string | null
           premium_price_amount?: number | null
           premium_price_currency?:
@@ -2172,6 +2136,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: number
       }
+      create_admin_profile_for_user: {
+        Args: { user_email: string }
+        Returns: undefined
+      }
       detect_query_locale: {
         Args: { query: string }
         Returns: string
@@ -2253,6 +2221,10 @@ export type Database = {
       gtrgm_out: {
         Args: { "": unknown }
         Returns: unknown
+      }
+      is_admin_user: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
       }
       search_gemstones_fulltext: {
         Args: {

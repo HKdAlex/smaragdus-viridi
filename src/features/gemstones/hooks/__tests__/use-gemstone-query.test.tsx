@@ -87,12 +87,6 @@ const baseGemstone: CatalogGemstone = {
   ai_text_generated_v6_date: null,
   ai_treatment: null,
   ai_weight_carats: null,
-  description_emotional_en: null,
-  description_emotional_ru: null,
-  description_technical_en: null,
-  description_technical_ru: null,
-  narrative_story_en: null,
-  narrative_story_ru: null,
 };
 
 const createMockGemstone = (
@@ -121,9 +115,11 @@ const createWrapper = () => {
     },
   });
 
-  return ({ children }: { children: React.ReactNode }) => (
+  const TestWrapper = ({ children }: { children: React.ReactNode }) => (
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
+
+  return TestWrapper;
 };
 
 describe("useGemstoneQuery", () => {

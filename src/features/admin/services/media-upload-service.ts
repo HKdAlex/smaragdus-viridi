@@ -4,6 +4,29 @@ import type {
 } from "@/shared/types";
 import { supabase, supabaseAdmin } from "@/lib/supabase";
 
+import { Database } from "@/shared/types/database";
+import { createClient } from "@supabase/supabase-js";
+
+// Create admin client with service role key for admin operations
+const getAdminClient = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseServiceRoleKey) {
+    console.warn(
+      "[MEDIA-SERVICE] Service role key not available, falling back to regular client"
+    );
+    return supabase;
+  }
+
+  return createClient<Database>(supabaseUrl, supabaseServiceRoleKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  });
+};
+
 export interface MediaUploadResult {
   id: string;
   url: string;
@@ -55,10 +78,8 @@ export class MediaUploadService {
         const storagePath = `gemstones/${gemstoneId}/images/${fileName}`;
 
         // Upload to Supabase Storage
-        const { data: uploadData, error: uploadError } = await (
-          supabaseAdmin || supabase
-        ).storage
-          .from("gemstone-media")
+        const { data: uploadData, error: uploadError } = await getAdminClient()
+          .storage.from("gemstone-media")
           .upload(storagePath, file, {
             cacheControl: "3600",
             upsert: false,
@@ -73,14 +94,12 @@ export class MediaUploadService {
         }
 
         // Get public URL
-        const { data: urlData } = (supabaseAdmin || supabase).storage
-          .from("gemstone-media")
+        const { data: urlData } = getAdminClient()
+          .storage.from("gemstone-media")
           .getPublicUrl(storagePath);
 
         // Save to database
-        const { data: imageRecord, error: dbError } = await (
-          supabaseAdmin || supabase
-        )
+        const { data: imageRecord, error: dbError } = await getAdminClient()
           .from("gemstone_images")
           .insert({
             gemstone_id: gemstoneId,
@@ -149,10 +168,8 @@ export class MediaUploadService {
         const storagePath = `gemstones/${gemstoneId}/videos/${fileName}`;
 
         // Upload to Supabase Storage
-        const { data: uploadData, error: uploadError } = await (
-          supabaseAdmin || supabase
-        ).storage
-          .from("gemstone-media")
+        const { data: uploadData, error: uploadError } = await getAdminClient()
+          .storage.from("gemstone-media")
           .upload(storagePath, file, {
             cacheControl: "3600",
             upsert: false,
@@ -167,14 +184,12 @@ export class MediaUploadService {
         }
 
         // Get public URL
-        const { data: urlData } = (supabaseAdmin || supabase).storage
-          .from("gemstone-media")
+        const { data: urlData } = getAdminClient()
+          .storage.from("gemstone-media")
           .getPublicUrl(storagePath);
 
         // Save to database
-        const { data: videoRecord, error: dbError } = await (
-          supabaseAdmin || supabase
-        )
+        const { data: videoRecord, error: dbError } = await getAdminClient()
           .from("gemstone_videos")
           .insert({
             gemstone_id: gemstoneId,
@@ -225,9 +240,7 @@ export class MediaUploadService {
         type === "image" ? "gemstone_images" : "gemstone_videos";
 
       // Get media records to get URLs for storage deletion
-      const { data: mediaRecords, error: fetchError } = await (
-        supabaseAdmin || supabase
-      )
+      const { data: mediaRecords, error: fetchError } = await getAdminClient()
         .from(tableName)
         .select("id, image_url, video_url, original_path")
         .in("id", mediaIds);
@@ -264,10 +277,8 @@ export class MediaUploadService {
           })
           .filter((path): path is string => path !== null) || [];
       if (storagePaths.length > 0) {
-        const { error: storageError } = await (
-          supabaseAdmin || supabase
-        ).storage
-          .from("gemstone-media")
+        const { error: storageError } = await getAdminClient()
+          .storage.from("gemstone-media")
           .remove(storagePaths);
 
         if (storageError) {
@@ -296,7 +307,7 @@ export class MediaUploadService {
   }> {
     try {
       // Use admin client if available (server-side), otherwise use regular client
-      const client = supabaseAdmin || supabase;
+      const client = getAdminClient();
 
       const [imagesResult, videosResult] = await Promise.all([
         client
@@ -349,7 +360,7 @@ export class MediaUploadService {
     imageId: string
   ): Promise<{ success: boolean; error?: string }> {
     try {
-      const client = supabaseAdmin || supabase;
+      const client = getAdminClient();
 
       // First, unset all primary flags for this gemstone
       await client
@@ -389,7 +400,7 @@ export class MediaUploadService {
     videoId: string
   ): Promise<{ success: boolean; error?: string }> {
     try {
-      const client = supabaseAdmin || supabase;
+      const client = getAdminClient();
 
       // Note: Videos don't have is_primary field, but we can use video_order = 0 to indicate primary
       // First, set all videos to order > 0

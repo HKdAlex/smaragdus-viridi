@@ -8,7 +8,7 @@ import type {
 import type { TablesInsert, TablesUpdate } from "@/shared/types/database";
 
 import { DatabaseEnums } from "@/shared/services/database-enums";
-import { supabaseAdmin } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase";
 
 // Simple logger for now
 const logger = {
@@ -57,6 +57,8 @@ export interface GemstoneFormData {
   narrative_story_ru?: string;
   promotional_text_ru?: string;
   marketing_highlights_ru?: string[];
+  // AI v6 data object
+  ai_v6?: any;
 }
 
 export interface GemstoneWithRelations extends DatabaseGemstone {
@@ -162,7 +164,7 @@ export class GemstoneAdminService {
         marketing_highlights: formData.marketing_highlights ?? null,
       };
 
-      const { data, error } = await supabaseAdmin!
+      const { data, error } = await supabase
         .from("gemstones")
         .insert(payload)
         .select()
@@ -195,8 +197,24 @@ export class GemstoneAdminService {
     try {
       logger.info("Updating gemstone", { id, updates: Object.keys(formData) });
 
+      // Filter out AI-specific fields that don't belong in the gemstones table
+      const {
+        ai_v6,
+        description_technical_en,
+        description_emotional_en,
+        narrative_story_en,
+        promotional_text_en,
+        marketing_highlights_en,
+        description_technical_ru,
+        description_emotional_ru,
+        narrative_story_ru,
+        promotional_text_ru,
+        marketing_highlights_ru,
+        ...gemstoneFields
+      } = formData;
+
       const updates = {
-        ...formData,
+        ...gemstoneFields,
         updated_at: new Date().toISOString(),
       } as TablesUpdate<"gemstones">;
 
@@ -228,7 +246,7 @@ export class GemstoneAdminService {
         updates.clarity_code = formData.clarity;
       }
 
-      const { data, error } = await supabaseAdmin!
+      const { data, error } = await supabase
         .from("gemstones")
         .update(updates)
         .eq("id", id)
@@ -241,11 +259,11 @@ export class GemstoneAdminService {
       }
 
       // Handle AI v6 fields if present
-      if ((formData as any).ai_v6) {
-        const aiV6Data = (formData as any).ai_v6;
+      if (ai_v6) {
+        const aiV6Data = ai_v6;
 
         // Check if AI v6 record exists
-        const { data: existingAiV6 } = await supabaseAdmin!
+        const { data: existingAiV6 } = await supabase
           .from("gemstones_ai_v6")
           .select("gemstone_id")
           .eq("gemstone_id", id)
@@ -253,7 +271,7 @@ export class GemstoneAdminService {
 
         if (existingAiV6) {
           // Update existing AI v6 record
-          const { error: aiV6Error } = await supabaseAdmin!
+          const { error: aiV6Error } = await supabase
             .from("gemstones_ai_v6")
             .update({
               ...aiV6Data,
@@ -267,7 +285,7 @@ export class GemstoneAdminService {
           }
         } else {
           // Create new AI v6 record
-          const { error: aiV6Error } = await supabaseAdmin!
+          const { error: aiV6Error } = await supabase
             .from("gemstones_ai_v6")
             .insert({
               gemstone_id: id,
@@ -303,16 +321,13 @@ export class GemstoneAdminService {
       logger.info("Deleting gemstone", { id });
 
       // First, get the gemstone details for logging
-      const { data: gemstone } = await supabaseAdmin!
+      const { data: gemstone } = await supabase
         .from("gemstones")
         .select("serial_number")
         .eq("id", id)
         .single();
 
-      const { error } = await supabaseAdmin!
-        .from("gemstones")
-        .delete()
-        .eq("id", id);
+      const { error } = await supabase.from("gemstones").delete().eq("id", id);
 
       if (error) {
         logger.error("Failed to delete gemstone", error);
@@ -340,7 +355,7 @@ export class GemstoneAdminService {
     try {
       logger.info("Fetching all gemstones for admin");
 
-      const { data, error } = await supabaseAdmin!
+      const { data, error } = await supabase
         .from("gemstones")
         .select(
           `
@@ -398,7 +413,7 @@ export class GemstoneAdminService {
     try {
       logger.info("Fetching gemstone by ID", { id });
 
-      const { data, error } = await supabaseAdmin!
+      const { data, error } = await supabase
         .from("gemstones")
         .select(
           `
@@ -545,7 +560,7 @@ export class GemstoneAdminService {
     excludeId?: string
   ): Promise<boolean> {
     try {
-      let query = supabaseAdmin!
+      let query = supabase
         .from("gemstones")
         .select("id")
         .eq("serial_number", serialNumber)
@@ -664,7 +679,7 @@ export class GemstoneAdminService {
             };
 
             // Insert into database
-            const { data, error } = await supabaseAdmin!
+            const { data, error } = await supabase
               .from("gemstones")
               .insert(dbData)
               .select()

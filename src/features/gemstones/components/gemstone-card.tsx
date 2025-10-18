@@ -379,13 +379,9 @@ export function GemstoneCard({
           const description =
             locale === "ru"
               ? v6Text?.emotional_description_ru ||
-                gemstone.description_emotional_ru ||
-                v6Text?.emotional_description_en ||
-                gemstone.description_emotional_en
+                v6Text?.emotional_description_en
               : v6Text?.emotional_description_en ||
-                gemstone.description_emotional_en ||
-                v6Text?.emotional_description_ru ||
-                gemstone.description_emotional_ru;
+                v6Text?.emotional_description_ru;
 
           return description ? (
             <p className="text-sm text-muted-foreground line-clamp-2 mt-3 px-2">

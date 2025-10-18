@@ -15,12 +15,12 @@ import {
   Sparkles,
 } from "lucide-react";
 
-import { Lazy3DVisualizer } from "@/features/visualization";
-import { VisualizationDemo } from "@/features/visualization/components/visualization-demo";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Gemstone } from "@/shared/types";
+import { Lazy3DVisualizer } from "@/features/visualization";
 import { Metadata } from "next";
+import { VisualizationDemo } from "@/features/visualization/components/visualization-demo";
 import { getTranslations } from "next-intl/server";
 
 export async function generateMetadata({
@@ -95,12 +95,6 @@ const sampleGemstones: Gemstone[] = [
     // AI v6 fields
     ai_text_generated_v6: false,
     ai_text_generated_v6_date: null,
-    description_emotional_en: null,
-    description_emotional_ru: null,
-    description_technical_en: null,
-    description_technical_ru: null,
-    narrative_story_en: null,
-    narrative_story_ru: null,
     description: null,
     promotional_text: null,
     marketing_highlights: null,
@@ -176,12 +170,6 @@ const sampleGemstones: Gemstone[] = [
     // AI v6 fields
     ai_text_generated_v6: false,
     ai_text_generated_v6_date: null,
-    description_emotional_en: null,
-    description_emotional_ru: null,
-    description_technical_en: null,
-    description_technical_ru: null,
-    narrative_story_en: null,
-    narrative_story_ru: null,
     description: null,
     promotional_text: null,
     marketing_highlights: null,
@@ -257,12 +245,6 @@ const sampleGemstones: Gemstone[] = [
     // AI v6 fields
     ai_text_generated_v6: false,
     ai_text_generated_v6_date: null,
-    description_emotional_en: null,
-    description_emotional_ru: null,
-    description_technical_en: null,
-    description_technical_ru: null,
-    narrative_story_en: null,
-    narrative_story_ru: null,
     description: null,
     promotional_text: null,
     marketing_highlights: null,
@@ -338,12 +320,6 @@ const sampleGemstones: Gemstone[] = [
     // AI v6 fields
     ai_text_generated_v6: false,
     ai_text_generated_v6_date: null,
-    description_emotional_en: null,
-    description_emotional_ru: null,
-    description_technical_en: null,
-    description_technical_ru: null,
-    narrative_story_en: null,
-    narrative_story_ru: null,
     description: null,
     promotional_text: null,
     marketing_highlights: null,
@@ -419,12 +395,6 @@ const sampleGemstones: Gemstone[] = [
     // AI v6 fields
     ai_text_generated_v6: false,
     ai_text_generated_v6_date: null,
-    description_emotional_en: null,
-    description_emotional_ru: null,
-    description_technical_en: null,
-    description_technical_ru: null,
-    narrative_story_en: null,
-    narrative_story_ru: null,
     description: null,
     promotional_text: null,
     marketing_highlights: null,
@@ -500,12 +470,6 @@ const sampleGemstones: Gemstone[] = [
     // AI v6 fields
     ai_text_generated_v6: false,
     ai_text_generated_v6_date: null,
-    description_emotional_en: null,
-    description_emotional_ru: null,
-    description_technical_en: null,
-    description_technical_ru: null,
-    narrative_story_en: null,
-    narrative_story_ru: null,
     description: null,
     promotional_text: null,
     marketing_highlights: null,
