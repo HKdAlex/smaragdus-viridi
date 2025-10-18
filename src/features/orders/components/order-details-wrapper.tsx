@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { OrderDetailsPageV2 } from "./order-details-page-v2";
+import { OrderDetailsPageV3 } from "./order-details-page-v3";
 import { supabase } from "@/lib/supabase";
 
 interface OrderDetailsWrapperProps {
@@ -71,6 +71,6 @@ export function OrderDetailsWrapper({
   }
 
   return (
-    <OrderDetailsPageV2 orderId={orderId} locale={locale} isAdmin={isAdmin} />
+    <OrderDetailsPageV3 orderId={orderId} locale={locale} isAdmin={isAdmin} />
   );
 }

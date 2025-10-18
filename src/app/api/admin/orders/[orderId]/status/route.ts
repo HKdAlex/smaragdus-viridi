@@ -8,6 +8,7 @@ export async function PATCH(
 ) {
   try {
     const { orderId } = await params;
+    console.log("Order status update request for orderId:", orderId);
     const supabase = await createServerSupabaseClient();
 
     // Check authentication
@@ -51,6 +52,7 @@ export async function PATCH(
     }
 
     // Update the order status
+    console.log("Updating order status:", { orderId, new_status });
     const { error: updateError } = await supabase
       .from("orders")
       .update({
