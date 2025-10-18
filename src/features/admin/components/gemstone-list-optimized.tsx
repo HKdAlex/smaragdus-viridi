@@ -3,6 +3,13 @@
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/shared/components/ui/select";
 import { Edit, FileText, Gem, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
@@ -55,7 +62,14 @@ export function GemstoneListOptimized({
   const [gemstones, setGemstones] = useState<GemstoneWithRelations[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize] = useState(50); // Larger page size for admin interface
+  const [pageSize, setPageSize] = useState(() => {
+    // Load page size from localStorage, default to 50
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("admin-gemstone-page-size");
+      return saved ? parseInt(saved, 10) : 50;
+    }
+    return 50;
+  });
   const [pagination, setPagination] = useState<
     PaginatedGemstones["pagination"] | null
   >(null);
@@ -192,10 +206,10 @@ export function GemstoneListOptimized({
     [pageSize]
   );
 
-  // Initial load
+  // Initial load and page changes
   useEffect(() => {
     fetchGemstones(searchFilters, currentPage);
-  }, [fetchGemstones, currentPage]);
+  }, [currentPage, pageSize, searchFilters, fetchGemstones]);
 
   // Handle filter changes with debouncing
   const handleSearchFiltersChange = useCallback(
@@ -215,6 +229,16 @@ export function GemstoneListOptimized({
   // Handle page changes
   const handlePageChange = useCallback((page: number) => {
     setCurrentPage(page);
+  }, []);
+
+  // Handle page size changes
+  const handlePageSizeChange = useCallback((newPageSize: number) => {
+    setPageSize(newPageSize);
+    setCurrentPage(1); // Reset to first page when page size changes
+    // Save to localStorage
+    if (typeof window !== "undefined") {
+      localStorage.setItem("admin-gemstone-page-size", newPageSize.toString());
+    }
   }, []);
 
   // Handle selection
@@ -551,13 +575,20 @@ export function GemstoneListOptimized({
       <div className="flex items-center justify-between text-sm text-muted-foreground">
         <span>
           {pagination
-            ? t("resultsSummary", {
-                showing: gemstones.length,
-                total: pagination.totalItems,
-                currentPage: pagination.page,
-                totalPages: pagination.totalPages,
-                searchTerm: searchFilters.query || "",
-              })
+            ? searchFilters.query && searchFilters.query.trim()
+              ? t("resultsSummary", {
+                  showing: gemstones.length,
+                  total: pagination.totalItems,
+                  currentPage: pagination.page,
+                  totalPages: pagination.totalPages,
+                  searchTerm: searchFilters.query,
+                })
+              : t("resultsSummaryNoSearch", {
+                  showing: gemstones.length,
+                  total: pagination.totalItems,
+                  currentPage: pagination.page,
+                  totalPages: pagination.totalPages,
+                })
             : t("loading")}
         </span>
         <span>
@@ -754,27 +785,54 @@ export function GemstoneListOptimized({
       </Card>
 
       {/* Pagination */}
-      {pagination && pagination.totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2">
-          <Button
-            variant="outline"
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={!pagination.hasPrevPage || loading}
-          >
-            Previous
-          </Button>
+      {pagination && (
+        <div className="flex items-center justify-between">
+          {/* Page Size Selector */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Show:</span>
+            <Select
+              value={pageSize.toString()}
+              onValueChange={(value) => handlePageSizeChange(parseInt(value))}
+            >
+              <SelectTrigger className="w-20">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="25">25</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+                <SelectItem value="100">100</SelectItem>
+                <SelectItem value="250">250</SelectItem>
+                <SelectItem value="500">500</SelectItem>
+                <SelectItem value="1000">1000</SelectItem>
+              </SelectContent>
+            </Select>
+            <span className="text-sm text-muted-foreground">per page</span>
+          </div>
 
-          <span className="text-sm text-muted-foreground px-4">
-            Page {pagination.page} of {pagination.totalPages}
-          </span>
+          {/* Page Navigation */}
+          {pagination.totalPages > 1 && (
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={!pagination.hasPrevPage || loading}
+              >
+                Previous
+              </Button>
 
-          <Button
-            variant="outline"
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={!pagination.hasNextPage || loading}
-          >
-            Next
-          </Button>
+              <span className="text-sm text-muted-foreground px-4">
+                Page {pagination.page} of {pagination.totalPages}
+              </span>
+
+              <Button
+                variant="outline"
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={!pagination.hasNextPage || loading}
+              >
+                Next
+              </Button>
+            </div>
+          )}
         </div>
       )}
 

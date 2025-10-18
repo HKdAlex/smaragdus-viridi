@@ -86,6 +86,14 @@
       "delivered": "Доставлен",
       "cancelled": "Отменен"
     },
+    "statusDescriptions": {
+      "pending": "Заказ получен, ожидает подтверждения",
+      "confirmed": "Заказ подтвержден, платеж обработан",
+      "processing": "Заказ готовится к отправке",
+      "shipped": "Заказ отправлен",
+      "delivered": "Заказ успешно доставлен",
+      "cancelled": "Заказ отменен"
+    },
     "confirmCancel": "Вы уверены, что хотите отменить этот заказ?",
     "orderCancellationNotImplemented": "Отмена заказа пока не реализована",
     "subtotal": "Подытог",
@@ -178,6 +186,7 @@
     "bulkEdit": "Массовое редактирование",
     "addGemstone": "Добавить камень",
     "resultsSummary": "Показано {showing} из {total} камней{searchTerm, select, empty {} other { для \"{searchTerm}\"}}",
+    "resultsSummaryNoSearch": "Показано {showing} из {total} камней",
     "selected": "выбрано {count}",
     "noResultsFound": "Камни не найдены",
     "noGemstonesYet": "Камней пока нет",
@@ -708,6 +717,10 @@
     "serialNumberPlaceholder": "например, DIA-2025-001",
     "internalCodePlaceholder": "например, INV-001",
     "selectOriginPlaceholder": "Выберите происхождение (необязательно)",
+    "selectTypePlaceholder": "Выберите тип камня",
+    "selectColorPlaceholder": "Выберите цвет",
+    "selectCutPlaceholder": "Выберите огранку",
+    "selectClarityPlaceholder": "Выберите чистоту",
     "noOriginSpecified": "Происхождение не указано",
     "optionalPlaceholder": "Необязательно",
     "deliveryDaysPlaceholder": "например, 7",

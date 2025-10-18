@@ -53,13 +53,21 @@
     "frequencyIncreasing": "Ordering more frequently",
     "frequencyStable": "Consistent ordering pattern"
   },
-  "status": {
+  "statuses": {
     "pending": "Pending",
     "confirmed": "Confirmed",
     "processing": "Processing",
     "shipped": "Shipped",
     "delivered": "Delivered",
     "cancelled": "Cancelled"
+  },
+  "statusDescriptions": {
+    "pending": "Order received, awaiting confirmation",
+    "confirmed": "Order confirmed, payment processed",
+    "processing": "Order being prepared for shipment",
+    "shipped": "Order has been shipped",
+    "delivered": "Order successfully delivered",
+    "cancelled": "Order has been cancelled"
   },
   "back": "Back",
   "calculatedAtCheckout": "Calculated at checkout",

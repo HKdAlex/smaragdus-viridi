@@ -53,13 +53,21 @@
     "frequencyIncreasing": "Заказываете чаще",
     "frequencyStable": "Стабильная частота заказов"
   },
-  "status": {
+  "statuses": {
     "pending": "В Ожидании",
     "confirmed": "Подтверждён",
     "processing": "В Обработке",
     "shipped": "Отправлен",
     "delivered": "Доставлен",
     "cancelled": "Отменён"
+  },
+  "statusDescriptions": {
+    "pending": "Заказ получен, ожидает подтверждения",
+    "confirmed": "Заказ подтвержден, платеж обработан",
+    "processing": "Заказ готовится к отправке",
+    "shipped": "Заказ отправлен",
+    "delivered": "Заказ успешно доставлен",
+    "cancelled": "Заказ отменен"
   },
   "back": "Назад",
   "calculatedAtCheckout": "Рассчитывается при оформлении",

@@ -247,8 +247,15 @@ export class MediaUploadService {
 
       // Delete from storage (optional - storage cleanup can be done separately)
       const storagePaths =
-        mediaRecords?.map((record) => record.original_path).filter(Boolean) ||
-        [];
+        mediaRecords
+          ?.map((record) => {
+            // Handle both image and video records safely
+            if ("original_path" in record && record.original_path) {
+              return record.original_path;
+            }
+            return null;
+          })
+          .filter((path): path is string => path !== null) || [];
       if (storagePaths.length > 0) {
         const { error: storageError } = await supabaseAdmin!.storage
           .from("gemstone-media")

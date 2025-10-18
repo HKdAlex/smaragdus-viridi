@@ -23,6 +23,7 @@ import {
   type UserOrder,
 } from "../types/user-profile.types";
 
+import { useOrderTranslations } from "@/features/orders/utils/order-translations";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
@@ -48,6 +49,7 @@ export function OrderHistory({
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all");
   const t = useTranslations("user.orders");
+  const { translateOrderStatus } = useOrderTranslations();
 
   // Filter orders based on search and status
   const filteredOrders = orders.filter((order) => {
@@ -55,7 +57,7 @@ export function OrderHistory({
       !searchQuery ||
       order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
       order.order_number?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.order_number?.replace(/^cq-/, 'CQ-').includes(searchQuery) ||
+      order.order_number?.replace(/^cq-/, "CQ-").includes(searchQuery) ||
       (order.items ?? []).some((item) =>
         item.gemstone.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
@@ -78,7 +80,7 @@ export function OrderHistory({
     const config = ORDER_STATUS_CONFIG[status];
     return (
       <Badge variant={config.color as any} className="capitalize">
-        {config.label}
+        {translateOrderStatus(status, "user")}
       </Badge>
     );
   };
@@ -144,14 +146,24 @@ export function OrderHistory({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{t("allOrders")}</SelectItem>
-              <SelectItem value="pending">{t("status.pending")}</SelectItem>
-              <SelectItem value="confirmed">{t("status.confirmed")}</SelectItem>
-              <SelectItem value="processing">
-                {t("status.processing")}
+              <SelectItem value="pending">
+                {translateOrderStatus("pending", "user")}
               </SelectItem>
-              <SelectItem value="shipped">{t("status.shipped")}</SelectItem>
-              <SelectItem value="delivered">{t("status.delivered")}</SelectItem>
-              <SelectItem value="cancelled">{t("status.cancelled")}</SelectItem>
+              <SelectItem value="confirmed">
+                {translateOrderStatus("confirmed", "user")}
+              </SelectItem>
+              <SelectItem value="processing">
+                {translateOrderStatus("processing", "user")}
+              </SelectItem>
+              <SelectItem value="shipped">
+                {translateOrderStatus("shipped", "user")}
+              </SelectItem>
+              <SelectItem value="delivered">
+                {translateOrderStatus("delivered", "user")}
+              </SelectItem>
+              <SelectItem value="cancelled">
+                {translateOrderStatus("cancelled", "user")}
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -194,7 +206,9 @@ export function OrderHistory({
                     <div>
                       <CardTitle className="text-lg whitespace-nowrap">
                         {t("orderNumber", {
-                          number: order.order_number?.replace(/^cq-/, 'CQ-') || order.id.slice(0, 8),
+                          number:
+                            order.order_number?.replace(/^cq-/, "CQ-") ||
+                            order.id.slice(0, 8),
                         })}
                       </CardTitle>
                       <CardDescription>

@@ -138,7 +138,7 @@
     "items": "товар(ов)",
     "quantity": "Кол-во",
     "price": "Цена",
-    "status": {
+    "statuses": {
       "pending": "Ожидает",
       "confirmed": "Подтвержден",
       "processing": "Обрабатывается",
@@ -146,6 +146,15 @@
       "delivered": "Доставлен",
       "cancelled": "Отменен",
       "refunded": "Возвращен"
+    },
+    "statusDescriptions": {
+      "pending": "Ваш заказ обрабатывается",
+      "confirmed": "Ваш заказ подтвержден",
+      "processing": "Ваш заказ готовится",
+      "shipped": "Ваш заказ отправлен",
+      "delivered": "Ваш заказ доставлен",
+      "cancelled": "Ваш заказ отменен",
+      "refunded": "Ваш заказ возвращен"
     }
   },
   "activity": {

@@ -7,6 +7,7 @@ import type {
 } from "@/shared/types";
 import type { TablesInsert, TablesUpdate } from "@/shared/types/database";
 
+import { DatabaseEnums } from "@/shared/services/database-enums";
 import { supabaseAdmin } from "@/lib/supabase";
 
 // Simple logger for now
@@ -422,18 +423,26 @@ export class GemstoneAdminService {
 
     if (!formData.name) {
       errors.push("Gemstone type is required");
+    } else if (!DatabaseEnums.isValidGemstoneType(formData.name)) {
+      errors.push("Invalid gemstone type");
     }
 
     if (!formData.color) {
       errors.push("Color is required");
+    } else if (!DatabaseEnums.isValidGemColor(formData.color)) {
+      errors.push("Invalid gem color");
     }
 
     if (!formData.cut) {
       errors.push("Cut is required");
+    } else if (!DatabaseEnums.isValidGemCut(formData.cut)) {
+      errors.push("Invalid gem cut");
     }
 
     if (!formData.clarity) {
       errors.push("Clarity is required");
+    } else if (!DatabaseEnums.isValidGemClarity(formData.clarity)) {
+      errors.push("Invalid gem clarity");
     }
 
     if (!formData.weight_carats || formData.weight_carats <= 0) {
@@ -446,6 +455,8 @@ export class GemstoneAdminService {
 
     if (!formData.price_currency) {
       errors.push("Price currency is required");
+    } else if (!DatabaseEnums.isValidCurrencyCode(formData.price_currency)) {
+      errors.push("Invalid currency code");
     }
 
     // Check for duplicate serial number (would need to be async)
@@ -666,18 +677,26 @@ export class GemstoneAdminService {
 
     if (!data.name) {
       return { success: false, error: "Gemstone type is required" };
+    } else if (!DatabaseEnums.isValidGemstoneType(data.name)) {
+      return { success: false, error: "Invalid gemstone type" };
     }
 
     if (!data.color) {
       return { success: false, error: "Color is required" };
+    } else if (!DatabaseEnums.isValidGemColor(data.color)) {
+      return { success: false, error: "Invalid gem color" };
     }
 
     if (!data.cut) {
       return { success: false, error: "Cut is required" };
+    } else if (!DatabaseEnums.isValidGemCut(data.cut)) {
+      return { success: false, error: "Invalid gem cut" };
     }
 
     if (!data.clarity) {
       return { success: false, error: "Clarity is required" };
+    } else if (!DatabaseEnums.isValidGemClarity(data.clarity)) {
+      return { success: false, error: "Invalid gem clarity" };
     }
 
     if (!data.weight_carats || data.weight_carats <= 0) {
@@ -690,6 +709,8 @@ export class GemstoneAdminService {
 
     if (!data.price_currency) {
       return { success: false, error: "Price currency is required" };
+    } else if (!DatabaseEnums.isValidCurrencyCode(data.price_currency)) {
+      return { success: false, error: "Invalid currency code" };
     }
 
     // Data type validation

@@ -15,7 +15,7 @@ import {
   Truck,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { ORDER_STATUS_COLORS, ORDER_STATUS_LABELS } from "../types/order.types";
+import { ORDER_STATUS_COLORS } from "../types/order.types";
 
 import { useGemstoneTranslations } from "@/features/gemstones/utils/gemstone-translations";
 import { useRouter } from "@/i18n/navigation";
@@ -25,6 +25,7 @@ import { Separator } from "@/shared/components/ui/separator";
 import type { Order } from "@/shared/types";
 import { useTranslations } from "next-intl";
 import type { OrderTimeline as OrderTimelineType } from "../types/order-tracking.types";
+import { useOrderTranslations } from "../utils/order-translations";
 import { OrderTimeline } from "./order-timeline";
 
 interface OrderDetailsPageProps {
@@ -43,6 +44,7 @@ export function OrderDetailsPage({
   const tCommon = useTranslations("common");
   const { translateColor, translateCut, translateGemstoneType } =
     useGemstoneTranslations();
+  const { translateOrderStatus } = useOrderTranslations();
 
   const [order, setOrder] = useState<Order | null>(null);
   const [timeline, setTimeline] = useState<OrderTimelineType | null>(null);
@@ -157,8 +159,7 @@ export function OrderDetailsPage({
 
   const getStatusLabel = (status: string | null) => {
     if (!status) return "Unknown";
-    const labels = ORDER_STATUS_LABELS as any;
-    return labels[status] || "Unknown";
+    return translateOrderStatus(status as any, isAdmin ? "admin" : "orders");
   };
 
   if (isLoading) {

@@ -20,6 +20,14 @@ import {
   SelectValue,
 } from "@/shared/components/ui/select";
 import { Textarea } from "@/shared/components/ui/textarea";
+import {
+  CURRENCY_CODES,
+  DEFAULT_GEMSTONE_VALUES,
+  GEMSTONE_TYPES,
+  GEM_CLARITIES,
+  GEM_COLORS,
+  GEM_CUTS,
+} from "@/shared/services/database-enums";
 import type { DatabaseGemstone, DatabaseOrigin } from "@/shared/types";
 import { AlertCircle, Gem, Loader2, Minus, Plus, Save, X } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -40,89 +48,6 @@ interface GemstoneFormProps {
   onSuccess?: (gemstone: DatabaseGemstone) => void;
   onCancel?: () => void;
 }
-
-const GEMSTONE_TYPES = [
-  "diamond",
-  "emerald",
-  "ruby",
-  "sapphire",
-  "amethyst",
-  "topaz",
-  "garnet",
-  "peridot",
-  "citrine",
-  "tanzanite",
-  "aquamarine",
-  "morganite",
-  "tourmaline",
-  "zircon",
-  "apatite",
-  "quartz",
-  "paraiba",
-  "spinel",
-  "alexandrite",
-  "agate",
-] as const;
-
-const GEM_COLORS = [
-  "D",
-  "E",
-  "F",
-  "G",
-  "H",
-  "I",
-  "J",
-  "K",
-  "L",
-  "M",
-  "fancy-yellow",
-  "fancy-blue",
-  "fancy-pink",
-  "fancy-green",
-  "red",
-  "blue",
-  "green",
-  "yellow",
-  "pink",
-  "white",
-  "black",
-  "colorless",
-] as const;
-
-const GEM_CUTS = [
-  "round",
-  "oval",
-  "marquise",
-  "pear",
-  "emerald",
-  "princess",
-  "cushion",
-  "radiant",
-  "fantasy",
-  "baguette",
-  "asscher",
-  "rhombus",
-  "trapezoid",
-  "triangle",
-  "heart",
-  "cabochon",
-  "pentagon",
-  "hexagon",
-] as const;
-
-const GEM_CLARITIES = [
-  "FL",
-  "IF",
-  "VVS1",
-  "VVS2",
-  "VS1",
-  "VS2",
-  "SI1",
-  "SI2",
-  "I1",
-] as const;
-
-const CURRENCIES = ["USD", "EUR", "GBP", "RUB", "CHF", "JPY"] as const;
 
 export function GemstoneForm({
   gemstone,
@@ -147,17 +72,18 @@ export function GemstoneForm({
   const [uploadedMedia, setUploadedMedia] = useState<MediaUploadResult[]>([]);
 
   const [formData, setFormData] = useState<GemstoneFormData>({
-    name: gemstone?.name || "diamond",
-    color: gemstone?.color || "D",
-    cut: gemstone?.cut || "round",
-    clarity: gemstone?.clarity || "FL",
+    name: gemstone?.name || DEFAULT_GEMSTONE_VALUES.type,
+    color: gemstone?.color || DEFAULT_GEMSTONE_VALUES.color,
+    cut: gemstone?.cut || DEFAULT_GEMSTONE_VALUES.cut,
+    clarity: gemstone?.clarity || DEFAULT_GEMSTONE_VALUES.clarity,
     weight_carats: gemstone?.weight_carats || 0,
     length_mm: gemstone?.length_mm || 0,
     width_mm: gemstone?.width_mm || 0,
     depth_mm: gemstone?.depth_mm || 0,
     origin_id: gemstone?.origin_id || undefined,
     price_amount: gemstone?.price_amount || 0,
-    price_currency: gemstone?.price_currency || "USD",
+    price_currency:
+      gemstone?.price_currency || DEFAULT_GEMSTONE_VALUES.currency,
     premium_price_amount: gemstone?.premium_price_amount || undefined,
     premium_price_currency: gemstone?.premium_price_currency || undefined,
     in_stock: gemstone?.in_stock ?? true,
@@ -398,7 +324,15 @@ export function GemstoneForm({
                 onValueChange={(value) => handleInputChange("name", value)}
               >
                 <SelectTrigger className={errors.name ? "border-red-500" : ""}>
-                  <SelectValue />
+                  <span className="text-sm">
+                    {formData.name ? (
+                      translateGemstoneType(formData.name)
+                    ) : (
+                      <span className="text-muted-foreground">
+                        {t("selectTypePlaceholder")}
+                      </span>
+                    )}
+                  </span>
                 </SelectTrigger>
                 <SelectContent>
                   {GEMSTONE_TYPES.map((type) => (
@@ -422,7 +356,15 @@ export function GemstoneForm({
                 onValueChange={(value) => handleInputChange("color", value)}
               >
                 <SelectTrigger className={errors.color ? "border-red-500" : ""}>
-                  <SelectValue />
+                  <span className="text-sm">
+                    {formData.color ? (
+                      translateColor(formData.color)
+                    ) : (
+                      <span className="text-muted-foreground">
+                        {t("selectColorPlaceholder")}
+                      </span>
+                    )}
+                  </span>
                 </SelectTrigger>
                 <SelectContent>
                   {GEM_COLORS.map((color) => (
@@ -446,7 +388,15 @@ export function GemstoneForm({
                 onValueChange={(value) => handleInputChange("cut", value)}
               >
                 <SelectTrigger className={errors.cut ? "border-red-500" : ""}>
-                  <SelectValue />
+                  <span className="text-sm">
+                    {formData.cut ? (
+                      translateCut(formData.cut)
+                    ) : (
+                      <span className="text-muted-foreground">
+                        {t("selectCutPlaceholder")}
+                      </span>
+                    )}
+                  </span>
                 </SelectTrigger>
                 <SelectContent>
                   {GEM_CUTS.map((cut) => (
@@ -472,7 +422,15 @@ export function GemstoneForm({
                 <SelectTrigger
                   className={errors.clarity ? "border-red-500" : ""}
                 >
-                  <SelectValue />
+                  <span className="text-sm">
+                    {formData.clarity ? (
+                      translateClarity(formData.clarity)
+                    ) : (
+                      <span className="text-muted-foreground">
+                        {t("selectClarityPlaceholder")}
+                      </span>
+                    )}
+                  </span>
                 </SelectTrigger>
                 <SelectContent>
                   {GEM_CLARITIES.map((clarity) => (
@@ -594,10 +552,15 @@ export function GemstoneForm({
                   }
                 >
                   <SelectTrigger className="w-24">
-                    <SelectValue />
+                    <span className="text-sm">
+                      {formData.price_currency
+                        ? tCurrencies(formData.price_currency as any) ||
+                          formData.price_currency
+                        : ""}
+                    </span>
                   </SelectTrigger>
                   <SelectContent>
-                    {CURRENCIES.map((currency) => (
+                    {CURRENCY_CODES.map((currency) => (
                       <SelectItem key={currency} value={currency}>
                         {tCurrencies(currency as any) || currency}
                       </SelectItem>
@@ -639,10 +602,20 @@ export function GemstoneForm({
                   }
                 >
                   <SelectTrigger className="w-24">
-                    <SelectValue />
+                    <span className="text-sm">
+                      {formData.premium_price_currency ||
+                      formData.price_currency
+                        ? tCurrencies(
+                            (formData.premium_price_currency ||
+                              formData.price_currency) as any
+                          ) ||
+                          formData.premium_price_currency ||
+                          formData.price_currency
+                        : ""}
+                    </span>
                   </SelectTrigger>
                   <SelectContent>
-                    {CURRENCIES.map((currency) => (
+                    {CURRENCY_CODES.map((currency) => (
                       <SelectItem key={currency} value={currency}>
                         {tCurrencies(currency as any) || currency}
                       </SelectItem>

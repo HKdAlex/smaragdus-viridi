@@ -138,7 +138,7 @@
     "items": "item(s)",
     "quantity": "Qty",
     "price": "Price",
-    "status": {
+    "statuses": {
       "pending": "Pending",
       "confirmed": "Confirmed",
       "processing": "Processing",
@@ -146,6 +146,15 @@
       "delivered": "Delivered",
       "cancelled": "Cancelled",
       "refunded": "Refunded"
+    },
+    "statusDescriptions": {
+      "pending": "Your order is being processed",
+      "confirmed": "Your order has been confirmed",
+      "processing": "Your order is being prepared",
+      "shipped": "Your order has been shipped",
+      "delivered": "Your order has been delivered",
+      "cancelled": "Your order has been cancelled",
+      "refunded": "Your order has been refunded"
     }
   },
   "activity": {

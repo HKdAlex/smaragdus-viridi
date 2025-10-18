@@ -281,7 +281,28 @@ export function EnhancedSearch({
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
           <Select value={filters.sortBy} onValueChange={handleSortChange}>
             <SelectTrigger className="w-full sm:w-48 min-h-[44px]">
-              <SelectValue placeholder={t("sortBy")} />
+              <span className="text-sm">
+                {filters.sortBy ? (
+                  (() => {
+                    switch (filters.sortBy) {
+                      case "created_at":
+                        return t("sortLabels.dateAdded");
+                      case "price_amount":
+                        return t("sortLabels.price");
+                      case "weight_carats":
+                        return t("sortLabels.weight");
+                      case "serial_number":
+                        return t("sortLabels.serialNumber");
+                      case "name":
+                        return t("sortLabels.gemstoneType");
+                      default:
+                        return filters.sortBy;
+                    }
+                  })()
+                ) : (
+                  <span className="text-muted-foreground">{t("sortBy")}</span>
+                )}
+              </span>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="created_at">

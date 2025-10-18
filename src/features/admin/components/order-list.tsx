@@ -1,23 +1,11 @@
 "use client";
 
 import {
-  ArrowUpDown,
-  Eye,
-  MoreHorizontal,
-  Package,
-  Search,
-  X,
-} from "lucide-react";
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
-import type {
-  OrderListProps,
-  OrderStatus,
-} from "../types/order-management.types";
 import {
   Select,
   SelectContent,
@@ -33,15 +21,28 @@ import {
   TableHeader,
   TableRow,
 } from "@/shared/components/ui/table";
+import {
+  ArrowUpDown,
+  Eye,
+  MoreHorizontal,
+  Package,
+  Search,
+  X,
+} from "lucide-react";
+import type {
+  OrderListProps,
+  OrderStatus,
+} from "../types/order-management.types";
 
+import { useOrderTranslations } from "@/features/orders/utils/order-translations";
+import { useRouter } from "@/i18n/navigation";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
-import { ORDER_STATUS_CONFIG } from "../types/order-management.types";
 import { format } from "date-fns";
-import { useRouter } from "@/i18n/navigation";
-import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
+import { ORDER_STATUS_CONFIG } from "../types/order-management.types";
 
 export function OrderList({
   orders,
@@ -51,6 +52,7 @@ export function OrderList({
   selectedOrderId,
 }: OrderListProps) {
   const t = useTranslations("admin.orders");
+  const { translateOrderStatus } = useOrderTranslations();
   const router = useRouter();
   const [sortField, setSortField] = useState<"created_at" | "total_amount">(
     "created_at"
@@ -66,7 +68,7 @@ export function OrderList({
         !searchQuery ||
         order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
         order.order_number?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        order.order_number?.replace(/^cq-/, 'CQ-').includes(searchQuery) ||
+        order.order_number?.replace(/^cq-/, "CQ-").includes(searchQuery) ||
         order.user?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         order.user?.email?.toLowerCase().includes(searchQuery.toLowerCase());
 
@@ -131,7 +133,7 @@ export function OrderList({
     const config = ORDER_STATUS_CONFIG[status];
     return (
       <Badge variant={config.color as any} className="capitalize">
-        {config.label}
+        {translateOrderStatus(status, "admin")}
       </Badge>
     );
   };
@@ -177,19 +179,23 @@ export function OrderList({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{t("allStatuses")}</SelectItem>
-              <SelectItem value="pending">{t("statuses.pending")}</SelectItem>
+              <SelectItem value="pending">
+                {translateOrderStatus("pending", "admin")}
+              </SelectItem>
               <SelectItem value="confirmed">
-                {t("statuses.confirmed")}
+                {translateOrderStatus("confirmed", "admin")}
               </SelectItem>
               <SelectItem value="processing">
-                {t("statuses.processing")}
+                {translateOrderStatus("processing", "admin")}
               </SelectItem>
-              <SelectItem value="shipped">{t("statuses.shipped")}</SelectItem>
+              <SelectItem value="shipped">
+                {translateOrderStatus("shipped", "admin")}
+              </SelectItem>
               <SelectItem value="delivered">
-                {t("statuses.delivered")}
+                {translateOrderStatus("delivered", "admin")}
               </SelectItem>
               <SelectItem value="cancelled">
-                {t("statuses.cancelled")}
+                {translateOrderStatus("cancelled", "admin")}
               </SelectItem>
             </SelectContent>
           </Select>
@@ -201,7 +207,9 @@ export function OrderList({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-24 whitespace-nowrap">{t("orderNumber")}</TableHead>
+              <TableHead className="w-24 whitespace-nowrap">
+                {t("orderNumber")}
+              </TableHead>
               <TableHead>{t("customer")}</TableHead>
               <TableHead>
                 <Button
@@ -246,7 +254,8 @@ export function OrderList({
                   onClick={() => handleOrderClick(order)}
                 >
                   <TableCell className="font-mono text-sm whitespace-nowrap">
-                    {order.order_number?.replace(/^cq-/, 'CQ-') || order.id.slice(0, 8) + "..."}
+                    {order.order_number?.replace(/^cq-/, "CQ-") ||
+                      order.id.slice(0, 8) + "..."}
                   </TableCell>
                   <TableCell>
                     <div>

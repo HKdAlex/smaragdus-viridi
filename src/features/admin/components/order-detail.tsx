@@ -1,6 +1,20 @@
 "use client";
 
 import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/shared/components/ui/select";
+import {
   ArrowLeft,
   Calendar,
   CreditCard,
@@ -10,33 +24,20 @@ import {
   Truck,
   User,
 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui/card";
 import type {
   OrderDetailProps,
   OrderStatus,
 } from "../types/order-management.types";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/components/ui/select";
 
+import { useOrderTranslations } from "@/features/orders/utils/order-translations";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { ORDER_STATUS_CONFIG } from "../types/order-management.types";
 import { Separator } from "@/shared/components/ui/separator";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { format } from "date-fns";
-import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
+import { ORDER_STATUS_CONFIG } from "../types/order-management.types";
 
 export function OrderDetail({
   order,
@@ -45,6 +46,8 @@ export function OrderDetail({
   loading,
 }: OrderDetailProps) {
   const t = useTranslations("admin.orders");
+  const { translateOrderStatus, translateOrderStatusDescription } =
+    useOrderTranslations();
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [statusNotes, setStatusNotes] = useState("");
 
@@ -72,7 +75,7 @@ export function OrderDetail({
     const config = ORDER_STATUS_CONFIG[status];
     return (
       <Badge variant={config.color as any} className="text-sm px-3 py-1">
-        {config.label}
+        {translateOrderStatus(status, "admin")}
       </Badge>
     );
   };
@@ -155,9 +158,13 @@ export function OrderDetail({
                   className="flex items-center space-x-4 p-4 border rounded-lg"
                 >
                   <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center overflow-hidden">
-                    {item.gemstone?.images?.find((img) => img.is_primary)?.image_url ? (
+                    {item.gemstone?.images?.find((img) => img.is_primary)
+                      ?.image_url ? (
                       <img
-                        src={item.gemstone.images.find((img) => img.is_primary)?.image_url}
+                        src={
+                          item.gemstone.images.find((img) => img.is_primary)
+                            ?.image_url
+                        }
                         alt={item.gemstone.name}
                         className="w-full h-full object-cover"
                       />
@@ -244,7 +251,7 @@ export function OrderDetail({
                     <SelectContent>
                       {getNextStatuses(order.status).map((status) => (
                         <SelectItem key={status} value={status}>
-                          {ORDER_STATUS_CONFIG[status].label}
+                          {translateOrderStatus(status, "admin")}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -260,7 +267,7 @@ export function OrderDetail({
               )}
 
               <div className="text-xs text-muted-foreground">
-                {ORDER_STATUS_CONFIG[order.status].description}
+                {translateOrderStatusDescription(order.status, "admin")}
               </div>
             </CardContent>
           </Card>

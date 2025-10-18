@@ -84,6 +84,14 @@
       "delivered": "Delivered",
       "cancelled": "Cancelled"
     },
+    "statusDescriptions": {
+      "pending": "Order received, awaiting confirmation",
+      "confirmed": "Order confirmed, payment processed",
+      "processing": "Order being prepared for shipment",
+      "shipped": "Order has been shipped",
+      "delivered": "Order successfully delivered",
+      "cancelled": "Order has been cancelled"
+    },
     "confirmCancel": "Are you sure you want to cancel this order?",
     "orderCancellationNotImplemented": "Order cancellation not yet implemented",
     "subtotal": "Subtotal",
@@ -178,6 +186,7 @@
     "bulkEdit": "Bulk Edit",
     "addGemstone": "Add Gemstone",
     "resultsSummary": "Showing {showing} of {total} gemstones{searchTerm, select, empty {} other { for \"{searchTerm}\"}}",
+    "resultsSummaryNoSearch": "Showing {showing} of {total} gemstones",
     "selected": "{count} selected",
     "noResultsFound": "No gemstones found",
     "noGemstonesYet": "No gemstones yet",
@@ -724,6 +733,10 @@
     "serialNumberPlaceholder": "e.g., DIA-2025-001",
     "internalCodePlaceholder": "e.g., INV-001",
     "selectOriginPlaceholder": "Select origin (optional)",
+    "selectTypePlaceholder": "Select gemstone type",
+    "selectColorPlaceholder": "Select color",
+    "selectCutPlaceholder": "Select cut",
+    "selectClarityPlaceholder": "Select clarity",
     "noOriginSpecified": "No origin specified",
     "optionalPlaceholder": "Optional",
     "deliveryDaysPlaceholder": "e.g., 7",
