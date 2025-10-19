@@ -14,17 +14,17 @@
 
 "use client";
 
-import { CheckCircle, Package, Scale } from "lucide-react";
 import {
   ColorIndicator,
   CutIcon,
   GemstoneTypeIcon,
 } from "@/shared/components/ui/gemstone-icons";
+import { CheckCircle, Package, Scale } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
-import type { CatalogGemstone } from "../services/gemstone-fetch.service";
 import Image from "next/image";
 import Link from "next/link";
+import type { CatalogGemstone } from "../services/gemstone-fetch.service";
 import { useGemstoneTranslations } from "../utils/gemstone-translations";
 
 // ===== TYPES =====
@@ -116,6 +116,10 @@ export function GemstoneCard({
       if (match) return match;
     }
 
+    // Prioritize is_primary over recommended_primary_image_index
+    const primaryImage = gemstone.images?.find((img) => img.is_primary);
+    if (primaryImage) return primaryImage;
+
     if (
       typeof gemstone.recommended_primary_image_index === "number" &&
       gemstone.images?.[gemstone.recommended_primary_image_index]
@@ -123,9 +127,7 @@ export function GemstoneCard({
       return gemstone.images[gemstone.recommended_primary_image_index];
     }
 
-    return (
-      gemstone.images?.find((img) => img.is_primary) || gemstone.images?.[0]
-    );
+    return gemstone.images?.[0];
   })();
 
   const formatPrice = (amount: number, currency: string) => {

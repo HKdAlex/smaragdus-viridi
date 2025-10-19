@@ -7,8 +7,8 @@
 
 "use client";
 
-import type { AdvancedGemstoneFilters } from "@/features/gemstones/types/filter.types";
 import type { CatalogGemstone } from "@/features/gemstones/services/gemstone-fetch.service";
+import type { AdvancedGemstoneFilters } from "@/features/gemstones/types/filter.types";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 
@@ -111,7 +111,7 @@ export function useInfiniteSearchQuery(params: UseInfiniteSearchQueryParams) {
       return undefined;
     },
     initialPageParam: 1,
-    enabled: query.length > 0,
+    enabled: true, // Always enabled, let the API handle empty queries
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
     // Prevent multiple simultaneous fetches

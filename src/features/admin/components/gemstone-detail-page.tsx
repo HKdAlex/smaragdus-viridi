@@ -185,7 +185,7 @@ export function GemstoneDetailPage({
             }}
           >
             <Copy className="w-4 h-4 mr-1" />
-            Copy ID
+            {t("copyId")}
           </Button>
           <Button
             variant="outline"
@@ -221,11 +221,11 @@ export function GemstoneDetailPage({
             }}
           >
             <Download className="w-4 h-4 mr-1" />
-            Export
+            {t("export")}
           </Button>
           <Button size="sm" onClick={() => setMode("edit")}>
             <Edit className="w-4 h-4 mr-1" />
-            Edit
+            {t("edit")}
           </Button>
         </div>
       </div>
@@ -295,52 +295,52 @@ export function GemstoneDetailPage({
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center gap-2">
                 <Gem className="w-5 h-5" />
-                Core Information
+                {t("basicInformation")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                    Serial Number
+                    {t("serialNumber")}
                   </label>
                   <p className="text-sm font-mono">{gemstone.serial_number}</p>
                 </div>
                 {gemstone.internal_code && (
                   <div>
                     <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                      Internal Code
+                      {t("internalCode")}
                     </label>
                     <p className="text-sm">{gemstone.internal_code}</p>
                   </div>
                 )}
                 <div>
                   <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                    Type
+                    {t("gemstoneType")}
                   </label>
                   <p className="text-sm capitalize">{gemstone.name}</p>
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                    Color
+                    {t("color")}
                   </label>
                   <p className="text-sm capitalize">{gemstone.color}</p>
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                    Cut
+                    {t("cut")}
                   </label>
                   <p className="text-sm capitalize">{gemstone.cut}</p>
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                    Clarity
+                    {t("clarity")}
                   </label>
                   <p className="text-sm">{gemstone.clarity}</p>
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                    Weight
+                    {t("weight")}
                   </label>
                   <p className="text-sm">
                     {formatWeight(gemstone.weight_carats)}
@@ -348,14 +348,14 @@ export function GemstoneDetailPage({
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                    Dimensions
+                    {t("dimensions")}
                   </label>
                   <p className="text-sm">{formatDimensions()}</p>
                 </div>
                 {gemstone.origin && (
                   <div className="col-span-2">
                     <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                      Origin
+                      {t("origin")}
                     </label>
                     <p className="text-sm">
                       {gemstone.origin.name}, {gemstone.origin.country}
@@ -375,13 +375,13 @@ export function GemstoneDetailPage({
               <CardHeader className="pb-2">
                 <CardTitle className="text-base flex items-center gap-2">
                   <Package className="w-4 h-4" />
-                  Status
+                  {t("status")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div>
                   <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                    Stock Status
+                    {t("stockStatus")}
                   </label>
                   <div className="mt-1">
                     <Badge
@@ -395,7 +395,7 @@ export function GemstoneDetailPage({
                 {gemstone.delivery_days && (
                   <div>
                     <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                      Delivery
+                      {t("deliveryTime")}
                     </label>
                     <p className="text-sm">{gemstone.delivery_days} days</p>
                   </div>
@@ -408,13 +408,13 @@ export function GemstoneDetailPage({
               <CardHeader className="pb-2">
                 <CardTitle className="text-base flex items-center gap-2">
                   <DollarSign className="w-4 h-4" />
-                  Pricing
+                  {t("pricingInformation")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div>
                   <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                    Regular Price
+                    {t("regularPrice")}
                   </label>
                   <p className="text-lg font-semibold">
                     {formatPrice(
@@ -426,7 +426,7 @@ export function GemstoneDetailPage({
                 {gemstone.premium_price_amount && (
                   <div>
                     <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                      Premium Price
+                      {t("premiumPrice")}
                     </label>
                     <p className="text-lg font-semibold">
                       {formatPrice(
@@ -450,26 +450,26 @@ export function GemstoneDetailPage({
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
               <Brain className="w-4 h-4" />
-              AI Analysis
+              {t("aiAnalysis")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div>
               <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                Status
+                {t("status")}
               </label>
               <div className="mt-1">{getAIStatusBadge()}</div>
             </div>
             <div>
               <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                Confidence
+                {t("confidence")}
               </label>
               <div className="mt-1">{getConfidenceScore()}</div>
             </div>
             {gemstone.ai_analysis_date && (
               <div>
                 <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                  Analyzed
+                  {t("analyzed")}
                 </label>
                 <p className="text-sm">
                   {formatDate(gemstone.ai_analysis_date)}
@@ -484,14 +484,14 @@ export function GemstoneDetailPage({
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
               <Upload className="w-4 h-4" />
-              Import Info
+              {t("importInfo")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {gemstone.import_batch_id && (
               <div>
                 <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                  Batch ID
+                  {t("batchId")}
                 </label>
                 <p className="text-sm font-mono">{gemstone.import_batch_id}</p>
               </div>
@@ -499,7 +499,7 @@ export function GemstoneDetailPage({
             {gemstone.import_folder_path && (
               <div>
                 <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                  Folder Path
+                  {t("folderPath")}
                 </label>
                 <p className="text-xs font-mono">
                   {gemstone.import_folder_path}
@@ -509,7 +509,7 @@ export function GemstoneDetailPage({
             {gemstone.import_notes && (
               <div>
                 <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                  Notes
+                  {t("notes")}
                 </label>
                 <p className="text-sm">{gemstone.import_notes}</p>
               </div>
@@ -522,19 +522,19 @@ export function GemstoneDetailPage({
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
               <Calendar className="w-4 h-4" />
-              Timestamps
+              {t("timestamps")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div>
               <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                Created
+                {t("created")}
               </label>
               <p className="text-sm">{formatDate(gemstone.created_at)}</p>
             </div>
             <div>
               <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                Updated
+                {t("updated")}
               </label>
               <p className="text-sm">{formatDate(gemstone.updated_at)}</p>
             </div>
@@ -555,7 +555,7 @@ export function GemstoneDetailPage({
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
               <Info className="w-4 h-4" />
-              Content
+              {t("content")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -563,7 +563,7 @@ export function GemstoneDetailPage({
             {gemstone.ai_v6?.technical_description_en && (
               <div>
                 <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                  Technical Description
+                  {t("technicalDescription")}
                 </label>
                 <p className="text-sm mt-1">
                   {gemstone.ai_v6.technical_description_en}
@@ -575,7 +575,7 @@ export function GemstoneDetailPage({
             {gemstone.ai_v6?.emotional_description_en && (
               <div>
                 <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                  Emotional Description
+                  {t("emotionalDescription")}
                 </label>
                 <p className="text-sm mt-1">
                   {gemstone.ai_v6.emotional_description_en}
@@ -587,7 +587,7 @@ export function GemstoneDetailPage({
             {gemstone.ai_v6?.narrative_story_en && (
               <div>
                 <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                  Narrative Story
+                  {t("narrativeStory")}
                 </label>
                 <p className="text-sm mt-1">
                   {gemstone.ai_v6.narrative_story_en}
@@ -599,7 +599,7 @@ export function GemstoneDetailPage({
             {gemstone.ai_v6?.promotional_text && (
               <div>
                 <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                  AI Promotional Text
+                  {t("aiPromotionalText")}
                 </label>
                 <p className="text-sm mt-1">
                   {gemstone.ai_v6.promotional_text}
@@ -613,7 +613,7 @@ export function GemstoneDetailPage({
               gemstone.ai_v6.marketing_highlights.length > 0 && (
                 <div>
                   <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                    AI Marketing Highlights
+                    {t("aiMarketingHighlights")}
                   </label>
                   <div className="mt-1 space-y-1">
                     {gemstone.ai_v6.marketing_highlights.map(
@@ -636,7 +636,7 @@ export function GemstoneDetailPage({
               gemstone.description !== "1" && (
                 <div>
                   <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                    Description
+                    {t("description")}
                   </label>
                   <p className="text-sm mt-1">{gemstone.description}</p>
                 </div>
@@ -644,7 +644,7 @@ export function GemstoneDetailPage({
             {gemstone.promotional_text && (
               <div>
                 <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                  Promotional Text
+                  {t("promotionalText")}
                 </label>
                 <p className="text-sm mt-1">{gemstone.promotional_text}</p>
               </div>
@@ -653,7 +653,7 @@ export function GemstoneDetailPage({
               gemstone.marketing_highlights.length > 0 && (
                 <div>
                   <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                    Marketing Highlights
+                    {t("marketingHighlights")}
                   </label>
                   <div className="mt-1 space-y-1">
                     {gemstone.marketing_highlights.map((highlight, index) => (

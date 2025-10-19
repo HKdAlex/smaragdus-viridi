@@ -30,19 +30,17 @@ export class SearchService {
     const { query, page, pageSize, filters, locale, searchDescriptions } =
       request;
 
-    const rpcPayload = {
-      search_query: query || "",
-      effective_locale: locale,
-      filters: (filters || {}) as any,
-      page_number: page,
-      page_size: pageSize,
-      description_enabled: !!searchDescriptions,
-    };
-
-    // Try exact search first
+    // Try exact search first with positional parameters
     const { data, error } = await supabase.rpc(
       "search_gemstones_multilingual",
-      rpcPayload
+      {
+        search_query: query || "",
+        page_number: page,
+        page_size: pageSize,
+        effective_locale: locale,
+        description_enabled: !!searchDescriptions,
+        filters: (filters || {}) as any,
+      }
     );
 
     const resultData = (data ?? []) as any[];
@@ -66,8 +64,11 @@ export class SearchService {
       const { data: fuzzyRaw, error: fuzzyError } = await supabase.rpc(
         "search_gemstones_multilingual",
         {
-          ...rpcPayload,
-          search_query: query,
+          search_query: query || "",
+          page_number: page,
+          page_size: pageSize,
+          effective_locale: locale,
+          description_enabled: !!searchDescriptions,
           filters: fuzzyFilters as any,
         }
       );

@@ -82,9 +82,45 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
     return parseFloat(weight.toString()).toFixed(2);
   };
 
+  // Extract dimensions from AI content or use database values
+  const extractDimensions = () => {
+    // Try to extract from AI-generated technical description
+    const technicalDescription =
+      gemstone.v6Text?.technical_description_en ||
+      gemstone.v6Text?.technical_description_ru ||
+      (gemstone as any).technical_description_en ||
+      (gemstone as any).technical_description_ru;
+
+    if (technicalDescription) {
+      // Look for dimension patterns like "11 × 11.7 × 6.8 mm" or "11 x 11.7 x 6.8 mm"
+      const dimensionMatch = technicalDescription.match(
+        /(\d+(?:\.\d+)?)\s*[×x]\s*(\d+(?:\.\d+)?)\s*[×x]\s*(\d+(?:\.\d+)?)\s*mm/i
+      );
+      if (dimensionMatch) {
+        return {
+          length: parseFloat(dimensionMatch[1]),
+          width: parseFloat(dimensionMatch[2]),
+          depth: parseFloat(dimensionMatch[3]),
+        };
+      }
+    }
+
+    // Fallback to database values
+    return {
+      length: gemstone.length_mm || 0,
+      width: gemstone.width_mm || 0,
+      depth: gemstone.depth_mm || 0,
+    };
+  };
+
+  const dimensions = extractDimensions();
+
   // Format dimensions
   const formatDimensions = () => {
-    return `${gemstone.length_mm} × ${gemstone.width_mm} × ${gemstone.depth_mm} mm`;
+    if (dimensions.length > 0 || dimensions.width > 0 || dimensions.depth > 0) {
+      return `${dimensions.length} × ${dimensions.width} × ${dimensions.depth} mm`;
+    }
+    return "Not specified";
   };
 
   // Get quality grade based on clarity
@@ -682,7 +718,9 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                           {t("length")}
                         </span>
                         <span className="font-medium text-foreground">
-                          {gemstone.length_mm} mm
+                          {dimensions.length > 0
+                            ? `${dimensions.length} mm`
+                            : "Not specified"}
                         </span>
                       </div>
                     </div>
@@ -695,7 +733,9 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                           {t("width")}
                         </span>
                         <span className="font-medium text-foreground">
-                          {gemstone.width_mm} mm
+                          {dimensions.width > 0
+                            ? `${dimensions.width} mm`
+                            : "Not specified"}
                         </span>
                       </div>
                     </div>
@@ -708,7 +748,9 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                           {t("depth")}
                         </span>
                         <span className="font-medium text-foreground">
-                          {gemstone.depth_mm} mm
+                          {dimensions.depth > 0
+                            ? `${dimensions.depth} mm`
+                            : "Not specified"}
                         </span>
                       </div>
                     </div>

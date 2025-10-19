@@ -11,8 +11,8 @@ import { Eye, EyeOff } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Gemstone } from "@/shared/types";
-import { useState } from "react";
 import { Lazy3DVisualizer } from "./lazy-3d-visualizer";
+import { useState } from "react";
 
 interface VisualizationDemoProps {
   gemstone: Gemstone;
@@ -66,7 +66,25 @@ export function VisualizationDemo({
             <div>
               <span className="text-gray-600">Dimensions:</span>
               <span className="ml-2 font-medium">
-                {gemstone.length_mm}×{gemstone.width_mm}×{gemstone.depth_mm}mm
+                {(() => {
+                  // Extract dimensions from AI content or use database values
+                  const technicalDescription =
+                    (gemstone as any).technical_description_en ||
+                    (gemstone as any).technical_description_ru;
+
+                  if (technicalDescription) {
+                    // Look for dimension patterns like "11 × 11.7 × 6.8 mm" or "11 x 11.7 x 6.8 mm"
+                    const dimensionMatch = technicalDescription.match(
+                      /(\d+(?:\.\d+)?)\s*[×x]\s*(\d+(?:\.\d+)?)\s*[×x]\s*(\d+(?:\.\d+)?)\s*mm/i
+                    );
+                    if (dimensionMatch) {
+                      return `${dimensionMatch[1]}×${dimensionMatch[2]}×${dimensionMatch[3]}mm`;
+                    }
+                  }
+
+                  // Fallback to database values
+                  return `${gemstone.length_mm}×${gemstone.width_mm}×${gemstone.depth_mm}mm`;
+                })()}
               </span>
             </div>
             <div>

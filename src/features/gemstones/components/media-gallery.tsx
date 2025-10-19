@@ -1,5 +1,10 @@
 "use client";
 
+import { Dialog, DialogContent } from "@/shared/components/ui/dialog";
+import type {
+  DatabaseGemstoneImage,
+  DatabaseGemstoneVideo,
+} from "@/shared/types";
 import {
   ChevronLeft,
   ChevronRight,
@@ -10,17 +15,12 @@ import {
   VolumeX,
   X,
 } from "lucide-react";
-import type {
-  DatabaseGemstoneImage,
-  DatabaseGemstoneVideo,
-} from "@/shared/types";
-import { Dialog, DialogContent } from "@/shared/components/ui/dialog";
 import { useEffect, useRef, useState } from "react";
 
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import Image from "next/image";
 import { useTranslations } from "next-intl";
+import Image from "next/image";
 
 interface MediaGalleryProps {
   images: DatabaseGemstoneImage[];
@@ -79,18 +79,23 @@ export function MediaGallery({
     if (uuidIndex !== -1) {
       initialIndex = uuidIndex;
     }
-  } else if (
-    recommendedPrimaryIndex !== null &&
-    recommendedPrimaryIndex !== undefined &&
-    recommendedPrimaryIndex >= 0 &&
-    recommendedPrimaryIndex < mediaItems.length
-  ) {
-    // Fallback to index-based selection (deprecated)
-    initialIndex = recommendedPrimaryIndex;
   } else {
     // Final fallback to is_primary from database
     const primaryImageIndex = mediaItems.findIndex((item) => item.isPrimary);
-    initialIndex = primaryImageIndex !== -1 ? primaryImageIndex : 0;
+    if (primaryImageIndex !== -1) {
+      initialIndex = primaryImageIndex;
+    } else if (
+      recommendedPrimaryIndex !== null &&
+      recommendedPrimaryIndex !== undefined &&
+      recommendedPrimaryIndex >= 0 &&
+      recommendedPrimaryIndex < mediaItems.length
+    ) {
+      // Fallback to index-based selection (deprecated)
+      initialIndex = recommendedPrimaryIndex;
+    } else {
+      // Ultimate fallback to first image
+      initialIndex = 0;
+    }
   }
 
   const [currentIndex, setCurrentIndex] = useState(initialIndex);

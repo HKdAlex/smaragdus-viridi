@@ -250,34 +250,24 @@ export async function GET(request: NextRequest) {
       pageSize,
     });
 
-    // Fetch images for all gemstones
+    // Add primary image to each gemstone for list view
     if (gemstones && gemstones.length > 0) {
-      const gemstoneIds = gemstones
-        .map((g) => g.id)
-        .filter((id): id is string => id !== null);
-      if (gemstoneIds.length > 0) {
-        const { data: imagesData } = await supabase
-          .from("gemstone_images")
-          .select("gemstone_id, id, image_url, is_primary, image_order")
-          .in("gemstone_id", gemstoneIds)
-          .order("image_order");
-
-        // Group images by gemstone_id
-        const imagesByGemstone = (imagesData || []).reduce((acc, img) => {
-          if (!acc[img.gemstone_id]) {
-            acc[img.gemstone_id] = [];
-          }
-          acc[img.gemstone_id].push(img);
-          return acc;
-        }, {} as Record<string, any[]>);
-
-        // Add images to each gemstone
-        gemstones.forEach((gemstone) => {
-          if (gemstone.id) {
-            (gemstone as any).images = imagesByGemstone[gemstone.id] || [];
-          }
-        });
-      }
+      gemstones.forEach((gemstone) => {
+        if (gemstone.id && gemstone.primary_image_url) {
+          // Create a single image object with the primary image URL
+          (gemstone as any).images = [
+            {
+              id: "primary",
+              gemstone_id: gemstone.id,
+              image_url: gemstone.primary_image_url,
+              is_primary: true,
+              image_order: 0,
+            },
+          ];
+        } else {
+          (gemstone as any).images = [];
+        }
+      });
     }
 
     // Get statistics

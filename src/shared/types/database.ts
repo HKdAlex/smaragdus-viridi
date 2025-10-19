@@ -14,83 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      ai_analysis_results: {
-        Row: {
-          ai_model_version: string | null
-          analysis_type: string
-          confidence_score: number | null
-          created_at: string | null
-          description_data: Json | null
-          extracted_data: Json | null
-          gemstone_id: string
-          id: string
-          input_data: Json
-          processing_cost_usd: number | null
-          processing_time_ms: number | null
-          raw_response: Json
-          updated_at: string | null
-        }
-        Insert: {
-          ai_model_version?: string | null
-          analysis_type: string
-          confidence_score?: number | null
-          created_at?: string | null
-          description_data?: Json | null
-          extracted_data?: Json | null
-          gemstone_id: string
-          id?: string
-          input_data: Json
-          processing_cost_usd?: number | null
-          processing_time_ms?: number | null
-          raw_response: Json
-          updated_at?: string | null
-        }
-        Update: {
-          ai_model_version?: string | null
-          analysis_type?: string
-          confidence_score?: number | null
-          created_at?: string | null
-          description_data?: Json | null
-          extracted_data?: Json | null
-          gemstone_id?: string
-          id?: string
-          input_data?: Json
-          processing_cost_usd?: number | null
-          processing_time_ms?: number | null
-          raw_response?: Json
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "ai_analysis_results_gemstone_id_fkey"
-            columns: ["gemstone_id"]
-            isOneToOne: false
-            referencedRelation: "gemstones"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "ai_analysis_results_gemstone_id_fkey"
-            columns: ["gemstone_id"]
-            isOneToOne: false
-            referencedRelation: "gemstones_enriched"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "ai_analysis_results_gemstone_id_fkey"
-            columns: ["gemstone_id"]
-            isOneToOne: false
-            referencedRelation: "gemstones_with_best_data"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "ai_analysis_results_gemstone_id_fkey"
-            columns: ["gemstone_id"]
-            isOneToOne: false
-            referencedRelation: "orders_with_details"
-            referencedColumns: ["gemstone_id"]
-          },
-        ]
-      }
       audit_log: {
         Row: {
           created_at: string | null
@@ -923,6 +846,8 @@ export type Database = {
           price_amount: number
           price_currency: Database["public"]["Enums"]["currency_code"]
           price_per_carat: number | null
+          primary_image_url: string | null
+          primary_video_url: string | null
           promotional_text: string | null
           quantity: number
           search_vector_en: unknown | null
@@ -990,6 +915,8 @@ export type Database = {
           price_amount: number
           price_currency: Database["public"]["Enums"]["currency_code"]
           price_per_carat?: number | null
+          primary_image_url?: string | null
+          primary_video_url?: string | null
           promotional_text?: string | null
           quantity?: number
           search_vector_en?: unknown | null
@@ -1057,6 +984,8 @@ export type Database = {
           price_amount?: number
           price_currency?: Database["public"]["Enums"]["currency_code"]
           price_per_carat?: number | null
+          primary_image_url?: string | null
+          primary_video_url?: string | null
           promotional_text?: string | null
           quantity?: number
           search_vector_en?: unknown | null
@@ -1767,13 +1696,6 @@ export type Database = {
       }
     }
     Views: {
-      catalog_performance_metrics: {
-        Row: {
-          metric: string | null
-          value: string | null
-        }
-        Relationships: []
-      }
       gemstones_enriched: {
         Row: {
           ai_analyzed: boolean | null
@@ -1811,6 +1733,8 @@ export type Database = {
           origin_id: string | null
           price_amount: number | null
           price_currency: string | null
+          primary_image_url: string | null
+          primary_video_url: string | null
           promotional_text_en: string | null
           promotional_text_ru: string | null
           recommended_primary_image_index: number | null

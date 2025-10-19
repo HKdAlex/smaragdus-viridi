@@ -95,6 +95,8 @@ const sampleGemstones: Gemstone[] = [
     // AI v6 fields
     ai_text_generated_v6: false,
     ai_text_generated_v6_date: null,
+    primary_image_url: null,
+    primary_video_url: null,
     description: null,
     promotional_text: null,
     marketing_highlights: null,
@@ -170,6 +172,8 @@ const sampleGemstones: Gemstone[] = [
     // AI v6 fields
     ai_text_generated_v6: false,
     ai_text_generated_v6_date: null,
+    primary_image_url: null,
+    primary_video_url: null,
     description: null,
     promotional_text: null,
     marketing_highlights: null,
@@ -245,6 +249,8 @@ const sampleGemstones: Gemstone[] = [
     // AI v6 fields
     ai_text_generated_v6: false,
     ai_text_generated_v6_date: null,
+    primary_image_url: null,
+    primary_video_url: null,
     description: null,
     promotional_text: null,
     marketing_highlights: null,
@@ -320,6 +326,8 @@ const sampleGemstones: Gemstone[] = [
     // AI v6 fields
     ai_text_generated_v6: false,
     ai_text_generated_v6_date: null,
+    primary_image_url: null,
+    primary_video_url: null,
     description: null,
     promotional_text: null,
     marketing_highlights: null,
@@ -395,6 +403,8 @@ const sampleGemstones: Gemstone[] = [
     // AI v6 fields
     ai_text_generated_v6: false,
     ai_text_generated_v6_date: null,
+    primary_image_url: null,
+    primary_video_url: null,
     description: null,
     promotional_text: null,
     marketing_highlights: null,
@@ -470,6 +480,8 @@ const sampleGemstones: Gemstone[] = [
     // AI v6 fields
     ai_text_generated_v6: false,
     ai_text_generated_v6_date: null,
+    primary_image_url: null,
+    primary_video_url: null,
     description: null,
     promotional_text: null,
     marketing_highlights: null,

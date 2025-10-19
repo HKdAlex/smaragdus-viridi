@@ -117,7 +117,8 @@ export async function GET(request: NextRequest) {
         recommended_primary_image_index,
         selected_image_uuid,
         detected_cut,
-        images:gemstone_images!inner(id, image_url, is_primary, image_order),
+        primary_image_url,
+        primary_video_url,
         origin:origins(id, name, country),
         certifications:certifications(id, certificate_type)
       `,
@@ -125,8 +126,8 @@ export async function GET(request: NextRequest) {
     );
 
     // Apply filters
-    // Always filter out items with price <= 0
-    query = query.gt("price_amount", 0);
+    // Always filter out items with price <= 0 and no images
+    query = query.gt("price_amount", 0).not("primary_image_url", "is", null);
 
     if (filters.search) {
       const searchTerm = `%${filters.search}%`;
@@ -346,15 +347,22 @@ export async function GET(request: NextRequest) {
       const recommendedPrimaryIndex =
         gemstone.recommended_primary_image_index ?? null;
 
-      const sortedImages = (gemstone.images || []).sort((a: any, b: any) => {
-        const orderA = typeof a.image_order === "number" ? a.image_order : 0;
-        const orderB = typeof b.image_order === "number" ? b.image_order : 0;
-        return orderA - orderB;
-      });
+      // Use primary image URL for efficient list/grid display
+      const primaryImage = gemstone.primary_image_url
+        ? [
+            {
+              id: "primary",
+              gemstone_id: gemstone.id,
+              image_url: gemstone.primary_image_url,
+              is_primary: true,
+              image_order: 0,
+            },
+          ]
+        : [];
 
       return {
         ...gemstone,
-        images: sortedImages,
+        images: primaryImage,
         origin: gemstone.origin || null,
         certifications: gemstone.certifications || [],
         ai_analysis: gemstone.technical_description_en
@@ -368,6 +376,8 @@ export async function GET(request: NextRequest) {
         v6_text: v6,
         selected_image_uuid: selectedImageUuid,
         recommended_primary_image_index: recommendedPrimaryIndex,
+        primary_image_url: gemstone.primary_image_url,
+        primary_video_url: gemstone.primary_video_url,
       };
     });
 

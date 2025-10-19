@@ -87,6 +87,8 @@ const baseGemstone: CatalogGemstone = {
   ai_text_generated_v6_date: null,
   ai_treatment: null,
   ai_weight_carats: null,
+  primary_image_url: null,
+  primary_video_url: null,
 };
 
 const createMockGemstone = (

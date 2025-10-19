@@ -34,8 +34,7 @@ export type DatabaseCartItem =
 export type DatabaseFavorite = Database["public"]["Tables"]["favorites"]["Row"];
 export type DatabaseChatMessage =
   Database["public"]["Tables"]["chat_messages"]["Row"];
-export type DatabaseAIAnalysisResult =
-  Database["public"]["Tables"]["ai_analysis_results"]["Row"];
+// ai_analysis_results table has been removed
 export type DatabaseImageClassification =
   Database["public"]["Tables"]["image_classifications"]["Row"];
 export type DatabaseImportBatch =
@@ -135,7 +134,7 @@ export interface DetailGemstone {
   videos: DatabaseGemstoneVideo[];
   origin: DatabaseOrigin | null;
   certifications: DatabaseCertification[];
-  ai_analysis_results: DatabaseAIAnalysisResult[];
+  // ai_analysis_results table has been removed
 }
 
 // ===== CART SYSTEM TYPES =====
