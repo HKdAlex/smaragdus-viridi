@@ -3,9 +3,9 @@
 import { AuthChangeEvent, Session, User } from "@supabase/supabase-js";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 
-import type { DatabaseUserProfile } from "@/shared/types";
 import { getUserProfile } from "@/features/auth/actions/auth-actions";
 import { supabase } from "@/lib/supabase";
+import type { DatabaseUserProfile } from "@/shared/types";
 
 interface AuthContextType {
   user: User | null;
@@ -167,7 +167,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             name: name,
             locale: locale,
           },
-          emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback?locale=${locale}&next=/${locale}/profile`,
+          emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback?locale=${locale}&next=/profile`,
         },
       });
 

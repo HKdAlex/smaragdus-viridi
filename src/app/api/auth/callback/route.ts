@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
 import { createServerSupabaseClient as createClient } from "@/lib/supabase";
+import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -7,7 +7,7 @@ export async function GET(request: Request) {
   const locale = searchParams.get("locale") || "en";
   let next = searchParams.get("next") ?? `/${locale}/profile`;
 
-  // Ensure next path starts with locale
+  // Ensure next path starts with locale (but don't double-add it)
   if (!next.startsWith(`/${locale}`)) {
     next = `/${locale}${next.startsWith("/") ? next : `/${next}`}`;
   }

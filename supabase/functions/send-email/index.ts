@@ -156,7 +156,7 @@ function generateConfirmationURL(
   const baseUrl =
     locale === "ru" ? "https://crystallique.ru" : "https://crystalllique.com";
 
-  return `${baseUrl}/api/auth/callback?token_hash=${emailData.token_hash}&type=${emailData.email_action_type}&locale=${locale}&next=/${locale}/profile`;
+  return `${baseUrl}/api/auth/callback?token_hash=${emailData.token_hash}&type=${emailData.email_action_type}&locale=${locale}&next=/profile`;
 }
 
 function detectLocale(userEmail: string, userMetadata: any): string {
