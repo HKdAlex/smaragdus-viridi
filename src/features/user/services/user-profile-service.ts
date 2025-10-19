@@ -12,10 +12,10 @@ import type {
   UserProfile,
 } from "../types/user-profile.types";
 
+import { supabase } from "@/lib/supabase";
+import { createContextLogger } from "@/shared/utils/logger";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { UserProfileError } from "../types/user-profile.types";
-import { createContextLogger } from "@/shared/utils/logger";
-import { supabase } from "@/lib/supabase";
 
 export class UserProfileService {
   private supabase: SupabaseClient<any>;
@@ -71,6 +71,7 @@ export class UserProfileService {
           phone: profileData.phone || "",
           preferred_currency: profileData.preferred_currency || "USD",
           language_preference: profileData.language_preference || "en",
+          email: profileData.email || "",
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         })

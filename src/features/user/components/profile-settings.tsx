@@ -7,19 +7,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from "@/shared/components/ui/select";
-import { Eye, EyeOff, Lock, Save, User } from "lucide-react";
 import type {
   ChangePasswordRequest,
   CurrencyCode,
   UpdateProfileRequest,
   UserProfile,
 } from "../types/user-profile.types";
+import { Eye, EyeOff, Lock, Save, User } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "@/shared/components/ui/select";
 
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
@@ -27,8 +27,8 @@ import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import { Separator } from "@/shared/components/ui/separator";
-import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 interface ProfileSettingsProps {
   user: UserProfile;
@@ -48,7 +48,10 @@ export function ProfileSettings({
     name: user.name,
     phone: user.phone || "",
     preferred_currency: user.preferred_currency,
-    language_preference: user.language_preference,
+    language_preference:
+      user.language_preference === "en" || user.language_preference === "ru"
+        ? user.language_preference
+        : ("en" as "en" | "ru"),
     // Preferences will be loaded from separate preferences table
     email_notifications: true, // default value
     order_updates: true, // default value
@@ -509,7 +512,7 @@ export function ProfileSettings({
             <div className="space-y-2">
               <Label>{t("email")}</Label>
               <div className="flex items-center space-x-2">
-                <Input value={user.email} readOnly className="bg-muted" />
+                <Input value={user.email || ""} readOnly className="bg-muted" />
                 <Badge variant="secondary">{t("verified")}</Badge>
               </div>
             </div>

@@ -148,7 +148,7 @@ async function validateUserProfile(
     const { data: profile, error } = (await supabase
       .from("user_profiles")
       .select(
-        "id, user_id, name, phone, role, discount_percentage, preferred_currency, created_at, updated_at"
+        "id, user_id, name, phone, role, discount_percentage, preferred_currency, created_at, updated_at, email, language_preference, avatar_url"
       )
       .eq("user_id", userId)
       .single()) as {
@@ -162,6 +162,9 @@ async function validateUserProfile(
         preferred_currency: Database["public"]["Enums"]["currency_code"] | null;
         created_at: string | null;
         updated_at: string | null;
+        email: string | null;
+        language_preference: string | null;
+        avatar_url: string | null;
       } | null;
       error: any;
     };

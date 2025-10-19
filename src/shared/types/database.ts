@@ -1654,9 +1654,12 @@ export type Database = {
       }
       user_profiles: {
         Row: {
+          avatar_url: string | null
           created_at: string | null
           discount_percentage: number | null
+          email: string | null
           id: string
+          language_preference: string | null
           name: string
           phone: string | null
           preferred_currency:
@@ -1667,9 +1670,12 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          avatar_url?: string | null
           created_at?: string | null
           discount_percentage?: number | null
+          email?: string | null
           id?: string
+          language_preference?: string | null
           name: string
           phone?: string | null
           preferred_currency?:
@@ -1680,9 +1686,12 @@ export type Database = {
           user_id: string
         }
         Update: {
+          avatar_url?: string | null
           created_at?: string | null
           discount_percentage?: number | null
+          email?: string | null
           id?: string
+          language_preference?: string | null
           name?: string
           phone?: string | null
           preferred_currency?:
@@ -1722,6 +1731,7 @@ export type Database = {
           historical_context_ru: string | null
           id: string | null
           in_stock: boolean | null
+          internal_code: string | null
           marketing_highlights_en: string[] | null
           marketing_highlights_ru: string[] | null
           metadata_status: string | null
@@ -2044,6 +2054,10 @@ export type Database = {
       }
     }
     Functions: {
+      backfill_primary_images: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       calculate_cart_total: {
         Args: { p_user_id: string }
         Returns: {
@@ -2151,12 +2165,19 @@ export type Database = {
         Returns: boolean
       }
       search_gemstones_fulltext: {
-        Args: {
-          filters: Json
-          page_num: number
-          page_size: number
-          search_query: string
-        }
+        Args:
+          | {
+              filters: Json
+              page_num: number
+              page_size: number
+              search_query: string
+            }
+          | {
+              filters?: Json
+              page_num?: number
+              page_size?: number
+              search_query?: string
+            }
         Returns: {
           clarity: Database["public"]["Enums"]["gem_clarity"]
           color: Database["public"]["Enums"]["gem_color"]
@@ -2180,30 +2201,19 @@ export type Database = {
         }[]
       }
       search_gemstones_multilingual: {
-        Args:
-          | {
-              description_enabled?: boolean
-              effective_locale?: string
-              filters?: Json
-              page_number?: number
-              page_size?: number
-              search_query: string
-            }
-          | {
-              filters?: Json
-              page_num?: number
-              page_size?: number
-              search_locale?: string
-              search_query: string
-            }
+        Args: {
+          description_enabled?: boolean
+          effective_locale?: string
+          filters?: Json
+          page_number?: number
+          page_size?: number
+          search_query: string
+        }
         Returns: {
           clarity: string
-          clarity_code: string
           color: string
-          color_code: string
           created_at: string
           cut: string
-          cut_code: string
           description: string
           has_ai_analysis: boolean
           has_certification: boolean
@@ -2217,44 +2227,64 @@ export type Database = {
           relevance_score: number
           serial_number: string
           total_count: number
-          type_code: string
           updated_at: string
           weight_carats: number
         }[]
       }
       search_gemstones_optimized: {
-        Args: {
-          clarities?: string[]
-          colors?: string[]
-          cuts?: string[]
-          gemstone_types?: string[]
-          has_ai_analysis?: boolean
-          has_certifications?: boolean
-          has_images?: boolean
-          in_stock_only?: boolean
-          max_price?: number
-          max_weight?: number
-          min_price?: number
-          min_weight?: number
-          origins?: string[]
-          page_limit?: number
-          page_offset?: number
-          search_term?: string
-          sort_by?: string
-          sort_direction?: string
-        }
+        Args:
+          | {
+              clarities?: Database["public"]["Enums"]["gem_clarity"][]
+              colors?: Database["public"]["Enums"]["gem_color"][]
+              cuts?: Database["public"]["Enums"]["gem_cut"][]
+              gemstone_types?: Database["public"]["Enums"]["gemstone_type"][]
+              has_ai_analysis?: boolean
+              has_certifications?: boolean
+              has_images?: boolean
+              in_stock_only?: boolean
+              max_price?: number
+              max_weight?: number
+              min_price?: number
+              min_weight?: number
+              origins?: string[]
+              page_limit?: number
+              page_offset?: number
+              search_term?: string
+              sort_by?: string
+              sort_direction?: string
+            }
+          | {
+              clarities?: string[]
+              colors?: string[]
+              cuts?: string[]
+              gemstone_types?: string[]
+              has_ai_analysis?: boolean
+              has_certifications?: boolean
+              has_images?: boolean
+              in_stock_only?: boolean
+              max_price?: number
+              max_weight?: number
+              min_price?: number
+              min_weight?: number
+              origins?: string[]
+              page_limit?: number
+              page_offset?: number
+              search_term?: string
+              sort_by?: string
+              sort_direction?: string
+            }
         Returns: {
           ai_analysis_count: number
           certifications_count: number
-          clarity: string
-          color: string
+          clarity: Database["public"]["Enums"]["gem_clarity"]
+          color: Database["public"]["Enums"]["gem_color"]
           created_at: string
-          cut: string
+          cut: Database["public"]["Enums"]["gem_cut"]
           delivery_days: number
           id: string
           in_stock: boolean
           internal_code: string
-          name: string
+          name: Database["public"]["Enums"]["gemstone_type"]
           origin_country: string
           origin_name: string
           premium_price_amount: number

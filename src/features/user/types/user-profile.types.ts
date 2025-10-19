@@ -11,9 +11,9 @@ export type { CurrencyCode, OrderStatus, UserRole };
 
 // Use the enhanced UserProfile from shared types or create a specific interface for this feature
 export interface UserProfileWithPreferences extends DatabaseUserProfile {
-  readonly email: string;
-  readonly avatar_url?: string;
-  readonly language_preference: "en" | "ru";
+  readonly email: string | null;
+  readonly avatar_url: string | null;
+  readonly language_preference: string | null;
 }
 
 // Legacy alias for backward compatibility
@@ -103,8 +103,9 @@ export interface UpdateProfileRequest {
   name?: string;
   phone?: string;
   avatar_url?: string;
+  email?: string;
   preferred_currency?: CurrencyCode | null;
-  language_preference?: "en" | "ru";
+  language_preference?: "en" | "ru" | null;
   email_notifications?: boolean;
   order_updates?: boolean;
   marketing_emails?: boolean;

@@ -35,7 +35,7 @@ export function useUserProfile(userId?: string): UseUserProfileReturn {
         // Set preferences from profile data
         setPreferences({
           currency: userProfile.preferred_currency || "USD",
-          language: userProfile.language_preference,
+          language: (userProfile.language_preference === "en" || userProfile.language_preference === "ru") ? userProfile.language_preference : "en",
           notifications: {
             email_notifications: true, // Default for now
             order_updates: true, // Default for now

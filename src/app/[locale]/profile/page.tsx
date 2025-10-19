@@ -1,7 +1,7 @@
-import { Metadata } from "next";
 import { UserProfilePage } from "@/features/user/components/user-profile-page";
 import { UserProfileService } from "@/features/user/services/user-profile-service";
 import { createServerSupabaseClient } from "@/lib/supabase";
+import { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 
@@ -38,6 +38,7 @@ export default async function ProfilePage() {
       phone: "",
       preferred_currency: "USD" as const,
       language_preference: "en" as const,
+      email: user.email || "",
     };
 
     const result = await serverUserProfileService.createProfile(
