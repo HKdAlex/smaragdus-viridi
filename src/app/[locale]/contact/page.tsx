@@ -1,10 +1,11 @@
+import { ContactFAQ, ContactForm, ContactInfo } from "@/features/contact";
+
 import { Logo } from "@/shared/components/ui/logo";
 import { getTranslations } from "next-intl/server";
-import { ContactForm, ContactInfo, ContactFAQ } from "@/features/contact";
 
 export default async function ContactPage() {
   const t = await getTranslations("contact");
-  
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-12 sm:py-16 lg:py-24">
@@ -13,7 +14,7 @@ export default async function ContactPage() {
           <div className="flex justify-center mb-6 sm:mb-8">
             <Logo
               variant="block"
-              size="xl"
+              size="xxxl"
               showText={false}
               className="sm:w-auto w-24"
             />
@@ -35,7 +36,7 @@ export default async function ContactPage() {
             <div className="lg:col-span-2">
               <ContactForm />
             </div>
-            
+
             {/* Contact Info Sidebar - Takes 1/3 */}
             <div className="lg:col-span-1">
               <ContactInfo />

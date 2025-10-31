@@ -43,7 +43,7 @@ export function SignupForm() {
     try {
       await signUp(email, password, name, locale);
       // Redirect to check-email page after successful signup
-      router.push(`/${locale}/check-email` as any);
+      router.push("/check-email" as any);
     } catch (err) {
       setError(err instanceof Error ? err.message : t("signup.signUpError"));
       setIsLoading(false);

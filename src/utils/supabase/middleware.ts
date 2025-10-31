@@ -133,7 +133,7 @@ export async function updateSession(request: NextRequest) {
     error: authError,
   } = await supabase.auth.getUser();
 
-  // Debug logging for session issues
+  // Debug logging for session issues (Edge Runtime compatible)
   if (process.env.NODE_ENV === "development") {
     console.log("[AUTH DEBUG]", {
       hasSession: !!session,
@@ -319,7 +319,7 @@ function addSecurityHeaders(response: NextResponse) {
 
   response.headers.set("Content-Security-Policy", csp);
 
-  // HSTS for production
+  // HSTS for production (Edge Runtime compatible)
   if (process.env.NODE_ENV === "production") {
     response.headers.set(
       "Strict-Transport-Security",

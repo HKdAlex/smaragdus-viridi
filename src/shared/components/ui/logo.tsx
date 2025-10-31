@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl";
 
 interface LogoProps {
   variant?: "inline" | "block";
-  size?: "sm" | "md" | "lg" | "xl" | "xxl" | "xxxl";
+  size?: "sm" | "md" | "lg" | "xl" | "xxl" | "xxxl" | "xxxxl";
   showText?: boolean;
   href?: string;
   className?: string;
@@ -21,6 +21,7 @@ const sizeMap = {
   xl: { width: 120, height: 120, textSize: "text-2xl", heightClass: "h-24" },
   xxl: { width: 160, height: 160, textSize: "text-3xl", heightClass: "h-32" },
   xxxl: { width: 200, height: 200, textSize: "text-4xl", heightClass: "h-40" },
+  xxxxl: { width: 280, height: 172, textSize: "text-5xl", heightClass: "h-43" },
 };
 
 export function Logo({
@@ -40,15 +41,15 @@ export function Logo({
     const baseName =
       variant === "inline"
         ? "crystallique-logo-inline"
-        : "crystallique-logo-block";
+        : "crystallique-logo-block-2";
 
     // Use smaller files for smaller sizes to optimize loading
     if (size === "sm" || size === "md") {
-      return `/${baseName}-256.png`;
+      return `/${baseName}.png`;
     }
 
     // Use optimized 512px version for larger sizes
-    return `/${baseName}-512.png`;
+    return `/${baseName}.png`;
   };
 
   const logoSrc = getLogoSrc();

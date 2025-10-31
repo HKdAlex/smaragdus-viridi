@@ -31,7 +31,7 @@ export async function PATCH(
       .eq("user_id", user.id)
       .single();
 
-    if (profileError || userProfile?.role !== "admin") {
+    if (profileError || !userProfile || userProfile.role !== "admin") {
       return NextResponse.json(
         { error: "Admin access required" },
         { status: 403 }

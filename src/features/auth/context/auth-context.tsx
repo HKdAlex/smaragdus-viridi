@@ -18,6 +18,7 @@ interface AuthContextType {
     name: string,
     locale?: string
   ) => Promise<any>;
+  verifyOtp: (code: string, email?: string) => Promise<any>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -189,6 +190,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const verifyOtp = async (code: string, email?: string) => {
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        token: code,
+        type: "email",
+        email: email || "",
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      console.log("Email verification successful");
+      setLoading(false);
+      return { success: true };
+    } catch (error) {
+      setLoading(false);
+      throw error;
+    }
+  };
+
   const signOut = async () => {
     setLoading(true);
     try {
@@ -222,6 +245,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         loading,
         signIn,
         signUp,
+        verifyOtp,
         signOut,
         refreshProfile,
       }}

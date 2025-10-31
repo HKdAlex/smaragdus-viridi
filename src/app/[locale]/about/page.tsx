@@ -1,5 +1,5 @@
-import { Link as I18nLink } from "@/i18n/navigation";
 import { Button } from "@/shared/components/ui/button";
+import { Link as I18nLink } from "@/i18n/navigation";
 import { Logo } from "@/shared/components/ui/logo";
 import { getTranslations } from "next-intl/server";
 
@@ -13,7 +13,7 @@ export default async function AboutPage() {
           <div className="flex justify-center mb-6 sm:mb-8">
             <Logo
               variant="block"
-              size="xxl"
+              size="xxxxl"
               showText={false}
               className="sm:w-auto w-24"
             />

@@ -1,6 +1,5 @@
 "use client";
 
-import { ArrowLeft, Mail, RefreshCw } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -8,16 +7,18 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
+import { ArrowLeft, Key, Mail, RefreshCw } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 
-import { Button } from "@/shared/components/ui/button";
 import { useRouter } from "@/i18n/navigation";
+import { Button } from "@/shared/components/ui/button";
 import { useState } from "react";
-import { useTranslations } from "next-intl";
 
 export function CheckEmailForm() {
   const [isResending, setIsResending] = useState(false);
   const [resendSuccess, setResendSuccess] = useState(false);
   const router = useRouter();
+  const locale = useLocale();
   const t = useTranslations("auth.checkEmail");
 
   const handleResendEmail = async () => {
@@ -79,6 +80,15 @@ export function CheckEmailForm() {
                 {t("resendButton")}
               </>
             )}
+          </Button>
+
+          <Button
+            onClick={() => router.push("/verify-code" as any)}
+            variant="secondary"
+            className="w-full"
+          >
+            <Key className="mr-2 h-4 w-4" />
+            {t("enterCodeButton")}
           </Button>
 
           <Button

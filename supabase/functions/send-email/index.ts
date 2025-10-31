@@ -1,12 +1,8 @@
 // @ts-ignore
 import { Resend } from "npm:resend";
-// @ts-ignore
-import { Webhook } from "https://esm.sh/standardwebhooks@1.0.0";
 
 // @ts-ignore
 const resend = new Resend(Deno.env.get("RESEND_API_KEY") as string);
-// @ts-ignore
-const hookSecret = Deno.env.get("SEND_EMAIL_HOOK_SECRET") as string;
 
 // Email templates by locale
 const emailTemplates = {
@@ -154,7 +150,7 @@ function generateConfirmationURL(
 ): string {
   // Use locale-specific domain
   const baseUrl =
-    locale === "ru" ? "https://crystallique.ru" : "https://crystalllique.com";
+    locale === "ru" ? "https://crystallique.ru" : "https://crystallique.com";
 
   return `${baseUrl}/api/auth/callback?token_hash=${emailData.token_hash}&type=${emailData.email_action_type}&locale=${locale}&next=/profile`;
 }
@@ -178,29 +174,16 @@ Deno.serve(async (req: any) => {
 
   try {
     const payload = await req.text();
-    const headers = Object.fromEntries(req.headers);
+    const body = JSON.parse(payload);
+    const { user, email_data } = body;
 
-    if (!hookSecret) {
-      console.error("SEND_EMAIL_HOOK_SECRET not configured");
-      return new Response("Server configuration error", { status: 500 });
-    }
-
-    const wh = new Webhook(hookSecret.replace("v1,whsec_", ""));
-    const { user, email_data } = wh.verify(payload, headers) as {
-      user: {
-        email: string;
-        user_metadata: any;
-      };
-      email_data: {
-        token: string;
-        token_hash: string;
-        email_action_type: string;
-        site_url: string;
-      };
-    };
+    console.log(
+      `Processing email for ${user.email}, action: ${email_data.email_action_type}`
+    );
 
     // Detect locale
     const locale = detectLocale(user.email, user.user_metadata);
+    console.log(`Detected locale: ${locale}`);
 
     // Get template for the action type and locale
     const template =
@@ -216,30 +199,56 @@ Deno.serve(async (req: any) => {
 
     // Generate confirmation URL with locale
     const confirmationUrl = generateConfirmationURL(email_data, locale);
+    console.log(`Generated confirmation URL: ${confirmationUrl}`);
 
     // Replace template variables
     const siteUrl =
-      locale === "ru" ? "https://crystallique.ru" : "https://crystalllique.com";
+      locale === "ru" ? "https://crystallique.ru" : "https://crystallique.com";
     let htmlBody = template.html
       .replace(/{{confirmation_url}}/g, confirmationUrl)
       .replace(/{{token}}/g, email_data.token || "")
       .replace(/{{site_url}}/g, siteUrl);
 
     // Send email via Resend
-    const { error } = await resend.emails.send({
-      from: "Crystallique <noreply@crystalllique.com>",
-      to: [user.email],
-      subject: template.subject,
-      html: htmlBody,
-    });
+    console.log(
+      `Sending email to ${user.email} with subject: ${template.subject}`
+    );
 
-    if (error) {
-      console.error("Resend error:", error);
+    try {
+      const { data, error } = await resend.emails.send({
+        from: "Crystallique <noreply@crystallique.com>",
+        to: [user.email],
+        subject: template.subject,
+        html: htmlBody,
+      });
+
+      if (error) {
+        console.error("Resend error:", error);
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: "Failed to send email",
+              details: error.message,
+            },
+          }),
+          {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+      }
+
+      console.log("Resend response:", data);
+    } catch (resendError: unknown) {
+      console.error("Resend exception:", resendError);
       return new Response(
         JSON.stringify({
           error: {
-            message: "Failed to send email",
-            details: error.message,
+            message: "Resend API exception",
+            details:
+              resendError instanceof Error
+                ? resendError.message
+                : "Unknown error",
           },
         }),
         {

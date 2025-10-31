@@ -1,6 +1,6 @@
+import Link from "next/link";
 import { Logo } from "@/shared/components/ui/logo";
 import { useTranslations } from "next-intl";
-import Link from "next/link";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -42,7 +42,7 @@ export function Footer() {
             {/* Company Info */}
             <div className="lg:col-span-2">
               <div className="flex items-center space-x-3 mb-4">
-                <Logo variant="inline" size="xxl" showText={false} />
+                <Logo variant="block" size="xxxxl" showText={false} />
                 {/* <span className="font-bold text-xl text-foreground">
                   {t("company.name")}
                 </span> */}
