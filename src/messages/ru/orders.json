@@ -53,6 +53,14 @@
     "frequencyIncreasing": "Заказываете чаще",
     "frequencyStable": "Стабильная частота заказов"
   },
+  "status": {
+    "pending": "В Ожидании",
+    "confirmed": "Подтверждён",
+    "processing": "В Обработке",
+    "shipped": "Отправлен",
+    "delivered": "Доставлен",
+    "cancelled": "Отменён"
+  },
   "statuses": {
     "pending": "В Ожидании",
     "confirmed": "Подтверждён",

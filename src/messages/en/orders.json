@@ -53,6 +53,14 @@
     "frequencyIncreasing": "Ordering more frequently",
     "frequencyStable": "Consistent ordering pattern"
   },
+  "status": {
+    "pending": "Pending",
+    "confirmed": "Confirmed",
+    "processing": "Processing",
+    "shipped": "Shipped",
+    "delivered": "Delivered",
+    "cancelled": "Cancelled"
+  },
   "statuses": {
     "pending": "Pending",
     "confirmed": "Confirmed",
