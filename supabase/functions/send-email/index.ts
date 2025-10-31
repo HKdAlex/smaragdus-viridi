@@ -152,7 +152,14 @@ function generateConfirmationURL(
   const baseUrl =
     locale === "ru" ? "https://crystallique.ru" : "https://crystallique.com";
 
-  return `${baseUrl}/api/auth/callback?token_hash=${emailData.token_hash}&type=${emailData.email_action_type}&locale=${locale}&next=/profile`;
+  // For password recovery, redirect to reset-password page
+  // For email confirmation, redirect to profile
+  const nextPath =
+    emailData.email_action_type === "recovery"
+      ? "/reset-password"
+      : "/profile";
+
+  return `${baseUrl}/api/auth/callback?token_hash=${emailData.token_hash}&type=${emailData.email_action_type}&locale=${locale}&next=${nextPath}`;
 }
 
 function detectLocale(userEmail: string, userMetadata: any): string {

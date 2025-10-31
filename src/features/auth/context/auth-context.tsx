@@ -19,6 +19,8 @@ interface AuthContextType {
     locale?: string
   ) => Promise<any>;
   verifyOtp: (code: string, email?: string) => Promise<any>;
+  resetPassword: (email: string) => Promise<any>;
+  updatePassword: (password: string) => Promise<any>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -212,6 +214,51 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const resetPassword = async (email: string) => {
+    setLoading(true);
+    try {
+      const locale = window.navigator.language.startsWith("ru") ? "ru" : "en";
+      const baseUrl =
+        process.env.NEXT_PUBLIC_APP_URL || "https://crystallique.com";
+      const redirectUrl = `${baseUrl}/api/auth/callback?locale=${locale}&next=/reset-password`;
+
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: redirectUrl,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      console.log("Password reset email sent");
+      setLoading(false);
+      return { success: true };
+    } catch (error) {
+      setLoading(false);
+      throw error;
+    }
+  };
+
+  const updatePassword = async (password: string) => {
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      console.log("Password updated successfully");
+      setLoading(false);
+      return { success: true };
+    } catch (error) {
+      setLoading(false);
+      throw error;
+    }
+  };
+
   const signOut = async () => {
     setLoading(true);
     try {
@@ -246,6 +293,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signIn,
         signUp,
         verifyOtp,
+        resetPassword,
+        updatePassword,
         signOut,
         refreshProfile,
       }}

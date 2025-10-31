@@ -16,26 +16,40 @@ export async function GET(request: Request) {
 
   const supabase = await createClient();
 
-  // Handle email confirmation with token_hash (from Supabase email links)
-  if (tokenHash && type) {
-    const { error } = await supabase.auth.verifyOtp({
-      token_hash: tokenHash,
-      type: type as any,
-    });
+      // Handle email confirmation and password reset with token_hash (from Supabase email links)
+      if (tokenHash && type) {
+        const { error } = await supabase.auth.verifyOtp({
+          token_hash: tokenHash,
+          type: type as any,
+        });
 
-    if (!error) {
-      const forwardedHost = request.headers.get("x-forwarded-host");
-      const isLocalEnv = process.env.NODE_ENV === "development";
+        if (!error) {
+          const forwardedHost = request.headers.get("x-forwarded-host");
+          const isLocalEnv = process.env.NODE_ENV === "development";
 
-      if (isLocalEnv) {
-        return NextResponse.redirect(`${origin}${next}`);
-      } else if (forwardedHost) {
-        return NextResponse.redirect(`https://${forwardedHost}${next}`);
-      } else {
-        return NextResponse.redirect(`${origin}${next}`);
+          // For password reset, always redirect to reset-password page regardless of next param
+          if (type === "recovery") {
+            const resetPath = `/${locale}/reset-password`;
+            const resetUrl = `${resetPath}?token_hash=${tokenHash}&type=${type}&locale=${locale}`;
+            if (isLocalEnv) {
+              return NextResponse.redirect(`${origin}${resetUrl}`);
+            } else if (forwardedHost) {
+              return NextResponse.redirect(`https://${forwardedHost}${resetUrl}`);
+            } else {
+              return NextResponse.redirect(`${origin}${resetUrl}`);
+            }
+          }
+
+          // For email confirmation, redirect normally
+          if (isLocalEnv) {
+            return NextResponse.redirect(`${origin}${next}`);
+          } else if (forwardedHost) {
+            return NextResponse.redirect(`https://${forwardedHost}${next}`);
+          } else {
+            return NextResponse.redirect(`${origin}${next}`);
+          }
+        }
       }
-    }
-  }
   // Handle OAuth callback with code (from OAuth providers)
   else if (code) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
