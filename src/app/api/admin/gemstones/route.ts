@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { supabaseAdmin } from "@/lib/supabase";
+import type { TablesInsert } from "@/shared/types/database";
+
+import { AdminAuthError, requireAdmin } from "../_utils/require-admin";
+
+function ensureAdminClient() {
+  if (!supabaseAdmin) {
+    throw new Error("Supabase admin client not available");
+  }
+  return supabaseAdmin;
+}
 
 interface PaginatedGemstonesResponse {
   gemstones: any[];
@@ -24,10 +34,8 @@ interface PaginatedGemstonesResponse {
 // Server-side filtering and pagination for admin gemstone management
 export async function GET(request: NextRequest) {
   try {
-    if (!supabaseAdmin) {
-      throw new Error("Supabase admin client not available");
-    }
-    const supabase = supabaseAdmin;
+    await requireAdmin();
+    const supabase = ensureAdminClient();
 
     const { searchParams } = new URL(request.url);
 
@@ -65,6 +73,8 @@ export async function GET(request: NextRequest) {
     const inStock = searchParams.get("inStock")
       ? searchParams.get("inStock") === "true"
       : undefined;
+    const withoutMedia = searchParams.get("withoutMedia") === "true";
+    const withoutPrice = searchParams.get("withoutPrice") === "true";
 
     console.log("🔍 [AdminGemstonesAPI] Processing request:", {
       page,
@@ -82,6 +92,8 @@ export async function GET(request: NextRequest) {
       weightMin,
       weightMax,
       inStock,
+      withoutMedia,
+      withoutPrice,
       timestamp: new Date().toISOString(),
     });
 
@@ -216,6 +228,14 @@ export async function GET(request: NextRequest) {
       query = query.in("origin_id", origins);
     }
 
+    if (withoutMedia) {
+      query = query.is("primary_image_url", null).is("primary_video_url", null);
+    }
+
+    if (withoutPrice) {
+      query = query.or("price_amount.is.null,price_amount.eq.0");
+    }
+
     // Apply sorting
     const validSortFields = [
       "created_at",
@@ -318,6 +338,10 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(response);
   } catch (error) {
+    if (error instanceof AdminAuthError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
+
     console.error("❌ [AdminGemstonesAPI] Unexpected error:", error);
 
     const errorResponse: PaginatedGemstonesResponse = {
@@ -340,5 +364,108 @@ export async function GET(request: NextRequest) {
     };
 
     return NextResponse.json(errorResponse, { status: 500 });
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    await requireAdmin();
+    const adminClient = ensureAdminClient();
+    const body = await request.json();
+
+    const requiredFields = [
+      "serial_number",
+      "name",
+      "color",
+      "cut",
+      "clarity",
+      "weight_carats",
+      "length_mm",
+      "width_mm",
+      "depth_mm",
+      "price_amount",
+      "price_currency",
+      "in_stock",
+    ] as const;
+
+    const missingField = requiredFields.find(
+      (field) => typeof body[field] === "undefined" || body[field] === null
+    );
+
+    if (missingField) {
+      return NextResponse.json(
+        { error: `Missing required field: ${missingField}` },
+        { status: 400 }
+      );
+    }
+
+    const insertPayload: TablesInsert<"gemstones"> = {
+      serial_number: body.serial_number,
+      name: body.name,
+      type_code: body.type_code ?? body.name,
+      color: body.color,
+      color_code: body.color_code ?? body.color,
+      cut: body.cut,
+      cut_code: body.cut_code ?? body.cut,
+      clarity: body.clarity,
+      clarity_code: body.clarity_code ?? body.clarity,
+      weight_carats: Number(body.weight_carats),
+      length_mm: Number(body.length_mm),
+      width_mm: Number(body.width_mm),
+      depth_mm: Number(body.depth_mm),
+      origin_id: body.origin_id ?? null,
+      price_amount: Number(body.price_amount),
+      price_currency: body.price_currency,
+      premium_price_amount:
+        typeof body.premium_price_amount === "number"
+          ? body.premium_price_amount
+          : body.premium_price_amount
+          ? Number(body.premium_price_amount)
+          : null,
+      premium_price_currency: body.premium_price_currency ?? null,
+      in_stock: !!body.in_stock,
+      delivery_days:
+        typeof body.delivery_days === "number"
+          ? body.delivery_days
+          : body.delivery_days
+          ? Number(body.delivery_days)
+          : null,
+      internal_code: body.internal_code ?? null,
+      description: body.description ?? null,
+      promotional_text: body.promotional_text ?? null,
+      marketing_highlights: body.marketing_highlights ?? null,
+      metadata_status: body.metadata_status ?? null,
+      quantity:
+        typeof body.quantity === "number"
+          ? body.quantity
+          : body.quantity
+          ? Number(body.quantity)
+          : null,
+    };
+
+    const { data, error } = await adminClient
+      .from("gemstones")
+      .insert(insertPayload)
+      .select()
+      .single();
+
+    if (error) {
+      return NextResponse.json(
+        { error: `Failed to create gemstone: ${error.message}` },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json({ success: true, data }, { status: 201 });
+  } catch (error) {
+    if (error instanceof AdminAuthError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
+
+    console.error("❌ [AdminGemstonesAPI] Create error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }

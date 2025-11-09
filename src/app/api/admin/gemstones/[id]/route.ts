@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { Database } from "@/shared/types/database";
 import { createClient } from "@supabase/supabase-js";
 
+import { mergeAdminGemstoneRecords } from "@/features/admin/utils/gemstone-record-merge";
+
 // Server-side admin client
 const getAdminClient = () => {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -23,33 +25,33 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
+    const supabase = getAdminClient();
 
-    const { data, error } = await getAdminClient()
-      .from("gemstones_enriched")
-      .select("*")
-      .eq("id", id)
-      .single();
+    const [
+      { data: enriched, error: enrichedError },
+      { data: baseGemstone, error: baseError },
+      imagesResult,
+      videosResult,
+      certificationsResult,
+    ] = await Promise.all([
+      supabase.from("gemstones_enriched").select("*").eq("id", id).single(),
+      supabase.from("gemstones").select("*").eq("id", id).single(),
+      supabase.from("gemstone_images").select("*").eq("gemstone_id", id),
+      supabase.from("gemstone_videos").select("*").eq("gemstone_id", id),
+      supabase.from("certifications").select("*").eq("gemstone_id", id),
+    ]);
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
+    if (enrichedError && enrichedError.code !== "PGRST116") {
+      return NextResponse.json({ error: enrichedError.message }, { status: 400 });
     }
 
-    // Fetch additional related data separately (not in the view)
-    const [imagesResult, videosResult, certificationsResult] =
-      await Promise.all([
-        getAdminClient()
-          .from("gemstone_images")
-          .select("*")
-          .eq("gemstone_id", id),
-        getAdminClient()
-          .from("gemstone_videos")
-          .select("*")
-          .eq("gemstone_id", id),
-        getAdminClient()
-          .from("certifications")
-          .select("*")
-          .eq("gemstone_id", id),
-      ]);
+    if (baseError) {
+      return NextResponse.json({ error: baseError.message }, { status: 404 });
+    }
+
+    if (!baseGemstone) {
+      return NextResponse.json({ error: "Gemstone not found" }, { status: 404 });
+    }
 
     const images = imagesResult.data || [];
     const videos = videosResult.data || [];
@@ -74,36 +76,38 @@ export async function GET(
       );
     }
 
+    const mergedGemstone = mergeAdminGemstoneRecords(baseGemstone, enriched ?? null);
+
     const result = {
-      ...data,
+      ...mergedGemstone,
       images,
       videos,
       certifications,
-      ai_v6: data.technical_description_en
+      ai_v6: enriched?.technical_description_en
         ? {
-            technical_description_en: data.technical_description_en,
-            technical_description_ru: data.technical_description_ru,
-            emotional_description_en: data.emotional_description_en,
-            emotional_description_ru: data.emotional_description_ru,
-            narrative_story_en: data.narrative_story_en,
-            narrative_story_ru: data.narrative_story_ru,
-            historical_context_en: data.historical_context_en,
-            historical_context_ru: data.historical_context_ru,
-            care_instructions_en: data.care_instructions_en,
-            care_instructions_ru: data.care_instructions_ru,
-            promotional_text: data.promotional_text_en,
-            promotional_text_ru: data.promotional_text_ru,
-            marketing_highlights: data.marketing_highlights_en,
-            marketing_highlights_ru: data.marketing_highlights_ru,
+            technical_description_en: enriched.technical_description_en,
+            technical_description_ru: enriched.technical_description_ru,
+            emotional_description_en: enriched.emotional_description_en,
+            emotional_description_ru: enriched.emotional_description_ru,
+            narrative_story_en: enriched.narrative_story_en,
+            narrative_story_ru: enriched.narrative_story_ru,
+            historical_context_en: enriched.historical_context_en,
+            historical_context_ru: enriched.historical_context_ru,
+            care_instructions_en: enriched.care_instructions_en,
+            care_instructions_ru: enriched.care_instructions_ru,
+            promotional_text: enriched.promotional_text_en,
+            promotional_text_ru: enriched.promotional_text_ru,
+            marketing_highlights: enriched.marketing_highlights_en,
+            marketing_highlights_ru: enriched.marketing_highlights_ru,
             recommended_primary_image_index:
-              data.recommended_primary_image_index,
-            selected_image_uuid: data.selected_image_uuid,
-            detected_cut: data.detected_cut,
-            detected_color: data.detected_color,
-            detected_color_description: data.detected_color_description,
-            model_version: data.model_version,
-            confidence_score: data.confidence_score,
-            needs_review: data.needs_review,
+              enriched.recommended_primary_image_index,
+            selected_image_uuid: enriched.selected_image_uuid,
+            detected_cut: enriched.detected_cut,
+            detected_color: enriched.detected_color,
+            detected_color_description: enriched.detected_color_description,
+            model_version: enriched.model_version,
+            confidence_score: enriched.confidence_score,
+            needs_review: enriched.needs_review,
           }
         : null,
     };

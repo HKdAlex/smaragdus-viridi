@@ -15,7 +15,7 @@ import {
 } from "@/shared/components/ui/select";
 import { AlertTriangle, CheckCircle, Edit, Loader2, X } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/shared/components/ui/button";
 import { Checkbox } from "@/shared/components/ui/checkbox";
@@ -37,7 +37,10 @@ interface BulkEditModalProps {
 interface BulkEditData {
   // Pricing
   updatePrice: boolean;
-  priceAmount?: number;
+  priceAmountCents?: number;
+  priceAmountInput: string;
+  pricePerCaratCents?: number;
+  pricePerCaratInput: string;
   priceCurrency?: string;
   premium_price_currency?: string;
 
@@ -45,6 +48,11 @@ interface BulkEditData {
   updateStock: boolean;
   inStock?: boolean;
   deliveryDays?: number;
+  quantity?: number;
+
+  // Metadata
+  updateMetadata: boolean;
+  metadataStatus?: string;
 
   // Description
   updateDescription: boolean;
@@ -79,7 +87,10 @@ export function BulkEditModal({
   >([]);
   const [bulkEditData, setBulkEditData] = useState<BulkEditData>({
     updatePrice: false,
+    priceAmountInput: "",
+    pricePerCaratInput: "",
     updateStock: false,
+    updateMetadata: false,
     updateDescription: false,
     updatePromotionalText: false,
     updateOrigin: false,
@@ -91,14 +102,7 @@ export function BulkEditModal({
     errors: string[];
   } | null>(null);
 
-  // Load selected gemstones data when modal opens
-  useEffect(() => {
-    if (isOpen && selectedGemstones.size > 0) {
-      loadSelectedGemstones();
-    }
-  }, [isOpen, selectedGemstones]);
-
-  const loadSelectedGemstones = async () => {
+  const loadSelectedGemstones = useCallback(async () => {
     try {
       const gemstoneIds = Array.from(selectedGemstones);
       const gemstones: DatabaseGemstone[] = [];
@@ -115,14 +119,24 @@ export function BulkEditModal({
     } catch (error) {
       console.error(t("errors.loadFailed"), error);
     }
-  };
+  }, [selectedGemstones, t]);
+
+  // Load selected gemstones data when modal opens
+  useEffect(() => {
+    if (isOpen && selectedGemstones.size > 0) {
+      loadSelectedGemstones();
+    }
+  }, [isOpen, loadSelectedGemstones, selectedGemstones.size]);
 
   const resetModal = () => {
     setStep("select");
     setSelectedGemstonesData([]);
     setBulkEditData({
       updatePrice: false,
+      priceAmountInput: "",
+      pricePerCaratInput: "",
       updateStock: false,
+      updateMetadata: false,
       updateDescription: false,
       updatePromotionalText: false,
       updateOrigin: false,
@@ -155,11 +169,13 @@ export function BulkEditModal({
           // Build update object based on selected fields
           const formDataUpdates: Partial<GemstoneFormData> = {};
 
-          if (
-            bulkEditData.updatePrice &&
-            bulkEditData.priceAmount !== undefined
-          ) {
-            formDataUpdates.price_amount = bulkEditData.priceAmount;
+          if (bulkEditData.updatePrice) {
+            if (bulkEditData.priceAmountCents !== undefined) {
+              formDataUpdates.price_amount = bulkEditData.priceAmountCents;
+            }
+            if (bulkEditData.pricePerCaratCents !== undefined) {
+              formDataUpdates.price_per_carat = bulkEditData.pricePerCaratCents;
+            }
             if (bulkEditData.priceCurrency) {
               formDataUpdates.price_currency =
                 bulkEditData.priceCurrency as DatabaseGemstone["price_currency"];
@@ -173,6 +189,14 @@ export function BulkEditModal({
             if (bulkEditData.deliveryDays !== undefined) {
               formDataUpdates.delivery_days = bulkEditData.deliveryDays;
             }
+            if (bulkEditData.quantity !== undefined) {
+              formDataUpdates.quantity = bulkEditData.quantity;
+            }
+          }
+
+          if (bulkEditData.updateMetadata && bulkEditData.metadataStatus) {
+            formDataUpdates.metadata_status =
+              bulkEditData.metadataStatus as any;
           }
 
           if (
@@ -336,21 +360,30 @@ export function BulkEditModal({
                           </label>
                           <Input
                             type="number"
+                            step="0.01"
                             placeholder="12500"
-                            value={bulkEditData.priceAmount || ""}
+                            value={bulkEditData.priceAmountInput}
                             onChange={(e) =>
                               setBulkEditData((prev) => ({
                                 ...prev,
-                                priceAmount:
-                                  parseInt(e.target.value) * 100 || undefined,
+                                priceAmountInput: e.target.value,
+                                priceAmountCents:
+                                  e.target.value.trim() === ""
+                                    ? undefined
+                                    : Number.isNaN(parseFloat(e.target.value))
+                                    ? prev.priceAmountCents
+                                    : Math.round(
+                                        parseFloat(e.target.value) * 100
+                                      ),
                               }))
                             }
                           />
-                          {bulkEditData.priceAmount && (
+                          {typeof bulkEditData.priceAmountCents ===
+                            "number" && (
                             <p className="text-xs text-gray-600 mt-1">
                               {t("willSetTo", {
                                 amount: formatCurrency(
-                                  bulkEditData.priceAmount
+                                  bulkEditData.priceAmountCents
                                 ),
                               })}
                             </p>
@@ -383,6 +416,44 @@ export function BulkEditModal({
                               <SelectItem value="JPY">JPY</SelectItem>
                             </SelectContent>
                           </Select>
+                        </div>
+                        <div className="md:col-span-2">
+                          <label className="block text-sm font-medium mb-1">
+                            {t("pricePerCarat")}
+                          </label>
+                          <Input
+                            type="number"
+                            step="0.01"
+                            placeholder="1250.00"
+                            value={bulkEditData.pricePerCaratInput}
+                            onChange={(e) =>
+                              setBulkEditData((prev) => ({
+                                ...prev,
+                                pricePerCaratInput: e.target.value,
+                                pricePerCaratCents:
+                                  e.target.value.trim() === ""
+                                    ? undefined
+                                    : Number.isNaN(parseFloat(e.target.value))
+                                    ? prev.pricePerCaratCents
+                                    : Math.round(
+                                        parseFloat(e.target.value) * 100
+                                      ),
+                              }))
+                            }
+                          />
+                          {typeof bulkEditData.pricePerCaratCents ===
+                            "number" && (
+                            <p className="text-xs text-gray-600 mt-1">
+                              {t("pricePerCaratWillSetTo", {
+                                amount: formatCurrency(
+                                  bulkEditData.pricePerCaratCents
+                                ),
+                              })}
+                            </p>
+                          )}
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {t("pricePerCaratHint")}
+                          </p>
                         </div>
                         <div>
                           <label className="block text-sm font-medium mb-1">
@@ -634,12 +705,34 @@ export function BulkEditModal({
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {bulkEditData.updatePrice && (
-                    <div className="flex justify-between items-center p-2 bg-blue-50 rounded">
+                    <div className="flex justify-between items-start gap-4 p-2 bg-blue-50 rounded">
                       <span className="font-medium">{t("price")}:</span>
-                      <span>
-                        {formatCurrency(bulkEditData.priceAmount!)} (
-                        {bulkEditData.priceCurrency})
-                      </span>
+                      <div className="text-right space-y-1">
+                        {bulkEditData.priceAmountCents !== undefined && (
+                          <div>
+                            {formatCurrency(bulkEditData.priceAmountCents)} (
+                            {bulkEditData.priceCurrency || "USD"})
+                          </div>
+                        )}
+                        {bulkEditData.pricePerCaratCents !== undefined && (
+                          <div className="text-sm text-blue-700">
+                            {t("pricePerCaratSummary", {
+                              amount: formatCurrency(
+                                bulkEditData.pricePerCaratCents
+                              ),
+                            })}
+                          </div>
+                        )}
+                        {bulkEditData.pricePerCaratCents === undefined &&
+                          bulkEditData.priceAmountCents === undefined &&
+                          bulkEditData.priceCurrency && (
+                            <div>
+                              {t("currencyOnlyUpdate", {
+                                currency: bulkEditData.priceCurrency,
+                              })}
+                            </div>
+                          )}
+                      </div>
                     </div>
                   )}
 

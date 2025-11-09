@@ -123,6 +123,7 @@
     "pricing": "Аналитика цен и управление складом",
     "users": "Управление пользователями и разрешениями",
     "analytics": "Показатели производительности и аналитика",
+    "aiModeration": "Проверка и модерация контента, созданного ИИ",
     "settings": "Конфигурация системы и настройки"
   },
   "login": {
@@ -152,6 +153,7 @@
     "pricing": "Цены и склад",
     "users": "Пользователи",
     "analytics": "Аналитика",
+    "aiModeration": "Модерация ИИ",
     "settings": "Настройки",
     "orders": "Заказы"
   },
@@ -369,6 +371,7 @@
     "description": "Описание",
     "recordInformation": "Информация о записи",
     "created": "Создано",
+    "updated": "Обновлено",
     "lastUpdated": "Последнее обновление",
     "close": "Закрыть",
     "notSpecified": "Не указано",
@@ -422,6 +425,11 @@
     "updatePrice": "Обновить цену",
     "priceAmount": "Сумма цены (USD)",
     "willSetTo": "Будет установлено: {amount}",
+    "pricePerCarat": "Цена за карат (USD)",
+    "pricePerCaratWillSetTo": "Будет установлено: {amount} за карат",
+    "pricePerCaratHint": "Если указать значение, итоговая цена будет пересчитана исходя из веса каждого камня.",
+    "pricePerCaratSummary": "За карат: {amount}",
+    "currencyOnlyUpdate": "Будет изменена только валюта: {currency}",
     "currency": "Валюта",
     "premiumCurrency": "Премиум валюта (необязательно)",
     "sameAsRegular": "Как обычная",
@@ -472,11 +480,14 @@
       "cut": "Огранка",
       "clarity": "Чистота",
       "origin": "Происхождение",
-      "stockStatus": "Наличие"
+      "stockStatus": "Наличие",
+      "withoutMedia": "Без медиа",
+      "withoutPrice": "Без цены"
     },
     "priceRangeTitle": "Диапазон цен (USD)",
     "weightRangeTitle": "Диапазон веса (карат)",
     "stockStatus": "Статус наличия",
+    "dataQuality": "Качество данных",
     "allItems": "Все товары",
     "inStockOnly": "Только в наличии",
     "outOfStockOnly": "Только нет в наличии",
@@ -569,7 +580,8 @@
     "userAnalytics": "Аналитика пользователей",
     "userAnalyticsDescription": "Поведение пользователей, метрики вовлеченности и данные удержания",
     "inventoryAnalytics": "Аналитика складских запасов",
-    "inventoryAnalyticsDescription": "Уровни запасов, оборачиваемость и оптимизация складских запасов"
+    "inventoryAnalyticsDescription": "Уровни запасов, оборачиваемость и оптимизация складских запасов",
+    "totalSearches": "Всего поисков"
   },
   "advancedFilters": {
     "title": "Расширенные фильтры",
@@ -770,6 +782,15 @@
     "title": "Форма камня",
     "editTitle": "Редактировать камень",
     "createTitle": "Создать новый камень",
+    "tabs": {
+      "basic": "Основные",
+      "properties": "Свойства",
+      "dimensions": "Размеры",
+      "pricing": "Ценообразование",
+      "inventory": "Склад",
+      "aiContent": "Контент ИИ",
+      "media": "Медиа"
+    },
     "serialNumberPlaceholder": "например, DIA-2025-001",
     "internalCodePlaceholder": "например, INV-001",
     "selectOriginPlaceholder": "Выберите происхождение (необязательно)",
@@ -801,8 +822,11 @@
       "regularPrice": "Обычная цена *",
       "premiumPrice": "Премиум цена",
       "inStock": "В наличии",
+      "metadataStatus": "Статус метаданных",
+      "quantity": "Количество",
       "deliveryDays": "Дни доставки",
       "totalPrice": "Общая цена",
+      "pricePerCarat": "Цена за карат",
       "description": "Описание",
       "promotionalText": "Рекламный текст",
       "marketingHighlights": "Маркетинговые особенности",
@@ -817,7 +841,8 @@
       "create": "Создать камень",
       "update": "Обновить камень",
       "addHighlight": "Добавить",
-      "add": "Добавить"
+      "add": "Добавить",
+      "autoCalculatePricePerCarat": "Авторасчёт"
     },
     "errors": {
       "serialNumberExists": "Серийный номер уже существует",
@@ -829,10 +854,18 @@
     "uploadMedia": "Загрузить медиа камня",
     "dragDropDescription": "Перетащите изображения и видео, или нажмите для выбора",
     "supportedFormats": "Поддерживается: JPEG, PNG, WebP (до 50MB), MP4, WebM (до 500MB)",
-    "uploadedMedia": "Загруженные медиа"
+    "uploadedMedia": "Загруженные медиа",
+    "metadataStatusNotSet": "Не задан",
+    "metadataStatusOptions": {
+      "needs_review": "Требует проверки",
+      "needs_updating": "Нужно обновить",
+      "updated": "Обновлено",
+      "verified": "Проверено",
+      "rejected": "Отклонено"
   },
-  "analytics": {
-    "totalSearches": "Всего поисков"
+    "hints": {
+      "pricePerCaratHelper": "При указании цены за карат итоговая стоимость будет пересчитана с учётом веса камня."
+    }
   },
   "gemstoneManagement": {
     "title": "Управление драгоценными камнями",
@@ -853,6 +886,9 @@
       "outOfStock": "Нет в наличии",
       "totalValue": "Общая стоимость"
     },
+    "formSuccess": "Камень успешно сохранён",
+    "deleteSuccess": "Камень успешно удалён",
+    "bulkImportSuccess": "Массовый импорт завершён",
     "notice": {
       "title": "Активно управление камнями администратора",
       "description": "удалять и управлять камнями. Статистика будет рассчитана из ваших фактических данных после добавления камней."
@@ -879,5 +915,69 @@
     "RUB": "Российский рубль",
     "CHF": "Швейцарский франк",
     "JPY": "Японская иена"
+  },
+  "aiModeration": {
+    "title": "Модерация контента ИИ",
+    "description": "Проверка и модерация контента, созданного ИИ для камней",
+    "refresh": "Обновить",
+    "selectItem": "Выберите элемент",
+    "selectItemDescription": "Выберите элемент из списка, чтобы просмотреть и модерировать его контент, созданный ИИ",
+    "aiGeneratedContent": "Контент, созданный ИИ ({count})",
+    "clickToView": "Нажмите на элемент, чтобы просмотреть детали и модерировать",
+    "loading": "Загрузка...",
+    "noItems": "Нет элементов, требующих модерации",
+    "filters": {
+      "all": "Все",
+      "status": "Статус",
+      "approval": "Статус утверждения"
+    },
+    "status": {
+      "pending": "Ожидает",
+      "approved": "Утверждено",
+      "rejected": "Отклонено",
+      "needsRevision": "Требует доработки"
+    },
+    "actions": {
+      "approve": "Утвердить",
+      "reject": "Отклонить",
+      "requestRevision": "Запросить доработку",
+      "save": "Сохранить изменения"
+    }
+  },
+  "certifications": {
+    "title": "Сертификаты",
+    "addCertification": "Добавить сертификат",
+    "editCertification": "Редактировать сертификат",
+    "deleteCertification": "Удалить сертификат",
+    "noCertifications": "Сертификаты не найдены",
+    "loading": "Загрузка сертификатов...",
+    "certificateType": "Тип сертификата",
+    "certificateNumber": "Номер сертификата",
+    "certificateUrl": "URL сертификата",
+    "issuedDate": "Дата выдачи",
+    "uploadDocument": "Загрузить документ",
+    "selectFile": "Выбрать файл",
+    "cancel": "Отмена",
+    "save": "Сохранить",
+    "delete": "Удалить",
+    "confirmDelete": "Вы уверены, что хотите удалить этот сертификат?",
+    "types": {
+      "gia": "GIA",
+      "ags": "AGS",
+      "igi": "IGI",
+      "egl": "EGL",
+      "other": "Другой"
+    },
+    "success": {
+      "created": "Сертификат успешно создан",
+      "updated": "Сертификат успешно обновлен",
+      "deleted": "Сертификат успешно удален"
+    },
+    "errors": {
+      "createFailed": "Не удалось создать сертификат",
+      "updateFailed": "Не удалось обновить сертификат",
+      "deleteFailed": "Не удалось удалить сертификат",
+      "loadFailed": "Не удалось загрузить сертификаты"
+    }
   }
 }

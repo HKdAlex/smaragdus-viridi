@@ -1,13 +1,16 @@
 "use client";
 
+import { Link, useRouter } from "@/i18n/navigation";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
+import { ColorIndicator, CutIcon } from "@/shared/components/ui/gemstone-icons";
 import {
   CheckCircle,
+  Edit,
   Heart,
   Info,
   Package,
@@ -19,22 +22,20 @@ import {
   Sparkles,
   Truck,
 } from "lucide-react";
-import { ColorIndicator, CutIcon } from "@/shared/components/ui/gemstone-icons";
-import { Link, useRouter } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
 
+import { useAuth } from "@/features/auth/context/auth-context";
+import { useCartContext } from "@/features/cart/context/cart-context";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { CertificationDisplay } from "./certification-display";
-import type { Database } from "@/shared/types/database";
 import type { DetailGemstone } from "@/shared/types";
+import type { Database } from "@/shared/types/database";
+import { useState } from "react";
+import { useGemstoneTranslations } from "../utils/gemstone-translations";
+import { CertificationDisplay } from "./certification-display";
 import { GemstoneDetailV6Tabs } from "./gemstone-detail-v6-tabs";
 import { MediaGallery } from "./media-gallery";
 import { RelatedGemstones } from "./related-gemstones";
-import { useAuth } from "@/features/auth/context/auth-context";
-import { useCartContext } from "@/features/cart/context/cart-context";
-import { useGemstoneTranslations } from "../utils/gemstone-translations";
-import { useState } from "react";
 
 // DetailGemstone interface is now imported from shared types
 
@@ -51,7 +52,7 @@ interface GemstoneDetailProps {
 
 export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { addToCart, isInCart } = useCartContext();
   const [isFavorite, setIsFavorite] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
@@ -68,6 +69,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
   } = useGemstoneTranslations();
 
   const isAlreadyInCart = isInCart(gemstone.id);
+  const isAdmin = profile?.role === "admin";
 
   // Format price with currency
   const formatPrice = (amount: number, currency: string) => {
@@ -82,9 +84,29 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
     return parseFloat(weight.toString()).toFixed(2);
   };
 
+  const normalizeDimensionValue = (value: unknown): number | null => {
+    if (value === null || value === undefined) {
+      return null;
+    }
+
+    if (typeof value === "number") {
+      return value > 0 ? value : null;
+    }
+
+    if (typeof value === "string") {
+      const parsed = parseFloat(value.replace(",", "."));
+      return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+    }
+
+    return null;
+  };
+
   // Extract dimensions from AI content or use database values
   const extractDimensions = () => {
-    // Try to extract from AI-generated technical description
+    let length: number | null = null;
+    let width: number | null = null;
+    let depth: number | null = null;
+
     const technicalDescription =
       gemstone.v6Text?.technical_description_en ||
       gemstone.v6Text?.technical_description_ru ||
@@ -92,35 +114,60 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
       (gemstone as any).technical_description_ru;
 
     if (technicalDescription) {
-      // Look for dimension patterns like "11 × 11.7 × 6.8 mm" or "11 x 11.7 x 6.8 mm"
       const dimensionMatch = technicalDescription.match(
         /(\d+(?:\.\d+)?)\s*[×x]\s*(\d+(?:\.\d+)?)\s*[×x]\s*(\d+(?:\.\d+)?)\s*mm/i
       );
       if (dimensionMatch) {
-        return {
-          length: parseFloat(dimensionMatch[1]),
-          width: parseFloat(dimensionMatch[2]),
-          depth: parseFloat(dimensionMatch[3]),
-        };
+        length = parseFloat(dimensionMatch[1]);
+        width = parseFloat(dimensionMatch[2]);
+        depth = parseFloat(dimensionMatch[3]);
       }
     }
 
-    // Fallback to database values
-    return {
-      length: gemstone.length_mm || 0,
-      width: gemstone.width_mm || 0,
-      depth: gemstone.depth_mm || 0,
-    };
+    const dbLength = normalizeDimensionValue(gemstone.length_mm);
+    if (dbLength !== null) {
+      length = dbLength;
+    }
+
+    const dbWidth = normalizeDimensionValue(gemstone.width_mm);
+    if (dbWidth !== null) {
+      width = dbWidth;
+    }
+
+    const dbDepth = normalizeDimensionValue(gemstone.depth_mm);
+    if (dbDepth !== null) {
+      depth = dbDepth;
+    }
+
+    return { length, width, depth };
   };
 
   const dimensions = extractDimensions();
 
-  // Format dimensions
-  const formatDimensions = () => {
-    if (dimensions.length > 0 || dimensions.width > 0 || dimensions.depth > 0) {
-      return `${dimensions.length} × ${dimensions.width} × ${dimensions.depth} mm`;
+  const formatDimensionNumber = (value: number) => {
+    if (Number.isInteger(value)) {
+      return value.toString();
     }
-    return "Not specified";
+    return value.toFixed(2).replace(/\.?0+$/, "");
+  };
+
+  const formatDimensionValue = (value: number | null) => {
+    if (value === null || value <= 0) {
+      return t("notSpecified");
+    }
+    return `${formatDimensionNumber(value)} mm`;
+  };
+
+  const formatOverallDimensions = () => {
+    const parts = [dimensions.length, dimensions.width, dimensions.depth]
+      .filter((value): value is number => value !== null && value > 0)
+      .map((value) => formatDimensionNumber(value));
+
+    if (parts.length === 0) {
+      return t("notSpecified");
+    }
+
+    return `${parts.join(" × ")} mm`;
   };
 
   // Get quality grade based on clarity
@@ -159,6 +206,14 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
   };
 
   const qualityGrade = getQualityGrade();
+
+  const handleEditGemstone = () => {
+    if (!isAdmin) return;
+    router.push({
+      pathname: "/admin/dashboard",
+      query: { tab: "gemstones", edit: gemstone.id },
+    });
+  };
 
   // Handle add to cart
   const handleAddToCart = async () => {
@@ -385,7 +440,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                         {t("price")}
                       </div>
                       <div className="flex items-baseline gap-3 pb-1">
-                        <span className="text-4xl sm:text-5xl font-bold bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent filter drop-shadow-sm">
+                        <span className="text-4xl sm:text-5xl font-bold text-foreground">
                           {formatPrice(
                             gemstone.price_amount,
                             gemstone.price_currency
@@ -496,7 +551,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
 
                 {/* Action Buttons */}
                 <div className="space-y-3">
-                  <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3">
                     <Button
                       size="lg"
                       onClick={handleAddToCart}
@@ -515,11 +570,22 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                     <Button
                       variant="outline"
                       size="lg"
-                      className="flex-1 h-12 sm:h-12 text-base font-medium border-2 hover:border-primary/50 transition-all duration-200 min-h-[48px]"
+                      className="flex-1 h-12 sm:h-12 text-base font-medium border-2 hover:border-primary/50 transition-all duration-200 min-h-[48px] text-foreground"
                     >
                       <Info className="w-5 h-5 mr-2" />
                       {t("requestInfo")}
                     </Button>
+                    {isAdmin && (
+                      <Button
+                        variant="outline"
+                        size="lg"
+                        onClick={handleEditGemstone}
+                        className="flex-1 h-12 sm:h-12 text-base font-medium border-2 border-primary/40 hover:border-primary transition-all duration-200 min-h-[48px] text-primary"
+                      >
+                        <Edit className="w-5 h-5 mr-2" />
+                        {t("editGemstone")}
+                      </Button>
+                    )}
                   </div>
 
                   {/* Favorite & Share Buttons */}
@@ -687,19 +753,21 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                     </div>
 
                     {/* Quantity */}
-                    {gemstone.quantity !== null && gemstone.quantity > 0 && (
-                      <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
-                        <Package className="w-5 h-5 text-muted-foreground" />
-                        <div className="flex items-center justify-between">
-                          <span className="text-muted-foreground">
-                            {t("quantity")}
-                          </span>
-                          <span className="font-medium text-foreground">
-                            {gemstone.quantity}
-                          </span>
-                        </div>
+                    <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
+                      <Package className="w-5 h-5 text-muted-foreground" />
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">
+                          {t("quantity")}
+                        </span>
+                        <span className="font-medium text-foreground">
+                          {gemstone.quantity !== null && gemstone.quantity >= 0
+                            ? t("quantityAvailable", {
+                                count: gemstone.quantity,
+                              })
+                            : t("quantityUnknown")}
+                        </span>
                       </div>
-                    )}
+                    </div>
                   </div>
                 </div>
 
@@ -718,9 +786,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                           {t("length")}
                         </span>
                         <span className="font-medium text-foreground">
-                          {dimensions.length > 0
-                            ? `${dimensions.length} mm`
-                            : "Not specified"}
+                          {formatDimensionValue(dimensions.length)}
                         </span>
                       </div>
                     </div>
@@ -733,9 +799,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                           {t("width")}
                         </span>
                         <span className="font-medium text-foreground">
-                          {dimensions.width > 0
-                            ? `${dimensions.width} mm`
-                            : "Not specified"}
+                          {formatDimensionValue(dimensions.width)}
                         </span>
                       </div>
                     </div>
@@ -748,9 +812,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                           {t("depth")}
                         </span>
                         <span className="font-medium text-foreground">
-                          {dimensions.depth > 0
-                            ? `${dimensions.depth} mm`
-                            : "Not specified"}
+                          {formatDimensionValue(dimensions.depth)}
                         </span>
                       </div>
                     </div>
@@ -771,7 +833,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                           {t("overall")}
                         </span>
                         <span className="font-medium text-foreground">
-                          {formatDimensions()}
+                          {formatOverallDimensions()}
                         </span>
                       </div>
                     </div>

@@ -20,6 +20,7 @@ import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import { useGemstoneTranslations } from "../utils/gemstone-translations";
+import { selectPrimaryImage } from "../utils/select-primary-image";
 import { useTranslations } from "next-intl";
 
 interface RelatedGemstonesProps {
@@ -228,12 +229,6 @@ export function RelatedGemstones({
     }).format(amount / 100);
   };
 
-  // Get primary image
-  const getPrimaryImage = (images?: DatabaseGemstoneImage[]) => {
-    if (!images || images.length === 0) return null;
-    return images.find((img) => img.is_primary) || images[0];
-  };
-
   // Get similarity badge
   const getSimilarityReason = (gemstone: RelatedGemstone) => {
     const dbGem = gemstone as DatabaseGemstone;
@@ -313,7 +308,20 @@ export function RelatedGemstones({
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {relatedGemstones.map((gemstone) => {
-            const primaryImage = getPrimaryImage(gemstone.images);
+            const primaryImageSelection = selectPrimaryImage({
+              images: gemstone.images,
+              selectedImageUuid: (gemstone as any)
+                .selected_image_uuid ?? null,
+              recommendedPrimaryImageIndex: (
+                gemstone as any
+              ).recommended_primary_image_index ?? null,
+              primaryImageUrl: (gemstone as any).primary_image_url ?? null,
+            });
+            const primaryImageUrl = primaryImageSelection?.imageUrl ?? null;
+            const primaryImageAlt =
+              primaryImageSelection?.image?.alt_text ??
+              (`${(gemstone as DatabaseGemstone).weight_carats}ct ${(gemstone as DatabaseGemstone).color} ${(gemstone as DatabaseGemstone).name}`.trim() ||
+              "Gemstone image");
             const similarity = getSimilarityReason(gemstone);
 
             return (
@@ -325,14 +333,10 @@ export function RelatedGemstones({
                 <div className="space-y-3">
                   {/* Image */}
                   <div className="relative aspect-square bg-muted rounded-lg overflow-hidden">
-                    {primaryImage ? (
+                    {primaryImageUrl ? (
                       <Image
-                        src={primaryImage.image_url}
-                        alt={`${
-                          (gemstone as DatabaseGemstone).weight_carats
-                        }ct ${(gemstone as DatabaseGemstone).color} ${
-                          (gemstone as DatabaseGemstone).name
-                        }`}
+                        src={primaryImageUrl}
+                        alt={primaryImageAlt}
                         fill
                         className="object-cover transition-transform duration-300 group-hover:scale-105"
                         sizes="256px"

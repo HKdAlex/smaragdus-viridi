@@ -7,13 +7,6 @@ import {
   CardTitle,
 } from "@/shared/components/ui/card";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/components/ui/select";
-import {
   Filter,
   History,
   Save,
@@ -22,6 +15,13 @@ import {
   SortDesc,
   X,
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/shared/components/ui/select";
 import { useEffect, useState } from "react";
 
 import { Badge } from "@/shared/components/ui/badge";
@@ -48,6 +48,8 @@ export interface SearchFilters {
   clarities: string[];
   inStock?: boolean;
   origins: string[];
+  withoutMedia?: boolean;
+  withoutPrice?: boolean;
 }
 
 export interface SavedSearch {
@@ -89,6 +91,8 @@ export function EnhancedSearch({
     cuts: [],
     clarities: [],
     origins: [],
+    withoutMedia: false,
+    withoutPrice: false,
     ...initialFilters,
   });
 
@@ -108,6 +112,8 @@ export function EnhancedSearch({
     if (filters.clarities.length > 0) count++;
     if (filters.inStock !== undefined) count++;
     if (filters.origins.length > 0) count++;
+    if (filters.withoutMedia) count++;
+    if (filters.withoutPrice) count++;
     setActiveFiltersCount(count);
   }, [filters]);
 
@@ -176,6 +182,8 @@ export function EnhancedSearch({
       cuts: [],
       clarities: [],
       origins: [],
+      withoutMedia: false,
+      withoutPrice: false,
     });
   };
 
@@ -532,6 +540,34 @@ export function EnhancedSearch({
               />
             </Badge>
           )}
+          {filters.withoutMedia && (
+            <Badge
+              variant="secondary"
+              className="flex items-center gap-1 min-h-[32px] px-2"
+            >
+              <span className="text-xs sm:text-sm">
+                {t("filterLabels.withoutMedia")}
+              </span>
+              <X
+                className="w-3 h-3 cursor-pointer flex-shrink-0"
+                onClick={() => setFilters({ ...filters, withoutMedia: false })}
+              />
+            </Badge>
+          )}
+          {filters.withoutPrice && (
+            <Badge
+              variant="secondary"
+              className="flex items-center gap-1 min-h-[32px] px-2"
+            >
+              <span className="text-xs sm:text-sm">
+                {t("filterLabels.withoutPrice")}
+              </span>
+              <X
+                className="w-3 h-3 cursor-pointer flex-shrink-0"
+                onClick={() => setFilters({ ...filters, withoutPrice: false })}
+              />
+            </Badge>
+          )}
         </div>
       )}
 
@@ -688,6 +724,47 @@ export function EnhancedSearch({
                   </SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+
+            {/* Data Quality */}
+            <div>
+              <h4 className="font-medium mb-3 text-sm sm:text-base">
+                {t("dataQuality")}
+              </h4>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <label className="flex items-center space-x-2 cursor-pointer p-2 rounded hover:bg-accent min-h-[44px]">
+                  <input
+                    type="checkbox"
+                    checked={Boolean(filters.withoutMedia)}
+                    onChange={(e) =>
+                      setFilters({
+                        ...filters,
+                        withoutMedia: e.target.checked,
+                      })
+                    }
+                    className="rounded border-border text-primary focus:ring-ring focus:ring-2 bg-background"
+                  />
+                  <span className="text-sm">
+                    {t("filterLabels.withoutMedia")}
+                  </span>
+                </label>
+                <label className="flex items-center space-x-2 cursor-pointer p-2 rounded hover:bg-accent min-h-[44px]">
+                  <input
+                    type="checkbox"
+                    checked={Boolean(filters.withoutPrice)}
+                    onChange={(e) =>
+                      setFilters({
+                        ...filters,
+                        withoutPrice: e.target.checked,
+                      })
+                    }
+                    className="rounded border-border text-primary focus:ring-ring focus:ring-2 bg-background"
+                  />
+                  <span className="text-sm">
+                    {t("filterLabels.withoutPrice")}
+                  </span>
+                </label>
+              </div>
             </div>
 
             {/* Origins */}

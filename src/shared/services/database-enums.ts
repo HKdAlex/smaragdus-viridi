@@ -14,6 +14,8 @@ export type GemCut = (typeof Constants.public.Enums.gem_cut)[number];
 export type GemClarity = (typeof Constants.public.Enums.gem_clarity)[number];
 export type CurrencyCode =
   (typeof Constants.public.Enums.currency_code)[number];
+export type MetadataStatus =
+  (typeof Constants.public.Enums.metadata_status)[number];
 
 /**
  * Cached database enum values
@@ -56,6 +58,13 @@ export const DatabaseEnums = {
   },
 
   /**
+   * Get all metadata statuses
+   */
+  getMetadataStatuses(): readonly MetadataStatus[] {
+    return Constants.public.Enums.metadata_status;
+  },
+
+  /**
    * Check if a value is a valid gemstone type
    */
   isValidGemstoneType(value: string): value is GemstoneType {
@@ -89,6 +98,15 @@ export const DatabaseEnums = {
   isValidCurrencyCode(value: string): value is CurrencyCode {
     return Constants.public.Enums.currency_code.includes(value as CurrencyCode);
   },
+
+  /**
+   * Check if a value is a valid metadata status
+   */
+  isValidMetadataStatus(value: string): value is MetadataStatus {
+    return Constants.public.Enums.metadata_status.includes(
+      value as MetadataStatus
+    );
+  },
 } as const;
 
 /**
@@ -99,6 +117,7 @@ export const GEM_COLORS = DatabaseEnums.getGemColors();
 export const GEM_CUTS = DatabaseEnums.getGemCuts();
 export const GEM_CLARITIES = DatabaseEnums.getGemClarities();
 export const CURRENCY_CODES = DatabaseEnums.getCurrencyCodes();
+export const METADATA_STATUSES = DatabaseEnums.getMetadataStatuses();
 
 /**
  * Default values for forms

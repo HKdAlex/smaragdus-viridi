@@ -92,6 +92,8 @@ export function GemstoneListOptimized({
     cuts: [],
     clarities: [],
     origins: [],
+    withoutMedia: false,
+    withoutPrice: false,
   });
   const [availableOrigins, setAvailableOrigins] = useState<string[]>([]);
 
@@ -151,6 +153,10 @@ export function GemstoneListOptimized({
           queryParams.set("weightMax", filters.weightMax.toString());
         if (filters.inStock !== undefined)
           queryParams.set("inStock", filters.inStock.toString());
+        if (filters.withoutMedia)
+          queryParams.set("withoutMedia", "true");
+        if (filters.withoutPrice)
+          queryParams.set("withoutPrice", "true");
 
         console.log("🔍 [GemstoneListOptimized] Fetching with filters:", {
           filters,

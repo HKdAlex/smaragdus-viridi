@@ -45,6 +45,9 @@ export interface GemstoneFormData {
   description?: string;
   promotional_text?: string;
   marketing_highlights?: string[];
+  price_per_carat?: number | null;
+  metadata_status?: DatabaseGemstone["metadata_status"];
+  quantity?: number;
   // AI-generated fields (English)
   description_technical_en?: string;
   description_emotional_en?: string;
@@ -138,7 +141,10 @@ export class GemstoneAdminService {
         weight: formData.weight_carats,
       });
 
-      const payload: TablesInsert<"gemstones"> = {
+      const payload: TablesInsert<"gemstones"> & {
+        metadata_status?: string | null;
+        quantity?: number | null;
+      } = {
         name: formData.name,
         type_code: formData.type_code ?? formData.name,
         color: formData.color,
@@ -163,25 +169,43 @@ export class GemstoneAdminService {
         description: formData.description ?? null,
         promotional_text: formData.promotional_text ?? null,
         marketing_highlights: formData.marketing_highlights ?? null,
+        price_per_carat:
+          typeof formData.price_per_carat === "number"
+            ? formData.price_per_carat
+            : null,
+        metadata_status:
+          typeof formData.metadata_status === "string"
+            ? formData.metadata_status
+            : null,
+        quantity:
+          typeof formData.quantity === "number"
+            ? formData.quantity
+            : formData.quantity
+            ? Number(formData.quantity)
+            : 1,
       };
 
-      const { data, error } = await supabase
-        .from("gemstones")
-        .insert(payload)
-        .select()
-        .single();
+      const response = await fetch("/api/admin/gemstones", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
 
-      if (error) {
-        logger.error("Failed to create gemstone", error);
-        return { success: false, error: error.message };
+      const result = await response.json();
+
+      if (!response.ok) {
+        logger.error("Failed to create gemstone", result);
+        return { success: false, error: result.error || "Create failed" };
       }
 
       logger.info("Gemstone created successfully", {
-        id: data.id,
-        serialNumber: data.serial_number,
+        id: result.data.id,
+        serialNumber: result.data.serial_number,
       });
 
-      return { success: true, data };
+      return { success: true, data: result.data };
     } catch (error) {
       logger.error("Unexpected error creating gemstone", error as Error);
       return { success: false, error: "An unexpected error occurred" };
@@ -563,6 +587,29 @@ export class GemstoneAdminService {
       errors.push("Price currency is required");
     } else if (!DatabaseEnums.isValidCurrencyCode(formData.price_currency)) {
       errors.push("Invalid currency code");
+    }
+
+    if (
+      typeof formData.metadata_status === "string" &&
+      !DatabaseEnums.isValidMetadataStatus(formData.metadata_status)
+    ) {
+      errors.push("Invalid metadata status");
+    }
+
+    if (
+      typeof formData.quantity !== "undefined" &&
+      formData.quantity !== null &&
+      formData.quantity < 0
+    ) {
+      errors.push("Quantity must be zero or greater");
+    }
+
+    if (
+      typeof formData.price_per_carat !== "undefined" &&
+      formData.price_per_carat !== null &&
+      formData.price_per_carat < 0
+    ) {
+      errors.push("Price per carat must be zero or greater");
     }
 
     // Check for duplicate serial number (would need to be async)

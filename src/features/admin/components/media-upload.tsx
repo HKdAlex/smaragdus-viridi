@@ -120,7 +120,16 @@ export function MediaUpload({
     type: "image" | "video"
   ) => {
     try {
-      const result = await MediaUploadService.deleteMedia([mediaId], type);
+      if (!gemstoneId) {
+        onUploadError?.("Gemstone ID is required to delete media");
+        return;
+      }
+
+      const result = await MediaUploadService.deleteMedia(
+        gemstoneId,
+        mediaId,
+        type
+      );
       if (result.success) {
         setUploadedMedia((prev) =>
           prev.filter((media) => media.id !== mediaId)

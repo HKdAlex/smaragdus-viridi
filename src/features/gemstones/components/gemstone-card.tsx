@@ -24,8 +24,9 @@ import { useLocale, useTranslations } from "next-intl";
 
 import Image from "next/image";
 import Link from "next/link";
-import type { CatalogGemstone } from "../services/gemstone-fetch.service";
 import { useGemstoneTranslations } from "../utils/gemstone-translations";
+import { selectPrimaryImage } from "../utils/select-primary-image";
+import type { CatalogGemstone } from "../services/gemstone-fetch.service";
 
 // ===== TYPES =====
 
@@ -108,27 +109,24 @@ export function GemstoneCard({
     gemstone.displayClarity ??
     (gemstone.clarity ? translateClarity(gemstone.clarity) : null);
 
-  const primaryImage = (() => {
-    if (gemstone.selected_image_uuid && gemstone.images?.length) {
-      const match = gemstone.images.find(
-        (img) => img.id === gemstone.selected_image_uuid
-      );
-      if (match) return match;
-    }
-
-    // Prioritize is_primary over recommended_primary_image_index
-    const primaryImage = gemstone.images?.find((img) => img.is_primary);
-    if (primaryImage) return primaryImage;
-
-    if (
-      typeof gemstone.recommended_primary_image_index === "number" &&
-      gemstone.images?.[gemstone.recommended_primary_image_index]
-    ) {
-      return gemstone.images[gemstone.recommended_primary_image_index];
-    }
-
-    return gemstone.images?.[0];
-  })();
+  const primaryImageSelection = selectPrimaryImage({
+    images: gemstone.images,
+    selectedImageUuid:
+      gemstone.selected_image_uuid ??
+      gemstone.v6_text?.selected_image_uuid ??
+      null,
+    recommendedPrimaryImageIndex:
+      gemstone.recommended_primary_image_index ??
+      gemstone.v6_text?.recommended_primary_image_index ??
+      null,
+    primaryImageUrl: gemstone.primary_image_url ?? null,
+  });
+  const primaryImage = primaryImageSelection?.image ?? null;
+  const primaryImageUrl = primaryImageSelection?.imageUrl ?? null;
+  const primaryImageAlt =
+    primaryImage?.alt_text ??
+    (`${gemstone.color ?? ""} ${gemstone.name ?? ""}`.trim() ||
+    "Gemstone image");
 
   const formatPrice = (amount: number, currency: string) => {
     return new Intl.NumberFormat("en-US", {
@@ -148,18 +146,16 @@ export function GemstoneCard({
     <>
       {/* Image Section */}
       <div className="aspect-square relative bg-muted">
-        {primaryImage ? (
+        {primaryImageUrl ? (
           <Image
-            src={primaryImage.image_url}
-            alt={`${gemstone.color} ${gemstone.name}`}
+            src={primaryImageUrl}
+            alt={primaryImageAlt}
             fill
             className="object-cover transition-transform duration-300 group-hover:scale-105"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
             onError={() => {
               if (process.env.NODE_ENV === "development") {
-                console.warn(
-                  `Image failed to load for ${gemstone.serial_number}: ${primaryImage.image_url}`
-                );
+                console.warn(`Image failed to load for ${gemstone.serial_number}: ${primaryImageUrl}`);
               }
             }}
           />

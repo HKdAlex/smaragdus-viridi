@@ -1,30 +1,42 @@
 "use client";
 
+import { Plus, Upload } from "lucide-react";
 import type {
   BulkImportResult,
   GemstoneWithRelations,
 } from "../services/gemstone-admin-service";
-import { Plus, Upload } from "lucide-react";
 
-import { BulkImportModal } from "./bulk-import-modal";
 import { Button } from "@/shared/components/ui/button";
+import { useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
 import { GemstoneAdminApiService } from "../services/gemstone-admin-api-service";
 import { GemstoneAdminService } from "../services/gemstone-admin-service";
+import { BulkImportModal } from "./bulk-import-modal";
 import { GemstoneDetailPage } from "./gemstone-detail-page";
 import { GemstoneForm } from "./gemstone-form";
 import { GemstoneListOptimized } from "./gemstone-list-optimized";
-import { useState } from "react";
-import { useTranslations } from "next-intl";
 
 type ViewMode = "list" | "create" | "edit" | "view";
 
-export function AdminGemstoneManager() {
+interface AdminGemstoneManagerProps {
+  initialGemstoneId?: string | null;
+  onInitialGemstoneHandled?: () => void;
+}
+
+export function AdminGemstoneManager({
+  initialGemstoneId,
+  onInitialGemstoneHandled,
+}: AdminGemstoneManagerProps) {
   const t = useTranslations("admin.gemstoneManagement");
   const tErrors = useTranslations("errors.admin");
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [selectedGemstone, setSelectedGemstone] =
     useState<GemstoneWithRelations | null>(null);
   const [isBulkImportOpen, setIsBulkImportOpen] = useState(false);
+  const [processedInitialGemstoneId, setProcessedInitialGemstoneId] = useState<
+    string | null
+  >(null);
+
   const handleCreateNew = () => {
     setSelectedGemstone(null);
     setViewMode("create");
@@ -97,6 +109,34 @@ export function AdminGemstoneManager() {
   const handleBulkImportClose = () => {
     setIsBulkImportOpen(false);
   };
+
+  useEffect(() => {
+    if (
+      !initialGemstoneId ||
+      processedInitialGemstoneId === initialGemstoneId
+    ) {
+      return;
+    }
+
+    const openInitialGemstone = async () => {
+      try {
+        const result = await GemstoneAdminApiService.getGemstoneById(
+          initialGemstoneId
+        );
+        if (result.success && result.data) {
+          setSelectedGemstone(result.data as GemstoneWithRelations);
+          setViewMode("edit");
+        }
+      } catch (error) {
+        console.error("Failed to load initial gemstone for editing:", error);
+      } finally {
+        setProcessedInitialGemstoneId(initialGemstoneId);
+        onInitialGemstoneHandled?.();
+      }
+    };
+
+    openInitialGemstone();
+  }, [initialGemstoneId, processedInitialGemstoneId, onInitialGemstoneHandled]);
 
   if (viewMode === "create") {
     return (

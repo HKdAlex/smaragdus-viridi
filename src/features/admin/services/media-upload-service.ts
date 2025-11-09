@@ -2,30 +2,6 @@ import type {
   DatabaseGemstoneImage,
   DatabaseGemstoneVideo,
 } from "@/shared/types";
-import { supabase, supabaseAdmin } from "@/lib/supabase";
-
-import { Database } from "@/shared/types/database";
-import { createClient } from "@supabase/supabase-js";
-
-// Create admin client with service role key for admin operations
-const getAdminClient = () => {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (!supabaseServiceRoleKey) {
-    console.warn(
-      "[MEDIA-SERVICE] Service role key not available, falling back to regular client"
-    );
-    return supabase;
-  }
-
-  return createClient<Database>(supabaseUrl, supabaseServiceRoleKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  });
-};
 
 export interface MediaUploadResult {
   id: string;
@@ -77,54 +53,20 @@ export class MediaUploadService {
           .substring(2)}.${fileExtension}`;
         const storagePath = `gemstones/${gemstoneId}/images/${fileName}`;
 
-        // Upload to Supabase Storage
-        const { data: uploadData, error: uploadError } = await getAdminClient()
-          .storage.from("gemstone-media")
-          .upload(storagePath, file, {
-            cacheControl: "3600",
-            upsert: false,
-          });
+        const uploadResult = await this.uploadSingleFile({
+          gemstoneId,
+          mediaType: "image",
+          file,
+          serialNumber,
+        });
 
-        if (uploadError) {
-          console.error("Failed to upload image:", uploadError);
-          return {
-            success: false,
-            error: `Failed to upload ${file.name}: ${uploadError.message}`,
-          };
-        }
-
-        // Get public URL
-        const { data: urlData } = getAdminClient()
-          .storage.from("gemstone-media")
-          .getPublicUrl(storagePath);
-
-        // Save to database
-        const { data: imageRecord, error: dbError } = await getAdminClient()
-          .from("gemstone_images")
-          .insert({
-            gemstone_id: gemstoneId,
-            image_url: urlData.publicUrl,
-            image_order: results.length + 1,
-            is_primary: results.length === 0, // First image is primary
-            has_watermark: false, // TODO: Add watermarking later
-            original_filename: file.name,
-            original_path: storagePath,
-            alt_text: `Gemstone ${serialNumber} - Image ${results.length + 1}`,
-          })
-          .select()
-          .single();
-
-        if (dbError) {
-          console.error("Failed to save image record:", dbError);
-          return {
-            success: false,
-            error: `Failed to save image record: ${dbError.message}`,
-          };
+        if (!uploadResult.success) {
+          return uploadResult;
         }
 
         results.push({
-          id: imageRecord.id,
-          url: urlData.publicUrl,
+          id: uploadResult.data.id,
+          url: uploadResult.data.url,
           type: "image",
           originalName: file.name,
           size: file.size,
@@ -167,51 +109,20 @@ export class MediaUploadService {
           .substring(2)}.${fileExtension}`;
         const storagePath = `gemstones/${gemstoneId}/videos/${fileName}`;
 
-        // Upload to Supabase Storage
-        const { data: uploadData, error: uploadError } = await getAdminClient()
-          .storage.from("gemstone-media")
-          .upload(storagePath, file, {
-            cacheControl: "3600",
-            upsert: false,
-          });
+        const uploadResult = await this.uploadSingleFile({
+          gemstoneId,
+          mediaType: "video",
+          file,
+          serialNumber,
+        });
 
-        if (uploadError) {
-          console.error("Failed to upload video:", uploadError);
-          return {
-            success: false,
-            error: `Failed to upload ${file.name}: ${uploadError.message}`,
-          };
-        }
-
-        // Get public URL
-        const { data: urlData } = getAdminClient()
-          .storage.from("gemstone-media")
-          .getPublicUrl(storagePath);
-
-        // Save to database
-        const { data: videoRecord, error: dbError } = await getAdminClient()
-          .from("gemstone_videos")
-          .insert({
-            gemstone_id: gemstoneId,
-            video_url: urlData.publicUrl,
-            video_order: results.length + 1,
-            duration_seconds: null, // TODO: Extract duration from video
-            thumbnail_url: null, // TODO: Generate thumbnail
-          })
-          .select()
-          .single();
-
-        if (dbError) {
-          console.error("Failed to save video record:", dbError);
-          return {
-            success: false,
-            error: `Failed to save video record: ${dbError.message}`,
-          };
+        if (!uploadResult.success) {
+          return uploadResult;
         }
 
         results.push({
-          id: videoRecord.id,
-          url: urlData.publicUrl,
+          id: uploadResult.data.id,
+          url: uploadResult.data.url,
           type: "video",
           originalName: file.name,
           size: file.size,
@@ -232,59 +143,29 @@ export class MediaUploadService {
    * Delete media files
    */
   static async deleteMedia(
-    mediaIds: string[],
+    gemstoneId: string,
+    mediaId: string,
     type: "image" | "video"
   ): Promise<{ success: boolean; error?: string }> {
     try {
-      const tableName =
-        type === "image" ? "gemstone_images" : "gemstone_videos";
+      const response = await fetch(`/api/admin/gemstones/${gemstoneId}/media`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          mediaId,
+          mediaType: type,
+        }),
+      });
 
-      // Get media records to get URLs for storage deletion
-      const { data: mediaRecords, error: fetchError } = await getAdminClient()
-        .from(tableName)
-        .select("id, image_url, video_url, original_path")
-        .in("id", mediaIds);
+      const result = await response.json();
 
-      if (fetchError) {
+      if (!response.ok) {
         return {
           success: false,
-          error: `Failed to fetch media records: ${fetchError.message}`,
+          error: result.error || "Failed to delete media",
         };
-      }
-
-      // Delete from database
-      const { error: dbError } = await (supabaseAdmin || supabase)
-        .from(tableName)
-        .delete()
-        .in("id", mediaIds);
-
-      if (dbError) {
-        return {
-          success: false,
-          error: `Failed to delete media records: ${dbError.message}`,
-        };
-      }
-
-      // Delete from storage (optional - storage cleanup can be done separately)
-      const storagePaths =
-        mediaRecords
-          ?.map((record) => {
-            // Handle both image and video records safely
-            if ("original_path" in record && record.original_path) {
-              return record.original_path;
-            }
-            return null;
-          })
-          .filter((path): path is string => path !== null) || [];
-      if (storagePaths.length > 0) {
-        const { error: storageError } = await getAdminClient()
-          .storage.from("gemstone-media")
-          .remove(storagePaths);
-
-        if (storageError) {
-          console.warn("Failed to delete files from storage:", storageError);
-          // Don't fail the operation if storage cleanup fails
-        }
       }
 
       return { success: true };
@@ -306,43 +187,17 @@ export class MediaUploadService {
     error?: string;
   }> {
     try {
-      // Use admin client if available (server-side), otherwise use regular client
-      const client = getAdminClient();
+      const response = await fetch(`/api/admin/gemstones/${gemstoneId}/media`);
+      const result = await response.json();
 
-      const [imagesResult, videosResult] = await Promise.all([
-        client
-          .from("gemstone_images")
-          .select("*")
-          .eq("gemstone_id", gemstoneId)
-          .order("image_order"),
-        client
-          .from("gemstone_videos")
-          .select("*")
-          .eq("gemstone_id", gemstoneId)
-          .order("video_order"),
-      ]);
-
-      if (imagesResult.error) {
+      if (!response.ok) {
         return {
           success: false,
-          error: `Failed to fetch images: ${imagesResult.error.message}`,
+          error: result.error || "Failed to fetch media",
         };
       }
 
-      if (videosResult.error) {
-        return {
-          success: false,
-          error: `Failed to fetch videos: ${videosResult.error.message}`,
-        };
-      }
-
-      return {
-        success: true,
-        data: {
-          images: imagesResult.data || [],
-          videos: videosResult.data || [],
-        },
-      };
+      return { success: true, data: result.data };
     } catch (error) {
       console.error("Unexpected error fetching media:", error);
       return {
@@ -360,25 +215,23 @@ export class MediaUploadService {
     imageId: string
   ): Promise<{ success: boolean; error?: string }> {
     try {
-      const client = getAdminClient();
+      const response = await fetch(`/api/admin/gemstones/${gemstoneId}/media`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          mediaId: imageId,
+          mediaType: "image",
+        }),
+      });
 
-      // First, unset all primary flags for this gemstone
-      await client
-        .from("gemstone_images")
-        .update({ is_primary: false })
-        .eq("gemstone_id", gemstoneId);
+      const result = await response.json();
 
-      // Then set the selected image as primary
-      const { error } = await client
-        .from("gemstone_images")
-        .update({ is_primary: true })
-        .eq("id", imageId)
-        .eq("gemstone_id", gemstoneId);
-
-      if (error) {
+      if (!response.ok) {
         return {
           success: false,
-          error: `Failed to set primary image: ${error.message}`,
+          error: result.error || "Failed to set primary image",
         };
       }
 
@@ -400,26 +253,23 @@ export class MediaUploadService {
     videoId: string
   ): Promise<{ success: boolean; error?: string }> {
     try {
-      const client = getAdminClient();
+      const response = await fetch(`/api/admin/gemstones/${gemstoneId}/media`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          mediaId: videoId,
+          mediaType: "video",
+        }),
+      });
 
-      // Note: Videos don't have is_primary field, but we can use video_order = 0 to indicate primary
-      // First, set all videos to order > 0
-      await client
-        .from("gemstone_videos")
-        .update({ video_order: 1 })
-        .eq("gemstone_id", gemstoneId);
+      const result = await response.json();
 
-      // Then set the selected video as primary (order = 0)
-      const { error } = await client
-        .from("gemstone_videos")
-        .update({ video_order: 0 })
-        .eq("id", videoId)
-        .eq("gemstone_id", gemstoneId);
-
-      if (error) {
+      if (!response.ok) {
         return {
           success: false,
-          error: `Failed to set primary video: ${error.message}`,
+          error: result.error || "Failed to set primary video",
         };
       }
 
@@ -431,6 +281,53 @@ export class MediaUploadService {
         error: "An unexpected error occurred while setting primary video",
       };
     }
+  }
+
+  /**
+   * Upload a single file via API route
+   */
+  private static async uploadSingleFile(params: {
+    gemstoneId: string;
+    mediaType: "image" | "video";
+    file: File;
+    serialNumber: string;
+  }): Promise<
+    | { success: true; data: { id: string; url: string } }
+    | { success: false; error: string }
+  > {
+    const formData = new FormData();
+    formData.append("gemstoneId", params.gemstoneId);
+    formData.append("mediaType", params.mediaType);
+    formData.append("serialNumber", params.serialNumber);
+    formData.append("file", params.file);
+
+    const response = await fetch("/api/admin/gemstones/media", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result?.success) {
+      return { success: false, error: result?.error || "Upload failed" };
+    }
+
+    const record = result.data;
+
+    if (!record?.id || !record?.url) {
+      return {
+        success: false,
+        error: "Upload succeeded but response payload is incomplete",
+      };
+    }
+
+    return {
+      success: true,
+      data: {
+        id: record.id as string,
+        url: record.url as string,
+      },
+    };
   }
 
   /**

@@ -20,19 +20,22 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { AdminAnalytics } from "./admin-analytics";
 import { AdminGemstoneManager } from "./admin-gemstone-manager";
 import { AdminPriceInventoryManager } from "./admin-price-inventory-manager";
 import { AdminSettings } from "./admin-settings";
 import { AdminUserManager } from "./admin-user-manager";
+import { AIModerationDashboard } from "./ai-moderation-dashboard";
 // Import admin components (will be created in subsequent phases)
 import { Button } from "@/shared/components/ui/button";
 import { OrderManagement } from "./order-management";
 import { StatisticsService } from "../services/statistics-service";
 import { useAdmin } from "../context/admin-context";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 
 type AdminTab =
   | "dashboard"
@@ -41,6 +44,7 @@ type AdminTab =
   | "pricing"
   | "users"
   | "analytics"
+  | "ai-moderation"
   | "settings";
 
 const getAdminTabs = (t: any) => [
@@ -81,6 +85,12 @@ const getAdminTabs = (t: any) => [
     description: t("tabs.analytics"),
   },
   {
+    id: "ai-moderation" as AdminTab,
+    name: t("navigation.aiModeration"),
+    icon: Shield,
+    description: t("tabs.aiModeration"),
+  },
+  {
     id: "settings" as AdminTab,
     name: t("navigation.settings"),
     icon: Settings,
@@ -92,7 +102,46 @@ export function AdminDashboard() {
   const { user, profile, signOut, isLoading } = useAdmin();
   const [activeTab, setActiveTab] = useState<AdminTab>("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [pendingGemstoneId, setPendingGemstoneId] = useState<string | null>(
+    null
+  );
   const t = useTranslations("admin");
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const validTabIds = useMemo(
+    () =>
+      new Set<AdminTab>([
+        "dashboard",
+        "orders",
+        "gemstones",
+        "pricing",
+        "users",
+        "analytics",
+        "ai-moderation",
+        "settings",
+      ]),
+    []
+  );
+
+  const tabParam = searchParams.get("tab");
+  const editParam = searchParams.get("edit");
+
+  useEffect(() => {
+    if (tabParam && validTabIds.has(tabParam as AdminTab)) {
+      setActiveTab(tabParam as AdminTab);
+    }
+  }, [tabParam, validTabIds]);
+
+  useEffect(() => {
+    if (editParam) {
+      setPendingGemstoneId(editParam);
+      if (tabParam !== "gemstones") {
+        setActiveTab("gemstones");
+      }
+    } else {
+      setPendingGemstoneId(null);
+    }
+  }, [editParam, tabParam]);
 
   if (isLoading) {
     return (
@@ -138,13 +187,28 @@ export function AdminDashboard() {
       case "orders":
         return <OrderManagement />;
       case "gemstones":
-        return <AdminGemstoneManager />;
+        return (
+          <AdminGemstoneManager
+            initialGemstoneId={pendingGemstoneId}
+            onInitialGemstoneHandled={() => {
+              if (pendingGemstoneId) {
+                setPendingGemstoneId(null);
+                router.replace({
+                  pathname: "/admin/dashboard",
+                  query: { tab: "gemstones" },
+                });
+              }
+            }}
+          />
+        );
       case "pricing":
         return <AdminPriceInventoryManager />;
       case "users":
         return <AdminUserManager />;
       case "analytics":
         return <AdminAnalytics />;
+      case "ai-moderation":
+        return <AIModerationDashboard />;
       case "settings":
         return <AdminSettings />;
       default:

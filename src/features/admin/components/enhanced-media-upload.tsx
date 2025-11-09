@@ -8,11 +8,23 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
+import { Checkbox } from "@/shared/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/shared/components/ui/dialog";
+import { Input } from "@/shared/components/ui/input";
 import type {
   DatabaseGemstoneImage,
   DatabaseGemstoneVideo,
 } from "@/shared/types";
 import {
+  Edit2,
+  GripVertical,
   Image as ImageIcon,
   Star,
   StarOff,
@@ -58,6 +70,17 @@ export function EnhancedMediaUpload({
     videos: [],
   });
   const [loading, setLoading] = useState(false);
+  const [draggedItem, setDraggedItem] = useState<{
+    id: string;
+    type: "image" | "video";
+    index: number;
+  } | null>(null);
+  const [editingMedia, setEditingMedia] = useState<{
+    id: string;
+    type: "image" | "video";
+    alt_text: string;
+    has_watermark: boolean;
+  } | null>(null);
 
   // Load existing media when gemstoneId changes
   useEffect(() => {
@@ -171,7 +194,16 @@ export function EnhancedMediaUpload({
     type: "image" | "video"
   ) => {
     try {
-      const result = await MediaUploadService.deleteMedia([mediaId], type);
+      if (!gemstoneId) {
+        onUploadError?.("Gemstone ID is required to delete media");
+        return;
+      }
+
+      const result = await MediaUploadService.deleteMedia(
+        gemstoneId,
+        mediaId,
+        type
+      );
       if (result.success) {
         // Remove from existing media
         if (type === "image") {
@@ -248,17 +280,163 @@ export function EnhancedMediaUpload({
     }
   };
 
-  const renderMediaItem = (
+  const handleDragStart = (
+    e: React.DragEvent,
+    id: string,
+    type: "image" | "video",
+    index: number
+  ) => {
+    setDraggedItem({ id, type, index });
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  };
+
+  const handleDrop = async (
+    e: React.DragEvent,
+    targetIndex: number,
+    type: "image" | "video"
+  ) => {
+    e.preventDefault();
+
+    if (!draggedItem || draggedItem.type !== type) {
+      setDraggedItem(null);
+      return;
+    }
+
+    const sourceIndex = draggedItem.index;
+    if (sourceIndex === targetIndex) {
+      setDraggedItem(null);
+      return;
+    }
+
+    // Reorder the media items
+    setExistingMedia((prev) => {
+      if (type === "image") {
+        const items = [...prev.images];
+        const [removed] = items.splice(sourceIndex, 1);
+        items.splice(targetIndex, 0, removed);
+
+        // Update order values
+        const updatedItems = items.map((item, idx) => ({
+          ...item,
+          image_order: idx,
+        }));
+
+        return { ...prev, images: updatedItems };
+      } else {
+        const items = [...prev.videos];
+        const [removed] = items.splice(sourceIndex, 1);
+        items.splice(targetIndex, 0, removed);
+
+        // Update order values
+        const updatedItems = items.map((item, idx) => ({
+          ...item,
+          video_order: idx,
+        }));
+
+        return { ...prev, videos: updatedItems };
+      }
+    });
+
+    setDraggedItem(null);
+
+    // TODO: Call API to persist the new order
+    // This would require a new API endpoint to update media order
+  };
+
+  const handleEditMedia = (
     media: DatabaseGemstoneImage | DatabaseGemstoneVideo,
     type: "image" | "video"
+  ) => {
+    setEditingMedia({
+      id: media.id,
+      type,
+      alt_text: (media as DatabaseGemstoneImage).alt_text || "",
+      has_watermark: (media as DatabaseGemstoneImage).has_watermark ?? true,
+    });
+  };
+
+  const handleSaveMediaEdit = async () => {
+    if (!editingMedia || !gemstoneId) return;
+
+    try {
+      // Call API to update media metadata
+      const response = await fetch(
+        `/api/admin/gemstones/${gemstoneId}/media/${editingMedia.id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            alt_text: editingMedia.alt_text,
+            has_watermark: editingMedia.has_watermark,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to update media metadata");
+      }
+
+      // Update local state
+      setExistingMedia((prev) => {
+        if (editingMedia.type === "image") {
+          return {
+            ...prev,
+            images: prev.images.map((img) =>
+              img.id === editingMedia.id
+                ? {
+                    ...img,
+                    alt_text: editingMedia.alt_text,
+                    has_watermark: editingMedia.has_watermark,
+                  }
+                : img
+            ),
+          };
+        } else {
+          return prev; // Videos don't have these fields yet
+        }
+      });
+
+      setEditingMedia(null);
+    } catch (error) {
+      onUploadError?.((error as Error).message);
+    }
+  };
+
+  const renderMediaItem = (
+    media: DatabaseGemstoneImage | DatabaseGemstoneVideo,
+    type: "image" | "video",
+    index: number
   ) => {
     const isPrimary =
       type === "image"
         ? (media as DatabaseGemstoneImage).is_primary
         : (media as DatabaseGemstoneVideo).video_order === 0;
 
+    const isDragging = draggedItem?.id === media.id;
+
     return (
-      <div key={media.id} className="relative group">
+      <div
+        key={media.id}
+        className={`relative group cursor-move ${isDragging ? "opacity-50" : ""}`}
+        draggable
+        onDragStart={(e) => handleDragStart(e, media.id, type, index)}
+        onDragOver={handleDragOver}
+        onDrop={(e) => handleDrop(e, index, type)}
+      >
+        {/* Drag handle */}
+        <div className="absolute top-1 left-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="bg-white/90 rounded p-1">
+            <GripVertical className="w-4 h-4 text-gray-600" />
+          </div>
+        </div>
+
         <div className="aspect-square rounded-lg overflow-hidden bg-gray-100 border">
           {type === "image" ? (
             <img
@@ -285,6 +463,17 @@ export function EnhancedMediaUpload({
 
         {/* Action buttons */}
         <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+          {type === "image" && (
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => handleEditMedia(media, type)}
+              className="h-6 w-6 p-0"
+              title="Edit metadata"
+            >
+              <Edit2 className="w-3 h-3" />
+            </Button>
+          )}
           {!isPrimary && (
             <Button
               size="sm"
@@ -391,8 +580,8 @@ export function EnhancedMediaUpload({
                       Images
                     </h4>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      {existingMedia.images.map((image) =>
-                        renderMediaItem(image, "image")
+                      {existingMedia.images.map((image, index) =>
+                        renderMediaItem(image, "image", index)
                       )}
                     </div>
                   </div>
@@ -405,8 +594,8 @@ export function EnhancedMediaUpload({
                       Videos
                     </h4>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      {existingMedia.videos.map((video) =>
-                        renderMediaItem(video, "video")
+                      {existingMedia.videos.map((video, index) =>
+                        renderMediaItem(video, "video", index)
                       )}
                     </div>
                   </div>
@@ -458,6 +647,63 @@ export function EnhancedMediaUpload({
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Edit Media Dialog */}
+      {editingMedia && (
+        <Dialog open={!!editingMedia} onOpenChange={() => setEditingMedia(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit Media Metadata</DialogTitle>
+              <DialogDescription>
+                Update the alt text and watermark status for this image
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium">Alt Text</label>
+                <Input
+                  value={editingMedia.alt_text}
+                  onChange={(e) =>
+                    setEditingMedia((prev) =>
+                      prev ? { ...prev, alt_text: e.target.value } : null
+                    )
+                  }
+                  placeholder="Describe the image..."
+                  className="mt-1"
+                />
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="has_watermark"
+                  checked={editingMedia.has_watermark}
+                  onCheckedChange={(checked) =>
+                    setEditingMedia((prev) =>
+                      prev
+                        ? { ...prev, has_watermark: checked as boolean }
+                        : null
+                    )
+                  }
+                />
+                <label
+                  htmlFor="has_watermark"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Has watermark
+                </label>
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setEditingMedia(null)}>
+                Cancel
+              </Button>
+              <Button onClick={handleSaveMediaEdit}>Save Changes</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );

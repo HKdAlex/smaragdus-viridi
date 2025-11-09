@@ -162,7 +162,7 @@ export function GemstoneDetailPage({
           </Button>
           <div>
             <h2 className="text-xl font-bold text-foreground">
-              {gemstone.serial_number}
+              {gemstone.internal_code?.trim() || gemstone.serial_number}
             </h2>
             <p className="text-sm text-muted-foreground">
               {formatWeight(gemstone.weight_carats)} {gemstone.color}{" "}

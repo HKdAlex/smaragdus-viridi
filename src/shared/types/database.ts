@@ -322,7 +322,7 @@ export type Database = {
           email: string
           id: string
           inquiry_type: string
-          ip_address: unknown | null
+          ip_address: unknown
           is_spam: boolean | null
           locale: string | null
           message: string
@@ -345,7 +345,7 @@ export type Database = {
           email: string
           id?: string
           inquiry_type: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           is_spam?: boolean | null
           locale?: string | null
           message: string
@@ -368,7 +368,7 @@ export type Database = {
           email?: string
           id?: string
           inquiry_type?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           is_spam?: boolean | null
           locale?: string | null
           message?: string
@@ -826,8 +826,8 @@ export type Database = {
           delivery_days: number | null
           depth_mm: number
           description: string | null
-          description_vector_en: unknown | null
-          description_vector_ru: unknown | null
+          description_vector_en: unknown
+          description_vector_ru: unknown
           id: string
           import_batch_id: string | null
           import_folder_path: string | null
@@ -850,8 +850,8 @@ export type Database = {
           primary_video_url: string | null
           promotional_text: string | null
           quantity: number
-          search_vector_en: unknown | null
-          search_vector_ru: unknown | null
+          search_vector_en: unknown
+          search_vector_ru: unknown
           serial_number: string
           type_code: string
           updated_at: string | null
@@ -893,8 +893,8 @@ export type Database = {
           delivery_days?: number | null
           depth_mm: number
           description?: string | null
-          description_vector_en?: unknown | null
-          description_vector_ru?: unknown | null
+          description_vector_en?: unknown
+          description_vector_ru?: unknown
           id?: string
           import_batch_id?: string | null
           import_folder_path?: string | null
@@ -919,8 +919,8 @@ export type Database = {
           primary_video_url?: string | null
           promotional_text?: string | null
           quantity?: number
-          search_vector_en?: unknown | null
-          search_vector_ru?: unknown | null
+          search_vector_en?: unknown
+          search_vector_ru?: unknown
           serial_number: string
           type_code: string
           updated_at?: string | null
@@ -962,8 +962,8 @@ export type Database = {
           delivery_days?: number | null
           depth_mm?: number
           description?: string | null
-          description_vector_en?: unknown | null
-          description_vector_ru?: unknown | null
+          description_vector_en?: unknown
+          description_vector_ru?: unknown
           id?: string
           import_batch_id?: string | null
           import_folder_path?: string | null
@@ -988,8 +988,8 @@ export type Database = {
           primary_video_url?: string | null
           promotional_text?: string | null
           quantity?: number
-          search_vector_en?: unknown | null
-          search_vector_ru?: unknown | null
+          search_vector_en?: unknown
+          search_vector_ru?: unknown
           serial_number?: string
           type_code?: string
           updated_at?: string | null
@@ -1090,6 +1090,7 @@ export type Database = {
       }
       gemstones_ai_v6: {
         Row: {
+          approval_status: string | null
           care_instructions_en: string | null
           care_instructions_ru: string | null
           color_detection_confidence: number | null
@@ -1123,6 +1124,8 @@ export type Database = {
           promotional_text_ru: string | null
           recommended_primary_image_index: number | null
           review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
           selected_image_uuid: string | null
           technical_description_en: string | null
           technical_description_ru: string | null
@@ -1130,6 +1133,7 @@ export type Database = {
           used_images: boolean
         }
         Insert: {
+          approval_status?: string | null
           care_instructions_en?: string | null
           care_instructions_ru?: string | null
           color_detection_confidence?: number | null
@@ -1163,6 +1167,8 @@ export type Database = {
           promotional_text_ru?: string | null
           recommended_primary_image_index?: number | null
           review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           selected_image_uuid?: string | null
           technical_description_en?: string | null
           technical_description_ru?: string | null
@@ -1170,6 +1176,7 @@ export type Database = {
           used_images?: boolean
         }
         Update: {
+          approval_status?: string | null
           care_instructions_en?: string | null
           care_instructions_ru?: string | null
           color_detection_confidence?: number | null
@@ -1203,6 +1210,8 @@ export type Database = {
           promotional_text_ru?: string | null
           recommended_primary_image_index?: number | null
           review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           selected_image_uuid?: string | null
           technical_description_en?: string | null
           technical_description_ru?: string | null
@@ -1804,8 +1813,8 @@ export type Database = {
           delivery_days: number | null
           depth_mm: number | null
           description: string | null
-          description_vector_en: unknown | null
-          description_vector_ru: unknown | null
+          description_vector_en: unknown
+          description_vector_ru: unknown
           id: string | null
           import_batch_id: string | null
           import_folder_path: string | null
@@ -1826,8 +1835,8 @@ export type Database = {
           price_per_carat: number | null
           promotional_text: string | null
           quantity: number | null
-          search_vector_en: unknown | null
-          search_vector_ru: unknown | null
+          search_vector_en: unknown
+          search_vector_ru: unknown
           serial_number: string | null
           type_code: string | null
           updated_at: string | null
@@ -1872,8 +1881,8 @@ export type Database = {
           delivery_days?: number | null
           depth_mm?: number | null
           description?: string | null
-          description_vector_en?: unknown | null
-          description_vector_ru?: unknown | null
+          description_vector_en?: unknown
+          description_vector_ru?: unknown
           id?: string | null
           import_batch_id?: string | null
           import_folder_path?: string | null
@@ -1896,8 +1905,8 @@ export type Database = {
           price_per_carat?: number | null
           promotional_text?: string | null
           quantity?: number | null
-          search_vector_en?: unknown | null
-          search_vector_ru?: unknown | null
+          search_vector_en?: unknown
+          search_vector_ru?: unknown
           serial_number?: string | null
           type_code?: string | null
           updated_at?: string | null
@@ -1942,8 +1951,8 @@ export type Database = {
           delivery_days?: number | null
           depth_mm?: number | null
           description?: string | null
-          description_vector_en?: unknown | null
-          description_vector_ru?: unknown | null
+          description_vector_en?: unknown
+          description_vector_ru?: unknown
           id?: string | null
           import_batch_id?: string | null
           import_folder_path?: string | null
@@ -1966,8 +1975,8 @@ export type Database = {
           price_per_carat?: number | null
           promotional_text?: string | null
           quantity?: number | null
-          search_vector_en?: unknown | null
-          search_vector_ru?: unknown | null
+          search_vector_en?: unknown
+          search_vector_ru?: unknown
           serial_number?: string | null
           type_code?: string | null
           updated_at?: string | null
@@ -2054,10 +2063,7 @@ export type Database = {
       }
     }
     Functions: {
-      backfill_primary_images: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      backfill_primary_images: { Args: never; Returns: undefined }
       calculate_cart_total: {
         Args: { p_user_id: string }
         Returns: {
@@ -2066,52 +2072,38 @@ export type Database = {
           total_items: number
         }[]
       }
-      cleanup_audit_data: {
-        Args: { days_old?: number }
-        Returns: number
-      }
-      cleanup_expired_cart_items: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
+      cleanup_audit_data: { Args: { days_old?: number }; Returns: number }
+      cleanup_expired_cart_items: { Args: never; Returns: number }
       create_admin_profile_for_user: {
         Args: { user_email: string }
         Returns: undefined
       }
-      detect_query_locale: {
-        Args: { query: string }
-        Returns: string
-      }
-      fuzzy_search_suggestions: {
-        Args:
-          | {
+      detect_query_locale: { Args: { query: string }; Returns: string }
+      fuzzy_search_suggestions:
+        | {
+            Args: { search_term: string; suggestion_limit?: number }
+            Returns: {
+              match_type: string
+              similarity_score: number
+              suggestion: string
+            }[]
+          }
+        | {
+            Args: {
               search_locale?: string
               search_term: string
               suggestion_limit?: number
             }
-          | { search_term: string; suggestion_limit?: number }
-        Returns: {
-          match_type: string
-          similarity_score: number
-          suggestion: string
-        }[]
-      }
-      generate_order_number: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      get_batch_statistics: {
-        Args: { batch_uuid: string }
-        Returns: Json
-      }
-      get_catalog_stats: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
-      }
-      get_import_statistics: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
-      }
+            Returns: {
+              match_type: string
+              similarity_score: number
+              suggestion: string
+            }[]
+          }
+      generate_order_number: { Args: never; Returns: string }
+      get_batch_statistics: { Args: { batch_uuid: string }; Returns: Json }
+      get_catalog_stats: { Args: never; Returns: Json }
+      get_import_statistics: { Args: never; Returns: Json }
       get_search_analytics_summary: {
         Args: { days_back?: number }
         Returns: {
@@ -2140,66 +2132,66 @@ export type Database = {
           zero_result_count: number
         }[]
       }
-      gtrgm_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gtrgm_decompress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gtrgm_in: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gtrgm_options: {
-        Args: { "": unknown }
-        Returns: undefined
-      }
-      gtrgm_out: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      is_admin_user: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
-      search_gemstones_fulltext: {
-        Args:
-          | {
+      is_admin_user: { Args: never; Returns: boolean }
+      search_gemstones_fulltext:
+        | {
+            Args: {
               filters: Json
               page_num: number
               page_size: number
               search_query: string
             }
-          | {
+            Returns: {
+              clarity: Database["public"]["Enums"]["gem_clarity"]
+              color: Database["public"]["Enums"]["gem_color"]
+              created_at: string
+              cut: Database["public"]["Enums"]["gem_cut"]
+              description: string
+              has_ai_analysis: boolean
+              has_certification: boolean
+              id: string
+              in_stock: boolean
+              metadata_status: Database["public"]["Enums"]["metadata_status"]
+              name: Database["public"]["Enums"]["gemstone_type"]
+              origin_id: string
+              price_amount: number
+              price_currency: Database["public"]["Enums"]["currency_code"]
+              relevance_score: number
+              serial_number: string
+              total_count: number
+              updated_at: string
+              weight_carats: number
+            }[]
+          }
+        | {
+            Args: {
               filters?: Json
               page_num?: number
               page_size?: number
               search_query?: string
             }
-        Returns: {
-          clarity: Database["public"]["Enums"]["gem_clarity"]
-          color: Database["public"]["Enums"]["gem_color"]
-          created_at: string
-          cut: Database["public"]["Enums"]["gem_cut"]
-          description: string
-          has_ai_analysis: boolean
-          has_certification: boolean
-          id: string
-          in_stock: boolean
-          metadata_status: Database["public"]["Enums"]["metadata_status"]
-          name: Database["public"]["Enums"]["gemstone_type"]
-          origin_id: string
-          price_amount: number
-          price_currency: Database["public"]["Enums"]["currency_code"]
-          relevance_score: number
-          serial_number: string
-          total_count: number
-          updated_at: string
-          weight_carats: number
-        }[]
-      }
+            Returns: {
+              clarity: string
+              color: string
+              created_at: string
+              cut: string
+              description: string
+              has_ai_analysis: boolean
+              has_certification: boolean
+              id: string
+              in_stock: boolean
+              metadata_status: string
+              name: string
+              origin_id: string
+              price_amount: number
+              price_currency: string
+              relevance_score: number
+              serial_number: string
+              total_count: number
+              updated_at: string
+              weight_carats: number
+            }[]
+          }
       search_gemstones_multilingual: {
         Args: {
           description_enabled?: boolean
@@ -2231,9 +2223,9 @@ export type Database = {
           weight_carats: number
         }[]
       }
-      search_gemstones_optimized: {
-        Args:
-          | {
+      search_gemstones_optimized:
+        | {
+            Args: {
               clarities?: Database["public"]["Enums"]["gem_clarity"][]
               colors?: Database["public"]["Enums"]["gem_color"][]
               cuts?: Database["public"]["Enums"]["gem_cut"][]
@@ -2253,7 +2245,33 @@ export type Database = {
               sort_by?: string
               sort_direction?: string
             }
-          | {
+            Returns: {
+              ai_analysis_count: number
+              certifications_count: number
+              clarity: Database["public"]["Enums"]["gem_clarity"]
+              color: Database["public"]["Enums"]["gem_color"]
+              created_at: string
+              cut: Database["public"]["Enums"]["gem_cut"]
+              delivery_days: number
+              id: string
+              in_stock: boolean
+              internal_code: string
+              name: Database["public"]["Enums"]["gemstone_type"]
+              origin_country: string
+              origin_name: string
+              premium_price_amount: number
+              premium_price_currency: string
+              price_amount: number
+              price_currency: string
+              primary_image_url: string
+              serial_number: string
+              total_count: number
+              updated_at: string
+              weight_carats: number
+            }[]
+          }
+        | {
+            Args: {
               clarities?: string[]
               colors?: string[]
               cuts?: string[]
@@ -2273,51 +2291,34 @@ export type Database = {
               sort_by?: string
               sort_direction?: string
             }
-        Returns: {
-          ai_analysis_count: number
-          certifications_count: number
-          clarity: Database["public"]["Enums"]["gem_clarity"]
-          color: Database["public"]["Enums"]["gem_color"]
-          created_at: string
-          cut: Database["public"]["Enums"]["gem_cut"]
-          delivery_days: number
-          id: string
-          in_stock: boolean
-          internal_code: string
-          name: Database["public"]["Enums"]["gemstone_type"]
-          origin_country: string
-          origin_name: string
-          premium_price_amount: number
-          premium_price_currency: string
-          price_amount: number
-          price_currency: string
-          primary_image_url: string
-          serial_number: string
-          total_count: number
-          updated_at: string
-          weight_carats: number
-        }[]
-      }
-      set_limit: {
-        Args: { "": number }
-        Returns: number
-      }
-      show_limit: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
-      show_trgm: {
-        Args: { "": string }
-        Returns: string[]
-      }
-      unaccent: {
-        Args: { "": string }
-        Returns: string
-      }
-      unaccent_init: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
+            Returns: {
+              ai_analysis_count: number
+              certifications_count: number
+              clarity: string
+              color: string
+              created_at: string
+              cut: string
+              delivery_days: number
+              id: string
+              in_stock: boolean
+              internal_code: string
+              name: string
+              origin_country: string
+              origin_name: string
+              premium_price_amount: number
+              premium_price_currency: string
+              price_amount: number
+              price_currency: string
+              primary_image_url: string
+              serial_number: string
+              total_count: number
+              updated_at: string
+              weight_carats: number
+            }[]
+          }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
+      unaccent: { Args: { "": string }; Returns: string }
       validate_cart_item: {
         Args: { p_gemstone_id: string; p_quantity: number; p_user_id: string }
         Returns: boolean

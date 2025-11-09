@@ -33,6 +33,7 @@ import {
   GEM_CLARITIES,
   GEM_COLORS,
   GEM_CUTS,
+  METADATA_STATUSES,
 } from "@/shared/services/database-enums";
 import type { DatabaseGemstone, DatabaseOrigin } from "@/shared/types";
 import {
@@ -41,7 +42,7 @@ import {
   DollarSign,
   FileText,
   Gem,
-  Image,
+  Image as ImageIcon,
   Loader2,
   Minus,
   Package,
@@ -62,6 +63,7 @@ import {
   MediaUploadService,
   type MediaUploadResult,
 } from "../services/media-upload-service";
+import { CertificationManager } from "./certification-manager";
 import { EnhancedMediaUpload } from "./enhanced-media-upload";
 
 interface GemstoneFormProps {
@@ -77,6 +79,113 @@ export function GemstoneForm({
 }: GemstoneFormProps) {
   const t = useTranslations("admin.gemstoneForm");
   const tCurrencies = useTranslations("admin.currencies");
+  const metadataStatusOptions = METADATA_STATUSES.map((status) => ({
+    value: status,
+    label: t(`metadataStatusOptions.${status}` as any),
+  }));
+  const parseCurrencyInput = (value: string): number | undefined => {
+    if (value.trim() === "") {
+      return undefined;
+    }
+    const numeric = parseFloat(value);
+    return Number.isNaN(numeric) ? undefined : Math.round(numeric * 100);
+  };
+
+  const parseDimensionValue = (
+    value: number | string | null | undefined
+  ): number => {
+    if (value === null || value === undefined) {
+      return 0;
+    }
+
+    if (typeof value === "number") {
+      return Number.isFinite(value) ? value : 0;
+    }
+
+    const normalized = parseFloat(value.replace(",", "."));
+    return Number.isFinite(normalized) ? normalized : 0;
+  };
+
+  const handlePriceAmountChange = (value: string) => {
+    const cents = parseCurrencyInput(value);
+    setFormData((prev) => {
+      const next = {
+        ...prev,
+        price_amount: cents ?? 0,
+      };
+
+      if (
+        !hasManualPricePerCarat &&
+        cents !== undefined &&
+        prev.weight_carats > 0
+      ) {
+        next.price_per_carat = Math.round(cents / prev.weight_carats);
+      }
+
+      return next;
+    });
+
+    if (errors.price_amount) {
+      setErrors((prev) => ({ ...prev, price_amount: "" }));
+    }
+  };
+
+  const handlePricePerCaratChange = (value: string) => {
+    const cents = parseCurrencyInput(value);
+    setHasManualPricePerCarat(value.trim() !== "");
+    setFormData((prev) => {
+      const next = { ...prev };
+      if (value.trim() === "") {
+        next.price_per_carat = null;
+      } else if (cents !== undefined && cents >= 0) {
+        next.price_per_carat = cents;
+        if (prev.weight_carats > 0) {
+          next.price_amount = Math.round(cents * prev.weight_carats);
+        }
+      }
+      return next;
+    });
+
+    if (errors.price_per_carat) {
+      setErrors((prev) => ({ ...prev, price_per_carat: "" }));
+    }
+  };
+
+  const handleWeightChange = (value: number) => {
+    setFormData((prev) => {
+      const next = { ...prev, weight_carats: value };
+      if (
+        prev.price_per_carat &&
+        prev.price_per_carat > 0 &&
+        value > 0 &&
+        hasManualPricePerCarat
+      ) {
+        next.price_amount = Math.round(prev.price_per_carat * value);
+      }
+      return next;
+    });
+
+    if (errors.weight_carats) {
+      setErrors((prev) => ({ ...prev, weight_carats: "" }));
+    }
+  };
+
+  const handleAutoCalculatePricePerCarat = () => {
+    if (formData.price_amount > 0 && formData.weight_carats > 0) {
+      const calculated = Math.round(
+        formData.price_amount / formData.weight_carats
+      );
+      setFormData((prev) => ({
+        ...prev,
+        price_per_carat: calculated,
+      }));
+      setHasManualPricePerCarat(false);
+      if (errors.price_per_carat) {
+        setErrors((prev) => ({ ...prev, price_per_carat: "" }));
+      }
+    }
+  };
+
   const {
     translateGemstoneType,
     translateColor,
@@ -99,6 +208,7 @@ export function GemstoneForm({
   const [currentHighlightRu, setCurrentHighlightRu] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [uploadedMedia, setUploadedMedia] = useState<MediaUploadResult[]>([]);
+  const [hasManualPricePerCarat, setHasManualPricePerCarat] = useState(false);
 
   const [formData, setFormData] = useState<GemstoneFormData>(() => {
     return {
@@ -107,16 +217,19 @@ export function GemstoneForm({
       cut: gemstone?.cut || DEFAULT_GEMSTONE_VALUES.cut,
       clarity: gemstone?.clarity || DEFAULT_GEMSTONE_VALUES.clarity,
       weight_carats: gemstone?.weight_carats || 0,
-      length_mm: gemstone?.length_mm || 0,
-      width_mm: gemstone?.width_mm || 0,
-      depth_mm: gemstone?.depth_mm || 0,
+      length_mm: parseDimensionValue(gemstone?.length_mm),
+      width_mm: parseDimensionValue(gemstone?.width_mm),
+      depth_mm: parseDimensionValue(gemstone?.depth_mm),
       origin_id: gemstone?.origin_id || undefined,
       price_amount: gemstone?.price_amount || 0,
       price_currency:
         gemstone?.price_currency || DEFAULT_GEMSTONE_VALUES.currency,
       premium_price_amount: gemstone?.premium_price_amount || undefined,
       premium_price_currency: gemstone?.premium_price_currency || undefined,
+      price_per_carat: gemstone?.price_per_carat ?? null,
       in_stock: gemstone?.in_stock ?? true,
+      metadata_status: gemstone?.metadata_status ?? "needs_review",
+      quantity: gemstone?.quantity ?? 1,
       delivery_days: gemstone?.delivery_days || undefined,
       internal_code: gemstone?.internal_code || undefined,
       serial_number: gemstone?.serial_number || "",
@@ -170,16 +283,19 @@ export function GemstoneForm({
         cut: gemstone.cut || DEFAULT_GEMSTONE_VALUES.cut,
         clarity: gemstone.clarity || DEFAULT_GEMSTONE_VALUES.clarity,
         weight_carats: gemstone.weight_carats || 0,
-        length_mm: gemstone.length_mm || 0,
-        width_mm: gemstone.width_mm || 0,
-        depth_mm: gemstone.depth_mm || 0,
+        length_mm: parseDimensionValue(gemstone.length_mm),
+        width_mm: parseDimensionValue(gemstone.width_mm),
+        depth_mm: parseDimensionValue(gemstone.depth_mm),
         origin_id: gemstone.origin_id || undefined,
         price_amount: gemstone.price_amount || 0,
         price_currency:
           gemstone.price_currency || DEFAULT_GEMSTONE_VALUES.currency,
         premium_price_amount: gemstone.premium_price_amount || undefined,
         premium_price_currency: gemstone.premium_price_currency || undefined,
+        price_per_carat: gemstone.price_per_carat ?? null,
         in_stock: gemstone.in_stock ?? true,
+        metadata_status: gemstone.metadata_status ?? null,
+        quantity: gemstone.quantity ?? 1,
         delivery_days: gemstone.delivery_days || undefined,
         internal_code: gemstone.internal_code || undefined,
         serial_number: gemstone.serial_number || "",
@@ -216,6 +332,7 @@ export function GemstoneForm({
       if (gemstone.ai_v6?.marketing_highlights_ru) {
         setMarketingHighlightsRu(gemstone.ai_v6.marketing_highlights_ru);
       }
+      setHasManualPricePerCarat(false);
     }
   }, [gemstone]);
 
@@ -302,6 +419,8 @@ export function GemstoneForm({
         else if (error.includes("Weight")) errorMap.weight_carats = error;
         else if (error.includes("Price")) errorMap.price_amount = error;
         else if (error.includes("currency")) errorMap.price_currency = error;
+        else if (error.includes("per carat")) errorMap.price_per_carat = error;
+        else if (error.includes("Quantity")) errorMap.quantity = error;
       });
       setErrors(errorMap);
       return false;
@@ -418,31 +537,31 @@ export function GemstoneForm({
             <TabsList className="grid w-full grid-cols-2 md:grid-cols-6 lg:grid-cols-7">
               <TabsTrigger value="basic" className="text-xs md:text-sm">
                 <FileText className="w-3 h-3 md:w-4 md:h-4 mr-1" />
-                <span className="hidden sm:inline">Basic</span>
+                <span className="hidden sm:inline">{t("tabs.basic")}</span>
               </TabsTrigger>
               <TabsTrigger value="properties" className="text-xs md:text-sm">
                 <Palette className="w-3 h-3 md:w-4 md:h-4 mr-1" />
-                <span className="hidden sm:inline">Properties</span>
+                <span className="hidden sm:inline">{t("tabs.properties")}</span>
               </TabsTrigger>
               <TabsTrigger value="dimensions" className="text-xs md:text-sm">
                 <Ruler className="w-3 h-3 md:w-4 md:h-4 mr-1" />
-                <span className="hidden sm:inline">Dimensions</span>
+                <span className="hidden sm:inline">{t("tabs.dimensions")}</span>
               </TabsTrigger>
               <TabsTrigger value="pricing" className="text-xs md:text-sm">
                 <DollarSign className="w-3 h-3 md:w-4 md:h-4 mr-1" />
-                <span className="hidden sm:inline">Pricing</span>
+                <span className="hidden sm:inline">{t("tabs.pricing")}</span>
               </TabsTrigger>
               <TabsTrigger value="inventory" className="text-xs md:text-sm">
                 <Package className="w-3 h-3 md:w-4 md:h-4 mr-1" />
-                <span className="hidden sm:inline">Inventory</span>
+                <span className="hidden sm:inline">{t("tabs.inventory")}</span>
               </TabsTrigger>
               <TabsTrigger value="ai-content" className="text-xs md:text-sm">
                 <Brain className="w-3 h-3 md:w-4 md:h-4 mr-1" />
-                <span className="hidden sm:inline">AI Content</span>
+                <span className="hidden sm:inline">{t("tabs.aiContent")}</span>
               </TabsTrigger>
               <TabsTrigger value="media" className="text-xs md:text-sm">
-                <Image className="w-3 h-3 md:w-4 md:h-4 mr-1" />
-                <span className="hidden sm:inline">Media</span>
+                <ImageIcon className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                <span className="hidden sm:inline">{t("tabs.media")}</span>
               </TabsTrigger>
             </TabsList>
 
@@ -646,10 +765,7 @@ export function GemstoneForm({
                     min="0"
                     value={formData.weight_carats}
                     onChange={(e) =>
-                      handleInputChange(
-                        "weight_carats",
-                        parseFloat(e.target.value) || 0
-                      )
+                      handleWeightChange(parseFloat(e.target.value) || 0)
                     }
                     className={errors.weight_carats ? "border-red-500" : ""}
                   />
@@ -665,13 +781,15 @@ export function GemstoneForm({
                   <Input
                     id="length"
                     type="number"
-                    step="0.1"
+                      step="0.01"
                     min="0"
                     value={formData.length_mm}
                     onChange={(e) =>
                       handleInputChange(
                         "length_mm",
-                        parseFloat(e.target.value) || 0
+                          e.target.value === ""
+                            ? 0
+                            : parseDimensionValue(e.target.value)
                       )
                     }
                   />
@@ -682,13 +800,15 @@ export function GemstoneForm({
                   <Input
                     id="width"
                     type="number"
-                    step="0.1"
+                      step="0.01"
                     min="0"
                     value={formData.width_mm}
                     onChange={(e) =>
                       handleInputChange(
                         "width_mm",
-                        parseFloat(e.target.value) || 0
+                          e.target.value === ""
+                            ? 0
+                            : parseDimensionValue(e.target.value)
                       )
                     }
                   />
@@ -699,13 +819,15 @@ export function GemstoneForm({
                   <Input
                     id="depth"
                     type="number"
-                    step="0.1"
+                      step="0.01"
                     min="0"
                     value={formData.depth_mm}
                     onChange={(e) =>
                       handleInputChange(
                         "depth_mm",
-                        parseFloat(e.target.value) || 0
+                          e.target.value === ""
+                            ? 0
+                            : parseDimensionValue(e.target.value)
                       )
                     }
                   />
@@ -772,12 +894,7 @@ export function GemstoneForm({
                       min="0"
                       step="0.01"
                       value={formData.price_amount / 100} // Convert from cents
-                      onChange={(e) =>
-                        handleInputChange(
-                          "price_amount",
-                          Math.round(parseFloat(e.target.value) * 100)
-                        )
-                      }
+                      onChange={(e) => handlePriceAmountChange(e.target.value)}
                       placeholder="0.00"
                       className={`flex-1 ${
                         errors.price_amount ? "border-red-500" : ""
@@ -849,6 +966,53 @@ export function GemstoneForm({
                     />
                   </div>
                 </div>
+
+                <div className="space-y-2 md:col-span-2">
+                  <label htmlFor="price_per_carat">
+                    {t("labels.pricePerCarat")}
+                  </label>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex gap-2">
+                      <Input
+                        id="price_per_carat"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={
+                          formData.price_per_carat !== undefined &&
+                          formData.price_per_carat !== null
+                            ? formData.price_per_carat / 100
+                            : ""
+                        }
+                        onChange={(e) =>
+                          handlePricePerCaratChange(e.target.value)
+                        }
+                        placeholder="0.00"
+                        className={`flex-1 ${
+                          errors.price_per_carat ? "border-red-500" : ""
+                        }`}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleAutoCalculatePricePerCarat}
+                        disabled={
+                          !(formData.price_amount > 0 && formData.weight_carats)
+                        }
+                      >
+                        {t("actions.autoCalculatePricePerCarat")}
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {t("hints.pricePerCaratHelper")}
+                    </p>
+                    {errors.price_per_carat && (
+                      <p className="text-sm text-red-600">
+                        {errors.price_per_carat}
+                      </p>
+                    )}
+                  </div>
+                </div>
               </div>
             </TabsContent>
 
@@ -883,6 +1047,73 @@ export function GemstoneForm({
                     }
                     placeholder={t("deliveryDaysPlaceholder")}
                   />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">
+                    {t("labels.metadataStatus")}
+                  </label>
+                  <Select
+                    value={formData.metadata_status ?? ""}
+                    onValueChange={(value) =>
+                      handleInputChange("metadata_status", value || null)
+                    }
+                  >
+                    <SelectTrigger
+                      className={errors.metadata_status ? "border-red-500" : ""}
+                    >
+                      <span className="text-sm">
+                        {formData.metadata_status
+                          ? metadataStatusOptions.find(
+                              (option) =>
+                                option.value === formData.metadata_status
+                            )?.label ?? formData.metadata_status
+                          : t("metadataStatusNotSet")}
+                      </span>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">
+                        {t("metadataStatusNotSet")}
+                      </SelectItem>
+                      {metadataStatusOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.metadata_status && (
+                    <p className="text-sm text-red-600">
+                      {errors.metadata_status}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <label htmlFor="quantity">{t("labels.quantity")}</label>
+                  <Input
+                    id="quantity"
+                    type="number"
+                    min="0"
+                    value={
+                      typeof formData.quantity === "number"
+                        ? formData.quantity
+                        : formData.quantity ?? ""
+                    }
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      handleInputChange(
+                        "quantity",
+                        value === ""
+                          ? undefined
+                          : Math.max(0, parseInt(value, 10) || 0)
+                      );
+                    }}
+                    className={errors.quantity ? "border-red-500" : ""}
+                  />
+                  {errors.quantity && (
+                    <p className="text-sm text-red-600">{errors.quantity}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2 md:col-span-2">
@@ -1253,6 +1484,13 @@ export function GemstoneForm({
                 }}
                 disabled={isLoading}
               />
+
+              {/* Certifications Section */}
+              {gemstone?.id && (
+                <div className="mt-8">
+                  <CertificationManager gemstoneId={gemstone.id} />
+                </div>
+              )}
             </TabsContent>
           </Tabs>
 

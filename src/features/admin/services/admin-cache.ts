@@ -35,6 +35,8 @@ class AdminCacheService {
       inStock: filters.inStock,
       sortBy: filters.sortBy,
       sortOrder: filters.sortOrder,
+      withoutMedia: filters.withoutMedia ?? false,
+      withoutPrice: filters.withoutPrice ?? false,
     });
     return `admin:search:${filterString}:page:${page}`;
   }

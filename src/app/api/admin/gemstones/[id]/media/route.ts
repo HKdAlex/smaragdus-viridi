@@ -1,20 +1,71 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { Database } from "@/shared/types/database";
-import { createClient } from "@supabase/supabase-js";
+import { supabaseAdmin } from "@/lib/supabase";
 
-// Server-side admin client
-const getAdminClient = () => {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+import { AdminAuthError, requireAdmin } from "../../../_utils/require-admin";
 
-  return createClient<Database>(supabaseUrl, supabaseServiceRoleKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
+function ensureAdminClient() {
+  if (!supabaseAdmin) {
+    throw new Error("Supabase admin client is not configured");
+  }
+  return supabaseAdmin;
+}
+
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    if (!id) {
+      return NextResponse.json({ error: "Gemstone id required" }, { status: 400 });
+    }
+
+    await requireAdmin();
+
+    const adminClient = ensureAdminClient();
+
+    const [{ data: images, error: imagesError }, { data: videos, error: videosError }] =
+      await Promise.all([
+        adminClient
+          .from("gemstone_images")
+          .select("*")
+          .eq("gemstone_id", id)
+          .order("image_order", { ascending: true }),
+        adminClient
+          .from("gemstone_videos")
+          .select("*")
+          .eq("gemstone_id", id)
+          .order("video_order", { ascending: true }),
+      ]);
+
+    if (imagesError || videosError) {
+      const firstError = imagesError ?? videosError;
+      return NextResponse.json(
+        { error: firstError?.message ?? "Failed to fetch media" },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        images: images ?? [],
+        videos: videos ?? [],
     },
   });
-};
+  } catch (error) {
+    if (error instanceof AdminAuthError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
+
+    console.error("[admin/gemstones/[id]/media] GET failed:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
 
 // PUT /api/admin/gemstones/[id]/media - Set primary image/video
 export async function PUT(
@@ -23,6 +74,12 @@ export async function PUT(
 ) {
   try {
     const { id } = await params;
+    if (!id) {
+      return NextResponse.json({ error: "Gemstone id required" }, { status: 400 });
+    }
+
+    await requireAdmin();
+
     const { mediaId, mediaType } = await request.json();
 
     if (!mediaId || !mediaType) {
@@ -32,15 +89,20 @@ export async function PUT(
       );
     }
 
+    const adminClient = ensureAdminClient();
+
     if (mediaType === "image") {
       // Unset all primary images for this gemstone
-      await getAdminClient()
+      const { error: unsetError } = await adminClient
         .from("gemstone_images")
         .update({ is_primary: false })
         .eq("gemstone_id", id);
+      if (unsetError) {
+        return NextResponse.json({ error: unsetError.message }, { status: 400 });
+      }
 
       // Set the selected image as primary
-      const { error } = await getAdminClient()
+      const { error } = await adminClient
         .from("gemstone_images")
         .update({ is_primary: true })
         .eq("id", mediaId)
@@ -51,13 +113,13 @@ export async function PUT(
       }
     } else if (mediaType === "video") {
       // Set all videos to order 1
-      await getAdminClient()
+      await adminClient
         .from("gemstone_videos")
         .update({ video_order: 1 })
         .eq("gemstone_id", id);
 
       // Set the selected video to order 0 (primary)
-      const { error } = await getAdminClient()
+      const { error } = await adminClient
         .from("gemstone_videos")
         .update({ video_order: 0 })
         .eq("id", mediaId)
@@ -95,11 +157,13 @@ export async function DELETE(
       );
     }
 
+    const adminClient = ensureAdminClient();
+
     const tableName =
       mediaType === "image" ? "gemstone_images" : "gemstone_videos";
 
     // Get media record to get storage path
-    const { data: mediaRecord, error: fetchError } = await getAdminClient()
+    const { data: mediaRecord, error: fetchError } = await adminClient
       .from(tableName)
       .select("original_path")
       .eq("id", mediaId)
@@ -111,7 +175,7 @@ export async function DELETE(
     }
 
     // Delete from database
-    const { error: dbError } = await getAdminClient()
+    const { error: dbError } = await adminClient
       .from(tableName)
       .delete()
       .eq("id", mediaId)
@@ -123,7 +187,7 @@ export async function DELETE(
 
     // Delete from storage if path exists
     if (mediaRecord?.original_path) {
-      const { error: storageError } = await getAdminClient()
+      const { error: storageError } = await adminClient
         .storage.from("gemstone-media")
         .remove([mediaRecord.original_path]);
 
@@ -135,6 +199,10 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    if (error instanceof AdminAuthError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
+
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
