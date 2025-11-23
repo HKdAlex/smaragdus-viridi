@@ -355,7 +355,8 @@ export class ChatService {
       const fileName = `${Date.now()}_${Math.random()
         .toString(36)
         .substring(2)}_${file.name}`;
-      const filePath = `chat-attachments/${fileName}`;
+      // Don't include bucket name in path - it's specified in .from()
+      const filePath = fileName;
 
       // Upload to Supabase Storage
       const { data, error } = await this.supabase.storage
@@ -363,13 +364,22 @@ export class ChatService {
         .upload(filePath, file, {
           cacheControl: "3600",
           upsert: false,
+          contentType: file.type, // Explicitly set content type
         });
 
       if (error) {
         this.logger.error("Failed to upload attachment", error, {
           fileName: file.name,
+          filePath,
+          fileType: file.type,
+          fileSize: file.size,
+          errorMessage: error.message,
+          errorStatus: (error as any).statusCode,
         });
-        throw new ChatError("NETWORK_ERROR", `Failed to upload ${file.name}`);
+        throw new ChatError(
+          "NETWORK_ERROR",
+          `Failed to upload ${file.name}: ${error.message || JSON.stringify(error)}`
+        );
       }
 
       // Get public URL
