@@ -145,6 +145,10 @@ export function AdminChatDashboard() {
                           key={message.id}
                           message={message}
                           isOwn={message.sender_type === "admin"}
+                          onAttachmentClick={(url) => {
+                            // Open attachment in new tab
+                            window.open(url, "_blank", "noopener,noreferrer");
+                          }}
                         />
                       ))
                     )}
