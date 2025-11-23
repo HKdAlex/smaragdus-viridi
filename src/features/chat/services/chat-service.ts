@@ -42,7 +42,7 @@ export class ChatService {
       // Handle file attachments if any
       let attachmentUrls: string[] = [];
       if (request.attachments && request.attachments.length > 0) {
-        attachmentUrls = await this.uploadAttachments(request.attachments);
+        attachmentUrls = await this.uploadAttachments(userId, request.attachments);
       }
 
       // Use API route instead of direct database access
@@ -346,17 +346,23 @@ export class ChatService {
   /**
    * Upload chat attachments
    */
-  private async uploadAttachments(files: File[]): Promise<string[]> {
+  private async uploadAttachments(userId: string, files: File[]): Promise<string[]> {
     const uploadPromises = files.map(async (file) => {
       // Validate file
       this.validateFile(file);
 
-      // Generate unique filename
-      const fileName = `${Date.now()}_${Math.random()
-        .toString(36)
-        .substring(2)}_${file.name}`;
-      // Don't include bucket name in path - it's specified in .from()
-      const filePath = fileName;
+      // Sanitize filename to remove invalid characters
+      const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+
+      // Generate unique filename with timestamp
+      const timestamp = Date.now();
+      const randomId = Math.random().toString(36).substring(2, 8);
+      const fileExtension = sanitizedFileName.split('.').pop() || '';
+      const baseName = sanitizedFileName.replace(/\.[^/.]+$/, "");
+      const fileName = `${timestamp}_${randomId}_${baseName}.${fileExtension}`;
+
+      // Create path structure: {userId}/{filename}
+      const filePath = `${userId}/${fileName}`;
 
       // Upload to Supabase Storage
       const { data, error } = await this.supabase.storage
@@ -386,6 +392,13 @@ export class ChatService {
       const { data: urlData } = this.supabase.storage
         .from("chat-attachments")
         .getPublicUrl(filePath);
+
+      if (!urlData?.publicUrl) {
+        throw new ChatError(
+          "NETWORK_ERROR",
+          `Failed to get public URL for ${file.name}`
+        );
+      }
 
       return urlData.publicUrl;
     });
