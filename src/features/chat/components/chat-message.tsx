@@ -1,6 +1,7 @@
 "use client";
 
 import { Download, FileText, Image } from "lucide-react";
+import { useState } from "react";
 
 import type { ChatMessageProps } from "../types/chat.types";
 import { format } from "date-fns";
@@ -10,6 +11,8 @@ export function ChatMessage({
   isOwn,
   onAttachmentClick,
 }: ChatMessageProps) {
+  // Track which image attachments have failed to load
+  const [failedImages, setFailedImages] = useState<Set<number>>(new Set());
   const formatTime = (dateString: string | null) => {
     if (!dateString) return "";
     try {
@@ -70,25 +73,60 @@ export function ChatMessage({
                   }`}
                 >
                   {isImage ? (
-                    // Display image preview
-                    <div
-                      className="relative group cursor-pointer rounded overflow-hidden border border-border"
-                      onClick={() => onAttachmentClick?.(attachment)}
-                    >
-                      <img
-                        src={attachment}
-                        alt={fileName}
-                        className="max-w-full h-auto max-h-64 object-contain bg-muted"
-                        onError={(e) => {
-                          // Fallback: hide image and show error state
-                          const target = e.target as HTMLImageElement;
-                          target.style.display = "none";
-                        }}
-                      />
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
-                        <Download className="w-5 h-5 text-white drop-shadow-lg" />
+                    // Display image preview or fallback if image fails to load
+                    failedImages.has(index) ? (
+                      // Fallback file display when image fails to load
+                      <div
+                        className={`flex items-center space-x-2 p-2 rounded ${
+                          isOwn
+                            ? "bg-primary/80 hover:bg-primary/90"
+                            : "bg-background hover:bg-muted border border-border"
+                        } transition-colors cursor-pointer`}
+                        onClick={() => onAttachmentClick?.(attachment)}
+                      >
+                        {getFileIcon(fileName)}
+                        <div className="flex-1 min-w-0">
+                          <p
+                            className={`text-xs truncate ${
+                              isOwn ? "text-primary-foreground/90" : "text-foreground"
+                            }`}
+                          >
+                            {fileName}
+                          </p>
+                          <p
+                            className={`text-xs ${
+                              isOwn ? "text-primary-foreground/70" : "text-muted-foreground"
+                            }`}
+                          >
+                            Image failed to load
+                          </p>
+                        </div>
+                        <Download
+                          className={`w-3 h-3 ${
+                            isOwn ? "text-primary-foreground/70" : "text-muted-foreground"
+                          }`}
+                        />
                       </div>
-                    </div>
+                    ) : (
+                      // Display image preview
+                      <div
+                        className="relative group cursor-pointer rounded overflow-hidden border border-border"
+                        onClick={() => onAttachmentClick?.(attachment)}
+                      >
+                        <img
+                          src={attachment}
+                          alt={fileName}
+                          className="max-w-full h-auto max-h-64 object-contain bg-muted"
+                          onError={() => {
+                            // Mark this image as failed to show fallback
+                            setFailedImages((prev) => new Set(prev).add(index));
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                          <Download className="w-5 h-5 text-white drop-shadow-lg" />
+                        </div>
+                      </div>
+                    )
                   ) : (
                     // Display file attachment
                     <div
