@@ -1,7 +1,8 @@
-import { supabase } from "@/lib/supabase";
+import type { ExchangeRates, MigKzRate } from "../types/currency.types";
+
 import type { CurrencyCode } from "@/shared/types";
 import { Logger } from "@/shared/utils/logger";
-import type { ExchangeRates, MigKzRate } from "../types/currency.types";
+import { supabase } from "@/lib/supabase";
 
 const MIG_KZ_URL = "https://mig.kz";
 const ADJUSTMENT_FACTOR = 1.03; // 3% adjustment
@@ -34,118 +35,82 @@ export class CurrencyRateService {
 
       const html = await response.text();
 
-      // Parse rates from HTML
-      // mig.kz displays rates in a table format
-      // Looking for patterns like: USD | 519.3 | 521.7
-      // More specific regex to avoid matching wrong numbers
+      // Parse rates from HTML table structure
+      // mig.kz displays rates in a table with structure:
+      // <tr>
+      //   <td class="buy">519.3</td>
+      //   <td class="currency">USD</td>
+      //   <td class="sell">521.7</td>
+      // </tr>
       const rates: MigKzRate[] = [];
 
-      // Extract USD rates - mig.kz shows buy/sell rates in KZT
-      // Look for USD followed by two numbers that are close together (within 30 chars)
-      // and both in the 300-700 range
-      const usdPattern =
-        /USD[^0-9]{0,20}(\d{3}(?:\.\d{1,2})?)[^0-9]{0,30}(\d{3}(?:\.\d{1,2})?)/i;
-      const usdMatches = [...html.matchAll(new RegExp(usdPattern, "gi"))];
+      // Match table rows with buy, currency, and sell cells
+      // Pattern: <tr>...<td class="buy">number</td>...<td class="currency">CODE</td>...<td class="sell">number</td>...</tr>
+      const tableRowPattern =
+        /<tr[^>]*>[\s\S]*?<td[^>]*class="buy"[^>]*>([\d.]+)<\/td>[\s\S]*?<td[^>]*class="currency"[^>]*>([A-Z]+)<\/td>[\s\S]*?<td[^>]*class="sell"[^>]*>([\d.]+)<\/td>[\s\S]*?<\/tr>/gi;
 
-      let parsedUsdRate: MigKzRate | null = null;
-      for (const match of usdMatches) {
+      const matches = [...html.matchAll(tableRowPattern)];
+
+      for (const match of matches) {
         const buy = parseFloat(match[1]);
-        const sell = parseFloat(match[2]);
-        // Both must be in reasonable range and close to each other (within 5%)
-        if (
-          !isNaN(buy) &&
-          !isNaN(sell) &&
-          buy > 300 &&
-          buy < 700 &&
-          sell > 300 &&
-          sell < 700 &&
-          Math.abs(buy - sell) <= 10 // Sell should be within 10 KZT of buy
-        ) {
-          parsedUsdRate = { currency: "USD", buy, sell };
-          this.logger.info("Parsed USD rate", {
+        const currency = match[2].toUpperCase();
+        const sell = parseFloat(match[3]);
+
+        if (isNaN(buy) || isNaN(sell)) {
+          continue;
+        }
+
+        // Validate based on currency type
+        let isValid = false;
+        if (currency === "USD") {
+          isValid =
+            buy > 300 &&
+            buy < 700 &&
+            sell > 300 &&
+            sell < 700 &&
+            Math.abs(buy - sell) <= 10;
+        } else if (currency === "EUR") {
+          isValid =
+            buy > 300 &&
+            buy < 900 &&
+            sell > 300 &&
+            sell < 900 &&
+            Math.abs(buy - sell) <= 15;
+        } else if (currency === "RUB") {
+          isValid =
+            buy > 3 &&
+            buy < 12 &&
+            sell > 3 &&
+            sell < 12 &&
+            Math.abs(buy - sell) <= 3;
+        }
+
+        if (isValid) {
+          rates.push({ currency, buy, sell });
+          this.logger.info(`Parsed ${currency} rate from table`, {
             buy,
             sell,
-            match: [match[0], match[1], match[2]],
+            currency,
           });
-          break; // Use first valid match
         } else {
-          this.logger.debug("USD rate candidate rejected", {
+          this.logger.debug(`Rejected ${currency} rate candidate`, {
             buy,
             sell,
+            currency,
             diff: Math.abs(buy - sell),
           });
         }
       }
 
-      if (parsedUsdRate) {
-        rates.push(parsedUsdRate);
-      } else {
+      // Check if we found required rates
+      const foundCurrencies = rates.map((r) => r.currency);
+      if (!foundCurrencies.includes("USD")) {
         this.logger.warn("Could not parse valid USD rate from mig.kz HTML");
       }
-
-      // Extract EUR rates - should be similar or higher than USD (500-700 KZT per EUR)
-      const eurPattern =
-        /EUR[^0-9]{0,20}(\d{3}(?:\.\d{1,2})?)[^0-9]{0,30}(\d{3}(?:\.\d{1,2})?)/i;
-      const eurMatches = [...html.matchAll(new RegExp(eurPattern, "gi"))];
-      
-      let parsedEurRate: MigKzRate | null = null;
-      for (const match of eurMatches) {
-        const buy = parseFloat(match[1]);
-        const sell = parseFloat(match[2]);
-        // Both must be in reasonable range and close to each other
-        if (
-          !isNaN(buy) &&
-          !isNaN(sell) &&
-          buy > 300 &&
-          buy < 900 &&
-          sell > 300 &&
-          sell < 900 &&
-          Math.abs(buy - sell) <= 15 // Sell should be within 15 KZT of buy
-        ) {
-          parsedEurRate = { currency: "EUR", buy, sell };
-          this.logger.info("Parsed EUR rate", { buy, sell, match: [match[0], match[1], match[2]] });
-          break; // Use first valid match
-        } else {
-          this.logger.debug("EUR rate candidate rejected", { buy, sell, diff: Math.abs(buy - sell) });
-        }
-      }
-      
-      if (parsedEurRate) {
-        rates.push(parsedEurRate);
-      } else {
+      if (!foundCurrencies.includes("EUR")) {
         this.logger.warn("Could not parse valid EUR rate from mig.kz HTML");
       }
-
-      // Extract RUB rates - should be much lower (5-8 KZT per RUB)
-      const rubPattern =
-        /RUB[^0-9]{0,20}(\d{1}\.?\d{0,2})[^0-9]{0,30}(\d{1}\.?\d{0,2})/i;
-      const rubMatches = [...html.matchAll(new RegExp(rubPattern, "gi"))];
-      
-      let parsedRubRate: MigKzRate | null = null;
-      for (const match of rubMatches) {
-        const buy = parseFloat(match[1]);
-        const sell = parseFloat(match[2]);
-        // Both must be in reasonable range and close to each other
-        if (
-          !isNaN(buy) &&
-          !isNaN(sell) &&
-          buy > 3 &&
-          buy < 12 &&
-          sell > 3 &&
-          sell < 12 &&
-          Math.abs(buy - sell) <= 3 // Sell should be within 3 KZT of buy
-        ) {
-          parsedRubRate = { currency: "RUB", buy, sell };
-          this.logger.info("Parsed RUB rate", { buy, sell, match: [match[0], match[1], match[2]] });
-          break; // Use first valid match
-        } else {
-          this.logger.debug("RUB rate candidate rejected", { buy, sell, diff: Math.abs(buy - sell) });
-        }
-      }
-      
-      if (parsedRubRate) {
-        rates.push(parsedRubRate);
-      } else {
+      if (!foundCurrencies.includes("RUB")) {
         this.logger.warn("Could not parse valid RUB rate from mig.kz HTML");
       }
 
