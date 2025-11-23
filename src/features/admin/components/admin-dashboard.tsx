@@ -33,10 +33,12 @@ import { AIModerationDashboard } from "./ai-moderation-dashboard";
 // Import admin components (will be created in subsequent phases)
 import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/shared/components/ui/button";
+import { Badge } from "@/shared/components/ui/badge";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useAdmin } from "../context/admin-context";
 import { useDashboardStats } from "../hooks/use-dashboard-stats";
+import { useAdminChat } from "../hooks/use-admin-chat";
 import { StatisticsService } from "../services/statistics-service";
 import { OrderManagement } from "./order-management";
 
@@ -118,6 +120,8 @@ export function AdminDashboard() {
   const t = useTranslations("admin");
   const searchParams = useSearchParams();
   const router = useRouter();
+  // Get unread count for chat tab badge (updates in real-time)
+  const { totalUnreadCount } = useAdminChat();
   const validTabIds = useMemo(
     () =>
       new Set<AdminTab>([
@@ -310,12 +314,13 @@ export function AdminDashboard() {
             {getAdminTabs(t).map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
+              const showUnreadBadge = tab.id === "chat" && totalUnreadCount > 0;
 
               return (
                 <Button
                   key={tab.id}
                   variant={isActive ? "default" : "ghost"}
-                  className={`w-full justify-start gap-3 h-auto p-3 sm:p-4 min-h-[56px] text-left py-4 transition-all duration-200 ${
+                  className={`w-full justify-start gap-3 h-auto p-3 sm:p-4 min-h-[56px] text-left py-4 transition-all duration-200 relative ${
                     isActive
                       ? "bg-primary text-primary-foreground shadow-md"
                       : "hover:bg-muted/50 hover:text-foreground"
@@ -327,8 +332,16 @@ export function AdminDashboard() {
                 >
                   <Icon className="w-5 h-5 flex-shrink-0" />
                   <div className="text-left min-w-0 flex-1">
-                    <div className="font-medium text-sm sm:text-base break-words">
+                    <div className="font-medium text-sm sm:text-base break-words flex items-center gap-2">
                       {tab.name}
+                      {showUnreadBadge && (
+                        <Badge 
+                          variant="destructive" 
+                          className="ml-auto h-5 min-w-[20px] flex items-center justify-center px-1.5 text-xs font-bold"
+                        >
+                          {totalUnreadCount > 99 ? '99+' : totalUnreadCount}
+                        </Badge>
+                      )}
                     </div>
                     <div
                       className={`text-xs sm:text-sm break-words leading-relaxed whitespace-normal overflow-wrap-anywhere ${

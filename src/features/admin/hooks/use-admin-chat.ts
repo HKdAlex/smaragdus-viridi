@@ -9,7 +9,7 @@
 
 import type { ChatConversation, ChatMessage } from '@/features/chat/types/chat.types';
 import { AdminChatService } from '../services/admin-chat-service';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { createContextLogger } from '@/shared/utils/logger';
 import { supabase } from '@/lib/supabase';
 import { useAdmin } from '../context/admin-context';
@@ -20,6 +20,7 @@ export interface UseAdminChatReturn {
   messages: ChatMessage[];
   isLoading: boolean;
   error: string | null;
+  totalUnreadCount: number;
   selectConversation: (userId: string) => void;
   sendMessage: (content: string) => Promise<void>;
   markAsRead: () => Promise<void>;
@@ -204,12 +205,18 @@ export function useAdminChat(): UseAdminChatReturn {
     await loadConversations();
   }, [loadConversations]);
 
+  // Calculate total unread count across all conversations
+  const totalUnreadCount = useMemo(() => {
+    return conversations.reduce((total, conv) => total + conv.unread_count, 0);
+  }, [conversations]);
+
   return {
     conversations,
     selectedConversation,
     messages,
     isLoading,
     error,
+    totalUnreadCount,
     selectConversation,
     sendMessage,
     markAsRead,

@@ -40,6 +40,7 @@ export async function GET(request: NextRequest) {
     const offset = Math.max(parseInt(searchParams.get("offset") || "0"), 0);
 
     // Query messages directly from database
+    // Order by created_at ascending (oldest first) for proper chat display
     const { data: messages, error: messagesError } = await supabase
       .from("chat_messages")
       .select(
@@ -55,7 +56,7 @@ export async function GET(request: NextRequest) {
       `
       )
       .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
+      .order("created_at", { ascending: true })
       .range(offset, offset + limit - 1);
 
     if (messagesError) {

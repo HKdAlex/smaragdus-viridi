@@ -35,7 +35,12 @@ export function useChat(userId?: string): UseChatReturn {
     logger.info('Setting up chat subscription', { userId })
 
     const subscription = supabase
-      .channel(`chat-${userId}`)
+      .channel(`chat-${userId}`, {
+        config: {
+          broadcast: { self: true },
+          presence: { key: userId },
+        },
+      })
       .on(
         'postgres_changes',
         {
@@ -46,10 +51,26 @@ export function useChat(userId?: string): UseChatReturn {
         },
         (payload) => {
           const newMessage = payload.new as ChatMessage
+          logger.info('Real-time INSERT received', {
+            messageId: newMessage.id,
+            senderType: newMessage.sender_type,
+            userId,
+            payload
+          })
+
           setMessages(prev => {
             // Check if message already exists (avoid duplicates)
             const exists = prev.some(msg => msg.id === newMessage.id)
-            if (exists) return prev
+            if (exists) {
+              logger.warn('Duplicate message detected, skipping', {
+                messageId: newMessage.id
+              })
+              return prev
+            }
+            logger.info('Adding new message to state', {
+              messageId: newMessage.id,
+              currentMessageCount: prev.length
+            })
             return [...prev, newMessage]
           })
 
@@ -57,12 +78,6 @@ export function useChat(userId?: string): UseChatReturn {
           if (newMessage.sender_type === 'admin' && !newMessage.is_read) {
             setUnreadCount(prev => prev + 1)
           }
-
-          logger.info('New message received', {
-            messageId: newMessage.id,
-            senderType: newMessage.sender_type,
-            userId
-          })
 
           // Scroll to bottom when new message arrives
           setTimeout(() => {
@@ -81,6 +96,12 @@ export function useChat(userId?: string): UseChatReturn {
         (payload) => {
           const updatedMessage = payload.new as ChatMessage
           const oldMessage = payload.old as ChatMessage
+          
+          logger.info('Real-time UPDATE received', {
+            messageId: updatedMessage.id,
+            userId,
+            payload
+          })
           
           // Update message in state
           setMessages(prev =>
@@ -103,9 +124,13 @@ export function useChat(userId?: string): UseChatReturn {
           }
         }
       )
-      .subscribe((status) => {
+      .subscribe((status, err) => {
         setIsConnected(status === 'SUBSCRIBED')
-        logger.info('Chat subscription status', { status, userId })
+        if (err) {
+          logger.error('Subscription error', err, { userId, status })
+        } else {
+          logger.info('Chat subscription status', { status, userId })
+        }
       })
 
     return () => {
@@ -149,6 +174,22 @@ export function useChat(userId?: string): UseChatReturn {
   ): Promise<void> => {
     if (!userId || !content.trim()) return
 
+    // Optimistically add message to state immediately for instant feedback
+    const optimisticMessage: ChatMessage = {
+      id: `temp-${Date.now()}`, // Temporary ID
+      user_id: userId,
+      admin_id: null,
+      content: content.trim(),
+      attachments: attachments?.map(() => '') || null,
+      sender_type: 'user',
+      is_auto_response: false,
+      is_read: false,
+      created_at: new Date().toISOString(),
+    }
+
+    // Add optimistic message immediately
+    setMessages(prev => [...prev, optimisticMessage])
+
     try {
       const request: SendMessageRequest = {
         content: content.trim(),
@@ -158,16 +199,26 @@ export function useChat(userId?: string): UseChatReturn {
       const response = await chatService.sendMessage(userId, request)
 
       if (response.success && response.message) {
-        // Message will be added via real-time subscription
+        // Replace optimistic message with real message from server
+        setMessages(prev =>
+          prev.map(msg =>
+            msg.id === optimisticMessage.id ? response.message! : msg
+          )
+        )
+
         logger.info('Message sent successfully', {
           messageId: response.message.id,
           userId
         })
       } else {
+        // Remove optimistic message on error
+        setMessages(prev => prev.filter(msg => msg.id !== optimisticMessage.id))
         logger.error('Failed to send message', { error: response.error, userId })
         throw new Error(response.error || 'Failed to send message')
       }
     } catch (error) {
+      // Remove optimistic message on error
+      setMessages(prev => prev.filter(msg => msg.id !== optimisticMessage.id))
       logger.error('Failed to send message', error as Error, { userId })
       throw error
     }
