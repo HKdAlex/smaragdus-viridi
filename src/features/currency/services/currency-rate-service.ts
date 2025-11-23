@@ -380,6 +380,28 @@ export class CurrencyRateService {
         }
       });
 
+      // Validate rates from database are reasonable
+      // If rates are invalid, fetch fresh rates
+      const { RUB, EUR, KZT } = rates.USD;
+      if (
+        RUB < 50 ||
+        RUB > 150 ||
+        EUR < 0.7 ||
+        EUR > 1.1 ||
+        KZT < 400 ||
+        KZT > 600
+      ) {
+        this.logger.warn("Database rates are invalid, fetching fresh rates", {
+          RUB,
+          EUR,
+          KZT,
+        });
+        // Fetch fresh rates and update database
+        const freshRates = await this.fetchRatesFromMigKz();
+        await this.updateRates(freshRates);
+        return freshRates;
+      }
+
       return rates;
     } catch (error) {
       this.logger.error("Failed to get all rates", error as Error);
