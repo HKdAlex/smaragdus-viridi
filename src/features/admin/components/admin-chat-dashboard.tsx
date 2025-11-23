@@ -81,6 +81,27 @@ export function AdminChatDashboard() {
     }
   };
 
+  const handleAttachmentClick = (attachmentUrl: string) => {
+    // Open attachment in new tab for viewing/downloading
+    // If it's an image, open in new tab; otherwise, trigger download
+    const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(attachmentUrl);
+    
+    if (isImage) {
+      // Open image in new tab for viewing
+      window.open(attachmentUrl, '_blank', 'noopener,noreferrer');
+    } else {
+      // Trigger download for non-image files
+      const link = document.createElement('a');
+      link.href = attachmentUrl;
+      link.download = attachmentUrl.split('/').pop() || 'attachment';
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
   const selectedConversationData = conversations.find(
     (c) => c.user_id === selectedConversation
   );
@@ -145,10 +166,7 @@ export function AdminChatDashboard() {
                           key={message.id}
                           message={message}
                           isOwn={message.sender_type === "admin"}
-                          onAttachmentClick={(url) => {
-                            // Open attachment in new tab
-                            window.open(url, "_blank", "noopener,noreferrer");
-                          }}
+                          onAttachmentClick={handleAttachmentClick}
                         />
                       ))
                     )}
