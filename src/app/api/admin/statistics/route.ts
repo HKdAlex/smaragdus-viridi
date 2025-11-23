@@ -2,6 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { createServerSupabaseClient } from "@/lib/supabase";
 
+interface DashboardStats {
+  totalGemstones: number;
+  inStockGemstones: number;
+  outOfStockGemstones: number;
+  activeUsers: number;
+  totalOrders: number;
+  totalRevenue: number;
+  avgGemstonePrice: number;
+}
+
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createServerSupabaseClient();
@@ -17,13 +27,14 @@ export async function GET(request: NextRequest) {
     }
 
     // Extract statistics from RPC response
-    const totalGemstones = statsData?.totalGemstones || 0;
-    const inStockGemstones = statsData?.inStockGemstones || 0;
-    const outOfStockGemstones = statsData?.outOfStockGemstones || 0;
-    const activeUsers = statsData?.activeUsers || 0;
-    const totalOrders = statsData?.totalOrders || 0;
-    const totalRevenue = Number(statsData?.totalRevenue || 0);
-    const avgGemstonePrice = statsData?.avgGemstonePrice || 0;
+    const stats = statsData as unknown as DashboardStats;
+    const totalGemstones = stats?.totalGemstones || 0;
+    const inStockGemstones = stats?.inStockGemstones || 0;
+    const outOfStockGemstones = stats?.outOfStockGemstones || 0;
+    const activeUsers = stats?.activeUsers || 0;
+    const totalOrders = stats?.totalOrders || 0;
+    const totalRevenue = Number(stats?.totalRevenue || 0);
+    const avgGemstonePrice = stats?.avgGemstonePrice || 0;
 
     // Fetch minimal data for top selling gemstones and recent orders
     // These are displayed in the UI but don't need full table scans

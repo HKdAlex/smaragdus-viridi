@@ -17,6 +17,7 @@ export function useChat(userId?: string): UseChatReturn {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [isConnected, setIsConnected] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [unreadCount, setUnreadCount] = useState(0)
   const logger = createContextLogger('use-chat')
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -45,7 +46,17 @@ export function useChat(userId?: string): UseChatReturn {
         },
         (payload) => {
           const newMessage = payload.new as ChatMessage
-          setMessages(prev => [...prev, newMessage])
+          setMessages(prev => {
+            // Check if message already exists (avoid duplicates)
+            const exists = prev.some(msg => msg.id === newMessage.id)
+            if (exists) return prev
+            return [...prev, newMessage]
+          })
+
+          // Update unread count if message is from admin and not read
+          if (newMessage.sender_type === 'admin' && !newMessage.is_read) {
+            setUnreadCount(prev => prev + 1)
+          }
 
           logger.info('New message received', {
             messageId: newMessage.id,
@@ -57,6 +68,39 @@ export function useChat(userId?: string): UseChatReturn {
           setTimeout(() => {
             messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
           }, 100)
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'chat_messages',
+          filter: `user_id=eq.${userId}`,
+        },
+        (payload) => {
+          const updatedMessage = payload.new as ChatMessage
+          const oldMessage = payload.old as ChatMessage
+          
+          // Update message in state
+          setMessages(prev =>
+            prev.map(msg =>
+              msg.id === updatedMessage.id ? updatedMessage : msg
+            )
+          )
+
+          // Update unread count if message was marked as read
+          if (
+            updatedMessage.sender_type === 'admin' &&
+            !oldMessage.is_read &&
+            updatedMessage.is_read
+          ) {
+            setUnreadCount(prev => Math.max(0, prev - 1))
+            logger.info('Message marked as read via subscription', {
+              messageId: updatedMessage.id,
+              userId
+            })
+          }
         }
       )
       .subscribe((status) => {
@@ -79,8 +123,14 @@ export function useChat(userId?: string): UseChatReturn {
 
       if (response.success) {
         setMessages(response.messages)
+        // Calculate unread count (admin messages that are not read)
+        const unread = response.messages.filter(
+          msg => msg.sender_type === 'admin' && !msg.is_read
+        ).length
+        setUnreadCount(unread)
         logger.info('Messages loaded successfully', {
           messageCount: response.messages.length,
+          unreadCount: unread,
           userId
         })
       } else {
@@ -132,9 +182,13 @@ export function useChat(userId?: string): UseChatReturn {
       if (response.success) {
         // Update local state
         setMessages(prev =>
-          prev.map(msg =>
-            msg.id === messageId ? { ...msg, is_read: true } : msg
-          )
+          prev.map(msg => {
+            if (msg.id === messageId && msg.sender_type === 'admin' && !msg.is_read) {
+              // Decrement unread count when marking admin message as read
+              setUnreadCount(prevCount => Math.max(0, prevCount - 1))
+            }
+            return msg.id === messageId ? { ...msg, is_read: true } : msg
+          })
         )
 
         logger.info('Message marked as read', { messageId, userId })
@@ -162,6 +216,7 @@ export function useChat(userId?: string): UseChatReturn {
     messages,
     isConnected,
     isTyping: false, // Would be implemented with typing indicators
+    unreadCount,
     sendMessage,
     markAsRead,
     clearMessages,
@@ -214,6 +269,88 @@ export function useChatTyping(userId?: string): UseChatTypingReturn {
     startTyping,
     stopTyping,
   }
+}
+
+// Hook for tracking unread messages (works even when chat is closed)
+export function useUnreadCount(userId?: string): number {
+  const [unreadCount, setUnreadCount] = useState(0)
+  const logger = createContextLogger('use-unread-count')
+
+  useEffect(() => {
+    if (!userId) {
+      setUnreadCount(0)
+      return
+    }
+
+    // Load initial unread count
+    const loadUnreadCount = async () => {
+      try {
+        const response = await chatService.getMessages(userId)
+        if (response.success) {
+          const unread = response.messages.filter(
+            msg => msg.sender_type === 'admin' && !msg.is_read
+          ).length
+          setUnreadCount(unread)
+        }
+      } catch (error) {
+        logger.error('Failed to load unread count', error as Error, { userId })
+      }
+    }
+
+    loadUnreadCount()
+
+    // Set up real-time subscription for unread messages
+    logger.info('Setting up unread count subscription', { userId })
+
+    const subscription = supabase
+      .channel(`unread-count-${userId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'chat_messages',
+          filter: `user_id=eq.${userId}`,
+        },
+        (payload) => {
+          const newMessage = payload.new as ChatMessage
+          // Only count admin messages that are unread
+          if (newMessage.sender_type === 'admin' && !newMessage.is_read) {
+            setUnreadCount(prev => prev + 1)
+            logger.info('Unread count incremented', {
+              messageId: newMessage.id,
+              unreadCount: unreadCount + 1,
+            })
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'chat_messages',
+          filter: `user_id=eq.${userId}`,
+        },
+        (payload) => {
+          const updatedMessage = payload.new as ChatMessage
+          // If message was marked as read, decrement count
+          if (updatedMessage.sender_type === 'admin' && updatedMessage.is_read) {
+            setUnreadCount(prev => Math.max(0, prev - 1))
+          }
+        }
+      )
+      .subscribe((status) => {
+        logger.info('Unread count subscription status', { status, userId })
+      })
+
+    return () => {
+      logger.info('Cleaning up unread count subscription', { userId })
+      subscription.unsubscribe()
+    }
+  }, [userId])
+
+  return unreadCount
 }
 
 // Hook for chat scrolling

@@ -7,12 +7,14 @@ import { ChatInterface } from "./chat-interface";
 import { useAuth } from "@/features/auth/context/auth-context";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { useUnreadCount } from "../hooks/use-chat";
 
 export function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const { user } = useAuth();
   const t = useTranslations("chat");
+  const unreadCount = useUnreadCount(user?.id);
 
   // Don't show widget if user is not logged in
   if (!user) return null;
@@ -43,9 +45,11 @@ export function ChatWidget() {
         </Button>
 
         {/* Notification badge for unread messages */}
-        <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
-          0
-        </div>
+        {unreadCount > 0 && (
+          <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-[20px] h-5 flex items-center justify-center font-bold px-1.5">
+            {unreadCount > 99 ? '99+' : unreadCount}
+          </div>
+        )}
       </div>
     );
   }

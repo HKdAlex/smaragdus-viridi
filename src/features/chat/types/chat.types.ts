@@ -172,6 +172,7 @@ export interface UseChatReturn {
   messages: ChatMessage[]
   isConnected: boolean
   isTyping: boolean
+  unreadCount: number
   sendMessage: (content: string, attachments?: File[]) => Promise<void>
   markAsRead: (messageId: string) => Promise<void>
   clearMessages: () => void
