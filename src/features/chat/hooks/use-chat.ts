@@ -72,22 +72,72 @@ export function useChat(userId?: string): UseChatReturn {
               return prev;
             }
 
-            // Check if there's an optimistic message that should be replaced
-            const optimisticIndex = prev.findIndex((msg) =>
-              msg.id.startsWith("temp-")
-            );
-            if (optimisticIndex !== -1 && newMessage.sender_type === "user") {
-              logger.info(
-                "Replacing optimistic message with real-time message",
-                {
-                  optimisticId: prev[optimisticIndex].id,
-                  realId: newMessage.id,
-                  content: newMessage.content.substring(0, 50),
-                }
+            // Match optimistic message with real message by content, user_id, and sender_type
+            // This prevents incorrect pairing when messages arrive out of order
+            if (newMessage.sender_type === "user") {
+              const optimisticMessages = prev.filter((msg) =>
+                msg.id.startsWith("temp-")
               );
-              const newMessages = [...prev];
-              newMessages[optimisticIndex] = newMessage;
-              return newMessages;
+
+              // Find the best matching optimistic message
+              let bestMatchIndex = -1;
+              let bestMatchScore = -1;
+
+              for (let i = 0; i < prev.length; i++) {
+                const msg = prev[i];
+                if (!msg.id.startsWith("temp-")) continue;
+
+                // Match criteria: same content, user_id, and sender_type
+                const contentMatch = msg.content.trim() === newMessage.content.trim();
+                const userMatch = msg.user_id === newMessage.user_id;
+                const senderMatch = msg.sender_type === newMessage.sender_type;
+
+                if (contentMatch && userMatch && senderMatch) {
+                  // Calculate timestamp proximity score (closer = better match)
+                  const optimisticTime = msg.created_at
+                    ? new Date(msg.created_at).getTime()
+                    : 0;
+                  const realTime = newMessage.created_at
+                    ? new Date(newMessage.created_at).getTime()
+                    : Date.now();
+                  const timeDiff = Math.abs(realTime - optimisticTime);
+                  // Score: higher is better (inverse of time difference, max 5 seconds window)
+                  const score = timeDiff <= 5000 ? 1000000 - timeDiff : -1;
+
+                  if (score > bestMatchScore) {
+                    bestMatchScore = score;
+                    bestMatchIndex = i;
+                  }
+                }
+              }
+
+              if (bestMatchIndex !== -1) {
+                logger.info(
+                  "Replacing matched optimistic message with real-time message",
+                  {
+                    optimisticId: prev[bestMatchIndex].id,
+                    realId: newMessage.id,
+                    content: newMessage.content.substring(0, 50),
+                    timeDiff: bestMatchScore > 0 ? 1000000 - bestMatchScore : "N/A",
+                  }
+                );
+                const newMessages = [...prev];
+                newMessages[bestMatchIndex] = newMessage;
+                return newMessages;
+              } else if (optimisticMessages.length > 0) {
+                // Log warning if we have optimistic messages but couldn't match
+                logger.warn(
+                  "Real-time message received but no matching optimistic message found",
+                  {
+                    realId: newMessage.id,
+                    content: newMessage.content.substring(0, 50),
+                    optimisticCount: optimisticMessages.length,
+                    optimisticContents: optimisticMessages.map((m) =>
+                      m.content.substring(0, 30)
+                    ),
+                  }
+                );
+              }
             }
 
             logger.info("Adding new message from real-time subscription", {
