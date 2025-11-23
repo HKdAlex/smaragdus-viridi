@@ -16,11 +16,11 @@ import { useEffect, useRef, useState } from "react";
 
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { Link } from "@/i18n/navigation";
 import Image from "next/image";
+import { Link } from "@/i18n/navigation";
+import { selectPrimaryImage } from "../utils/select-primary-image";
 import { supabase } from "@/lib/supabase";
 import { useGemstoneTranslations } from "../utils/gemstone-translations";
-import { selectPrimaryImage } from "../utils/select-primary-image";
 import { useTranslations } from "next-intl";
 
 interface RelatedGemstonesProps {
@@ -310,18 +310,18 @@ export function RelatedGemstones({
           {relatedGemstones.map((gemstone) => {
             const primaryImageSelection = selectPrimaryImage({
               images: gemstone.images,
-              selectedImageUuid: (gemstone as any)
-                .selected_image_uuid ?? null,
-              recommendedPrimaryImageIndex: (
-                gemstone as any
-              ).recommended_primary_image_index ?? null,
+              selectedImageUuid: (gemstone as any).selected_image_uuid ?? null,
+              recommendedPrimaryImageIndex:
+                (gemstone as any).recommended_primary_image_index ?? null,
               primaryImageUrl: (gemstone as any).primary_image_url ?? null,
             });
             const primaryImageUrl = primaryImageSelection?.imageUrl ?? null;
             const primaryImageAlt =
               primaryImageSelection?.image?.alt_text ??
-              (`${(gemstone as DatabaseGemstone).weight_carats}ct ${(gemstone as DatabaseGemstone).color} ${(gemstone as DatabaseGemstone).name}`.trim() ||
-              "Gemstone image");
+              (`${(gemstone as DatabaseGemstone).weight_carats}ct ${
+                (gemstone as DatabaseGemstone).color
+              } ${(gemstone as DatabaseGemstone).name}`.trim() ||
+                "Gemstone image");
             const similarity = getSimilarityReason(gemstone);
 
             return (

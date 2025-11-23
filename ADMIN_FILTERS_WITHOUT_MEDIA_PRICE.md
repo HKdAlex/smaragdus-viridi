@@ -13,32 +13,38 @@ November 9, 2025
 ### 1. Enhanced Search Component (`src/features/admin/components/enhanced-search.tsx`)
 
 **Interface Extension:**
+
 - Added `withoutMedia?: boolean` to `SearchFilters` interface
 - Added `withoutPrice?: boolean` to `SearchFilters` interface
 
 **UI Updates:**
+
 - Added checkboxes for both filters in the Advanced Filters panel
 - Added active filter badges that display when filters are enabled
 - Integrated filter state into active filter count calculation
 - Included filters in clear all filters functionality
 
 **Filter Behavior:**
+
 - `withoutMedia`: Shows gemstones with both `primary_image_url` and `primary_video_url` as NULL
 - `withoutPrice`: Shows gemstones with `price_amount` as NULL or 0 (zero prices are considered "without price" per user requirement)
 
 ### 2. Gemstone List Component (`src/features/admin/components/gemstone-list-optimized.tsx`)
 
 **State Management:**
+
 - Initialized both filters as `false` in default `searchFilters` state
 - Added query parameter serialization for both filters when making API requests
 
 **API Integration:**
+
 - Passes `withoutMedia=true` when filter is enabled
 - Passes `withoutPrice=true` when filter is enabled
 
 ### 3. Admin Cache Service (`src/features/admin/services/admin-cache.ts`)
 
 **Cache Key Generation:**
+
 - Included `withoutMedia` in search results cache key
 - Included `withoutPrice` in search results cache key
 - Ensures cache hits/misses work correctly with new filter combinations
@@ -46,11 +52,13 @@ November 9, 2025
 ### 4. Admin API Route (`src/app/api/admin/gemstones/route.ts`)
 
 **Query Parameter Parsing:**
+
 - Added parsing for `withoutMedia` query parameter (boolean)
 - Added parsing for `withoutPrice` query parameter (boolean)
 - Included both in request logging for debugging
 
 **Database Filtering:**
+
 ```typescript
 // Without Media Filter
 if (withoutMedia) {
@@ -64,12 +72,14 @@ if (withoutPrice) {
 ```
 
 **Logic:**
+
 - `withoutMedia`: Filters for gemstones where BOTH primary_image_url AND primary_video_url are NULL
 - `withoutPrice`: Filters for gemstones where price_amount is NULL OR equals 0
 
 ### 5. Translations
 
 **English (`src/messages/en/admin.json`):**
+
 ```json
 "filterLabels": {
   "withoutMedia": "Without Media",
@@ -78,6 +88,7 @@ if (withoutPrice) {
 ```
 
 **Russian (`src/messages/ru/admin.json`):**
+
 ```json
 "filterLabels": {
   "withoutMedia": "Без медиа",
@@ -88,32 +99,40 @@ if (withoutPrice) {
 ## Technical Details
 
 ### Database View Used
+
 - `gemstones_enriched` view provides access to:
   - `primary_image_url` (from gemstones table)
   - `primary_video_url` (from gemstones table)
   - `price_amount` (from gemstones table)
 
 ### Filter Combinations
+
 Filters can be used independently or together:
+
 - **Without Media only**: Shows all gemstones lacking both images and videos
 - **Without Price only**: Shows all gemstones with NULL or 0 price
 - **Both filters**: Shows gemstones missing BOTH media AND price (intersection)
 - **With other filters**: Can combine with type, color, cut, stock status, etc.
 
 ### Price Zero Handling
+
 Per user requirement, gemstones with `price_amount = 0` are considered "without price" and will appear when the "Without Price" filter is enabled. This is useful for identifying incomplete records where price hasn't been set yet.
 
 ## User Interface
 
 ### Filter Location
+
 Both filters appear in the **Advanced Filters** panel, which is accessed by clicking the "Filters" button in the main search bar.
 
 ### Active Filter Badges
+
 When enabled, both filters display as removable badges in the active filters summary area:
+
 - **Without Media** badge with X button to remove
 - **Without Price** badge with X button to remove
 
 ### Filter Count
+
 Both filters contribute to the active filter count badge displayed on the Filters button.
 
 ## Testing Recommendations
@@ -121,6 +140,7 @@ Both filters contribute to the active filter count badge displayed on the Filter
 ### Manual Testing Checklist
 
 1. **Without Media Filter:**
+
    - [ ] Enable "Without Media" filter
    - [ ] Verify only gemstones without primary_image_url AND primary_video_url appear
    - [ ] Verify filter badge appears in active filters
@@ -129,6 +149,7 @@ Both filters contribute to the active filter count badge displayed on the Filter
    - [ ] Verify results update
 
 2. **Without Price Filter:**
+
    - [ ] Enable "Without Price" filter
    - [ ] Verify gemstones with NULL price appear
    - [ ] Verify gemstones with 0 price appear
@@ -137,6 +158,7 @@ Both filters contribute to the active filter count badge displayed on the Filter
    - [ ] Remove filter and verify results update
 
 3. **Combined Filters:**
+
    - [ ] Enable both filters simultaneously
    - [ ] Verify only gemstones missing BOTH media AND price appear
    - [ ] Verify both badges appear
@@ -144,11 +166,13 @@ Both filters contribute to the active filter count badge displayed on the Filter
    - [ ] Use "Clear All Filters" to remove both
 
 4. **With Other Filters:**
+
    - [ ] Combine with stock status filter (e.g., "In Stock" + "Without Media")
    - [ ] Combine with type filter (e.g., "Emerald" + "Without Price")
    - [ ] Combine with price range (should work with Without Media, not with Without Price)
 
 5. **Pagination:**
+
    - [ ] Enable filters with large result sets
    - [ ] Navigate through pages
    - [ ] Verify filter persists across page changes
@@ -161,21 +185,25 @@ Both filters contribute to the active filter count badge displayed on the Filter
 ## API Request Examples
 
 ### Without Media
+
 ```
 GET /api/admin/gemstones?withoutMedia=true&page=1&pageSize=50
 ```
 
 ### Without Price
+
 ```
 GET /api/admin/gemstones?withoutPrice=true&page=1&pageSize=50
 ```
 
 ### Both Filters
+
 ```
 GET /api/admin/gemstones?withoutMedia=true&withoutPrice=true&page=1&pageSize=50
 ```
 
 ### Combined with Other Filters
+
 ```
 GET /api/admin/gemstones?withoutMedia=true&inStock=true&types=emerald&page=1&pageSize=50
 ```
@@ -183,6 +211,7 @@ GET /api/admin/gemstones?withoutMedia=true&inStock=true&types=emerald&page=1&pag
 ## Database Query Examples
 
 ### Without Media Query
+
 ```sql
 SELECT * FROM gemstones_enriched
 WHERE primary_image_url IS NULL
@@ -190,6 +219,7 @@ WHERE primary_image_url IS NULL
 ```
 
 ### Without Price Query
+
 ```sql
 SELECT * FROM gemstones_enriched
 WHERE price_amount IS NULL
@@ -197,6 +227,7 @@ WHERE price_amount IS NULL
 ```
 
 ### Combined Query
+
 ```sql
 SELECT * FROM gemstones_enriched
 WHERE (primary_image_url IS NULL AND primary_video_url IS NULL)
@@ -218,12 +249,13 @@ Potential improvements for future iterations:
 1. **Separate Media Filters:**
    - "Without Images" (only images missing)
    - "Without Videos" (only videos missing)
-   
 2. **Price Validation:**
+
    - "Invalid Price" (negative or suspiciously low/high)
    - "Price Below Cost" (if cost data available)
 
 3. **Completion Score:**
+
    - Display percentage of required fields completed
    - Filter by completion threshold
 
@@ -261,4 +293,3 @@ Potential improvements for future iterations:
 **Status:** ✅ Implementation Complete
 **Ready for Testing:** Yes
 **Documentation:** Complete
-
