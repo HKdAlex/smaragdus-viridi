@@ -47,7 +47,7 @@ export class CurrencyRateService {
       // Match table rows with buy, currency, and sell cells
       // Pattern: <tr>...<td class="buy">number</td>...<td class="currency">CODE</td>...<td class="sell">number</td>...</tr>
       const tableRowPattern =
-        /<tr[^>]*>[\s\S]*?<td[^>]*class="buy"[^>]*>([\d.]+)<\/td>[\s\S]*?<td[^>]*class="currency"[^>]*>([A-Z]+)<\/td>[\s\S]*?<td[^>]*class="sell"[^>]*>([\d.]+)<\/td>[\s\S]*?<\/tr>/gi;
+        /<tr[^>]*>[\s\S]*?<td[^>]*class="buy"[^>]*>\s*([\d.]+)\s*<\/td>[\s\S]*?<td[^>]*class="currency"[^>]*>\s*([A-Z]+)\s*<\/td>[\s\S]*?<td[^>]*class="sell"[^>]*>\s*([\d.]+)\s*<\/td>[\s\S]*?<\/tr>/gi;
 
       const matches = [...html.matchAll(tableRowPattern)];
 
