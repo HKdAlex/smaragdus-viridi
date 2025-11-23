@@ -366,7 +366,8 @@ export class ChatService {
 
       // Check if filename contains an extension
       const lastDotIndex = sanitizedFileName.lastIndexOf(".");
-      const hasExtension = lastDotIndex > 0 && lastDotIndex < sanitizedFileName.length - 1;
+      const hasExtension =
+        lastDotIndex > 0 && lastDotIndex < sanitizedFileName.length - 1;
 
       let baseName: string;
       let fileExtension: string;
