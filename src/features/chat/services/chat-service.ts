@@ -9,8 +9,8 @@ import type {
 } from "../types/chat.types";
 import { ChatError, DEFAULT_CHAT_CONFIG } from "../types/chat.types";
 
-import { createContextLogger } from "@/shared/utils/logger";
 import { supabase } from "@/lib/supabase";
+import { createContextLogger } from "@/shared/utils/logger";
 
 export class ChatService {
   private supabase = supabase;
@@ -42,7 +42,10 @@ export class ChatService {
       // Handle file attachments if any
       let attachmentUrls: string[] = [];
       if (request.attachments && request.attachments.length > 0) {
-        attachmentUrls = await this.uploadAttachments(userId, request.attachments);
+        attachmentUrls = await this.uploadAttachments(
+          userId,
+          request.attachments
+        );
       }
 
       // Use API route instead of direct database access
@@ -346,20 +349,39 @@ export class ChatService {
   /**
    * Upload chat attachments
    */
-  private async uploadAttachments(userId: string, files: File[]): Promise<string[]> {
+  private async uploadAttachments(
+    userId: string,
+    files: File[]
+  ): Promise<string[]> {
     const uploadPromises = files.map(async (file) => {
       // Validate file
       this.validateFile(file);
 
       // Sanitize filename to remove invalid characters
-      const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+      const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_");
 
       // Generate unique filename with timestamp
       const timestamp = Date.now();
       const randomId = Math.random().toString(36).substring(2, 8);
-      const fileExtension = sanitizedFileName.split('.').pop() || '';
-      const baseName = sanitizedFileName.replace(/\.[^/.]+$/, "");
-      const fileName = `${timestamp}_${randomId}_${baseName}.${fileExtension}`;
+
+      // Check if filename contains an extension
+      const lastDotIndex = sanitizedFileName.lastIndexOf(".");
+      const hasExtension = lastDotIndex > 0 && lastDotIndex < sanitizedFileName.length - 1;
+
+      let baseName: string;
+      let fileExtension: string;
+
+      if (hasExtension) {
+        baseName = sanitizedFileName.substring(0, lastDotIndex);
+        fileExtension = sanitizedFileName.substring(lastDotIndex + 1);
+      } else {
+        baseName = sanitizedFileName;
+        fileExtension = "";
+      }
+
+      const fileName = fileExtension
+        ? `${timestamp}_${randomId}_${baseName}.${fileExtension}`
+        : `${timestamp}_${randomId}_${baseName}`;
 
       // Create path structure: {userId}/{filename}
       const filePath = `${userId}/${fileName}`;
@@ -384,7 +406,9 @@ export class ChatService {
         });
         throw new ChatError(
           "NETWORK_ERROR",
-          `Failed to upload ${file.name}: ${error.message || JSON.stringify(error)}`
+          `Failed to upload ${file.name}: ${
+            error.message || JSON.stringify(error)
+          }`
         );
       }
 
