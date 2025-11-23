@@ -296,57 +296,6 @@ export function GemstoneForm({
   // Update form data when gemstone changes
   useEffect(() => {
     if (gemstone) {
-      // Debug logging to track price values
-      console.log("🔍 [GemstoneForm] Loading gemstone data:", {
-        serial_number: gemstone.serial_number,
-        price_amount: gemstone.price_amount,
-        price_amount_dollars: gemstone.price_amount
-          ? gemstone.price_amount / 100
-          : 0,
-        price_per_carat: gemstone.price_per_carat,
-        price_per_carat_dollars: gemstone.price_per_carat
-          ? gemstone.price_per_carat / 100
-          : null,
-        weight_carats: gemstone.weight_carats,
-        calculated_price_per_carat:
-          gemstone.price_amount && gemstone.weight_carats
-            ? Math.round(gemstone.price_amount / gemstone.weight_carats)
-            : null,
-        calculated_price_per_carat_dollars:
-          gemstone.price_amount && gemstone.weight_carats
-            ? (gemstone.price_amount / gemstone.weight_carats / 100).toFixed(2)
-            : null,
-      });
-
-      // If price_per_carat exists and weight exists, recalculate price_amount to ensure consistency
-      // This fixes cases where price_amount might be out of sync with price_per_carat
-      let calculatedPriceAmount = gemstone.price_amount || 0;
-      if (
-        gemstone.price_per_carat &&
-        gemstone.price_per_carat > 0 &&
-        gemstone.weight_carats &&
-        gemstone.weight_carats > 0
-      ) {
-        // Recalculate price_amount from price_per_carat to ensure consistency
-        calculatedPriceAmount = Math.round(
-          gemstone.price_per_carat * gemstone.weight_carats
-        );
-
-        // Log if there's a mismatch
-        if (calculatedPriceAmount !== gemstone.price_amount) {
-          console.warn("⚠️ [GemstoneForm] Price mismatch detected:", {
-            serial_number: gemstone.serial_number,
-            stored_price_amount: gemstone.price_amount,
-            stored_price_amount_dollars: gemstone.price_amount / 100,
-            calculated_price_amount: calculatedPriceAmount,
-            calculated_price_amount_dollars: calculatedPriceAmount / 100,
-            price_per_carat: gemstone.price_per_carat,
-            price_per_carat_dollars: gemstone.price_per_carat / 100,
-            weight_carats: gemstone.weight_carats,
-          });
-        }
-      }
-
       setFormData({
         name: gemstone.name || DEFAULT_GEMSTONE_VALUES.type,
         color: gemstone.color || DEFAULT_GEMSTONE_VALUES.color,
@@ -357,7 +306,7 @@ export function GemstoneForm({
         width_mm: parseDimensionValue(gemstone.width_mm),
         depth_mm: parseDimensionValue(gemstone.depth_mm),
         origin_id: gemstone.origin_id || undefined,
-        price_amount: calculatedPriceAmount,
+        price_amount: gemstone.price_amount || 0,
         price_currency:
           gemstone.price_currency || DEFAULT_GEMSTONE_VALUES.currency,
         premium_price_amount: gemstone.premium_price_amount || undefined,
@@ -605,50 +554,46 @@ export function GemstoneForm({
           )}
 
           {/* Tabbed Form Sections */}
-          <Tabs defaultValue="basic-info">
-            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 h-auto p-1 sm:p-1">
-              <TabsTrigger 
-                value="basic-info" 
-                className="text-[10px] sm:text-xs md:text-sm px-2 sm:px-3 py-2 sm:py-2.5 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 min-h-[60px] sm:min-h-[40px]"
-              >
-                <FileText className="w-4 h-4 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 flex-shrink-0" />
-                <span className="text-center leading-tight">{t("tabs.basicInfo")}</span>
+          <Tabs defaultValue="basic">
+            <TabsList className="grid w-full grid-cols-2 md:grid-cols-6 lg:grid-cols-8">
+              <TabsTrigger value="basic" className="text-xs md:text-sm">
+                <FileText className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                <span className="hidden sm:inline">{t("tabs.basic")}</span>
               </TabsTrigger>
-              <TabsTrigger 
-                value="pricing-inventory" 
-                className="text-[10px] sm:text-xs md:text-sm px-2 sm:px-3 py-2 sm:py-2.5 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 min-h-[60px] sm:min-h-[40px]"
-              >
-                <DollarSign className="w-4 h-4 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 flex-shrink-0" />
-                <span className="text-center leading-tight">{t("tabs.pricingInventory")}</span>
+              <TabsTrigger value="properties" className="text-xs md:text-sm">
+                <Palette className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                <span className="hidden sm:inline">{t("tabs.properties")}</span>
               </TabsTrigger>
-              <TabsTrigger 
-                value="ai-content" 
-                className="text-[10px] sm:text-xs md:text-sm px-2 sm:px-3 py-2 sm:py-2.5 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 min-h-[60px] sm:min-h-[40px]"
-              >
-                <Brain className="w-4 h-4 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 flex-shrink-0" />
-                <span className="text-center leading-tight">{t("tabs.aiContent")}</span>
+              <TabsTrigger value="dimensions" className="text-xs md:text-sm">
+                <Ruler className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                <span className="hidden sm:inline">{t("tabs.dimensions")}</span>
               </TabsTrigger>
-              <TabsTrigger 
-                value="media" 
-                className="text-[10px] sm:text-xs md:text-sm px-2 sm:px-3 py-2 sm:py-2.5 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 min-h-[60px] sm:min-h-[40px]"
-              >
-                <ImageIcon className="w-4 h-4 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 flex-shrink-0" />
-                <span className="text-center leading-tight">{t("tabs.media")}</span>
+              <TabsTrigger value="stones" className="text-xs md:text-sm">
+                <Gem className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                <span className="hidden sm:inline">
+                  {t("tabs.individualStones")}
+                </span>
+              </TabsTrigger>
+              <TabsTrigger value="pricing" className="text-xs md:text-sm">
+                <DollarSign className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                <span className="hidden sm:inline">{t("tabs.pricing")}</span>
+              </TabsTrigger>
+              <TabsTrigger value="inventory" className="text-xs md:text-sm">
+                <Package className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                <span className="hidden sm:inline">{t("tabs.inventory")}</span>
+              </TabsTrigger>
+              <TabsTrigger value="ai-content" className="text-xs md:text-sm">
+                <Brain className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                <span className="hidden sm:inline">{t("tabs.aiContent")}</span>
+              </TabsTrigger>
+              <TabsTrigger value="media" className="text-xs md:text-sm">
+                <ImageIcon className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                <span className="hidden sm:inline">{t("tabs.media")}</span>
               </TabsTrigger>
             </TabsList>
 
-            {/* Basic Info Tab - Merged from Basic, Properties, Dimensions, Individual Stones */}
-            <TabsContent value="basic-info" className="space-y-6 mt-6">
-              <div className="space-y-8">
-                {/* Basic Information Section */}
-                <Card className="border-border bg-card">
-                  <CardHeader className="pb-4">
-                    <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                      <FileText className="w-5 h-5" />
-                      {t("sections.basicInformation")}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
+            {/* Basic Information Tab */}
+            <TabsContent value="basic" className="space-y-6 mt-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="space-y-2 md:col-span-2">
                   <label
@@ -690,18 +635,10 @@ export function GemstoneForm({
                   />
                 </div>
               </div>
-                  </CardContent>
-                </Card>
+            </TabsContent>
 
-                {/* Properties Section */}
-                <Card className="border-border bg-card">
-                  <CardHeader className="pb-4">
-                    <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                      <Palette className="w-5 h-5" />
-                      {t("sections.properties")}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
+            {/* Gemstone Properties Tab */}
+            <TabsContent value="properties" className="space-y-6 mt-6">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-foreground">
@@ -841,18 +778,10 @@ export function GemstoneForm({
                   )}
                 </div>
               </div>
-                  </CardContent>
-                </Card>
+            </TabsContent>
 
-                {/* Dimensions Section */}
-                <Card className="border-border bg-card">
-                  <CardHeader className="pb-4">
-                    <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                      <Ruler className="w-5 h-5" />
-                      {t("sections.dimensions")}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
+            {/* Dimensions Tab */}
+            <TabsContent value="dimensions" className="space-y-6 mt-6">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="space-y-2">
                   <label htmlFor="weight">{t("labels.weight")}</label>
@@ -956,19 +885,21 @@ export function GemstoneForm({
                   </SelectContent>
                 </Select>
               </div>
-                  </CardContent>
-                </Card>
+            </TabsContent>
 
-                {/* Individual Stones Section */}
-                <Card className="border-border bg-card">
-                  <CardHeader className="pb-4">
-                    <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                      <Gem className="w-5 h-5" />
-                      {t("sections.individualStones")}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
+            {/* Individual Stones Tab */}
+            <TabsContent value="stones" className="space-y-6 mt-6">
               <div className="space-y-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <Gem className="w-5 h-5" />
+                  <h3 className="text-lg font-medium">
+                    {t("labels.individualStones")}
+                  </h3>
+                  <span className="text-sm text-muted-foreground">
+                    ({formData.quantity} {t("labels.totalQuantity")})
+                  </span>
+                </div>
+
                 {(formData.quantity ?? 0) > 1 ? (
                   <div className="space-y-4">
                     <p className="text-sm text-muted-foreground">
@@ -1196,23 +1127,10 @@ export function GemstoneForm({
                   </div>
                 )}
               </div>
-                  </CardContent>
-                </Card>
-              </div>
             </TabsContent>
 
-            {/* Pricing & Inventory Tab - Merged from Pricing and Inventory */}
-            <TabsContent value="pricing-inventory" className="space-y-6 mt-6">
-              <div className="space-y-8">
-                {/* Pricing Section */}
-                <Card className="border-border bg-card">
-                  <CardHeader className="pb-4">
-                    <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                      <DollarSign className="w-5 h-5" />
-                      {t("sections.pricing")}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
+            {/* Pricing Tab */}
+            <TabsContent value="pricing" className="space-y-6 mt-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label htmlFor="price">{t("labels.regularPrice")}</label>
@@ -1371,18 +1289,10 @@ export function GemstoneForm({
                   </div>
                 </div>
               </div>
-                  </CardContent>
-                </Card>
+            </TabsContent>
 
-                {/* Inventory Section */}
-                <Card className="border-border bg-card">
-                  <CardHeader className="pb-4">
-                    <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                      <Package className="w-5 h-5" />
-                      {t("sections.inventory")}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
+            {/* Inventory Tab */}
+            <TabsContent value="inventory" className="space-y-6 mt-6">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="flex items-center space-x-2">
                   <Checkbox
@@ -1558,10 +1468,7 @@ export function GemstoneForm({
                   </div>
                 )}
               </div>
-                  </CardContent>
-                </Card>
-              </div>
-                        </TabsContent>
+            </TabsContent>
 
             {/* AI Content Tab */}
             <TabsContent value="ai-content" className="space-y-6 mt-6">
@@ -1839,7 +1746,8 @@ export function GemstoneForm({
               </div>
             </TabsContent>
 
-<TabsContent value="media" className="space-y-6 mt-6">
+            {/* Media Tab */}
+            <TabsContent value="media" className="space-y-6 mt-6">
               <EnhancedMediaUpload
                 gemstoneId={gemstone?.id}
                 serialNumber={formData.serial_number}
