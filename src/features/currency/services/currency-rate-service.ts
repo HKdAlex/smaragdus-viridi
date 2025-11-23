@@ -368,6 +368,7 @@ export class CurrencyRateService {
         updatedAt: new Date().toISOString(),
       };
 
+      let oldestUpdatedAt: Date | null = null;
       data.forEach((rate) => {
         const target = rate.target_currency as CurrencyCode;
         if (target in rates.USD) {
@@ -375,9 +376,19 @@ export class CurrencyRateService {
           foundRates.add(target);
         }
         if (rate.updated_at) {
+          const updatedAt = new Date(rate.updated_at);
+          if (oldestUpdatedAt === null || updatedAt < oldestUpdatedAt) {
+            oldestUpdatedAt = updatedAt;
+          }
           rates.updatedAt = rate.updated_at;
         }
       });
+
+      // Check if rates are stale (older than cache duration)
+      const ratesAreStale =
+        oldestUpdatedAt !== null
+          ? Date.now() - (oldestUpdatedAt as Date).getTime() > CACHE_DURATION_MS
+          : false;
 
       // Validate rates from database are reasonable
       // Only validate rates that were actually found in the database
@@ -388,16 +399,37 @@ export class CurrencyRateService {
         (foundRates.has("EUR") && (EUR < 0.7 || EUR > 1.1)) ||
         (foundRates.has("KZT") && (KZT < 400 || KZT > 600));
 
-      if (hasInvalidRate) {
-        this.logger.warn("Database rates are invalid, fetching fresh rates", {
-          RUB: foundRates.has("RUB") ? RUB : "not found",
-          EUR: foundRates.has("EUR") ? EUR : "not found",
-          KZT: foundRates.has("KZT") ? KZT : "not found",
-        });
-        // Fetch fresh rates and update database
-        const freshRates = await this.fetchRatesFromMigKz();
-        await this.updateRates(freshRates);
-        return freshRates;
+      // Only fetch fresh rates if they're stale or invalid
+      // If mig.kz is failing, don't keep trying - use cached rates
+      if (hasInvalidRate || ratesAreStale) {
+        if (ratesAreStale && oldestUpdatedAt !== null) {
+          const ageMinutes = Math.round(
+            (Date.now() - (oldestUpdatedAt as Date).getTime()) / 1000 / 60
+          );
+          this.logger.info("Database rates are stale, fetching fresh rates", {
+            age: `${ageMinutes} minutes`,
+          });
+        } else {
+          this.logger.warn("Database rates are invalid, fetching fresh rates", {
+            RUB: foundRates.has("RUB") ? RUB : "not found",
+            EUR: foundRates.has("EUR") ? EUR : "not found",
+            KZT: foundRates.has("KZT") ? KZT : "not found",
+          });
+        }
+
+        try {
+          // Fetch fresh rates and update database
+          const freshRates = await this.fetchRatesFromMigKz();
+          await this.updateRates(freshRates);
+          return freshRates;
+        } catch (fetchError) {
+          // If mig.kz fails, use cached rates even if stale/invalid rather than failing
+          this.logger.warn(
+            "Failed to fetch fresh rates from mig.kz, using cached rates",
+            fetchError as Error
+          );
+          return rates;
+        }
       }
 
       return rates;

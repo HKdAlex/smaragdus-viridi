@@ -145,6 +145,8 @@ export function CurrencyProvider({
   );
 
   // Convert price from one currency to another
+  // IMPORTANT: amount is in CENTS, exchange rates are per DOLLAR
+  // So we need to: convert cents -> dollars -> convert -> cents
   const convertPrice = useCallback(
     (amount: number, fromCurrency: CurrencyCode = "USD"): number => {
       // If same currency, no conversion needed
@@ -152,9 +154,15 @@ export function CurrencyProvider({
         return amount;
       }
 
+      // Convert cents to dollars, apply exchange rate, convert back to cents
+      // Exchange rates are per dollar, so we divide by 100 first, multiply by rate, then multiply by 100
+      // This is equivalent to: amount * rate, but we're being explicit about the conversion
+      
       // If converting from USD (base currency)
       if (fromCurrency === "USD") {
         const rate = rates[selectedCurrency] || 1;
+        // amount is in cents, rate is per dollar
+        // Convert: (amount / 100) * rate * 100 = amount * rate
         return Math.round(amount * rate);
       }
 
@@ -163,6 +171,10 @@ export function CurrencyProvider({
       // But handle it for completeness
       const fromRate = rates[fromCurrency] || 1;
       const toRate = rates[selectedCurrency] || 1;
+      // Convert from source currency cents to USD cents, then to target currency cents
+      // amount is in cents of fromCurrency
+      // Convert to USD cents: (amount / fromRate)
+      // Convert to target currency cents: (amount / fromRate) * toRate
       const usdAmount = amount / fromRate;
       return Math.round(usdAmount * toRate);
     },
@@ -172,10 +184,13 @@ export function CurrencyProvider({
   // Format price with proper locale
   // currency parameter is the SOURCE currency (what currency the amount is stored in)
   // The result will be formatted in selectedCurrency
+  // IMPORTANT: amount MUST be in CENTS (smallest currency unit)
   const formatPrice = useCallback(
     (amount: number, currency?: CurrencyCode): string => {
       // Convert from source currency (or USD if not provided) to selected currency
       const sourceCurrency = currency || "USD";
+      
+      // convertPrice expects and returns amounts in CENTS
       const convertedAmount = convertPrice(amount, sourceCurrency);
 
       // Determine locale based on selected currency (target currency)
@@ -188,12 +203,15 @@ export function CurrencyProvider({
         locale = "en-US"; // Can use en-US or specific EU locale
       }
 
+      // convertedAmount is in CENTS, so divide by 100 to get the base unit (dollars, euros, etc.)
+      const amountInBaseUnit = convertedAmount / 100;
+      
       return new Intl.NumberFormat(locale, {
         style: "currency",
         currency: selectedCurrency,
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
-      }).format(convertedAmount / 100); // Convert from cents
+      }).format(amountInBaseUnit);
     },
     [selectedCurrency, convertPrice]
   );

@@ -114,6 +114,8 @@ export function GemstoneForm({
   };
 
   const handlePriceAmountChange = (value: string) => {
+    // parseCurrencyInput converts dollars to cents (multiplies by 100)
+    // Input value is always in dollars, so this is correct
     const cents = parseCurrencyInput(value);
     setFormData((prev) => {
       const next = {
@@ -132,6 +134,7 @@ export function GemstoneForm({
         prev.weight_carats > 0
       ) {
         // Calculate cents per carat: total cents / weight
+        // Both are in cents, so this is correct
         next.price_per_carat = Math.round(cents / prev.weight_carats);
       }
 
@@ -144,6 +147,8 @@ export function GemstoneForm({
   };
 
   const handlePricePerCaratChange = (value: string) => {
+    // parseCurrencyInput converts dollars to cents (multiplies by 100)
+    // Input value is always in dollars, so this is correct
     const cents = parseCurrencyInput(value);
     setHasManualPricePerCarat(value.trim() !== "");
     setFormData((prev) => {
@@ -152,9 +157,10 @@ export function GemstoneForm({
         next.price_per_carat = null;
         setHasManualPricePerCarat(false);
       } else if (cents !== undefined && cents >= 0) {
-        // Store price_per_carat in cents (dollars * 100)
+        // Store price_per_carat in cents (already converted by parseCurrencyInput)
         next.price_per_carat = cents;
         // Recalculate total price: cents per carat * weight in carats
+        // Both are in correct units (cents and carats), so this is correct
         if (prev.weight_carats > 0) {
           next.price_amount = Math.round(cents * prev.weight_carats);
         }
@@ -189,6 +195,8 @@ export function GemstoneForm({
   const handleAutoCalculatePricePerCarat = () => {
     if (formData.price_amount > 0 && formData.weight_carats > 0) {
       // Calculate cents per carat: total cents / weight in carats
+      // formData.price_amount is in CENTS, weight_carats is in carats
+      // Result is cents per carat (which will be displayed as dollars by dividing by 100)
       const calculated = Math.round(
         formData.price_amount / formData.weight_carats
       );
@@ -306,11 +314,13 @@ export function GemstoneForm({
         width_mm: parseDimensionValue(gemstone.width_mm),
         depth_mm: parseDimensionValue(gemstone.depth_mm),
         origin_id: gemstone.origin_id || undefined,
+        // price_amount is stored in CENTS in the database
         price_amount: gemstone.price_amount || 0,
         price_currency:
           gemstone.price_currency || DEFAULT_GEMSTONE_VALUES.currency,
         premium_price_amount: gemstone.premium_price_amount || undefined,
         premium_price_currency: gemstone.premium_price_currency || undefined,
+        // price_per_carat is also stored in CENTS in the database
         price_per_carat: gemstone.price_per_carat ?? null,
         in_stock: gemstone.in_stock ?? true,
         metadata_status: gemstone.metadata_status ?? null,
@@ -474,6 +484,9 @@ export function GemstoneForm({
       }
 
       // Include marketing highlights in form data
+      // IMPORTANT: price_amount and price_per_carat are both in CENTS
+      // The database trigger will recalculate price_amount from price_per_carat if price_per_carat changes
+      // So we need to ensure both values are consistent before saving
       const submitData = {
         ...formData,
         marketing_highlights:
@@ -498,6 +511,16 @@ export function GemstoneForm({
               : undefined,
         },
       };
+
+      // Debug logging for price values
+      if (submitData.price_amount !== undefined || submitData.price_per_carat !== undefined) {
+        console.log(
+          `[GemstoneForm] Submitting prices: ` +
+          `price_amount=${submitData.price_amount} cents ($${(submitData.price_amount / 100).toFixed(2)}), ` +
+          `price_per_carat=${submitData.price_per_carat !== null && submitData.price_per_carat !== undefined ? submitData.price_per_carat + ' cents ($' + (submitData.price_per_carat / 100).toFixed(2) + '/ct)' : 'null'}, ` +
+          `weight=${submitData.weight_carats}ct`
+        );
+      }
 
       let result;
       if (gemstone) {
