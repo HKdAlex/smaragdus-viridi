@@ -2,19 +2,19 @@
 
 import { ArrowLeft, Lock, ShoppingBag } from "lucide-react";
 
+import { useAuth } from "@/features/auth/context/auth-context";
+import { useCurrency } from "@/features/currency/hooks/use-currency";
+import { OrderConfirmationModal } from "@/features/orders/components/order-confirmation-modal";
+import type { CreateOrderResponse } from "@/features/orders/types/order.types";
+import { Link } from "@/i18n/navigation";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { CartItem } from "./cart-item";
-import type { CreateOrderResponse } from "@/features/orders/types/order.types";
-import { EmptyCart } from "./empty-cart";
-import { Link } from "@/i18n/navigation";
-import { OrderConfirmationModal } from "@/features/orders/components/order-confirmation-modal";
 import { Separator } from "@/shared/components/ui/separator";
-import { useAuth } from "@/features/auth/context/auth-context";
-import { useCartContext } from "../context/cart-context";
-import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { useCurrency } from "@/features/currency/hooks/use-currency";
+import { useState } from "react";
+import { useCartContext } from "../context/cart-context";
+import { CartItem } from "./cart-item";
+import { EmptyCart } from "./empty-cart";
 
 export function CartPage() {
   const { user } = useAuth();
@@ -120,7 +120,6 @@ export function CartPage() {
       setOrderResult(null);
     }
   };
-
 
   // Redirect to login if not authenticated
   if (!user) {
@@ -278,7 +277,10 @@ export function CartPage() {
                       })}
                     </span>
                     <span className="text-foreground font-medium">
-                      {formatPrice(cartSummary.subtotal.amount, cartSummary.subtotal.currency)}
+                      {formatPrice(
+                        cartSummary.subtotal.amount,
+                        cartSummary.subtotal.currency
+                      )}
                     </span>
                   </div>
 
@@ -308,8 +310,14 @@ export function CartPage() {
                     </span>
                     <span className="text-foreground">
                       {selectedItemsCount === cartSummary.total_items
-                        ? formatPrice(cartSummary.subtotal.amount, cartSummary.subtotal.currency)
-                        : formatPrice(selectedTotal.amount, selectedTotal.currency)}
+                        ? formatPrice(
+                            cartSummary.subtotal.amount,
+                            cartSummary.subtotal.currency
+                          )
+                        : formatPrice(
+                            selectedTotal.amount,
+                            selectedTotal.currency
+                          )}
                     </span>
                   </div>
 
