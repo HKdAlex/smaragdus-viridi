@@ -88,7 +88,8 @@ export function useChat(userId?: string): UseChatReturn {
                 if (!msg.id.startsWith("temp-")) continue;
 
                 // Match criteria: same content, user_id, and sender_type
-                const contentMatch = msg.content.trim() === newMessage.content.trim();
+                const contentMatch =
+                  msg.content.trim() === newMessage.content.trim();
                 const userMatch = msg.user_id === newMessage.user_id;
                 const senderMatch = msg.sender_type === newMessage.sender_type;
 
@@ -118,7 +119,8 @@ export function useChat(userId?: string): UseChatReturn {
                     optimisticId: prev[bestMatchIndex].id,
                     realId: newMessage.id,
                     content: newMessage.content.substring(0, 50),
-                    timeDiff: bestMatchScore > 0 ? 1000000 - bestMatchScore : "N/A",
+                    timeDiff:
+                      bestMatchScore > 0 ? 1000000 - bestMatchScore : "N/A",
                   }
                 );
                 const newMessages = [...prev];
