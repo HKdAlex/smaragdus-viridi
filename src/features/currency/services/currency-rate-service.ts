@@ -1,10 +1,7 @@
-import type {
-  ExchangeRates,
-  MigKzRate,
-} from "../types/currency.types";
+import { supabase } from "@/lib/supabase";
 import type { CurrencyCode } from "@/shared/types";
 import { Logger } from "@/shared/utils/logger";
-import { supabase } from "@/lib/supabase";
+import type { ExchangeRates, MigKzRate } from "../types/currency.types";
 
 const MIG_KZ_URL = "https://mig.kz";
 const ADJUSTMENT_FACTOR = 1.03; // 3% adjustment
@@ -44,67 +41,112 @@ export class CurrencyRateService {
       const rates: MigKzRate[] = [];
 
       // Extract USD rates - mig.kz shows buy/sell rates in KZT
-      // Pattern: USD followed by numbers (typically 400-600 range for KZT)
-      const usdPattern = /USD[^0-9]*?(\d{3,4}(?:\.\d{1,2})?)[^0-9]*?(\d{3,4}(?:\.\d{1,2})?)/i;
-      const usdMatch = html.match(usdPattern);
-      if (usdMatch) {
-        const buy = parseFloat(usdMatch[1]);
-        const sell = parseFloat(usdMatch[2]);
-        // Validate USD rates are in reasonable range (400-600 KZT per USD)
-        if (!isNaN(buy) && !isNaN(sell) && buy > 300 && buy < 700 && sell > 300 && sell < 700) {
-          rates.push({
-            currency: "USD",
+      // Look for USD followed by two numbers that are close together (within 30 chars)
+      // and both in the 300-700 range
+      const usdPattern =
+        /USD[^0-9]{0,20}(\d{3}(?:\.\d{1,2})?)[^0-9]{0,30}(\d{3}(?:\.\d{1,2})?)/i;
+      const usdMatches = [...html.matchAll(new RegExp(usdPattern, "gi"))];
+
+      let parsedUsdRate: MigKzRate | null = null;
+      for (const match of usdMatches) {
+        const buy = parseFloat(match[1]);
+        const sell = parseFloat(match[2]);
+        // Both must be in reasonable range and close to each other (within 5%)
+        if (
+          !isNaN(buy) &&
+          !isNaN(sell) &&
+          buy > 300 &&
+          buy < 700 &&
+          sell > 300 &&
+          sell < 700 &&
+          Math.abs(buy - sell) <= 10 // Sell should be within 10 KZT of buy
+        ) {
+          parsedUsdRate = { currency: "USD", buy, sell };
+          this.logger.info("Parsed USD rate", {
             buy,
             sell,
+            match: [match[0], match[1], match[2]],
           });
-          this.logger.info("Parsed USD rate", { buy, sell });
+          break; // Use first valid match
         } else {
-          this.logger.warn("USD rate out of expected range", { buy, sell });
+          this.logger.debug("USD rate candidate rejected", {
+            buy,
+            sell,
+            diff: Math.abs(buy - sell),
+          });
         }
+      }
+
+      if (parsedUsdRate) {
+        rates.push(parsedUsdRate);
       } else {
-        this.logger.warn("Could not parse USD rate from mig.kz HTML");
+        this.logger.warn("Could not parse valid USD rate from mig.kz HTML");
       }
 
       // Extract EUR rates - should be similar or higher than USD (500-700 KZT per EUR)
-      const eurPattern = /EUR[^0-9]*?(\d{3,4}(?:\.\d{1,2})?)[^0-9]*?(\d{3,4}(?:\.\d{1,2})?)/i;
-      const eurMatch = html.match(eurPattern);
-      if (eurMatch) {
-        const buy = parseFloat(eurMatch[1]);
-        const sell = parseFloat(eurMatch[2]);
-        // Validate EUR rates are in reasonable range (400-800 KZT per EUR)
-        if (!isNaN(buy) && !isNaN(sell) && buy > 300 && buy < 900 && sell > 300 && sell < 900) {
-          rates.push({
-            currency: "EUR",
-            buy,
-            sell,
-          });
-          this.logger.info("Parsed EUR rate", { buy, sell });
+      const eurPattern =
+        /EUR[^0-9]{0,20}(\d{3}(?:\.\d{1,2})?)[^0-9]{0,30}(\d{3}(?:\.\d{1,2})?)/i;
+      const eurMatches = [...html.matchAll(new RegExp(eurPattern, "gi"))];
+      
+      let parsedEurRate: MigKzRate | null = null;
+      for (const match of eurMatches) {
+        const buy = parseFloat(match[1]);
+        const sell = parseFloat(match[2]);
+        // Both must be in reasonable range and close to each other
+        if (
+          !isNaN(buy) &&
+          !isNaN(sell) &&
+          buy > 300 &&
+          buy < 900 &&
+          sell > 300 &&
+          sell < 900 &&
+          Math.abs(buy - sell) <= 15 // Sell should be within 15 KZT of buy
+        ) {
+          parsedEurRate = { currency: "EUR", buy, sell };
+          this.logger.info("Parsed EUR rate", { buy, sell, match: [match[0], match[1], match[2]] });
+          break; // Use first valid match
         } else {
-          this.logger.warn("EUR rate out of expected range", { buy, sell });
+          this.logger.debug("EUR rate candidate rejected", { buy, sell, diff: Math.abs(buy - sell) });
         }
+      }
+      
+      if (parsedEurRate) {
+        rates.push(parsedEurRate);
       } else {
-        this.logger.warn("Could not parse EUR rate from mig.kz HTML");
+        this.logger.warn("Could not parse valid EUR rate from mig.kz HTML");
       }
 
       // Extract RUB rates - should be much lower (5-8 KZT per RUB)
-      const rubPattern = /RUB[^0-9]*?(\d{1,2}(?:\.\d{1,2})?)[^0-9]*?(\d{1,2}(?:\.\d{1,2})?)/i;
-      const rubMatch = html.match(rubPattern);
-      if (rubMatch) {
-        const buy = parseFloat(rubMatch[1]);
-        const sell = parseFloat(rubMatch[2]);
-        // Validate RUB rates are in reasonable range (4-10 KZT per RUB)
-        if (!isNaN(buy) && !isNaN(sell) && buy > 3 && buy < 12 && sell > 3 && sell < 12) {
-          rates.push({
-            currency: "RUB",
-            buy,
-            sell,
-          });
-          this.logger.info("Parsed RUB rate", { buy, sell });
+      const rubPattern =
+        /RUB[^0-9]{0,20}(\d{1}\.?\d{0,2})[^0-9]{0,30}(\d{1}\.?\d{0,2})/i;
+      const rubMatches = [...html.matchAll(new RegExp(rubPattern, "gi"))];
+      
+      let parsedRubRate: MigKzRate | null = null;
+      for (const match of rubMatches) {
+        const buy = parseFloat(match[1]);
+        const sell = parseFloat(match[2]);
+        // Both must be in reasonable range and close to each other
+        if (
+          !isNaN(buy) &&
+          !isNaN(sell) &&
+          buy > 3 &&
+          buy < 12 &&
+          sell > 3 &&
+          sell < 12 &&
+          Math.abs(buy - sell) <= 3 // Sell should be within 3 KZT of buy
+        ) {
+          parsedRubRate = { currency: "RUB", buy, sell };
+          this.logger.info("Parsed RUB rate", { buy, sell, match: [match[0], match[1], match[2]] });
+          break; // Use first valid match
         } else {
-          this.logger.warn("RUB rate out of expected range", { buy, sell });
+          this.logger.debug("RUB rate candidate rejected", { buy, sell, diff: Math.abs(buy - sell) });
         }
+      }
+      
+      if (parsedRubRate) {
+        rates.push(parsedRubRate);
       } else {
-        this.logger.warn("Could not parse RUB rate from mig.kz HTML");
+        this.logger.warn("Could not parse valid RUB rate from mig.kz HTML");
       }
 
       // mig.kz shows rates in KZT (Kazakhstani Tenge)
@@ -163,12 +205,7 @@ export class CurrencyRateService {
       // Validate converted rates are reasonable
       // USD to EUR should be around 0.85-1.0 (EUR is usually stronger)
       // USD to RUB should be around 80-100
-      if (
-        usdToEur < 0.7 ||
-        usdToEur > 1.1 ||
-        usdToRub < 50 ||
-        usdToRub > 150
-      ) {
+      if (usdToEur < 0.7 || usdToEur > 1.1 || usdToRub < 50 || usdToRub > 150) {
         this.logger.warn("Converted rates seem invalid, using fallback", {
           usdToEur,
           usdToRub,
@@ -221,10 +258,7 @@ export class CurrencyRateService {
   /**
    * Get exchange rate from database or fetch if not available/stale
    */
-  async getRate(
-    from: CurrencyCode,
-    to: CurrencyCode
-  ): Promise<number> {
+  async getRate(from: CurrencyCode, to: CurrencyCode): Promise<number> {
     // Same currency, no conversion needed
     if (from === to) {
       return 1;
@@ -312,19 +346,17 @@ export class CurrencyRateService {
 
       // Upsert rates (update if exists, insert if not)
       for (const update of updates) {
-        const { error } = await supabase
-          .from("currency_rates")
-          .upsert(
-            {
-              base_currency: update.base_currency,
-              target_currency: update.target_currency,
-              rate: update.rate,
-              updated_at: update.updated_at,
-            },
-            {
-              onConflict: "base_currency,target_currency",
-            }
-          );
+        const { error } = await supabase.from("currency_rates").upsert(
+          {
+            base_currency: update.base_currency,
+            target_currency: update.target_currency,
+            rate: update.rate,
+            updated_at: update.updated_at,
+          },
+          {
+            onConflict: "base_currency,target_currency",
+          }
+        );
 
         if (error) {
           this.logger.error("Failed to update rate", error, {
@@ -412,4 +444,3 @@ export class CurrencyRateService {
 
 // Export singleton instance
 export const currencyRateService = new CurrencyRateService();
-
