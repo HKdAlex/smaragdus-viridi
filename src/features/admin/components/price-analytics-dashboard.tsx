@@ -213,7 +213,7 @@ export function PriceAnalyticsDashboard() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">
-                  {formatPrice(convertPrice(analytics.averagePrice, "USD"))}
+                  {formatPrice(analytics.averagePrice, "USD")}
                 </p>
                 <p className="text-sm text-blue-700 dark:text-blue-300">
                   {t("averagePrice")}
@@ -231,7 +231,7 @@ export function PriceAnalyticsDashboard() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-green-900 dark:text-green-100">
-                  {formatPrice(convertPrice(analytics.priceRange.max, "USD"))}
+                  {formatPrice(analytics.priceRange.max, "USD")}
                 </p>
                 <p className="text-sm text-green-700 dark:text-green-300">
                   {t("highestPrice")}
@@ -345,7 +345,7 @@ export function PriceAnalyticsDashboard() {
                   </div>
                   <div className="text-right">
                     <div className="font-medium">
-                      {formatPrice(convertPrice(currency.avgPrice, "USD"))}
+                      {formatPrice(currency.avgPrice, "USD")}
                     </div>
                     <div className="text-sm text-muted-foreground">
                       avg price
@@ -383,8 +383,8 @@ export function PriceAnalyticsDashboard() {
                 </div>
                 <div className="text-right">
                   <div className="text-sm">
-                    {formatPrice(convertPrice(change.old_price, "USD"))} →{" "}
-                    {formatPrice(convertPrice(change.new_price, "USD"))}
+                    {formatPrice(change.old_price, "USD")} →{" "}
+                    {formatPrice(change.new_price, "USD")}
                   </div>
                   <div className="text-xs text-muted-foreground">
                     {new Date(change.created_at).toLocaleDateString()}

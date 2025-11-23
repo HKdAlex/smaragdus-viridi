@@ -278,7 +278,7 @@ export function CartPage() {
                       })}
                     </span>
                     <span className="text-foreground font-medium">
-                      {formatPrice(convertPrice(cartSummary.subtotal.amount, cartSummary.subtotal.currency))}
+                      {formatPrice(cartSummary.subtotal.amount, cartSummary.subtotal.currency)}
                     </span>
                   </div>
 
@@ -308,8 +308,8 @@ export function CartPage() {
                     </span>
                     <span className="text-foreground">
                       {selectedItemsCount === cartSummary.total_items
-                        ? formatPrice(convertPrice(cartSummary.subtotal.amount, cartSummary.subtotal.currency))
-                        : formatPrice(convertPrice(selectedTotal.amount, selectedTotal.currency))}
+                        ? formatPrice(cartSummary.subtotal.amount, cartSummary.subtotal.currency)
+                        : formatPrice(selectedTotal.amount, selectedTotal.currency)}
                     </span>
                   </div>
 

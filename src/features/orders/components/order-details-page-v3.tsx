@@ -297,10 +297,10 @@ export function OrderDetailsPageV3({
                         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-2">
                           <div className="space-y-1">
                             <div className="font-bold text-lg sm:text-xl text-foreground">
-                              {formatPrice(convertPrice(item.line_total, "USD"))}
+                              {formatPrice(item.line_total, "USD")}
                             </div>
                             <div className="text-sm text-muted-foreground">
-                              {item.quantity} × {formatPrice(convertPrice(item.unit_price, "USD"))}
+                              {item.quantity} × {formatPrice(item.unit_price, "USD")}
                             </div>
                           </div>
                         </div>
@@ -443,7 +443,7 @@ export function OrderDetailsPageV3({
                         {t("subtotal")}
                       </span>
                       <span className="text-sm font-medium">
-                        {formatPrice(convertPrice(order.total_amount, "USD"))}
+                        {formatPrice(order.total_amount, "USD")}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
@@ -470,7 +470,7 @@ export function OrderDetailsPageV3({
                         {t("total")}
                       </span>
                       <span className="font-bold text-xl text-primary">
-                        {formatPrice(convertPrice(order.total_amount, "USD"))}
+                        {formatPrice(order.total_amount, "USD")}
                       </span>
                     </div>
                   </div>

@@ -290,8 +290,8 @@ export function BulkEditModal({
   const { formatPrice, convertPrice } = useCurrency();
   
   const formatCurrency = (amount: number) => {
-    // Convert from USD (base) to selected currency
-    return formatPrice(convertPrice(amount, "USD"));
+    // formatPrice handles conversion internally
+    return formatPrice(amount, "USD");
   };
 
   if (!isOpen) return null;

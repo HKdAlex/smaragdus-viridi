@@ -300,7 +300,7 @@ export function InventoryManagementDashboard() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-yellow-900 dark:text-yellow-100">
-                  {formatPrice(convertPrice(stats.totalValue, "USD"))}
+                  {formatPrice(stats.totalValue, "USD")}
                 </p>
                 <p className="text-sm text-yellow-700 dark:text-yellow-300">
                   {t("stats.totalValue")}

@@ -395,7 +395,7 @@ export function OrderDetailsPage({
                     <span className="text-muted-foreground">
                       {t("subtotal")}
                     </span>
-                    <span>{formatPrice(convertPrice(order.total_amount, "USD"))}</span>
+                    <span>{formatPrice(order.total_amount, "USD")}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">
@@ -412,7 +412,7 @@ export function OrderDetailsPage({
 
                   <div className="flex justify-between font-semibold text-lg">
                     <span>{t("total")}</span>
-                    <span>{formatPrice(convertPrice(order.total_amount, "USD"))}</span>
+                    <span>{formatPrice(order.total_amount, "USD")}</span>
                   </div>
                 </div>
 

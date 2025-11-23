@@ -296,10 +296,10 @@ export function OrderDetailsPageV2({
                           </div>
                           <div className="text-right ml-4">
                             <div className="font-bold text-lg text-foreground">
-                              {formatPrice(convertPrice(item.line_total, "USD"))}
+                              {formatPrice(item.line_total, "USD")}
                             </div>
                             <div className="text-sm text-muted-foreground">
-                              {item.quantity} × {formatPrice(convertPrice(item.unit_price, "USD"))}
+                              {item.quantity} × {formatPrice(item.unit_price, "USD")}
                             </div>
                           </div>
                         </div>
@@ -442,7 +442,7 @@ export function OrderDetailsPageV2({
                         {t("subtotal")}
                       </span>
                       <span className="text-sm font-medium">
-                        {formatPrice(convertPrice(order.total_amount, "USD"))}
+                        {formatPrice(order.total_amount, "USD")}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
@@ -469,7 +469,7 @@ export function OrderDetailsPageV2({
                         {t("total")}
                       </span>
                       <span className="font-bold text-xl text-primary">
-                        {formatPrice(convertPrice(order.total_amount, "USD"))}
+                        {formatPrice(order.total_amount, "USD")}
                       </span>
                     </div>
                   </div>

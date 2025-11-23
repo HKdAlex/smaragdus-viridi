@@ -141,11 +141,11 @@ export function OrderConfirmationModal({
                       </div>
                       <div className="text-right ml-4">
                         <div className="font-medium">
-                          {formatPrice(convertPrice(item.line_total.amount, "USD"))}
+                          {formatPrice(item.line_total.amount, "USD")}
                         </div>
                         <div className="text-muted-foreground text-xs">
                           {item.quantity} ×{" "}
-                          {formatPrice(convertPrice(item.unit_price.amount, "USD"))}
+                          {formatPrice(item.unit_price.amount, "USD")}
                         </div>
                       </div>
                     </div>
@@ -156,7 +156,7 @@ export function OrderConfirmationModal({
 
                 <div className="flex justify-between items-center font-medium">
                   <span>{tOrders("confirmation.total")}</span>
-                  <span className="text-lg">{formatPrice(convertPrice(totalAmount, "USD"))}</span>
+                  <span className="text-lg">{formatPrice(totalAmount, "USD")}</span>
                 </div>
 
                 <div className="flex justify-between items-center text-sm text-muted-foreground mt-1">
@@ -204,7 +204,7 @@ export function OrderConfirmationModal({
                       <div className="flex justify-between">
                         <span>{tOrders("confirmation.totalPaid")}:</span>
                         <span className="font-medium">
-                          {formatPrice(convertPrice(orderResult.order.total_amount, "USD"))}
+                          {formatPrice(orderResult.order.total_amount, "USD")}
                         </span>
                       </div>
                       <div className="flex justify-between">

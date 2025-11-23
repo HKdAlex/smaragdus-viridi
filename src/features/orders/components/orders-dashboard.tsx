@@ -57,7 +57,7 @@ export function OrdersDashboard({
   
   const formatCurrency = (amount: number, currency: string) => {
     // Convert from stored currency (USD base) to selected currency
-    return formatPrice(convertPrice(amount, "USD"));
+    return formatPrice(amount, "USD");
   };
 
   // Calculate real-time stats from loaded orders
