@@ -38,6 +38,7 @@ import { useGemstoneTranslations } from "@/features/gemstones/utils/gemstone-tra
 import { useOrderTranslations } from "../utils/order-translations";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
+import { useCurrency } from "@/features/currency/hooks/use-currency";
 
 interface OrderDetailsPageProps {
   orderId: string;
@@ -100,12 +101,8 @@ export function OrderDetailsPageV2({
     loadOrderDetails();
   }, [loadOrderDetails]);
 
-  const formatPrice = (amount: number) =>
-    new Intl.NumberFormat(locale, {
-      style: "currency",
-      currency: order?.currency_code || "USD",
-      minimumFractionDigits: 0,
-    }).format(amount / 100);
+  // Use currency context for price formatting
+  const { formatPrice, convertPrice } = useCurrency();
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return "N/A";
@@ -299,10 +296,10 @@ export function OrderDetailsPageV2({
                           </div>
                           <div className="text-right ml-4">
                             <div className="font-bold text-lg text-foreground">
-                              {formatPrice(item.line_total)}
+                              {formatPrice(convertPrice(item.line_total, "USD"))}
                             </div>
                             <div className="text-sm text-muted-foreground">
-                              {item.quantity} × {formatPrice(item.unit_price)}
+                              {item.quantity} × {formatPrice(convertPrice(item.unit_price, "USD"))}
                             </div>
                           </div>
                         </div>
@@ -445,7 +442,7 @@ export function OrderDetailsPageV2({
                         {t("subtotal")}
                       </span>
                       <span className="text-sm font-medium">
-                        {formatPrice(order.total_amount)}
+                        {formatPrice(convertPrice(order.total_amount, "USD"))}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
@@ -472,7 +469,7 @@ export function OrderDetailsPageV2({
                         {t("total")}
                       </span>
                       <span className="font-bold text-xl text-primary">
-                        {formatPrice(order.total_amount)}
+                        {formatPrice(convertPrice(order.total_amount, "USD"))}
                       </span>
                     </div>
                   </div>

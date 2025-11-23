@@ -265,6 +265,10 @@ export class StatisticsService {
 
   /**
    * Format currency value for display
+   * 
+   * Note: This is a client-side method. For server-side formatting with currency conversion,
+   * use the database function format_price() via Supabase RPC calls.
+   * For client-side components, prefer using useCurrency().formatPrice() from currency context.
    */
   static formatCurrency(amount: number, currency: string = "USD"): string {
     return new Intl.NumberFormat("en-US", {

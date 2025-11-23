@@ -24,6 +24,7 @@ import { adminCache } from "../services/admin-cache";
 import { BulkEditModal } from "./bulk-edit-modal";
 import { EnhancedSearch, type SearchFilters } from "./enhanced-search";
 import { GemstoneActionsMenu } from "./gemstone-actions-menu";
+import { useCurrency } from "@/features/currency/hooks/use-currency";
 
 interface GemstoneListOptimizedProps {
   onCreateNew?: () => void;
@@ -58,6 +59,7 @@ export function GemstoneListOptimized({
   onDelete,
 }: GemstoneListOptimizedProps) {
   const t = useTranslations("admin.gemstoneList");
+  const { formatPrice, convertPrice } = useCurrency();
   const [gemstones, setGemstones] = useState<GemstoneWithRelations[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -461,15 +463,6 @@ export function GemstoneListOptimized({
     [gemstones, selectedGemstones, t]
   );
 
-  // Utility functions
-  const formatPrice = useCallback((amount: number, currency: string) => {
-    return new Intl.NumberFormat("ru-RU", {
-      style: "currency",
-      currency: currency,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount / 100);
-  }, []);
 
   const formatWeight = useCallback(
     (weight: number) => {
@@ -724,19 +717,12 @@ export function GemstoneListOptimized({
                       <td className="px-6 py-4">
                         <div className="text-sm">
                           <div className="font-medium text-foreground">
-                            {formatPrice(
-                              gemstone.price_amount,
-                              gemstone.price_currency
-                            )}
+                            {formatPrice(gemstone.price_amount, gemstone.price_currency)}
                           </div>
                           {gemstone.premium_price_amount && (
                             <div className="text-muted-foreground">
                               {t("premium")}:{" "}
-                              {formatPrice(
-                                gemstone.premium_price_amount,
-                                gemstone.premium_price_currency ||
-                                  gemstone.price_currency
-                              )}
+                              {formatPrice(gemstone.premium_price_amount, gemstone.premium_price_currency || gemstone.price_currency)}
                             </div>
                           )}
                         </div>

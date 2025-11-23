@@ -19,6 +19,7 @@ import type { CartItem } from "@/shared/types";
 import { Separator } from "@/shared/components/ui/separator";
 import { useGemstoneTranslations } from "@/features/gemstones/utils/gemstone-translations";
 import { useTranslations } from "next-intl";
+import { useCurrency } from "@/features/currency/hooks/use-currency";
 
 interface OrderConfirmationModalProps {
   isOpen: boolean;
@@ -72,14 +73,8 @@ export function OrderConfirmationModal({
     0
   );
 
-  const formatPrice = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount / 100);
-  };
+  // Use currency context for price formatting
+  const { formatPrice, convertPrice } = useCurrency();
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -146,11 +141,11 @@ export function OrderConfirmationModal({
                       </div>
                       <div className="text-right ml-4">
                         <div className="font-medium">
-                          {formatPrice(item.line_total.amount)}
+                          {formatPrice(convertPrice(item.line_total.amount, "USD"))}
                         </div>
                         <div className="text-muted-foreground text-xs">
                           {item.quantity} ×{" "}
-                          {formatPrice(item.unit_price.amount)}
+                          {formatPrice(convertPrice(item.unit_price.amount, "USD"))}
                         </div>
                       </div>
                     </div>
@@ -161,7 +156,7 @@ export function OrderConfirmationModal({
 
                 <div className="flex justify-between items-center font-medium">
                   <span>{tOrders("confirmation.total")}</span>
-                  <span className="text-lg">{formatPrice(totalAmount)}</span>
+                  <span className="text-lg">{formatPrice(convertPrice(totalAmount, "USD"))}</span>
                 </div>
 
                 <div className="flex justify-between items-center text-sm text-muted-foreground mt-1">
@@ -209,7 +204,7 @@ export function OrderConfirmationModal({
                       <div className="flex justify-between">
                         <span>{tOrders("confirmation.totalPaid")}:</span>
                         <span className="font-medium">
-                          {formatPrice(orderResult.order.total_amount)}
+                          {formatPrice(convertPrice(orderResult.order.total_amount, "USD"))}
                         </span>
                       </div>
                       <div className="flex justify-between">

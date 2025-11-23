@@ -23,9 +23,11 @@ import {
   PriceManagementService,
   type PriceAnalytics,
 } from "../services/price-management-service";
+import { useCurrency } from "@/features/currency/hooks/use-currency";
 
 export function PriceAnalyticsDashboard() {
   const t = useTranslations("admin.priceAnalytics");
+  const { formatPrice, convertPrice } = useCurrency();
   const [analytics, setAnalytics] = useState<PriceAnalytics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -101,12 +103,6 @@ export function PriceAnalyticsDashboard() {
     }
   };
 
-  const formatPrice = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(amount / 100);
-  };
 
   if (loading) {
     return (
@@ -217,7 +213,7 @@ export function PriceAnalyticsDashboard() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">
-                  {formatPrice(analytics.averagePrice)}
+                  {formatPrice(convertPrice(analytics.averagePrice, "USD"))}
                 </p>
                 <p className="text-sm text-blue-700 dark:text-blue-300">
                   {t("averagePrice")}
@@ -235,7 +231,7 @@ export function PriceAnalyticsDashboard() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-green-900 dark:text-green-100">
-                  {formatPrice(analytics.priceRange.max)}
+                  {formatPrice(convertPrice(analytics.priceRange.max, "USD"))}
                 </p>
                 <p className="text-sm text-green-700 dark:text-green-300">
                   {t("highestPrice")}
@@ -349,7 +345,7 @@ export function PriceAnalyticsDashboard() {
                   </div>
                   <div className="text-right">
                     <div className="font-medium">
-                      {formatPrice(currency.avgPrice)}
+                      {formatPrice(convertPrice(currency.avgPrice, "USD"))}
                     </div>
                     <div className="text-sm text-muted-foreground">
                       avg price
@@ -387,8 +383,8 @@ export function PriceAnalyticsDashboard() {
                 </div>
                 <div className="text-right">
                   <div className="text-sm">
-                    {formatPrice(change.old_price)} →{" "}
-                    {formatPrice(change.new_price)}
+                    {formatPrice(convertPrice(change.old_price, "USD"))} →{" "}
+                    {formatPrice(convertPrice(change.new_price, "USD"))}
                   </div>
                   <div className="text-xs text-muted-foreground">
                     {new Date(change.created_at).toLocaleDateString()}

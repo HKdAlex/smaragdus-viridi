@@ -589,8 +589,19 @@ export class CartService {
 
   /**
    * Format price for display
+   * 
+   * @deprecated This method is deprecated. Components should use useCurrency().formatPrice() 
+   * from the currency context instead for proper currency conversion and formatting.
+   * 
+   * The formatted_unit_price and formatted_line_total fields in CartItem are legacy.
+   * Components should format prices directly using currency context.
    */
   private formatPrice(amount: number, currency: CurrencyCode): string {
+    if (process.env.NODE_ENV !== "production") {
+      console.warn(
+        "[DEPRECATED] CartService.formatPrice is deprecated. Use useCurrency().formatPrice() instead."
+      );
+    }
     return new Intl.NumberFormat("en-US", {
       style: "currency",
       currency,

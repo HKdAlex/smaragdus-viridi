@@ -31,6 +31,7 @@ import { useAdvancedFilters } from "../../hooks/use-advanced-filters";
 import { useFilterLabels } from "../../hooks/use-filter-labels";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { useCurrency } from "@/features/currency/hooks/use-currency";
 
 // Import constants and utilities
 
@@ -209,14 +210,12 @@ export function AdvancedFilters({
     );
   }, [options.origins, filterActions.isFilterActive]);
 
-  // Format functions for sliders
-  const formatPrice = (value: number): string => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value / 100); // Convert from cents
+  // Use currency context for price formatting
+  const { formatPrice, convertPrice } = useCurrency();
+  
+  // Format functions for sliders (convert from USD to selected currency)
+  const formatPriceForSlider = (value: number): string => {
+    return formatPrice(value, "USD");
   };
 
   const formatWeight = (value: number): string => {
@@ -414,7 +413,7 @@ export function AdvancedFilters({
             });
           }}
           step={50000} // $500 increments
-          formatValue={formatPrice}
+          formatValue={formatPriceForSlider}
         />
 
         {/* Weight Range */}

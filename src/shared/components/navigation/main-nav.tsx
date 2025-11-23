@@ -5,6 +5,7 @@ import { useMemo, useRef, useState } from "react";
 
 import { Button } from "@/shared/components/ui/button";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { CurrencySwitcher } from "@/components/CurrencySwitcher";
 import { Logo } from "@/shared/components/ui/logo";
 import { SearchInput } from "@/features/search/components/search-input";
 import { ThemeToggle } from "@/shared/components/ui/theme-toggle";
@@ -315,6 +316,11 @@ export function MainNav() {
               <LanguageSwitcher />
             </div>
 
+            {/* Currency switcher - hidden on mobile, shown in mobile menu */}
+            <div className="hidden md:block">
+              <CurrencySwitcher />
+            </div>
+
             {/* Auth buttons */}
             <div className="hidden sm:flex items-center space-x-3">
               {loading ? (
@@ -451,6 +457,7 @@ export function MainNav() {
                   <div className="flex items-center space-x-2">
                     <ThemeToggle />
                     <LanguageSwitcher />
+                    <CurrencySwitcher />
                   </div>
                 </div>
               </div>

@@ -9,6 +9,7 @@ import { EmptyCart } from "./empty-cart";
 import { Separator } from "@/shared/components/ui/separator";
 import { useCart } from "../hooks/use-cart";
 import { useTranslations } from "next-intl";
+import { useCurrency } from "@/features/currency/hooks/use-currency";
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -40,14 +41,8 @@ export function CartDrawer({ isOpen, onClose, onCheckout }: CartDrawerProps) {
   const selectedTotal = useMemo(() => getSelectedTotal(), [getSelectedTotal]);
   const allSelected = useMemo(() => isAllSelected(), [isAllSelected]);
 
-  const formatPrice = (amount: number, currency: string) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount / 100);
-  };
+  // Use currency context for price formatting
+  const { formatPrice, convertPrice } = useCurrency();
 
   const handleOrderSelected = async () => {
     if (selectedItemsCount === 0) return;

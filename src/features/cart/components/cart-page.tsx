@@ -14,6 +14,7 @@ import { useAuth } from "@/features/auth/context/auth-context";
 import { useCartContext } from "../context/cart-context";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { useCurrency } from "@/features/currency/hooks/use-currency";
 
 export function CartPage() {
   const { user } = useAuth();
@@ -43,6 +44,7 @@ export function CartPage() {
   const selectedItemsCount = getSelectedItemsCount();
   const selectedTotal = getSelectedTotal();
   const allSelected = isAllSelected();
+  const { formatPrice, convertPrice } = useCurrency();
 
   const handleSelectAll = () => {
     toggleSelectAll();
@@ -119,14 +121,6 @@ export function CartPage() {
     }
   };
 
-  const formatPrice = (amount: number, currency: string) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount / 100);
-  };
 
   // Redirect to login if not authenticated
   if (!user) {
@@ -284,7 +278,7 @@ export function CartPage() {
                       })}
                     </span>
                     <span className="text-foreground font-medium">
-                      {cartSummary.formatted_subtotal}
+                      {formatPrice(convertPrice(cartSummary.subtotal.amount, cartSummary.subtotal.currency))}
                     </span>
                   </div>
 
@@ -314,11 +308,8 @@ export function CartPage() {
                     </span>
                     <span className="text-foreground">
                       {selectedItemsCount === cartSummary.total_items
-                        ? cartSummary.formatted_subtotal
-                        : formatPrice(
-                            selectedTotal.amount,
-                            selectedTotal.currency
-                          )}
+                        ? formatPrice(convertPrice(cartSummary.subtotal.amount, cartSummary.subtotal.currency))
+                        : formatPrice(convertPrice(selectedTotal.amount, selectedTotal.currency))}
                     </span>
                   </div>
 

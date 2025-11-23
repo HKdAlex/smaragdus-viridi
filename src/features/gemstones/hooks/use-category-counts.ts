@@ -2,17 +2,12 @@
  * Use Category Counts Hook
  *
  * Fetches gemstone counts by category for the category tabs.
+ * Uses the same filtering logic as the catalog (price > 0 and has images).
  */
 
 "use client";
 
-import { createClient } from "@supabase/supabase-js";
 import { useQuery } from "@tanstack/react-query";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 export interface CategoryCount {
   name: string;
@@ -21,36 +16,24 @@ export interface CategoryCount {
 
 export interface CategoryCountsResponse {
   categories: CategoryCount[];
+  totalCount: number;
 }
 
 /**
- * Fetch gemstone counts by category
+ * Fetch gemstone counts by category from API endpoint
+ * This uses server-side counting to avoid Supabase max_rows limit
  */
 async function fetchCategoryCounts(): Promise<CategoryCountsResponse> {
-  const { data, error } = await supabase
-    .from("gemstones")
-    .select("name")
-    .eq("in_stock", true)
-    .gt("price_amount", 0)
-    .limit(10000); // Increase limit to get all gemstones
+  const response = await fetch("/api/catalog/category-counts");
 
-  if (error) {
-    throw new Error(`Failed to fetch category counts: ${error.message}`);
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(
+      error.error || `Failed to fetch category counts: ${response.statusText}`
+    );
   }
 
-  // Count gemstones by name
-  const counts = data.reduce((acc, gemstone) => {
-    const name = gemstone.name;
-    acc[name] = (acc[name] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-
-  // Convert to array and sort by count
-  const categories = Object.entries(counts)
-    .map(([name, count]) => ({ name, count }))
-    .sort((a, b) => b.count - a.count);
-
-  return { categories };
+  return response.json();
 }
 
 /**

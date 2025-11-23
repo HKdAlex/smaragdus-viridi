@@ -274,6 +274,9 @@ export async function generateMetadata({ params }: PageProps) {
     };
   }
 
+  // Note: Metadata generation doesn't have access to user currency preference
+  // Using database price_currency (typically USD) for SEO metadata
+  // For user-facing display, client components use currency context with conversion
   const priceFormatted = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: gemstone.price_currency,

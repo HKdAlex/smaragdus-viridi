@@ -39,6 +39,7 @@ import { format } from "date-fns";
 import { useOrderTranslations } from "@/features/orders/utils/order-translations";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { useCurrency } from "@/features/currency/hooks/use-currency";
 
 export function OrderDetail({
   order,
@@ -64,12 +65,12 @@ export function OrderDetail({
     }
   };
 
+  // Use currency context for price formatting (admin can see converted prices)
+  const { formatPrice, convertPrice } = useCurrency();
+  
   const formatCurrency = (amount: number, currency: string) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: currency,
-      minimumFractionDigits: 0,
-    }).format(amount / 100);
+    // Convert from stored currency (USD base) to selected currency
+    return formatPrice(convertPrice(amount, "USD"));
   };
 
   const getStatusBadge = (status: OrderStatus) => {

@@ -2,7 +2,20 @@
  * Utility functions for formatting data in the application
  */
 
+/**
+ * Format price for display
+ * 
+ * @deprecated This function is deprecated. For client-side components, use `useCurrency().formatPrice()` 
+ * from the currency context instead. For server-side formatting, use the database function `format_price()`.
+ * 
+ * This function will be removed in a future version. Migrate to currency context for proper currency conversion.
+ */
 export function formatPrice(amount: number, currency: string): string {
+  if (process.env.NODE_ENV !== "production") {
+    console.warn(
+      "[DEPRECATED] formatPrice from shared/utils/formatters is deprecated. Use useCurrency().formatPrice() instead."
+    );
+  }
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: currency,

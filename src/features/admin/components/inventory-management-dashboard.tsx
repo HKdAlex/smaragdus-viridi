@@ -26,10 +26,12 @@ import {
   type InventoryAlert,
   type InventoryReport,
 } from "../services/inventory-management-service";
+import { useCurrency } from "@/features/currency/hooks/use-currency";
 
 export function InventoryManagementDashboard() {
   const t = useTranslations("admin.gemstoneManagement");
   const tInventory = useTranslations("admin.inventoryManagement");
+  const { formatPrice, convertPrice } = useCurrency();
   const [report, setReport] = useState<InventoryReport | null>(null);
   const [alerts, setAlerts] = useState<InventoryAlert[]>([]);
   const [loading, setLoading] = useState(true);
@@ -128,15 +130,6 @@ export function InventoryManagementDashboard() {
       newSelected.delete(gemstoneId);
     }
     setSelectedGemstones(newSelected);
-  };
-
-  const formatPrice = (amount: number) => {
-    return new Intl.NumberFormat("ru-RU", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount / 100);
   };
 
   const getStockStatusColor = (inStock: boolean | null) => {
@@ -307,7 +300,7 @@ export function InventoryManagementDashboard() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-yellow-900 dark:text-yellow-100">
-                  {formatPrice(stats.totalValue)}
+                  {formatPrice(convertPrice(stats.totalValue, "USD"))}
                 </p>
                 <p className="text-sm text-yellow-700 dark:text-yellow-300">
                   {t("stats.totalValue")}
@@ -382,7 +375,7 @@ export function InventoryManagementDashboard() {
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-medium">
-                      {formatPrice(gemstone.price_amount)}
+                      {formatPrice(gemstone.price_amount, gemstone.price_currency)}
                     </p>
                   </div>
                 </div>
@@ -463,7 +456,7 @@ export function InventoryManagementDashboard() {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-red-800 dark:text-red-200">
-                      {formatPrice(gemstone.price_amount)}
+                      {formatPrice(gemstone.price_amount, gemstone.price_currency)}
                     </span>
                     <Button size="sm" variant="outline">
                       <Edit className="w-3 h-3 mr-1" />

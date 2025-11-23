@@ -27,6 +27,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { selectPrimaryImage } from "../utils/select-primary-image";
 import { useGemstoneTranslations } from "../utils/gemstone-translations";
+import { useCurrency } from "@/features/currency/hooks/use-currency";
 
 // ===== TYPES =====
 
@@ -128,14 +129,8 @@ export function GemstoneCard({
     (`${gemstone.color ?? ""} ${gemstone.name ?? ""}`.trim() ||
       "Gemstone image");
 
-  const formatPrice = (amount: number, currency: string) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: currency,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount / 100);
-  };
+  // Use currency context for price formatting
+  const { formatPrice } = useCurrency();
 
   const defaultHref = `/catalog/${gemstone.id}`;
   const linkHref = href || defaultHref;

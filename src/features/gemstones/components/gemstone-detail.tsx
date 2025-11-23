@@ -26,6 +26,7 @@ import { useLocale, useTranslations } from "next-intl";
 
 import { useAuth } from "@/features/auth/context/auth-context";
 import { useCartContext } from "@/features/cart/context/cart-context";
+import { useCurrency } from "@/features/currency/hooks/use-currency";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import type { DetailGemstone } from "@/shared/types";
@@ -71,13 +72,8 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
   const isAlreadyInCart = isInCart(gemstone.id);
   const isAdmin = profile?.role === "admin";
 
-  // Format price with currency
-  const formatPrice = (amount: number, currency: string) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: currency,
-    }).format(amount / 100);
-  };
+  // Use currency context for price formatting
+  const { formatPrice } = useCurrency();
 
   // Format weight with proper decimals
   const formatWeight = (weight: number) => {
@@ -441,18 +437,11 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                       </div>
                       <div className="flex items-baseline gap-3 pb-1">
                         <span className="text-4xl sm:text-5xl font-bold text-foreground">
-                          {formatPrice(
-                            gemstone.price_amount,
-                            gemstone.price_currency
-                          )}
+                          {formatPrice(gemstone.price_amount, gemstone.price_currency)}
                         </span>
                         {gemstone.premium_price_amount && (
                           <span className="text-xl text-muted-foreground/60 line-through font-medium">
-                            {formatPrice(
-                              gemstone.premium_price_amount,
-                              gemstone.premium_price_currency ||
-                                gemstone.price_currency
-                            )}
+                            {formatPrice(gemstone.premium_price_amount, gemstone.premium_price_currency || gemstone.price_currency)}
                           </span>
                         )}
                       </div>

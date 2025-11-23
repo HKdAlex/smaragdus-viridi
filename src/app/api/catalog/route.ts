@@ -420,67 +420,21 @@ export async function POST(request: NextRequest) {
     const { type } = body; // 'counts' or 'options'
 
     if (type === "counts") {
-      // Get counts for all filter options (only items with price > 0)
-      const [
-        gemstoneTypesResult,
-        colorsResult,
-        cutsResult,
-        claritiesResult,
-        originsResult,
-      ] = await Promise.all([
-        supabase
-          .from("gemstones")
-          .select("name")
-          .not("name", "is", null)
-          .gt("price_amount", 0),
-        supabase
-          .from("gemstones")
-          .select("color")
-          .not("color", "is", null)
-          .gt("price_amount", 0),
-        supabase
-          .from("gemstones")
-          .select("cut")
-          .not("cut", "is", null)
-          .gt("price_amount", 0),
-        supabase
-          .from("gemstones")
-          .select("clarity")
-          .not("clarity", "is", null)
-          .gt("price_amount", 0),
-        supabase
-          .from("origins")
-          .select("name, country")
-          .not("name", "is", null),
-      ]);
+      // Use optimized database function with GROUP BY for accurate counts
+      // This avoids Supabase max_rows limit and improves performance
+      // Filters match catalog logic: price > 0, has images, in_stock = true
+      const { data, error } = await supabase.rpc("get_catalog_filter_counts");
 
-      const countOccurrences = (items: any[], key: string) => {
-        return items.reduce((acc, item) => {
-          const value = item[key];
-          acc[value] = (acc[value] || 0) + 1;
-          return acc;
-        }, {} as Record<string, number>);
-      };
+      if (error) {
+        console.error("❌ [FilterCountsAPI] RPC error:", error);
+        return NextResponse.json(
+          { error: `Failed to fetch filter counts: ${error.message}` },
+          { status: 500 }
+        );
+      }
 
-      const gemstoneTypeCounts = countOccurrences(
-        gemstoneTypesResult.data || [],
-        "name"
-      );
-      const colorCounts = countOccurrences(colorsResult.data || [], "color");
-      const cutCounts = countOccurrences(cutsResult.data || [], "cut");
-      const clarityCounts = countOccurrences(
-        claritiesResult.data || [],
-        "clarity"
-      );
-      const originCounts = countOccurrences(originsResult.data || [], "name");
-
-      return NextResponse.json({
-        gemstoneTypes: gemstoneTypeCounts,
-        colors: colorCounts,
-        cuts: cutCounts,
-        clarities: clarityCounts,
-        origins: originCounts,
-      });
+      // Return counts from optimized database function
+      return NextResponse.json(data);
     }
 
     return NextResponse.json(

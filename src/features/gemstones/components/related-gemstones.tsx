@@ -22,6 +22,7 @@ import { selectPrimaryImage } from "../utils/select-primary-image";
 import { supabase } from "@/lib/supabase";
 import { useGemstoneTranslations } from "../utils/gemstone-translations";
 import { useTranslations } from "next-intl";
+import { useCurrency } from "@/features/currency/hooks/use-currency";
 
 interface RelatedGemstonesProps {
   currentGemstone: {
@@ -221,13 +222,8 @@ export function RelatedGemstones({
     }
   }, [relatedGemstones]);
 
-  // Format price
-  const formatPrice = (amount: number, currency: string) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: currency,
-    }).format(amount / 100);
-  };
+  // Use currency context for price formatting
+  const { formatPrice } = useCurrency();
 
   // Get similarity badge
   const getSimilarityReason = (gemstone: RelatedGemstone) => {

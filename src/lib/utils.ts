@@ -10,12 +10,22 @@ export function cn(...inputs: ClassValue[]) {
 
 /**
  * Format price for display in different currencies
+ * 
+ * @deprecated This function is deprecated. For client-side components, use `useCurrency().formatPrice()` 
+ * from the currency context instead. For server-side formatting, use the database function `format_price()`.
+ * 
+ * This function will be removed in a future version. Migrate to currency context for proper currency conversion.
  */
 export function formatPrice(
   amount: number,
   currency: string = "USD",
   locale: string = "en-US"
 ): string {
+  if (process.env.NODE_ENV !== "production") {
+    console.warn(
+      "[DEPRECATED] formatPrice from lib/utils is deprecated. Use useCurrency().formatPrice() instead."
+    );
+  }
   return new Intl.NumberFormat(locale, {
     style: "currency",
     currency: currency,

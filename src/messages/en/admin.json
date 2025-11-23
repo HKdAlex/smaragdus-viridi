@@ -805,7 +805,13 @@
       "basicInfo": "Basic Info",
       "pricingInventory": "Pricing & Inventory",
       "aiContent": "AI Content",
-      "media": "Media"
+      "media": "Media",
+      "basic": "Basic",
+      "properties": "Properties",
+      "dimensions": "Dimensions",
+      "individualStones": "Individual Stones",
+      "pricing": "Pricing",
+      "inventory": "Inventory"
     },
     "sections": {
       "basicInformation": "Basic Information",
@@ -947,7 +953,8 @@
     "GBP": "British Pound",
     "RUB": "Russian Ruble",
     "CHF": "Swiss Franc",
-    "JPY": "Japanese Yen"
+    "JPY": "Japanese Yen",
+    "KZT": "Kazakhstani Tenge"
   },
   "aiModeration": {
     "title": "AI Content Moderation",

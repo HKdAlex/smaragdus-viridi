@@ -29,6 +29,7 @@ import { Input } from "@/shared/components/ui/input";
 import { Separator } from "@/shared/components/ui/separator";
 import { format } from "date-fns";
 import { useState } from "react";
+import { useCurrency } from "@/features/currency/hooks/use-currency";
 
 interface OrderHistoryProps {
   orders?: UserOrder[];
@@ -67,12 +68,12 @@ export function OrderHistory({
     return matchesSearch && matchesStatus;
   });
 
+  // Use currency context for price formatting
+  const { formatPrice, convertPrice } = useCurrency();
+  
   const formatCurrency = (amount: number, currency: string) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: currency,
-      minimumFractionDigits: 0,
-    }).format(amount / 100);
+    // Convert from stored currency (USD base) to selected currency
+    return formatPrice(convertPrice(amount, "USD"));
   };
 
   const getStatusBadge = (status: OrderStatus) => {

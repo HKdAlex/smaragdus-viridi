@@ -64,6 +64,10 @@
     {
       "path": "/api/admin/chat/check-unattended",
       "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/cron/refresh-currency-rates",
+      "schedule": "0 * * * *"
     }
   ]
 }

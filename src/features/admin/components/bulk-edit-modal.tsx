@@ -26,6 +26,7 @@ import {
   GemstoneAdminService,
   type GemstoneFormData,
 } from "../services/gemstone-admin-service";
+import { useCurrency } from "@/features/currency/hooks/use-currency";
 
 interface BulkEditModalProps {
   isOpen: boolean;
@@ -285,13 +286,12 @@ export function BulkEditModal({
     return count;
   };
 
+  // Use currency context for price formatting
+  const { formatPrice, convertPrice } = useCurrency();
+  
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount / 100);
+    // Convert from USD (base) to selected currency
+    return formatPrice(convertPrice(amount, "USD"));
   };
 
   if (!isOpen) return null;

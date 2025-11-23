@@ -27,6 +27,7 @@ import { useTranslations } from "next-intl";
 import type { OrderTimeline as OrderTimelineType } from "../types/order-tracking.types";
 import { useOrderTranslations } from "../utils/order-translations";
 import { OrderTimeline } from "./order-timeline";
+import { useCurrency } from "@/features/currency/hooks/use-currency";
 
 interface OrderDetailsPageProps {
   orderId: string;
@@ -89,14 +90,8 @@ export function OrderDetailsPage({
     }
   };
 
-  const formatPrice = (amount: number) => {
-    return new Intl.NumberFormat(locale === "ru" ? "ru-RU" : "en-US", {
-      style: "currency",
-      currency: order?.currency_code || "USD",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount / 100);
-  };
+  // Use currency context for price formatting
+  const { formatPrice, convertPrice } = useCurrency();
 
   const formatDate = (dateString: string) => {
     return new Intl.DateTimeFormat(locale === "ru" ? "ru-RU" : "en-US", {
@@ -400,7 +395,7 @@ export function OrderDetailsPage({
                     <span className="text-muted-foreground">
                       {t("subtotal")}
                     </span>
-                    <span>{formatPrice(order.total_amount)}</span>
+                    <span>{formatPrice(convertPrice(order.total_amount, "USD"))}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">
@@ -417,7 +412,7 @@ export function OrderDetailsPage({
 
                   <div className="flex justify-between font-semibold text-lg">
                     <span>{t("total")}</span>
-                    <span>{formatPrice(order.total_amount)}</span>
+                    <span>{formatPrice(convertPrice(order.total_amount, "USD"))}</span>
                   </div>
                 </div>
 

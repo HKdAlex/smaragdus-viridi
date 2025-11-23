@@ -14,6 +14,7 @@ import { removeFromCart } from "../services/cart-service";
 import { useGemstoneTranslations } from "@/features/gemstones/utils/gemstone-translations";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { useCurrency } from "@/features/currency/hooks/use-currency";
 
 interface CartItemProps {
   item: CartItemType;
@@ -33,6 +34,7 @@ export function CartItem({
   const t = useTranslations("cart.items");
   const { translateColor, translateCut, translateGemstoneType } =
     useGemstoneTranslations();
+  const { formatPrice } = useCurrency();
 
   const handleSelectionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onSelectionChange(item.id, e.target.checked);
@@ -173,7 +175,7 @@ export function CartItem({
           {/* Price */}
           <div className="pt-2 border-t border-border">
             <p className="text-lg font-bold text-foreground">
-              {item.formatted_unit_price} <span className="text-sm font-normal text-muted-foreground">{t("each")}</span>
+              {formatPrice(item.unit_price.amount, item.unit_price.currency)} <span className="text-sm font-normal text-muted-foreground">{t("each")}</span>
             </p>
           </div>
         </div>

@@ -2171,7 +2171,21 @@ export type Database = {
             }[]
           }
       generate_order_number: { Args: never; Returns: string }
+      get_active_chat_sessions: {
+        Args: never
+        Returns: {
+          has_attachments: boolean
+          last_message: string
+          last_message_at: string
+          unread_count: number
+          user_email: string
+          user_id: string
+          user_name: string
+        }[]
+      }
       get_batch_statistics: { Args: { batch_uuid: string }; Returns: Json }
+      get_catalog_category_counts: { Args: never; Returns: Json }
+      get_catalog_filter_counts: { Args: never; Returns: Json }
       get_catalog_stats: { Args: never; Returns: Json }
       get_dashboard_stats: { Args: never; Returns: Json }
       get_import_statistics: { Args: never; Returns: Json }
@@ -2400,7 +2414,7 @@ export type Database = {
       }
     }
     Enums: {
-      currency_code: "USD" | "EUR" | "GBP" | "RUB" | "CHF" | "JPY"
+      currency_code: "USD" | "EUR" | "GBP" | "RUB" | "CHF" | "JPY" | "KZT"
       gem_clarity:
         | "FL"
         | "IF"
@@ -2616,7 +2630,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      currency_code: ["USD", "EUR", "GBP", "RUB", "CHF", "JPY"],
+      currency_code: ["USD", "EUR", "GBP", "RUB", "CHF", "JPY", "KZT"],
       gem_clarity: [
         "FL",
         "IF",

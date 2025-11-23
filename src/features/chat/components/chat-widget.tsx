@@ -2,12 +2,12 @@
 
 import { MessageCircle, X } from "lucide-react";
 
-import { Button } from "@/shared/components/ui/button";
-import { ChatInterface } from "./chat-interface";
 import { useAuth } from "@/features/auth/context/auth-context";
-import { useState } from "react";
+import { Button } from "@/shared/components/ui/button";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
 import { useUnreadCount } from "../hooks/use-chat";
+import { ChatInterface } from "./chat-interface";
 
 export function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
@@ -35,29 +35,36 @@ export function ChatWidget() {
 
   if (!isOpen) {
     return (
-      <div className="fixed bottom-6 right-6 z-50">
-        <Button
-          onClick={handleOpen}
-          size="lg"
-          className="rounded-full h-14 w-14 shadow-lg hover:shadow-xl transition-all duration-200 bg-blue-600 hover:bg-blue-700"
-        >
-          <MessageCircle className="w-6 h-6" />
-        </Button>
+      <div className="fixed bottom-6 left-6 z-50">
+        <div className="relative">
+          <Button
+            onClick={handleOpen}
+            size="lg"
+            className="group relative rounded-full h-14 w-14 shadow-lg hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:via-blue-700 hover:to-blue-800 border-2 border-blue-400/20 hover:border-blue-300/40 hover:scale-110 active:scale-105"
+          >
+            <MessageCircle className="w-6 h-6 transition-transform duration-300 group-hover:scale-110" />
 
-        {/* Notification badge for unread messages */}
-        {unreadCount > 0 && (
-          <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-[20px] h-5 flex items-center justify-center font-bold px-1.5">
-            {unreadCount > 99 ? '99+' : unreadCount}
-          </div>
-        )}
+            {/* Pulse animation when there are unread messages */}
+            {unreadCount > 0 && (
+              <span className="absolute inset-0 rounded-full bg-blue-400/30 animate-ping opacity-75" />
+            )}
+          </Button>
+
+          {/* Notification badge for unread messages */}
+          {unreadCount > 0 && (
+            <div className="absolute -top-1 -right-1 bg-gradient-to-br from-red-500 to-red-600 text-white text-xs rounded-full min-w-[24px] h-6 flex items-center justify-center font-bold px-2 shadow-lg border-2 border-white dark:border-gray-900 animate-bounce">
+              {unreadCount > 99 ? "99+" : unreadCount}
+            </div>
+          )}
+        </div>
       </div>
     );
   }
 
   if (isMinimized) {
     return (
-      <div className="fixed bottom-6 right-6 z-50">
-        <div className="bg-white border rounded-lg shadow-lg p-3 flex items-center space-x-3 min-w-64">
+      <div className="fixed bottom-6 left-6 z-50">
+        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-3 flex items-center space-x-3 min-w-64">
           <div className="flex-1">
             <p className="text-sm font-medium">{t("supportChat")}</p>
             <p className="text-xs text-muted-foreground">{t("online")}</p>
@@ -86,7 +93,7 @@ export function ChatWidget() {
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="fixed bottom-6 left-6 z-50">
       <ChatInterface
         userId={user.id}
         onClose={handleClose}

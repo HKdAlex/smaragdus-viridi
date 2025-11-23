@@ -30,6 +30,7 @@ import { GemstoneForm } from "./gemstone-form";
 import type { GemstoneWithRelations } from "../services/gemstone-admin-service";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { useCurrency } from "@/features/currency/hooks/use-currency";
 
 interface GemstoneDetailPageProps {
   gemstone: GemstoneWithRelations;
@@ -57,14 +58,8 @@ export function GemstoneDetailPage({
     setMode("view");
   };
 
-  const formatPrice = (amount: number, currency: string) => {
-    return new Intl.NumberFormat("ru-RU", {
-      style: "currency",
-      currency: currency,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount / 100);
-  };
+  // Use currency context for price formatting
+  const { formatPrice, convertPrice } = useCurrency();
 
   const formatWeight = (weight: number) => {
     return `${weight.toFixed(2)}крт`;
@@ -417,10 +412,7 @@ export function GemstoneDetailPage({
                     {t("regularPrice")}
                   </label>
                   <p className="text-lg font-semibold">
-                    {formatPrice(
-                      gemstone.price_amount,
-                      gemstone.price_currency
-                    )}
+                    {formatPrice(gemstone.price_amount, gemstone.price_currency)}
                   </p>
                 </div>
                 {gemstone.premium_price_amount && (
@@ -429,11 +421,7 @@ export function GemstoneDetailPage({
                       {t("premiumPrice")}
                     </label>
                     <p className="text-lg font-semibold">
-                      {formatPrice(
-                        gemstone.premium_price_amount,
-                        gemstone.premium_price_currency ||
-                          gemstone.price_currency
-                      )}
+                      {formatPrice(gemstone.premium_price_amount, gemstone.premium_price_currency || gemstone.price_currency)}
                     </p>
                   </div>
                 )}
