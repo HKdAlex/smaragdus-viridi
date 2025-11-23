@@ -61,4 +61,13 @@ export const queryKeys = {
     all: ["analytics"] as const,
     popular: () => [...queryKeys.analytics.all, "popular"] as const,
   },
+
+  // Admin Dashboard
+  admin: {
+    all: ["admin"] as const,
+    dashboard: {
+      all: () => [...queryKeys.admin.all, "dashboard"] as const,
+      stats: () => [...queryKeys.admin.dashboard.all(), "stats"] as const,
+    },
+  },
 } as const;

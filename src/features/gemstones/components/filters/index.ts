@@ -2,7 +2,6 @@
 // Following Module Organization Patterns
 
 export { AdvancedFilters } from './advanced-filters'
-export { AdvancedFiltersV2 } from './advanced-filters-v2'
 export { FilterDropdown } from './filter-dropdown'
 export { RangeSlider } from './range-slider'
 

@@ -6,72 +6,42 @@ export async function GET(request: NextRequest) {
   try {
     const supabase = await createServerSupabaseClient();
 
-    // Get real gemstone statistics with count
-    const {
-      data: gemstones,
-      error: gemstonesError,
-      count: totalGemstonesCount,
-    } = await supabase
+    // Use optimized RPC function for dashboard statistics
+    const { data: statsData, error: rpcError } = await supabase.rpc(
+      "get_dashboard_stats"
+    );
+
+    if (rpcError) {
+      console.error("Failed to fetch dashboard statistics via RPC", rpcError);
+      throw rpcError;
+    }
+
+    // Extract statistics from RPC response
+    const totalGemstones = statsData?.totalGemstones || 0;
+    const inStockGemstones = statsData?.inStockGemstones || 0;
+    const outOfStockGemstones = statsData?.outOfStockGemstones || 0;
+    const activeUsers = statsData?.activeUsers || 0;
+    const totalOrders = statsData?.totalOrders || 0;
+    const totalRevenue = Number(statsData?.totalRevenue || 0);
+    const avgGemstonePrice = statsData?.avgGemstonePrice || 0;
+
+    // Fetch minimal data for top selling gemstones and recent orders
+    // These are displayed in the UI but don't need full table scans
+    const { data: recentGemstones } = await supabase
       .from("gemstones")
-      .select("id, price_amount, price_currency, in_stock, created_at", {
-        count: "exact",
-      });
+      .select("id, price_amount, price_currency")
+      .order("created_at", { ascending: false })
+      .limit(2);
 
-    if (gemstonesError) {
-      console.error("Failed to fetch gemstones", gemstonesError);
-      throw gemstonesError;
-    }
-
-    // Get real user statistics with count
-    const {
-      data: userProfiles,
-      error: usersError,
-      count: totalUsersCount,
-    } = await supabase
-      .from("user_profiles")
-      .select("id, created_at", { count: "exact" });
-
-    if (usersError) {
-      console.error("Failed to fetch user profiles", usersError);
-      throw usersError;
-    }
-
-    // Get real order statistics with count
-    const {
-      data: orders,
-      error: ordersError,
-      count: totalOrdersCount,
-    } = await supabase
+    const { data: recentOrdersData } = await supabase
       .from("orders")
-      .select("id, total_amount, currency_code, created_at", {
-        count: "exact",
-      });
+      .select("id, total_amount, currency_code, created_at")
+      .order("created_at", { ascending: false })
+      .limit(1);
 
-    if (ordersError) {
-      console.error("Failed to fetch orders", ordersError);
-      throw ordersError;
-    }
-
-    // Calculate real statistics
-    const totalGemstones = totalGemstonesCount || 0;
-    const inStockGemstones = gemstones?.filter((g) => g.in_stock).length || 0;
-    const outOfStockGemstones = totalGemstones - inStockGemstones;
-    const activeUsers = totalUsersCount || 0;
-    const totalOrders = totalOrdersCount || 0;
-
-    // Calculate total revenue
-    const totalRevenue =
-      orders?.reduce((sum, order) => sum + (order.total_amount || 0), 0) || 0;
-
-    // Calculate average gemstone price
-    const totalGemstoneValue =
-      gemstones?.reduce((sum, gem) => sum + (gem.price_amount || 0), 0) || 0;
-    const avgGemstonePrice =
-      totalGemstones > 0 ? Math.round(totalGemstoneValue / totalGemstones) : 0;
-
-    // Get top selling gemstones (for now, just get some recent ones)
+    // Format top selling gemstones
     const topSellingGemstones =
-      gemstones?.slice(0, 2).map((gem) => ({
+      recentGemstones?.map((gem) => ({
         id: gem.id,
         serial_number: `SV-${gem.id.slice(0, 8)}`,
         name: "gemstone", // We'd need to join with gemstone details for actual names
@@ -79,9 +49,9 @@ export async function GET(request: NextRequest) {
         price_currency: gem.price_currency || "USD",
       })) || [];
 
-    // Get recent orders
+    // Format recent orders
     const recentOrders =
-      orders?.slice(0, 1).map((order) => ({
+      recentOrdersData?.map((order) => ({
         id: order.id,
         user_id: "user-1", // We'd need to join for actual user info
         total_amount: order.total_amount || 0,

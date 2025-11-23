@@ -9,7 +9,7 @@ import { GemstoneDetail } from "@/features/gemstones/components/gemstone-detail"
 import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase";
 
 // DetailGemstone interface is now imported from shared types
 
@@ -41,8 +41,13 @@ async function fetchGemstoneById(
 
     console.log(`🔍 [GemstoneDetail] Fetching gemstone with ID: ${id}`);
 
+    if (!supabaseAdmin) {
+      console.error("❌ [GemstoneDetail] Supabase admin client not available");
+      return null;
+    }
+
     // Fetch gemstone with AI content using gemstones_enriched view
-    const { data: gemstone, error: gemstoneError } = (await supabase
+    const { data: gemstone, error: gemstoneError } = (await supabaseAdmin
       .from("gemstones_enriched")
       .select("*")
       .eq("id", id)
@@ -61,16 +66,30 @@ async function fetchGemstoneById(
     }
 
     // Fetch additional related data separately (not in the view)
-    const [imagesResult, videosResult, certificationsResult] =
+    const [imagesResult, videosResult, certificationsResult, individualStonesResult] =
       await Promise.all([
-        supabase.from("gemstone_images").select("*").eq("gemstone_id", id),
-        supabase.from("gemstone_videos").select("*").eq("gemstone_id", id),
-        supabase.from("certifications").select("*").eq("gemstone_id", id),
+        supabaseAdmin.from("gemstone_images").select("*").eq("gemstone_id", id),
+        supabaseAdmin.from("gemstone_videos").select("*").eq("gemstone_id", id),
+        supabaseAdmin.from("certifications").select("*").eq("gemstone_id", id),
+        supabaseAdmin.from("gemstone_individual_stones").select("*").eq("gemstone_id", id).order("stone_number"),
       ]);
 
     const images = imagesResult.data || [];
     const videos = videosResult.data || [];
     const certifications = certificationsResult.data || [];
+    // Transform individual_stones from database format to application format
+    const individual_stones = (individualStonesResult.data || []).map((stone: any) => ({
+      id: stone.id,
+      gemstone_id: stone.gemstone_id,
+      stone_number: stone.stone_number,
+      dimensions: {
+        length_mm: Number(stone.length_mm),
+        width_mm: Number(stone.width_mm),
+        depth_mm: Number(stone.depth_mm),
+      },
+      created_at: stone.created_at,
+      updated_at: stone.updated_at,
+    }));
 
     if (imagesResult.error) {
       console.warn(
@@ -88,6 +107,12 @@ async function fetchGemstoneById(
       console.warn(
         `⚠️ [GemstoneDetail] Failed to fetch certifications:`,
         certificationsResult.error
+      );
+    }
+    if (individualStonesResult.error) {
+      console.warn(
+        `⚠️ [GemstoneDetail] Failed to fetch individual stones:`,
+        individualStonesResult.error
       );
     }
 
@@ -115,6 +140,7 @@ async function fetchGemstoneById(
       videos_count: videos?.length || 0,
       has_origin: !!gemstone.origin_id,
       certifications_count: certifications?.length || 0,
+      individual_stones_count: individual_stones?.length || 0,
       has_ai_content: !!gemstone.technical_description_en,
     });
 
@@ -123,6 +149,7 @@ async function fetchGemstoneById(
       images,
       videos,
       certifications,
+      individual_stones,
       ai_analysis_results: gemstone.technical_description_en
         ? [
             {

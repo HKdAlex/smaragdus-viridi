@@ -22,6 +22,8 @@ export type DatabaseGemstoneImage =
   Database["public"]["Tables"]["gemstone_images"]["Row"];
 export type DatabaseGemstoneVideo =
   Database["public"]["Tables"]["gemstone_videos"]["Row"];
+export type DatabaseGemstoneIndividualStone =
+  Database["public"]["Tables"]["gemstone_individual_stones"]["Row"];
 export type DatabaseCertification =
   Database["public"]["Tables"]["certifications"]["Row"];
 export type DatabaseUserProfile =
@@ -54,12 +56,23 @@ export interface GemDimensions {
   readonly depth_mm: number;
 }
 
+// Individual stone specifications
+export interface IndividualStone {
+  readonly id: string;
+  readonly stone_number: number;
+  readonly gemstone_id: string;
+  readonly dimensions: GemDimensions;
+  readonly created_at: string | null;
+  readonly updated_at: string | null;
+}
+
 // Enhanced gemstone type with relationships and computed properties
 export interface Gemstone extends DatabaseGemstone {
   readonly origin?: DatabaseOrigin;
   readonly images?: DatabaseGemstoneImage[];
   readonly videos?: DatabaseGemstoneVideo[];
   readonly certifications?: DatabaseCertification[];
+  readonly individual_stones?: IndividualStone[];
   readonly dimensions: GemDimensions;
   readonly price: Money;
   readonly premium_price?: Money;
@@ -134,6 +147,7 @@ export interface DetailGemstone {
   videos: DatabaseGemstoneVideo[];
   origin: DatabaseOrigin | null;
   certifications: DatabaseCertification[];
+  individual_stones?: IndividualStone[];
   // ai_analysis_results table has been removed
 }
 

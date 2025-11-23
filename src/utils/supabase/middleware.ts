@@ -312,8 +312,9 @@ function addSecurityHeaders(response: NextResponse) {
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: https: *.supabase.co",
     "media-src 'self' *.supabase.co blob: data:",
-    "connect-src 'self' *.supabase.co",
+    "connect-src 'self' *.supabase.co wss: ws:",
     "font-src 'self'",
+    "object-src 'none'",
     "frame-ancestors 'none'",
   ].join("; ");
 

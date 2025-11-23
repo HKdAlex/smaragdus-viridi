@@ -1,11 +1,18 @@
 "use client";
 
 import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
+import {
   BarChart3,
   Edit,
   Gem,
   LogOut,
   Menu,
+  MessageCircle,
   Package,
   Settings,
   Shield,
@@ -14,28 +21,24 @@ import {
   Users,
   X,
 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui/card";
 import { useEffect, useMemo, useState } from "react";
 
 import { AdminAnalytics } from "./admin-analytics";
+import { AdminChatDashboard } from "./admin-chat-dashboard";
 import { AdminGemstoneManager } from "./admin-gemstone-manager";
 import { AdminPriceInventoryManager } from "./admin-price-inventory-manager";
 import { AdminSettings } from "./admin-settings";
 import { AdminUserManager } from "./admin-user-manager";
 import { AIModerationDashboard } from "./ai-moderation-dashboard";
 // Import admin components (will be created in subsequent phases)
+import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/shared/components/ui/button";
-import { OrderManagement } from "./order-management";
-import { StatisticsService } from "../services/statistics-service";
-import { useAdmin } from "../context/admin-context";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { useRouter } from "@/i18n/navigation";
+import { useAdmin } from "../context/admin-context";
+import { useDashboardStats } from "../hooks/use-dashboard-stats";
+import { StatisticsService } from "../services/statistics-service";
+import { OrderManagement } from "./order-management";
 
 type AdminTab =
   | "dashboard"
@@ -45,6 +48,7 @@ type AdminTab =
   | "users"
   | "analytics"
   | "ai-moderation"
+  | "chat"
   | "settings";
 
 const getAdminTabs = (t: any) => [
@@ -91,6 +95,12 @@ const getAdminTabs = (t: any) => [
     description: t("tabs.aiModeration"),
   },
   {
+    id: "chat" as AdminTab,
+    name: t("navigation.chat"),
+    icon: MessageCircle,
+    description: t("tabs.chat"),
+  },
+  {
     id: "settings" as AdminTab,
     name: t("navigation.settings"),
     icon: Settings,
@@ -118,6 +128,7 @@ export function AdminDashboard() {
         "users",
         "analytics",
         "ai-moderation",
+        "chat",
         "settings",
       ]),
     []
@@ -209,6 +220,8 @@ export function AdminDashboard() {
         return <AdminAnalytics />;
       case "ai-moderation":
         return <AIModerationDashboard />;
+      case "chat":
+        return <AdminChatDashboard />;
       case "settings":
         return <AdminSettings />;
       default:
@@ -349,106 +362,83 @@ function AdminDashboardOverview({
   onNavigateToTab: (tab: AdminTab) => void;
 }) {
   const t = useTranslations("admin.dashboard");
-  const [stats, setStats] = useState<
-    Array<{
-      title: string;
-      value: string;
-      change: string;
-      trend: "up" | "down" | "neutral";
-      icon: React.ComponentType<{ className?: string }>;
-    }>
-  >([
-    {
-      title: t("stats.totalGemstones"),
-      value: t("stats.loading"),
-      change: "",
-      trend: "neutral",
-      icon: Gem,
-    },
-    {
-      title: t("stats.activeUsers"),
-      value: t("stats.loading"),
-      change: "",
-      trend: "neutral",
-      icon: Users,
-    },
-    {
-      title: t("stats.revenue"),
-      value: t("stats.loading"),
-      change: "",
-      trend: "neutral",
-      icon: TrendingUp,
-    },
-    {
-      title: t("stats.orders"),
-      value: t("stats.loading"),
-      change: "",
-      trend: "neutral",
-      icon: BarChart3,
-    },
-  ]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadDashboardStats();
-  }, []);
+  // Use React Query hook for dashboard stats with caching
+  const {
+    data: dashboardStats,
+    isLoading: loading,
+    error: queryError,
+    refetch,
+  } = useDashboardStats();
 
-  const loadDashboardStats = async () => {
-    try {
-      setLoading(true);
-      setError(null);
+  // Transform dashboard stats into display format
+  const stats = dashboardStats
+    ? [
+        {
+          title: t("stats.totalGemstones"),
+          value: StatisticsService.formatNumber(dashboardStats.totalGemstones),
+          change: `+${dashboardStats.changes.totalGemstones.percentage}%`,
+          trend: dashboardStats.changes.totalGemstones.trend,
+          icon: Gem,
+        },
+        {
+          title: t("stats.activeUsers"),
+          value: StatisticsService.formatNumber(dashboardStats.activeUsers),
+          change: `+${dashboardStats.changes.activeUsers.percentage}%`,
+          trend: dashboardStats.changes.activeUsers.trend,
+          icon: Users,
+        },
+        {
+          title: t("stats.revenue"),
+          value: StatisticsService.formatCurrency(dashboardStats.totalRevenue),
+          change: `+${dashboardStats.changes.totalRevenue.percentage}%`,
+          trend: dashboardStats.changes.totalRevenue.trend,
+          icon: TrendingUp,
+        },
+        {
+          title: t("stats.orders"),
+          value: StatisticsService.formatNumber(dashboardStats.totalOrders),
+          change: `+${dashboardStats.changes.totalOrders.percentage}%`,
+          trend: dashboardStats.changes.totalOrders.trend,
+          icon: BarChart3,
+        },
+      ]
+    : [
+        {
+          title: t("stats.totalGemstones"),
+          value: t("stats.loading"),
+          change: "",
+          trend: "neutral" as const,
+          icon: Gem,
+        },
+        {
+          title: t("stats.activeUsers"),
+          value: t("stats.loading"),
+          change: "",
+          trend: "neutral" as const,
+          icon: Users,
+        },
+        {
+          title: t("stats.revenue"),
+          value: t("stats.loading"),
+          change: "",
+          trend: "neutral" as const,
+          icon: TrendingUp,
+        },
+        {
+          title: t("stats.orders"),
+          value: t("stats.loading"),
+          change: "",
+          trend: "neutral" as const,
+          icon: BarChart3,
+        },
+      ];
 
-      const result = await StatisticsService.getDashboardStats();
-
-      if (result.success) {
-        const dashboardStats = result.data;
-
-        setStats([
-          {
-            title: t("stats.totalGemstones"),
-            value: StatisticsService.formatNumber(
-              dashboardStats.totalGemstones
-            ),
-            change: `+${dashboardStats.changes.totalGemstones.percentage}%`,
-            trend: dashboardStats.changes.totalGemstones.trend,
-            icon: Gem,
-          },
-          {
-            title: t("stats.activeUsers"),
-            value: StatisticsService.formatNumber(dashboardStats.activeUsers),
-            change: `+${dashboardStats.changes.activeUsers.percentage}%`,
-            trend: dashboardStats.changes.activeUsers.trend,
-            icon: Users,
-          },
-          {
-            title: t("stats.revenue"),
-            value: StatisticsService.formatCurrency(
-              dashboardStats.totalRevenue
-            ),
-            change: `+${dashboardStats.changes.totalRevenue.percentage}%`,
-            trend: dashboardStats.changes.totalRevenue.trend,
-            icon: TrendingUp,
-          },
-          {
-            title: t("stats.orders"),
-            value: StatisticsService.formatNumber(dashboardStats.totalOrders),
-            change: `+${dashboardStats.changes.totalOrders.percentage}%`,
-            trend: dashboardStats.changes.totalOrders.trend,
-            icon: BarChart3,
-          },
-        ]);
-      } else {
-        setError(result.error);
-        console.error("Failed to load dashboard stats:", result.error);
-      }
-    } catch (error) {
-      setError(t("stats.loadError"));
-      console.error("Dashboard stats error:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const error = queryError
+    ? queryError instanceof Error
+      ? queryError.message
+      : t("stats.loadError")
+    : null;
 
   if (error) {
     return (
@@ -470,7 +460,7 @@ function AdminDashboardOverview({
               </h3>
               <p className="text-destructive mb-4 text-sm">{error}</p>
               <Button
-                onClick={loadDashboardStats}
+                onClick={() => refetch()}
                 variant="outline"
                 className="border-destructive/50 text-destructive hover:bg-destructive/10 min-h-[44px]"
               >

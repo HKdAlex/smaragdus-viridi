@@ -116,9 +116,14 @@ export const auth = {
   },
 
   // Admin-specific methods
-  async isAdmin(userId: string): Promise<boolean> {
-    const profile = await this.getUserProfile(userId);
-    return profile?.role === "admin";
+  async isAdmin(userId: string, profile?: DatabaseUserProfile): Promise<boolean> {
+    // If profile is already provided, use it to avoid redundant database call
+    if (profile) {
+      return profile.role === "admin";
+    }
+    // Otherwise, fetch the profile (backward compatibility)
+    const fetchedProfile = await this.getUserProfile(userId);
+    return fetchedProfile?.role === "admin";
   },
 
   async getAdminUsers(): Promise<DatabaseUserProfile[]> {

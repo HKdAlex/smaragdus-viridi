@@ -133,6 +133,8 @@
       "cut": "Огранка",
       "clarity": "Чистота",
       "dimensions": "Размеры",
+      "individualStoneDimensions": "Размеры индивидуальных камней",
+      "stoneNumber": "Камень №{number}",
       "depth": "Глубина",
       "overall": "Общие",
       "origin": "Происхождение",

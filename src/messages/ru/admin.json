@@ -124,7 +124,8 @@
     "users": "Управление пользователями и разрешениями",
     "analytics": "Показатели производительности и аналитика",
     "aiModeration": "Проверка и модерация контента, созданного ИИ",
-    "settings": "Конфигурация системы и настройки"
+    "settings": "Конфигурация системы и настройки",
+    "chat": "Чат поддержки клиентов и сообщения"
   },
   "login": {
     "title": "Доступ администратора",
@@ -135,6 +136,7 @@
     "passwordPlaceholder": "Введите пароль администратора",
     "signInButton": "Войти",
     "signingIn": "Вход в систему...",
+    "redirecting": "Перенаправление на страницу входа администратора...",
     "loginFailed": "Ошибка входа",
     "unexpectedError": "Произошла неожиданная ошибка",
     "invalidCredentials": "Неверный email или пароль",
@@ -155,7 +157,8 @@
     "analytics": "Аналитика",
     "aiModeration": "Модерация ИИ",
     "settings": "Настройки",
-    "orders": "Заказы"
+    "orders": "Заказы",
+    "chat": "Чат"
   },
   "gemstones": {
     "title": "Управление камнями",
@@ -783,13 +786,18 @@
     "editTitle": "Редактировать камень",
     "createTitle": "Создать новый камень",
     "tabs": {
-      "basic": "Основные",
-      "properties": "Свойства",
-      "dimensions": "Размеры",
-      "pricing": "Ценообразование",
-      "inventory": "Склад",
+      "basicInfo": "Основная информация",
+      "pricingInventory": "Цены и склад",
       "aiContent": "Контент ИИ",
       "media": "Медиа"
+    },
+    "sections": {
+      "basicInformation": "Основная информация",
+      "properties": "Свойства",
+      "dimensions": "Размеры",
+      "individualStones": "Индивидуальные камни",
+      "pricing": "Ценообразование",
+      "inventory": "Склад"
     },
     "serialNumberPlaceholder": "например, DIA-2025-001",
     "internalCodePlaceholder": "например, INV-001",
@@ -834,7 +842,10 @@
       "aiGeneratedContent": "Контент, созданный ИИ",
       "technicalDescription": "Техническое описание",
       "emotionalDescription": "Эмоциональное описание",
-      "narrativeStory": "Повествовательная история"
+      "narrativeStory": "Повествовательная история",
+      "individualStones": "Индивидуальные камни",
+      "totalQuantity": "всего штук",
+      "stoneNumber": "Камень №{number}"
     },
     "actions": {
       "cancel": "Отмена",
@@ -865,6 +876,12 @@
   },
     "hints": {
       "pricePerCaratHelper": "При указании цены за карат итоговая стоимость будет пересчитана с учётом веса камня."
+    },
+    "descriptions": {
+      "individualStones": "Укажите уникальные размеры для каждого камня в многокаменном предмете. Оставьте пустым для использования общих размеров."
+    },
+    "messages": {
+      "singleStoneOnly": "Индивидуальные характеристики камней доступны только для предметов с количеством больше 1 (quantity > 1)."
     }
   },
   "gemstoneManagement": {
@@ -979,5 +996,18 @@
       "deleteFailed": "Не удалось удалить сертификат",
       "loadFailed": "Не удалось загрузить сертификаты"
     }
+  },
+  "chat": {
+    "title": "Чат поддержки клиентов",
+    "description": "Управление разговорами с клиентами и предоставление поддержки",
+    "conversations": "Разговоры",
+    "totalConversations": "всего",
+    "selectConversation": "Выберите разговор для начала обмена сообщениями",
+    "noConversations": "Пока нет разговоров",
+    "noMessages": "В этом разговоре нет сообщений",
+    "loading": "Загрузка...",
+    "typeMessage": "Введите сообщение...",
+    "unknownUser": "Неизвестный пользователь",
+    "markAsRead": "Отметить как прочитанное"
   }
 }

@@ -210,8 +210,8 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
   const handleEditGemstone = () => {
     if (!isAdmin) return;
     router.push({
-      pathname: "/admin/dashboard",
-      query: { tab: "gemstones", edit: gemstone.id },
+      pathname: "/catalog/[id]/edit" as const,
+      params: { id: gemstone.id },
     });
   };
 
@@ -775,69 +775,125 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                 <div className="bg-white/5 dark:bg-black/20 backdrop-blur-xl p-3 sm:p-4 rounded-xl border border-white/10 shadow-lg">
                   <h4 className="font-bold text-sm sm:text-base text-foreground mb-3 sm:mb-4 flex items-center">
                     <div className="w-1 h-5 bg-gradient-to-b from-primary to-primary/60 rounded-full mr-2" />
-                    {t("dimensions")}
+                    {gemstone.individual_stones &&
+                    gemstone.individual_stones.length > 0
+                      ? t("individualStoneDimensions")
+                      : t("dimensions")}
                   </h4>
-                  <div className="space-y-3 sm:space-y-4 text-sm sm:text-base leading-relaxed">
-                    {/* Length */}
-                    <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
-                      <Ruler className="w-5 h-5 text-muted-foreground" />
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">
-                          {t("length")}
-                        </span>
-                        <span className="font-medium text-foreground">
-                          {formatDimensionValue(dimensions.length)}
-                        </span>
-                      </div>
-                    </div>
 
-                    {/* Width */}
-                    <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
-                      <Ruler className="w-5 h-5 text-muted-foreground" />
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">
-                          {t("width")}
-                        </span>
-                        <span className="font-medium text-foreground">
-                          {formatDimensionValue(dimensions.width)}
-                        </span>
-                      </div>
+                  {gemstone.individual_stones &&
+                  gemstone.individual_stones.length > 0 ? (
+                    // Individual stones display
+                    <div className="space-y-4">
+                      {gemstone.individual_stones
+                        .sort((a, b) => a.stone_number - b.stone_number)
+                        .map((stone) => (
+                          <div
+                            key={stone.id}
+                            className="border border-white/10 rounded-lg p-3 bg-white/5 dark:bg-black/10"
+                          >
+                            <h5 className="font-medium text-sm mb-3 text-primary">
+                              {t("stoneNumber", { number: stone.stone_number })}
+                            </h5>
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+                              <div className="flex items-center justify-between">
+                                <span className="text-muted-foreground">
+                                  {t("length")}:
+                                </span>
+                                <span className="font-medium">
+                                  {formatDimensionValue(
+                                    stone.dimensions.length_mm
+                                  )}
+                                </span>
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <span className="text-muted-foreground">
+                                  {t("width")}:
+                                </span>
+                                <span className="font-medium">
+                                  {formatDimensionValue(
+                                    stone.dimensions.width_mm
+                                  )}
+                                </span>
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <span className="text-muted-foreground">
+                                  {t("depth")}:
+                                </span>
+                                <span className="font-medium">
+                                  {formatDimensionValue(
+                                    stone.dimensions.depth_mm
+                                  )}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
                     </div>
+                  ) : (
+                    // Overall dimensions display
+                    <div className="space-y-3 sm:space-y-4 text-sm sm:text-base leading-relaxed">
+                      {/* Length */}
+                      <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
+                        <Ruler className="w-5 h-5 text-muted-foreground" />
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground">
+                            {t("length")}
+                          </span>
+                          <span className="font-medium text-foreground">
+                            {formatDimensionValue(dimensions.length)}
+                          </span>
+                        </div>
+                      </div>
 
-                    {/* Depth */}
-                    <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
-                      <Ruler className="w-5 h-5 text-muted-foreground" />
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">
-                          {t("depth")}
-                        </span>
-                        <span className="font-medium text-foreground">
-                          {formatDimensionValue(dimensions.depth)}
-                        </span>
+                      {/* Width */}
+                      <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
+                        <Ruler className="w-5 h-5 text-muted-foreground" />
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground">
+                            {t("width")}
+                          </span>
+                          <span className="font-medium text-foreground">
+                            {formatDimensionValue(dimensions.width)}
+                          </span>
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Overall */}
-                    <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
-                      <div className="w-5 h-5 flex items-center justify-center">
-                        <svg
-                          viewBox="0 0 24 24"
-                          fill="currentColor"
-                          className="w-4 h-4 text-muted-foreground"
-                        >
-                          <path d="M3 3h18v18H3V3zm2 2v14h14V5H5zm2 2h10v2H7V7zm0 4h10v2H7v-2zm0 4h7v2H7v-2z" />
-                        </svg>
+                      {/* Depth */}
+                      <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
+                        <Ruler className="w-5 h-5 text-muted-foreground" />
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground">
+                            {t("depth")}
+                          </span>
+                          <span className="font-medium text-foreground">
+                            {formatDimensionValue(dimensions.depth)}
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">
-                          {t("overall")}
-                        </span>
-                        <span className="font-medium text-foreground">
-                          {formatOverallDimensions()}
-                        </span>
+
+                      {/* Overall */}
+                      <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
+                        <div className="w-5 h-5 flex items-center justify-center">
+                          <svg
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            className="w-4 h-4 text-muted-foreground"
+                          >
+                            <path d="M3 3h18v18H3V3zm2 2v14h14V5H5zm2 2h10v2H7V7zm0 4h10v2H7v-2zm0 4h7v2H7v-2z" />
+                          </svg>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground">
+                            {t("overall")}
+                          </span>
+                          <span className="font-medium text-foreground">
+                            {formatOverallDimensions()}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
             </CardContent>

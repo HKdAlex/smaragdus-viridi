@@ -14,19 +14,19 @@
 
 "use client";
 
+import { CheckCircle, Package, Scale } from "lucide-react";
 import {
   ColorIndicator,
   CutIcon,
   GemstoneTypeIcon,
 } from "@/shared/components/ui/gemstone-icons";
-import { CheckCircle, Package, Scale } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
+import type { CatalogGemstone } from "../services/gemstone-fetch.service";
 import Image from "next/image";
 import Link from "next/link";
-import { useGemstoneTranslations } from "../utils/gemstone-translations";
 import { selectPrimaryImage } from "../utils/select-primary-image";
-import type { CatalogGemstone } from "../services/gemstone-fetch.service";
+import { useGemstoneTranslations } from "../utils/gemstone-translations";
 
 // ===== TYPES =====
 
@@ -126,7 +126,7 @@ export function GemstoneCard({
   const primaryImageAlt =
     primaryImage?.alt_text ??
     (`${gemstone.color ?? ""} ${gemstone.name ?? ""}`.trim() ||
-    "Gemstone image");
+      "Gemstone image");
 
   const formatPrice = (amount: number, currency: string) => {
     return new Intl.NumberFormat("en-US", {
@@ -155,7 +155,9 @@ export function GemstoneCard({
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
             onError={() => {
               if (process.env.NODE_ENV === "development") {
-                console.warn(`Image failed to load for ${gemstone.serial_number}: ${primaryImageUrl}`);
+                console.warn(
+                  `Image failed to load for ${gemstone.serial_number}: ${primaryImageUrl}`
+                );
               }
             }}
           />
@@ -173,7 +175,7 @@ export function GemstoneCard({
         {/* Stock Status Badge - REMOVED as per user request */}
 
         {/* AI Analysis Indicator */}
-        {hasMeaningfulAIAnalysis(gemstone) &&
+        {/* {hasMeaningfulAIAnalysis(gemstone) &&
           (() => {
             const bestAnalysis = getBestAIAnalysis(gemstone);
             return (
@@ -190,7 +192,7 @@ export function GemstoneCard({
                   )}
               </div>
             );
-          })()}
+          })()} */}
       </div>
 
       {/* Details Section */}

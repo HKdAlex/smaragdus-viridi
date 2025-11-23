@@ -18,6 +18,7 @@ export const routing = defineRouting({
     "/cart": "/cart",
     "/catalog": "/catalog",
     "/catalog/[id]": "/catalog/[id]",
+    "/catalog/[id]/edit": "/catalog/[id]/edit",
     "/search": "/search",
     "/orders": "/orders",
     "/orders/[id]": "/orders/[id]",

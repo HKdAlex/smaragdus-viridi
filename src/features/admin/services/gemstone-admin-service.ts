@@ -4,6 +4,7 @@ import type {
   DatabaseGemstoneImage,
   DatabaseGemstoneVideo,
   DatabaseOrigin,
+  IndividualStone,
 } from "@/shared/types";
 import type { TablesInsert, TablesUpdate } from "@/shared/types/database";
 
@@ -62,6 +63,8 @@ export interface GemstoneFormData {
   marketing_highlights_ru?: string[];
   // AI v6 data object
   ai_v6?: any;
+  // Individual stone specifications (for multi-stone items)
+  individual_stones?: IndividualStone[];
 }
 
 export interface GemstoneWithRelations extends DatabaseGemstone {
@@ -69,6 +72,7 @@ export interface GemstoneWithRelations extends DatabaseGemstone {
   images?: DatabaseGemstoneImage[];
   videos?: DatabaseGemstoneVideo[];
   certifications?: DatabaseCertification[];
+  individual_stones?: IndividualStone[];
   ai_analyzed?: boolean | null; // From gemstones_enriched view (aliased from ai_text_generated_v6)
   ai_v6?: {
     technical_description_en?: string | null;
@@ -185,12 +189,18 @@ export class GemstoneAdminService {
             : 1,
       };
 
+      // Include individual_stones in the request body (handled separately by API)
+      const requestBody = {
+        ...payload,
+        individual_stones: formData.individual_stones,
+      };
+
       const response = await fetch("/api/admin/gemstones", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(requestBody),
       });
 
       const result = await response.json();
@@ -222,116 +232,28 @@ export class GemstoneAdminService {
     try {
       logger.info("Updating gemstone", { id, updates: Object.keys(formData) });
 
-      // Filter out AI-specific fields that don't belong in the gemstones table
-      const {
-        ai_v6,
-        description_technical_en,
-        description_emotional_en,
-        narrative_story_en,
-        promotional_text_en,
-        marketing_highlights_en,
-        description_technical_ru,
-        description_emotional_ru,
-        narrative_story_ru,
-        promotional_text_ru,
-        marketing_highlights_ru,
-        ...gemstoneFields
-      } = formData;
+      // Use API route which handles RLS properly with admin client
+      const response = await fetch(`/api/admin/gemstones/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
 
-      const updates = {
-        ...gemstoneFields,
-        updated_at: new Date().toISOString(),
-      } as TablesUpdate<"gemstones">;
+      const result = await response.json();
 
-      if (
-        typeof formData.name !== "undefined" &&
-        typeof formData.type_code === "undefined"
-      ) {
-        updates.type_code = formData.name;
-      }
-
-      if (
-        typeof formData.color !== "undefined" &&
-        typeof formData.color_code === "undefined"
-      ) {
-        updates.color_code = formData.color;
-      }
-
-      if (
-        typeof formData.cut !== "undefined" &&
-        typeof formData.cut_code === "undefined"
-      ) {
-        updates.cut_code = formData.cut;
-      }
-
-      if (
-        typeof formData.clarity !== "undefined" &&
-        typeof formData.clarity_code === "undefined"
-      ) {
-        updates.clarity_code = formData.clarity;
-      }
-
-      const { data, error } = await supabase
-        .from("gemstones")
-        .update(updates)
-        .eq("id", id)
-        .select()
-        .single();
-
-      if (error) {
-        logger.error("Failed to update gemstone", error);
-        return { success: false, error: error.message };
-      }
-
-      // Handle AI v6 fields if present
-      if (ai_v6) {
-        const aiV6Data = ai_v6;
-
-        // Check if AI v6 record exists
-        const { data: existingAiV6 } = await supabase
-          .from("gemstones_ai_v6")
-          .select("gemstone_id")
-          .eq("gemstone_id", id)
-          .single();
-
-        if (existingAiV6) {
-          // Update existing AI v6 record
-          const { error: aiV6Error } = await supabase
-            .from("gemstones_ai_v6")
-            .update({
-              ...aiV6Data,
-              updated_at: new Date().toISOString(),
-            })
-            .eq("gemstone_id", id);
-
-          if (aiV6Error) {
-            logger.error("Failed to update AI v6 data", aiV6Error);
-            // Don't fail the entire operation, just log the error
-          }
-        } else {
-          // Create new AI v6 record
-          const { error: aiV6Error } = await supabase
-            .from("gemstones_ai_v6")
-            .insert({
-              gemstone_id: id,
-              ...aiV6Data,
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-            });
-
-          if (aiV6Error) {
-            logger.error("Failed to create AI v6 data", aiV6Error);
-            // Don't fail the entire operation, just log the error
-          }
-        }
+      if (!response.ok) {
+        logger.error("Failed to update gemstone", result);
+        return { success: false, error: result.error || "Update failed" };
       }
 
       logger.info("Gemstone updated successfully", {
-        id: data.id,
-        serialNumber: data.serial_number,
+        id: result.data.id,
+        serialNumber: result.data.serial_number,
       });
 
-      return { success: true, data };
+      return { success: true, data: result.data };
     } catch (error) {
       logger.error("Unexpected error updating gemstone", error as Error);
       return { success: false, error: "An unexpected error occurred" };

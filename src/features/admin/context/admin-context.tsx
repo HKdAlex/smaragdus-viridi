@@ -67,7 +67,8 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
 
           if (userProfile) {
             setProfile(userProfile);
-            const adminStatus = await auth.isAdmin(currentUser.id);
+            // Pass profile to isAdmin to avoid redundant database call
+            const adminStatus = await auth.isAdmin(currentUser.id, userProfile);
             setIsAdmin(adminStatus);
 
             if (adminStatus) {
@@ -106,7 +107,8 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
 
         if (userProfile) {
           setProfile(userProfile);
-          const adminStatus = await auth.isAdmin(result.user.id);
+          // Pass profile to isAdmin to avoid redundant database call
+          const adminStatus = await auth.isAdmin(result.user.id, userProfile);
           setIsAdmin(adminStatus);
 
           if (adminStatus) {

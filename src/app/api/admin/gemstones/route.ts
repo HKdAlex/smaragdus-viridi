@@ -456,6 +456,34 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Handle individual stones if provided
+    if (body.individual_stones && Array.isArray(body.individual_stones) && body.individual_stones.length > 0) {
+      const stonesPayload = body.individual_stones.map((stone: any) => ({
+        stone_number: stone.stone_number,
+        length_mm: Number(stone.dimensions?.length_mm || 0),
+        width_mm: Number(stone.dimensions?.width_mm || 0),
+        depth_mm: Number(stone.dimensions?.depth_mm || 0),
+      }));
+
+      // Use RPC function to bypass RLS
+      const { error: rpcError } = await adminClient.rpc(
+        "upsert_gemstone_individual_stones",
+        {
+          p_gemstone_id: data.id,
+          p_stones: stonesPayload,
+        }
+      );
+
+      if (rpcError) {
+        console.error("❌ [AdminGemstonesAPI] Failed to create individual stones:", rpcError);
+        console.error("❌ [AdminGemstonesAPI] Payload:", JSON.stringify(stonesPayload, null, 2));
+        // Note: We don't fail the entire request since the main gemstone was created
+        // This allows admins to retry adding individual stones later
+      } else {
+        console.log("✅ [AdminGemstonesAPI] Successfully created individual stones:", stonesPayload.length);
+      }
+    }
+
     return NextResponse.json({ success: true, data }, { status: 201 });
   } catch (error) {
     if (error instanceof AdminAuthError) {

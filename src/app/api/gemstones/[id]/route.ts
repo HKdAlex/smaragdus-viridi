@@ -52,15 +52,29 @@ export async function GET(
     }
 
     // Fetch additional related data separately (not in the view)
-    const [imagesResult, videosResult, certificationsResult] = await Promise.all([
+    const [imagesResult, videosResult, certificationsResult, individualStonesResult] = await Promise.all([
       supabase.from("gemstone_images").select("*").eq("gemstone_id", id),
       supabase.from("gemstone_videos").select("*").eq("gemstone_id", id),
-      supabase.from("certifications").select("*").eq("gemstone_id", id)
+      supabase.from("certifications").select("*").eq("gemstone_id", id),
+      supabase.from("gemstone_individual_stones").select("*").eq("gemstone_id", id).order("stone_number")
     ]);
 
     const images = imagesResult.data || [];
     const videos = videosResult.data || [];
     const certifications = certificationsResult.data || [];
+    // Transform individual_stones from database format to application format
+    const individual_stones = (individualStonesResult.data || []).map((stone) => ({
+      id: stone.id,
+      gemstone_id: stone.gemstone_id,
+      stone_number: stone.stone_number,
+      dimensions: {
+        length_mm: Number(stone.length_mm),
+        width_mm: Number(stone.width_mm),
+        depth_mm: Number(stone.depth_mm),
+      },
+      created_at: stone.created_at,
+      updated_at: stone.updated_at,
+    }));
 
     if (imagesResult.error) {
       console.warn("⚠️ [GemstoneAPI] Failed to fetch images:", imagesResult.error);
@@ -71,12 +85,16 @@ export async function GET(
     if (certificationsResult.error) {
       console.warn("⚠️ [GemstoneAPI] Failed to fetch certifications:", certificationsResult.error);
     }
+    if (individualStonesResult.error) {
+      console.warn("⚠️ [GemstoneAPI] Failed to fetch individual stones:", individualStonesResult.error);
+    }
 
     const result = {
       ...gemstone,
       images,
       videos,
       certifications,
+      individual_stones,
       v6Text: gemstone.technical_description_en ? {
         technical_description_en: gemstone.technical_description_en,
         technical_description_ru: gemstone.technical_description_ru,

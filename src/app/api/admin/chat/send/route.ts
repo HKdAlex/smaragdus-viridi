@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { createContextLogger } from "@/shared/utils/logger";
+import { AdminService } from "@/features/admin/services/admin-service";
+import { ChatNotificationOrchestrator } from "@/features/chat/services/chat-notification-orchestrator";
+import type { ChatMessage } from "@/features/chat/types/chat.types";
+import { UserPreferencesService } from "@/features/user/services/user-preferences-service";
+import { ChatEmailService } from "@/lib/email/services/chat-email-service";
 import { createServerSupabaseClient } from "@/lib/supabase";
+import { createContextLogger } from "@/shared/utils/logger";
 import { z } from "zod";
 
 const logger = createContextLogger("admin-chat-send-api");
@@ -90,6 +95,55 @@ export async function POST(request: NextRequest) {
       adminId: user.id,
       userId: user_id,
     });
+
+    // Send email notification to user (non-blocking)
+    try {
+      const resendApiKey = process.env.RESEND_API_KEY;
+      if (resendApiKey) {
+        const emailService = new ChatEmailService(resendApiKey);
+        const userPreferencesService = new UserPreferencesService();
+        const adminService = new AdminService();
+        const notificationOrchestrator = new ChatNotificationOrchestrator(
+          emailService,
+          userPreferencesService,
+          adminService
+        );
+
+        const chatMessage: ChatMessage = {
+          id: message.id,
+          user_id: message.user_id,
+          admin_id: message.admin_id,
+          content: message.content,
+          attachments: message.attachments,
+          sender_type: message.sender_type as "user" | "admin",
+          is_auto_response: message.is_auto_response,
+          is_read: message.is_read,
+          created_at: message.created_at,
+        };
+
+        // Fire and forget - don't wait for email
+        notificationOrchestrator
+          .handleAdminMessageSent(user_id, chatMessage, user.id)
+          .catch((err) => {
+            logger.error("Failed to send email notification", err as Error, {
+              messageId: message.id,
+              adminId: user.id,
+              userId: user_id,
+            });
+          });
+      }
+    } catch (emailError) {
+      // Log but don't fail the request
+      logger.error(
+        "Exception setting up email notification",
+        emailError as Error,
+        {
+          messageId: message.id,
+          adminId: user.id,
+          userId: user_id,
+        }
+      );
+    }
 
     return NextResponse.json(
       {

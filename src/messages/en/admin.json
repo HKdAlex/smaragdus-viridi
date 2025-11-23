@@ -124,7 +124,8 @@
     "users": "User management and permissions",
     "analytics": "Performance metrics and insights",
     "aiModeration": "Review and moderate AI-generated content",
-    "settings": "System configuration and preferences"
+    "settings": "System configuration and preferences",
+    "chat": "Customer support chat and messaging"
   },
   "login": {
     "title": "Admin Access",
@@ -135,6 +136,7 @@
     "passwordPlaceholder": "Enter your admin password",
     "signInButton": "Sign In",
     "signingIn": "Signing In...",
+    "redirecting": "Redirecting to admin login...",
     "loginFailed": "Login failed",
     "unexpectedError": "An unexpected error occurred",
     "invalidCredentials": "Invalid email or password",
@@ -155,7 +157,8 @@
     "analytics": "Analytics",
     "aiModeration": "AI Moderation",
     "settings": "Settings",
-    "orders": "Orders"
+    "orders": "Orders",
+    "chat": "Chat"
   },
   "gemstones": {
     "title": "Gemstone Management",
@@ -799,13 +802,18 @@
     "editTitle": "Edit Gemstone",
     "createTitle": "Create New Gemstone",
     "tabs": {
-      "basic": "Basic",
-      "properties": "Properties",
-      "dimensions": "Dimensions",
-      "pricing": "Pricing",
-      "inventory": "Inventory",
+      "basicInfo": "Basic Info",
+      "pricingInventory": "Pricing & Inventory",
       "aiContent": "AI Content",
       "media": "Media"
+    },
+    "sections": {
+      "basicInformation": "Basic Information",
+      "properties": "Properties",
+      "dimensions": "Dimensions",
+      "individualStones": "Individual Stones",
+      "pricing": "Pricing",
+      "inventory": "Inventory"
     },
     "serialNumberPlaceholder": "e.g., DIA-2025-001",
     "internalCodePlaceholder": "e.g., INV-001",
@@ -850,7 +858,10 @@
       "aiGeneratedContent": "AI-Generated Content",
       "technicalDescription": "Technical Description",
       "emotionalDescription": "Emotional Description",
-      "narrativeStory": "Narrative Story"
+      "narrativeStory": "Narrative Story",
+      "individualStones": "Individual Stones",
+      "totalQuantity": "total pieces",
+      "stoneNumber": "Stone #{number}"
     },
     "actions": {
       "cancel": "Cancel",
@@ -881,6 +892,12 @@
     },
     "hints": {
       "pricePerCaratHelper": "Uses gemstone weight to calculate total price when price per carat is provided."
+    },
+    "descriptions": {
+      "individualStones": "Specify unique dimensions for each stone in this multi-stone item. Leave blank to use overall dimensions."
+    },
+    "messages": {
+      "singleStoneOnly": "Individual stone specifications are only available for items with multiple stones (quantity > 1)."
     }
   },
   "gemstoneManagement": {
@@ -995,5 +1012,18 @@
       "deleteFailed": "Failed to delete certification",
       "loadFailed": "Failed to load certifications"
     }
+  },
+  "chat": {
+    "title": "Customer Support Chat",
+    "description": "Manage customer conversations and provide support",
+    "conversations": "Conversations",
+    "totalConversations": "total",
+    "selectConversation": "Select a conversation to start messaging",
+    "noConversations": "No conversations yet",
+    "noMessages": "No messages in this conversation",
+    "loading": "Loading...",
+    "typeMessage": "Type a message...",
+    "unknownUser": "Unknown User",
+    "markAsRead": "Mark as read"
   }
 }

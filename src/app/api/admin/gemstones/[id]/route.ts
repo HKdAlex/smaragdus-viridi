@@ -33,12 +33,14 @@ export async function GET(
       imagesResult,
       videosResult,
       certificationsResult,
+      individualStonesResult,
     ] = await Promise.all([
       supabase.from("gemstones_enriched").select("*").eq("id", id).single(),
       supabase.from("gemstones").select("*").eq("id", id).single(),
       supabase.from("gemstone_images").select("*").eq("gemstone_id", id),
       supabase.from("gemstone_videos").select("*").eq("gemstone_id", id),
       supabase.from("certifications").select("*").eq("gemstone_id", id),
+      supabase.from("gemstone_individual_stones").select("*").eq("gemstone_id", id).order("stone_number"),
     ]);
 
     if (enrichedError && enrichedError.code !== "PGRST116") {
@@ -56,6 +58,19 @@ export async function GET(
     const images = imagesResult.data || [];
     const videos = videosResult.data || [];
     const certifications = certificationsResult.data || [];
+    // Transform individual_stones from database format to application format
+    const individual_stones = (individualStonesResult.data || []).map((stone) => ({
+      id: stone.id,
+      gemstone_id: stone.gemstone_id,
+      stone_number: stone.stone_number,
+      dimensions: {
+        length_mm: Number(stone.length_mm),
+        width_mm: Number(stone.width_mm),
+        depth_mm: Number(stone.depth_mm),
+      },
+      created_at: stone.created_at,
+      updated_at: stone.updated_at,
+    }));
 
     if (imagesResult.error) {
       console.warn(
@@ -75,6 +90,12 @@ export async function GET(
         certificationsResult.error
       );
     }
+    if (individualStonesResult.error) {
+      console.warn(
+        "⚠️ [AdminGemstoneAPI] Failed to fetch individual stones:",
+        individualStonesResult.error
+      );
+    }
 
     const mergedGemstone = mergeAdminGemstoneRecords(baseGemstone, enriched ?? null);
 
@@ -83,6 +104,7 @@ export async function GET(
       images,
       videos,
       certifications,
+      individual_stones,
       ai_v6: enriched?.technical_description_en
         ? {
             technical_description_en: enriched.technical_description_en,
@@ -145,16 +167,48 @@ export async function PUT(
       narrative_story_ru,
       promotional_text_ru,
       marketing_highlights_ru,
+      individual_stones,
       ...gemstoneFields
     } = body;
+
+    // Auto-generate codes if not provided
+    const updates = {
+      ...gemstoneFields,
+      updated_at: new Date().toISOString(),
+    } as any;
+
+    if (
+      typeof gemstoneFields.name !== "undefined" &&
+      typeof gemstoneFields.type_code === "undefined"
+    ) {
+      updates.type_code = gemstoneFields.name;
+    }
+
+    if (
+      typeof gemstoneFields.color !== "undefined" &&
+      typeof gemstoneFields.color_code === "undefined"
+    ) {
+      updates.color_code = gemstoneFields.color;
+    }
+
+    if (
+      typeof gemstoneFields.cut !== "undefined" &&
+      typeof gemstoneFields.cut_code === "undefined"
+    ) {
+      updates.cut_code = gemstoneFields.cut;
+    }
+
+    if (
+      typeof gemstoneFields.clarity !== "undefined" &&
+      typeof gemstoneFields.clarity_code === "undefined"
+    ) {
+      updates.clarity_code = gemstoneFields.clarity;
+    }
 
     // Update gemstone
     const { data, error } = await getAdminClient()
       .from("gemstones")
-      .update({
-        ...gemstoneFields,
-        updated_at: new Date().toISOString(),
-      })
+      .update(updates)
       .eq("id", id)
       .select()
       .single();
@@ -197,6 +251,50 @@ export async function PUT(
 
         if (aiV6Error) {
           console.error("Failed to create AI v6 data", aiV6Error);
+        }
+      }
+    }
+
+    // Handle individual stones if provided
+    if (individual_stones && Array.isArray(individual_stones)) {
+      const adminClient = getAdminClient();
+      
+      // Use RPC function to bypass RLS
+      if (individual_stones.length > 0) {
+        const stonesPayload = individual_stones.map((stone: any) => ({
+          stone_number: stone.stone_number,
+          length_mm: Number(stone.dimensions?.length_mm || 0),
+          width_mm: Number(stone.dimensions?.width_mm || 0),
+          depth_mm: Number(stone.dimensions?.depth_mm || 0),
+        }));
+
+        const { error: rpcError } = await adminClient.rpc(
+          "upsert_gemstone_individual_stones",
+          {
+            p_gemstone_id: id,
+            p_stones: stonesPayload,
+          }
+        );
+
+        if (rpcError) {
+          console.error("❌ [AdminGemstonesAPI] Failed to upsert individual stones:", rpcError);
+          console.error("❌ [AdminGemstonesAPI] Payload:", JSON.stringify(stonesPayload, null, 2));
+          // Note: We don't fail the entire request since the main gemstone was updated
+        } else {
+          console.log("✅ [AdminGemstonesAPI] Successfully upserted individual stones:", stonesPayload.length);
+        }
+      } else {
+        // If empty array, delete all stones for this gemstone
+        const { error: deleteError } = await adminClient.rpc(
+          "upsert_gemstone_individual_stones",
+          {
+            p_gemstone_id: id,
+            p_stones: [],
+          }
+        );
+
+        if (deleteError) {
+          console.error("❌ [AdminGemstonesAPI] Failed to delete individual stones:", deleteError);
         }
       }
     }

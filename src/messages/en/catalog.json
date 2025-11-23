@@ -133,6 +133,8 @@
       "cut": "Cut",
       "clarity": "Clarity",
       "dimensions": "Dimensions",
+      "individualStoneDimensions": "Individual Stone Dimensions",
+      "stoneNumber": "Stone #{number}",
       "depth": "Depth",
       "overall": "Overall",
       "origin": "Origin",

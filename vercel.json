@@ -59,5 +59,11 @@
       "destination": "https://crystallique.kz",
       "permanent": true
     }
+  ],
+  "crons": [
+    {
+      "path": "/api/admin/chat/check-unattended",
+      "schedule": "*/15 * * * *"
+    }
   ]
 }
