@@ -62,13 +62,29 @@ export function useChat(userId?: string): UseChatReturn {
             // Check if message already exists (avoid duplicates)
             const exists = prev.some(msg => msg.id === newMessage.id)
             if (exists) {
-              logger.warn('Duplicate message detected, skipping', {
-                messageId: newMessage.id
+              logger.debug('Message already exists in state, skipping real-time update', {
+                messageId: newMessage.id,
+                currentMessageCount: prev.length
               })
               return prev
             }
-            logger.info('Adding new message to state', {
+
+            // Check if there's an optimistic message that should be replaced
+            const optimisticIndex = prev.findIndex(msg => msg.id.startsWith('temp-'))
+            if (optimisticIndex !== -1 && newMessage.sender_type === 'user') {
+              logger.info('Replacing optimistic message with real-time message', {
+                optimisticId: prev[optimisticIndex].id,
+                realId: newMessage.id,
+                content: newMessage.content.substring(0, 50)
+              })
+              const newMessages = [...prev]
+              newMessages[optimisticIndex] = newMessage
+              return newMessages
+            }
+
+            logger.info('Adding new message from real-time subscription', {
               messageId: newMessage.id,
+              senderType: newMessage.sender_type,
               currentMessageCount: prev.length
             })
             return [...prev, newMessage]
