@@ -33,12 +33,32 @@ export function AdminChatDashboard() {
   const t = useTranslations("admin.chat");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isSending, setIsSending] = useState(false);
+  const previousMessageCountRef = useRef<number>(0);
+  const previousConversationRef = useRef<string | null>(null);
 
-  // Auto-scroll to bottom when new messages arrive
+  // Auto-scroll to bottom only when:
+  // 1. New messages are added (not when switching conversations)
+  // 2. When a conversation is first selected (to show latest messages)
   useEffect(() => {
-    if (selectedConversation && messages.length > 0) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (!selectedConversation || messages.length === 0) {
+      previousMessageCountRef.current = 0;
+      previousConversationRef.current = selectedConversation;
+      return;
     }
+
+    const isNewConversation = previousConversationRef.current !== selectedConversation;
+    const hasNewMessages = messages.length > previousMessageCountRef.current;
+    
+    // Only scroll if it's a new conversation (to show latest) or new messages arrived
+    if (isNewConversation || hasNewMessages) {
+      // Use a small delay to ensure DOM is updated
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: isNewConversation ? "auto" : "smooth" });
+      }, 100);
+    }
+
+    previousMessageCountRef.current = messages.length;
+    previousConversationRef.current = selectedConversation;
   }, [messages, selectedConversation]);
 
   // Mark conversation as read when viewing

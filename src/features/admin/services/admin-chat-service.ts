@@ -41,6 +41,7 @@ export class AdminChatService {
         const conversations: ChatConversation[] = sessions.map((session: any) => ({
           user_id: session.user_id,
           user_name: session.user_name,
+          user_email: session.user_email || undefined,
           last_message: session.last_message || '',
           last_message_at: session.last_message_at,
           unread_count: Number(session.unread_count) || 0,
@@ -100,6 +101,7 @@ export class AdminChatService {
           conversationMap.set(userId, {
             user_id: userId,
             user_name: profile?.name || 'Unknown User',
+            user_email: profile?.email || undefined,
             last_message: message.content || '',
             last_message_at: message.created_at,
             unread_count: message.sender_type === 'user' && !message.is_read ? 1 : 0,

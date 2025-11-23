@@ -23,6 +23,7 @@ export interface ChatMessage {
 export interface ChatConversation {
   readonly user_id: string
   readonly user_name?: string
+  readonly user_email?: string
   readonly last_message: string
   readonly last_message_at: string | null
   readonly unread_count: number

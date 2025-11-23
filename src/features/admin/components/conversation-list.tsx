@@ -76,6 +76,11 @@ export function ConversationList({
                       <span className="text-xs">📎</span>
                     )}
                   </div>
+                  {conversation.user_email && (
+                    <p className="text-xs text-muted-foreground truncate mb-1">
+                      {conversation.user_email}
+                    </p>
+                  )}
                   <p className="text-xs text-muted-foreground truncate">
                     {conversation.last_message || t("noMessages")}
                   </p>
