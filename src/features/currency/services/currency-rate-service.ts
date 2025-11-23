@@ -144,14 +144,13 @@ export class CurrencyRateService {
       });
 
       // Validate rates are reasonable
-      // USD to KZT should be around 450-550
-      // EUR to KZT should be around 500-700 (EUR is stronger than USD)
-      // RUB to KZT should be around 5-8
+      // Use same ranges as initial parsing validation (300-700 for USD, 300-900 for EUR, 3-12 for RUB)
+      // The average will always be within the buy/sell range, so we can use the same bounds
       if (
-        usdToKzt < 400 ||
-        usdToKzt > 600 ||
-        (eurRate && (eurToKzt < 400 || eurToKzt > 800)) ||
-        (rubRate && (rubToKzt < 4 || rubToKzt > 10))
+        usdToKzt < 300 ||
+        usdToKzt > 700 ||
+        (eurRate && (eurToKzt < 300 || eurToKzt > 900)) ||
+        (rubRate && (rubToKzt < 3 || rubToKzt > 12))
       ) {
         this.logger.warn("Parsed rates seem invalid, using fallback", {
           usdToKzt,
@@ -358,6 +357,8 @@ export class CurrencyRateService {
       }
 
       // Build rates object from database
+      // Track which rates were actually found in the database
+      const foundRates = new Set<CurrencyCode>();
       const rates: ExchangeRates = {
         USD: {
           RUB: 1,
@@ -371,6 +372,7 @@ export class CurrencyRateService {
         const target = rate.target_currency as CurrencyCode;
         if (target in rates.USD) {
           rates.USD[target as keyof typeof rates.USD] = rate.rate as number;
+          foundRates.add(target);
         }
         if (rate.updated_at) {
           rates.updatedAt = rate.updated_at;
@@ -378,20 +380,19 @@ export class CurrencyRateService {
       });
 
       // Validate rates from database are reasonable
-      // If rates are invalid, fetch fresh rates
+      // Only validate rates that were actually found in the database
+      // If a rate wasn't found, it remains at 1 (default) and we shouldn't validate it
       const { RUB, EUR, KZT } = rates.USD;
-      if (
-        RUB < 50 ||
-        RUB > 150 ||
-        EUR < 0.7 ||
-        EUR > 1.1 ||
-        KZT < 400 ||
-        KZT > 600
-      ) {
+      const hasInvalidRate =
+        (foundRates.has("RUB") && (RUB < 50 || RUB > 150)) ||
+        (foundRates.has("EUR") && (EUR < 0.7 || EUR > 1.1)) ||
+        (foundRates.has("KZT") && (KZT < 400 || KZT > 600));
+
+      if (hasInvalidRate) {
         this.logger.warn("Database rates are invalid, fetching fresh rates", {
-          RUB,
-          EUR,
-          KZT,
+          RUB: foundRates.has("RUB") ? RUB : "not found",
+          EUR: foundRates.has("EUR") ? EUR : "not found",
+          KZT: foundRates.has("KZT") ? KZT : "not found",
         });
         // Fetch fresh rates and update database
         const freshRates = await this.fetchRatesFromMigKz();
