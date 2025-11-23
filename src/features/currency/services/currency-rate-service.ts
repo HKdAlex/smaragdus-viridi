@@ -40,49 +40,71 @@ export class CurrencyRateService {
       // Parse rates from HTML
       // mig.kz displays rates in a table format
       // Looking for patterns like: USD | 519.3 | 521.7
+      // More specific regex to avoid matching wrong numbers
       const rates: MigKzRate[] = [];
 
-      // Extract USD rates - mig.kz shows buy/sell rates
-      // We'll use the average of buy and sell, then apply 3% adjustment
-      const usdMatch = html.match(/USD[\s\S]*?(\d+\.?\d*)[\s\S]*?(\d+\.?\d*)/i);
+      // Extract USD rates - mig.kz shows buy/sell rates in KZT
+      // Pattern: USD followed by numbers (typically 400-600 range for KZT)
+      const usdPattern = /USD[^0-9]*?(\d{3,4}(?:\.\d{1,2})?)[^0-9]*?(\d{3,4}(?:\.\d{1,2})?)/i;
+      const usdMatch = html.match(usdPattern);
       if (usdMatch) {
         const buy = parseFloat(usdMatch[1]);
         const sell = parseFloat(usdMatch[2]);
-        if (!isNaN(buy) && !isNaN(sell)) {
+        // Validate USD rates are in reasonable range (400-600 KZT per USD)
+        if (!isNaN(buy) && !isNaN(sell) && buy > 300 && buy < 700 && sell > 300 && sell < 700) {
           rates.push({
             currency: "USD",
             buy,
             sell,
           });
+          this.logger.info("Parsed USD rate", { buy, sell });
+        } else {
+          this.logger.warn("USD rate out of expected range", { buy, sell });
         }
+      } else {
+        this.logger.warn("Could not parse USD rate from mig.kz HTML");
       }
 
-      // Extract EUR rates
-      const eurMatch = html.match(/EUR[\s\S]*?(\d+\.?\d*)[\s\S]*?(\d+\.?\d*)/i);
+      // Extract EUR rates - should be similar or higher than USD (500-700 KZT per EUR)
+      const eurPattern = /EUR[^0-9]*?(\d{3,4}(?:\.\d{1,2})?)[^0-9]*?(\d{3,4}(?:\.\d{1,2})?)/i;
+      const eurMatch = html.match(eurPattern);
       if (eurMatch) {
         const buy = parseFloat(eurMatch[1]);
         const sell = parseFloat(eurMatch[2]);
-        if (!isNaN(buy) && !isNaN(sell)) {
+        // Validate EUR rates are in reasonable range (400-800 KZT per EUR)
+        if (!isNaN(buy) && !isNaN(sell) && buy > 300 && buy < 900 && sell > 300 && sell < 900) {
           rates.push({
             currency: "EUR",
             buy,
             sell,
           });
+          this.logger.info("Parsed EUR rate", { buy, sell });
+        } else {
+          this.logger.warn("EUR rate out of expected range", { buy, sell });
         }
+      } else {
+        this.logger.warn("Could not parse EUR rate from mig.kz HTML");
       }
 
-      // Extract RUB rates
-      const rubMatch = html.match(/RUB[\s\S]*?(\d+\.?\d*)[\s\S]*?(\d+\.?\d*)/i);
+      // Extract RUB rates - should be much lower (5-8 KZT per RUB)
+      const rubPattern = /RUB[^0-9]*?(\d{1,2}(?:\.\d{1,2})?)[^0-9]*?(\d{1,2}(?:\.\d{1,2})?)/i;
+      const rubMatch = html.match(rubPattern);
       if (rubMatch) {
         const buy = parseFloat(rubMatch[1]);
         const sell = parseFloat(rubMatch[2]);
-        if (!isNaN(buy) && !isNaN(sell)) {
+        // Validate RUB rates are in reasonable range (4-10 KZT per RUB)
+        if (!isNaN(buy) && !isNaN(sell) && buy > 3 && buy < 12 && sell > 3 && sell < 12) {
           rates.push({
             currency: "RUB",
             buy,
             sell,
           });
+          this.logger.info("Parsed RUB rate", { buy, sell });
+        } else {
+          this.logger.warn("RUB rate out of expected range", { buy, sell });
         }
+      } else {
+        this.logger.warn("Could not parse RUB rate from mig.kz HTML");
       }
 
       // mig.kz shows rates in KZT (Kazakhstani Tenge)
@@ -104,11 +126,55 @@ export class CurrencyRateService {
       const eurToKzt = eurRate ? (eurRate.buy + eurRate.sell) / 2 : 602;
       const rubToKzt = rubRate ? (rubRate.buy + rubRate.sell) / 2 : 6.5;
 
+      // Log parsed values for debugging
+      this.logger.info("Parsed rates from mig.kz", {
+        usdRate,
+        eurRate,
+        rubRate,
+        usdToKzt,
+        eurToKzt,
+        rubToKzt,
+      });
+
+      // Validate rates are reasonable
+      // USD to KZT should be around 450-550
+      // EUR to KZT should be around 500-700 (EUR is stronger than USD)
+      // RUB to KZT should be around 5-8
+      if (
+        usdToKzt < 400 ||
+        usdToKzt > 600 ||
+        (eurRate && (eurToKzt < 400 || eurToKzt > 800)) ||
+        (rubRate && (rubToKzt < 4 || rubToKzt > 10))
+      ) {
+        this.logger.warn("Parsed rates seem invalid, using fallback", {
+          usdToKzt,
+          eurToKzt,
+          rubToKzt,
+        });
+        return this.getFallbackRates();
+      }
+
       // Convert to USD-based rates
       // USD to EUR: if 1 USD = 520 KZT and 1 EUR = 602 KZT, then 1 USD = 520/602 EUR
       const usdToEur = usdToKzt / eurToKzt;
       // USD to RUB: if 1 USD = 520 KZT and 1 RUB = 6.5 KZT, then 1 USD = 520/6.5 RUB
       const usdToRub = usdToKzt / rubToKzt;
+
+      // Validate converted rates are reasonable
+      // USD to EUR should be around 0.85-1.0 (EUR is usually stronger)
+      // USD to RUB should be around 80-100
+      if (
+        usdToEur < 0.7 ||
+        usdToEur > 1.1 ||
+        usdToRub < 50 ||
+        usdToRub > 150
+      ) {
+        this.logger.warn("Converted rates seem invalid, using fallback", {
+          usdToEur,
+          usdToRub,
+        });
+        return this.getFallbackRates();
+      }
 
       // Apply 3% adjustment
       const adjustedRates: ExchangeRates = {
@@ -122,6 +188,11 @@ export class CurrencyRateService {
 
       this.logger.info("Successfully fetched rates from mig.kz", {
         rates: adjustedRates.USD,
+        rawRates: {
+          usdToEur,
+          usdToRub,
+          usdToKzt,
+        },
       });
 
       return adjustedRates;
