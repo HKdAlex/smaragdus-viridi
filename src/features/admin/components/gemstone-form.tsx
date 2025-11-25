@@ -536,10 +536,8 @@ export function GemstoneForm({
 
       if (result.success && result.data) {
         onSuccess?.(result.data);
-        if (!gemstone) {
-          // Redirect to edit mode for the new gemstone
-          router.push(`/admin/gemstones/${result.data.id}/edit` as any);
-        }
+        // Don't redirect - let the parent component handle the state change
+        // The AdminGemstoneManager will switch to edit mode if needed
       } else {
         setErrors({ submit: result.error || t("errors.generalError") });
       }

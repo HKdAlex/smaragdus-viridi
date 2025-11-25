@@ -84,9 +84,24 @@ export function AdminGemstoneManager({
     }
   };
 
-  const handleFormSuccess = (gemstone: GemstoneWithRelations) => {
-    setViewMode("list");
-    setSelectedGemstone(null);
+  const handleFormSuccess = async (gemstone: GemstoneWithRelations) => {
+    // If we were creating a new gemstone, switch to edit mode
+    // Otherwise, go back to the list
+    if (viewMode === "create") {
+      // Fetch full gemstone data with relations for edit mode
+      const result = await GemstoneAdminApiService.getGemstoneById(gemstone.id);
+      if (result.success && result.data) {
+        setSelectedGemstone(result.data as GemstoneWithRelations);
+        setViewMode("edit");
+      } else {
+        // Fallback to basic gemstone data if fetch fails
+        setSelectedGemstone(gemstone);
+        setViewMode("edit");
+      }
+    } else {
+      setViewMode("list");
+      setSelectedGemstone(null);
+    }
     // The optimized list component will handle refreshing automatically
     console.log(t("formSuccess"));
   };
