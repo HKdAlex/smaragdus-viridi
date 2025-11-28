@@ -12,10 +12,17 @@ import type {
 import type { Database } from "@/shared/types/database";
 import { Logger } from "@/shared/utils/logger";
 import { supabase } from "@/lib/supabase";
+import { UserActivityService } from "@/features/user/services/user-activity-service";
 
 export class CartService {
   private supabase = supabase;
   private logger = new Logger("CartService");
+  private userActivityService: UserActivityService;
+
+  constructor() {
+    // Initialize UserActivityService with the client-side supabase instance
+    this.userActivityService = new UserActivityService(supabase as any);
+  }
 
   // Cart validation rules (from Sprint 5 plan)
   private readonly VALIDATION_RULES: CartValidationRules = {
@@ -190,6 +197,14 @@ export class CartService {
         userId,
       });
 
+      // Log activity (fire and forget)
+      this.userActivityService.logActivity(
+        userId,
+        "cart_updated",
+        `Added item to cart`,
+        { gemstoneId, cartItemId: result.id, action: "add" }
+      ).catch((err) => this.logger.warn("Failed to log cart activity", err));
+
       return {
         success: true,
         item: cartItem,
@@ -295,6 +310,14 @@ export class CartService {
         userId,
       });
 
+      // Log activity (fire and forget)
+      this.userActivityService.logActivity(
+        userId,
+        "cart_updated",
+        `Updated cart item quantity to ${quantity}`,
+        { cartItemId, quantity, action: "update" }
+      ).catch((err) => this.logger.warn("Failed to log cart activity", err));
+
       return {
         success: true,
         item: cartItem,
@@ -356,6 +379,14 @@ export class CartService {
         userId,
       });
 
+      // Log activity (fire and forget)
+      this.userActivityService.logActivity(
+        userId,
+        "cart_updated",
+        `Removed item from cart`,
+        { cartItemId, action: "remove" }
+      ).catch((err) => this.logger.warn("Failed to log cart activity", err));
+
       return {
         success: true,
         cart_summary: cartSummary,
@@ -390,6 +421,14 @@ export class CartService {
       const cartSummary = await this.getCartSummary(userId);
 
       this.logger.info("Cart cleared successfully", { userId });
+
+      // Log activity (fire and forget)
+      this.userActivityService.logActivity(
+        userId,
+        "cart_updated",
+        `Cleared cart`,
+        { action: "clear" }
+      ).catch((err) => this.logger.warn("Failed to log cart activity", err));
 
       return {
         success: true,

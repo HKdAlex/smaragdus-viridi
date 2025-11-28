@@ -1672,6 +1672,33 @@ export type Database = {
         }
         Relationships: []
       }
+      user_activities: {
+        Row: {
+          created_at: string | null
+          description: string
+          id: string
+          metadata: Json | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description: string
+          id?: string
+          metadata?: Json | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          id?: string
+          metadata?: Json | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_audit_logs: {
         Row: {
           action: string

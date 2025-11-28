@@ -51,6 +51,8 @@ export function OrderDetailsPage({
   const [timeline, setTimeline] = useState<OrderTimelineType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [cancelling, setCancelling] = useState(false);
+  const [cancelError, setCancelError] = useState<string | null>(null);
 
   useEffect(() => {
     loadOrderDetails();
@@ -439,20 +441,50 @@ export function OrderDetailsPage({
                 {t("continueShopping")}
               </Button>
 
-              {order.status === "pending" && (
-                <Button
-                  variant="outline"
-                  onClick={async () => {
-                    // TODO: Implement order cancellation
-                    if (confirm(t("confirmCancel"))) {
-                      // Order cancellation not yet implemented
-                      alert(t("orderCancellationNotImplemented"));
-                    }
-                  }}
-                  className="w-full border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                >
-                  {t("cancelOrder")}
-                </Button>
+              {(order.status === "pending" || order.status === "confirmed") && (
+                <>
+                  {cancelError && (
+                    <div className="p-3 bg-destructive/10 text-destructive rounded-lg text-sm mb-2">
+                      {cancelError}
+                    </div>
+                  )}
+                  <Button
+                    variant="outline"
+                    disabled={cancelling}
+                    onClick={async () => {
+                      const confirmMessage = t("confirmCancel") || "Are you sure you want to cancel this order?";
+                      if (confirm(confirmMessage)) {
+                        setCancelling(true);
+                        setCancelError(null);
+                        try {
+                          const response = await fetch(`/api/orders/${order.id}/cancel`, {
+                            method: 'POST',
+                            headers: {
+                              'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({}),
+                          });
+
+                          const result = await response.json();
+
+                          if (result.success) {
+                            // Reload order details
+                            loadOrderDetails();
+                          } else {
+                            setCancelError(result.error || t("cancelFailed") || "Failed to cancel order");
+                          }
+                        } catch (err) {
+                          setCancelError(t("cancelFailed") || "Failed to cancel order");
+                        } finally {
+                          setCancelling(false);
+                        }
+                      }
+                    }}
+                    className="w-full border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                  >
+                    {cancelling ? t("cancelling") || "Cancelling..." : t("cancelOrder")}
+                  </Button>
+                </>
               )}
             </div>
           </div>

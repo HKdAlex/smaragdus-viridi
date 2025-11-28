@@ -1,6 +1,7 @@
 import { Logger } from "@/shared/utils/logger";
 import type { OrderStatus } from "@/shared/types";
 import { supabase } from "@/lib/supabase";
+import { userActivityService } from "@/features/user/services/user-activity-service";
 
 export interface CreateOrderRequest {
   user_id: string;
@@ -139,6 +140,20 @@ export class OrderService {
         .slice(0, 8)
         .toUpperCase()}-${Date.now()}`;
 
+      // Log order placed activity
+      await userActivityService.logActivity(
+        request.user_id,
+        'order_placed',
+        `Placed order ${order.order_number || order.id.slice(0, 8)}`,
+        {
+          orderId: order.id,
+          orderNumber: order.order_number,
+          totalAmount,
+          itemCount: request.items.length,
+          currency: request.currency_code,
+        }
+      );
+
       this.logger.info("Order created successfully", {
         orderId: order.id,
         totalAmount,
@@ -269,6 +284,250 @@ export class OrderService {
       return {
         success: false,
         error: "An unexpected error occurred while getting the order",
+      };
+    }
+  }
+
+  /**
+   * Cancel an order (user-initiated)
+   * Only pending or confirmed orders can be cancelled by users
+   */
+  async cancelOrder(
+    orderId: string,
+    userId: string,
+    reason?: string
+  ): Promise<OrderResult> {
+    try {
+      this.logger.info("Cancelling order", { orderId, userId, reason });
+
+      // Get the order to verify ownership and status
+      const { data: order, error: fetchError } = await supabase
+        .from("orders")
+        .select("id, status, user_id")
+        .eq("id", orderId)
+        .eq("user_id", userId)
+        .single();
+
+      if (fetchError || !order) {
+        this.logger.error("Order not found or access denied", fetchError);
+        return {
+          success: false,
+          error: "Order not found or you do not have permission to cancel it",
+        };
+      }
+
+      // Check if order can be cancelled
+      const cancellableStatuses: OrderStatus[] = ["pending", "confirmed"];
+      if (!cancellableStatuses.includes(order.status as OrderStatus)) {
+        this.logger.warn("Order cannot be cancelled", {
+          orderId,
+          currentStatus: order.status,
+        });
+        return {
+          success: false,
+          error: `Orders with status "${order.status}" cannot be cancelled. Only pending or confirmed orders can be cancelled.`,
+        };
+      }
+
+      // Update order status to cancelled
+      const { data: updatedOrder, error: updateError } = await supabase
+        .from("orders")
+        .update({
+          status: "cancelled",
+          notes: reason
+            ? `Cancelled by user: ${reason}`
+            : "Cancelled by user",
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", orderId)
+        .select()
+        .single();
+
+      if (updateError) {
+        this.logger.error("Failed to cancel order", updateError);
+        return {
+          success: false,
+          error: "Failed to cancel order: " + updateError.message,
+        };
+      }
+
+      // Log the cancellation event
+      await supabase.from("order_events").insert({
+        order_id: orderId,
+        event_type: "status_changed",
+        title: "Order cancelled",
+        description: reason || "Cancelled by user",
+        metadata: {
+          old_status: order.status,
+          new_status: "cancelled",
+          cancelled_by: userId,
+        },
+        performed_by: userId,
+        is_internal: false,
+      }).then(({ error }) => {
+        if (error) {
+          this.logger.warn("Failed to log order event", error);
+        }
+      });
+
+      // Log order status changed activity
+      await userActivityService.logActivity(
+        userId,
+        'order_status_changed',
+        `Order cancelled${reason ? `: ${reason}` : ''}`,
+        {
+          orderId,
+          oldStatus: order.status,
+          newStatus: 'cancelled',
+          reason,
+        }
+      );
+
+      this.logger.info("Order cancelled successfully", { orderId });
+
+      return {
+        success: true,
+        order: {
+          id: updatedOrder.id,
+          status: updatedOrder.status as OrderStatus,
+          total_amount: updatedOrder.total_amount,
+          currency_code: updatedOrder.currency_code as
+            | "USD"
+            | "EUR"
+            | "GBP"
+            | "RUB"
+            | "CHF"
+            | "JPY",
+          created_at: updatedOrder.created_at || new Date().toISOString(),
+          order_number: updatedOrder.order_number,
+          items: [],
+          payment: {
+            reference: `PAY-${updatedOrder.id.slice(0, 8).toUpperCase()}`,
+            processed_at: updatedOrder.created_at || new Date().toISOString(),
+            simulated: true,
+          },
+        },
+      };
+    } catch (error) {
+      this.logger.error("Unexpected error cancelling order", error as Error);
+      return {
+        success: false,
+        error: "An unexpected error occurred while cancelling the order",
+      };
+    }
+  }
+
+  /**
+   * Admin cancel order - can cancel any order with reason
+   */
+  async adminCancelOrder(
+    orderId: string,
+    adminId: string,
+    reason: string
+  ): Promise<OrderResult> {
+    try {
+      this.logger.info("Admin cancelling order", { orderId, adminId, reason });
+
+      // Get the order
+      const { data: order, error: fetchError } = await supabase
+        .from("orders")
+        .select("id, status, user_id")
+        .eq("id", orderId)
+        .single();
+
+      if (fetchError || !order) {
+        this.logger.error("Order not found", fetchError);
+        return {
+          success: false,
+          error: "Order not found",
+        };
+      }
+
+      // Check if order is already cancelled or delivered
+      if (order.status === "cancelled") {
+        return {
+          success: false,
+          error: "Order is already cancelled",
+        };
+      }
+
+      if (order.status === "delivered") {
+        return {
+          success: false,
+          error: "Delivered orders cannot be cancelled. Please process a refund instead.",
+        };
+      }
+
+      // Update order status
+      const { data: updatedOrder, error: updateError } = await supabase
+        .from("orders")
+        .update({
+          status: "cancelled",
+          notes: `Cancelled by admin: ${reason}`,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", orderId)
+        .select()
+        .single();
+
+      if (updateError) {
+        this.logger.error("Failed to cancel order", updateError);
+        return {
+          success: false,
+          error: "Failed to cancel order: " + updateError.message,
+        };
+      }
+
+      // Log the cancellation event
+      await supabase.from("order_events").insert({
+        order_id: orderId,
+        event_type: "status_changed",
+        title: "Order cancelled by admin",
+        description: `Admin cancellation: ${reason}`,
+        metadata: {
+          old_status: order.status,
+          new_status: "cancelled",
+          cancelled_by: adminId,
+          admin_action: true,
+        },
+        performed_by: adminId,
+        is_internal: true,
+      }).then(({ error }) => {
+        if (error) {
+          this.logger.warn("Failed to log order event", error);
+        }
+      });
+
+      this.logger.info("Order cancelled by admin", { orderId, adminId });
+
+      return {
+        success: true,
+        order: {
+          id: updatedOrder.id,
+          status: updatedOrder.status as OrderStatus,
+          total_amount: updatedOrder.total_amount,
+          currency_code: updatedOrder.currency_code as
+            | "USD"
+            | "EUR"
+            | "GBP"
+            | "RUB"
+            | "CHF"
+            | "JPY",
+          created_at: updatedOrder.created_at || new Date().toISOString(),
+          order_number: updatedOrder.order_number,
+          items: [],
+          payment: {
+            reference: `PAY-${updatedOrder.id.slice(0, 8).toUpperCase()}`,
+            processed_at: updatedOrder.created_at || new Date().toISOString(),
+            simulated: true,
+          },
+        },
+      };
+    } catch (error) {
+      this.logger.error("Unexpected error in admin cancel", error as Error);
+      return {
+        success: false,
+        error: "An unexpected error occurred while cancelling the order",
       };
     }
   }

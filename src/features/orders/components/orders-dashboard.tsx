@@ -92,14 +92,74 @@ export function OrdersDashboard({
 
   const liveStats = calculateLiveStats();
 
+  const [exporting, setExporting] = useState(false);
+
   const handleExportOrders = async () => {
-    // TODO: Implement CSV export functionality
-    console.log("Exporting orders...");
+    setExporting(true);
+    try {
+      const response = await fetch('/api/admin/orders/export', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          format: 'csv',
+          includeItems: true,
+          includeCustomerInfo: true,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Export failed');
+      }
+
+      // Get the filename from Content-Disposition header
+      const contentDisposition = response.headers.get('Content-Disposition');
+      const filename = contentDisposition
+        ? contentDisposition.split('filename=')[1]?.replace(/"/g, '')
+        : 'orders-export.csv';
+
+      // Create blob and download
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Export failed:', error);
+    } finally {
+      setExporting(false);
+    }
   };
 
-  const handleBulkAction = (action: string, selectedOrders: string[]) => {
-    // TODO: Implement bulk actions
-    console.log(`Bulk action: ${action}`, selectedOrders);
+  const handleBulkAction = async (action: string, selectedOrders: string[]) => {
+    if (selectedOrders.length === 0) return;
+
+    try {
+      const response = await fetch('/api/admin/orders/bulk-status', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          orderIds: selectedOrders,
+          newStatus: action,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Bulk action failed');
+      }
+
+      // Refresh orders after bulk update
+      refresh();
+    } catch (error) {
+      console.error('Bulk action failed:', error);
+    }
   };
 
   return (
@@ -119,9 +179,9 @@ export function OrdersDashboard({
             {t("dashboard.refresh")}
           </Button>
 
-          <Button variant="outline" onClick={handleExportOrders}>
-            <Download className="w-4 h-4 mr-2" />
-            {t("dashboard.export")}
+          <Button variant="outline" onClick={handleExportOrders} disabled={exporting}>
+            <Download className={`w-4 h-4 mr-2 ${exporting ? 'animate-pulse' : ''}`} />
+            {exporting ? t("dashboard.exporting") || "Exporting..." : t("dashboard.export")}
           </Button>
         </div>
       </div>

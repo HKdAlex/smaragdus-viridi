@@ -261,19 +261,44 @@ export class OrderManagementService {
     to: string;
   }): Promise<OrderAnalytics> {
     try {
-      // Build date filter
-      let dateFilter = "";
-      if (dateRange) {
-        dateFilter = `created_at.gte.${dateRange.from},created_at.lte.${dateRange.to}`;
+      // Build query parameters
+      const searchParams = new URLSearchParams();
+      if (dateRange?.from) {
+        searchParams.append('from', dateRange.from);
+      }
+      if (dateRange?.to) {
+        searchParams.append('to', dateRange.to);
       }
 
-      // Get total orders and revenue - TODO: Implement via API
-      // let totalsQuery = this.supabase
-      //   .from("orders")
-      //   .select("total_amount, currency_code, status, user_id")
-      //   .eq("status", "delivered"); // Only count completed orders
+      const response = await fetch(
+        `/api/admin/orders/analytics?${searchParams.toString()}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
-      // TODO: Implement analytics via API
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to fetch analytics');
+      }
+
+      this.logger.info('Order analytics fetched successfully', {
+        totalOrders: result.data.total_orders,
+        totalRevenue: result.data.total_revenue,
+      });
+
+      return result.data;
+    } catch (error) {
+      this.logger.error("Failed to fetch order analytics", error as Error);
+      // Return empty analytics instead of throwing
       return {
         total_orders: 0,
         total_revenue: 0,
@@ -294,9 +319,6 @@ export class OrderManagementService {
           average_orders_per_customer: 0,
         },
       };
-    } catch (error) {
-      this.logger.error("Failed to generate order analytics", error as Error);
-      throw error;
     }
   }
 

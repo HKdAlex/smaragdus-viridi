@@ -94,7 +94,9 @@ export type ActivityType =
   | "chat_message"
   | "favorite_added"
   | "favorite_removed"
-  | "cart_updated";
+  | "cart_updated"
+  | "login"
+  | "logout";
 
 // ===== API REQUEST/RESPONSE TYPES =====
 

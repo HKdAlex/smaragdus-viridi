@@ -5,6 +5,10 @@ import {
 import { NextRequest, NextResponse } from "next/server";
 
 import { createServerSupabaseClient } from "@/lib/supabase";
+import { ContactNotificationService } from "@/features/contact/services/contact-notification-service";
+import { createContextLogger } from "@/shared/utils/logger";
+
+const logger = createContextLogger('contact-api');
 
 export async function POST(request: NextRequest) {
   try {
@@ -41,7 +45,7 @@ export async function POST(request: NextRequest) {
     const supabase = await createServerSupabaseClient();
 
     // Insert contact message into database
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from("contact_messages")
       .insert({
         name: formData.name,
@@ -64,7 +68,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error("Database error inserting contact message:", error);
+      logger.error("Database error inserting contact message", error);
       return NextResponse.json(
         {
           success: false,
@@ -75,9 +79,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // TODO: Send notification to admins (email, Slack, etc.)
-    // TODO: Auto-response email to user
-    // TODO: Integration with CRM system
+    // Send notifications (admin notification + user auto-response)
+    // Errors are logged but don't fail the submission
+    const notificationService = new ContactNotificationService();
+    const notificationResult = await notificationService.sendNotifications({
+      id: data.id,
+      ...formData,
+      locale,
+    });
+
+    logger.info("Contact form processed", {
+      contactId: data.id,
+      adminNotificationSent: notificationResult.adminNotificationSent,
+      autoResponseSent: notificationResult.autoResponseSent,
+      urgency: formData.urgencyLevel,
+    });
+
+    // TODO: Integration with CRM system (future enhancement)
 
     const responseMessages = {
       en: {

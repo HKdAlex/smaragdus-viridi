@@ -16,13 +16,16 @@ import { supabase } from "@/lib/supabase";
 import { createContextLogger } from "@/shared/utils/logger";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { UserProfileError } from "../types/user-profile.types";
+import { UserActivityService, type ActivityType } from "./user-activity-service";
 
 export class UserProfileService {
   private supabase: SupabaseClient<any>;
   private logger = createContextLogger("user-profile-service");
+  private activityService: UserActivityService;
 
   constructor(supabaseClient?: SupabaseClient<any>) {
     this.supabase = supabaseClient || supabase;
+    this.activityService = new UserActivityService(supabaseClient);
   }
 
   /**
@@ -354,19 +357,54 @@ export class UserProfileService {
     userId: string,
     request: GetActivityHistoryRequest = {}
   ): Promise<GetActivityHistoryResponse> {
-    // TODO: Implement activity history when user_activities table is created
-    this.logger.info("Activity history requested but not yet implemented", {
-      userId,
-    });
+    try {
+      const { page = 1, limit = 20, type } = request;
 
-    return {
-      success: true,
-      activities: [],
-      total: 0,
-      page: 1,
-      limit: 20,
-      hasMore: false,
-    };
+      const result = await this.activityService.getActivities(userId, {
+        page,
+        limit,
+        type: type as ActivityType[] | undefined,
+      });
+
+      // Map to expected format
+      const activities = result.activities.map((activity) => ({
+        id: activity.id,
+        type: activity.type,
+        description: activity.description,
+        metadata: activity.metadata,
+        timestamp: activity.created_at,
+      }));
+
+      this.logger.info("Activity history loaded successfully", {
+        userId,
+        total: result.total,
+        page,
+        limit,
+        hasMore: result.hasMore,
+      });
+
+      return {
+        success: true,
+        activities,
+        total: result.total,
+        page,
+        limit,
+        hasMore: result.hasMore,
+      };
+    } catch (error) {
+      this.logger.error("Failed to get activity history", error as Error, {
+        userId,
+        request,
+      });
+      return {
+        success: true, // Return success with empty to not block UI
+        activities: [],
+        total: 0,
+        page: 1,
+        limit: 20,
+        hasMore: false,
+      };
+    }
   }
 
   /**
@@ -452,12 +490,32 @@ export class UserProfileService {
     description: string,
     metadata?: Record<string, any>
   ): Promise<void> {
-    // TODO: Implement activity logging when user_activities table is created
-    this.logger.debug("Activity logged (not persisted)", {
-      userId,
-      type,
-      description,
-    });
+    try {
+      // Map the type to valid ActivityType (profile_created is not in the enum, so map it)
+      let activityType: ActivityType;
+      if (type === 'profile_created' || type === 'profile_updated') {
+        activityType = 'profile_updated';
+      } else if (['order_placed', 'order_status_changed', 'password_changed', 'favorite_added', 'favorite_removed', 'cart_updated', 'login', 'logout'].includes(type)) {
+        activityType = type as ActivityType;
+      } else {
+        // Default to profile_updated for unknown types
+        activityType = 'profile_updated';
+      }
+
+      await this.activityService.logActivity(
+        userId,
+        activityType,
+        description,
+        metadata
+      );
+    } catch (error) {
+      // Don't throw - activity logging should not break main operations
+      this.logger.warn("Failed to log activity", {
+        userId,
+        type,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
   }
 }
 
