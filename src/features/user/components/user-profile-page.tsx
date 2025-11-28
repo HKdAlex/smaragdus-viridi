@@ -32,13 +32,23 @@ import { OrderHistory } from "./order-history";
 import { ProfileSettings } from "./profile-settings";
 import { Separator } from "@/shared/components/ui/separator";
 import { useTranslations } from "next-intl";
+import { useOrderHistory } from "../hooks/use-order-history";
+import { useActivityHistory } from "../hooks/use-activity-history";
+import { useRouter } from "next/navigation";
+import { Link } from "@/i18n/navigation";
+import { format } from "date-fns";
+import { useCurrency } from "@/features/currency/hooks/use-currency";
+import { useState } from "react";
+
+import type { UpdateProfileRequest, ChangePasswordRequest } from "../types/user-profile.types";
+import type { UserPreferences } from "../services/user-preferences-service";
 
 interface UserProfilePageProps {
   user: UserProfile;
   stats: ProfileStats;
-  onUpdateProfile: (updates: any) => Promise<void>;
-  onUpdatePreferences: (preferences: any) => Promise<void>;
-  onChangePassword: (request: any) => Promise<void>;
+  onUpdateProfile: (updates: UpdateProfileRequest) => Promise<void>;
+  onUpdatePreferences: (preferences: Partial<UserPreferences>) => Promise<void>;
+  onChangePassword: (request: ChangePasswordRequest) => Promise<void>;
 }
 
 export function UserProfilePage({
@@ -54,13 +64,33 @@ export function UserProfilePage({
   const tOverview = useTranslations("user.overview");
   const tOrders = useTranslations("user.orders");
   const tFavorites = useTranslations("user.favorites");
+  const router = useRouter();
+  const { formatPrice } = useCurrency();
+  const [activeTab, setActiveTab] = useState("overview");
+
+  // Wire hooks for order and activity history
+  const {
+    orders,
+    loading: ordersLoading,
+    error: ordersError,
+    hasMore: ordersHasMore,
+    loadMore: loadMoreOrders,
+  } = useOrderHistory(user.user_id);
+
+  const {
+    activities,
+    loading: activitiesLoading,
+    error: activitiesError,
+    hasMore: activitiesHasMore,
+    loadMore: loadMoreActivities,
+  } = useActivityHistory(user.user_id);
+
+  // Get recent orders for overview tab (last 3)
+  const recentOrders = orders.slice(0, 3);
 
   const formatCurrency = (amount: number, currency: string) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: currency,
-      minimumFractionDigits: 0,
-    }).format(amount / 100);
+    // Use currency context for proper formatting with user's preferred currency
+    return formatPrice(amount, currency as any);
   };
 
   const getRoleBadgeColor = (role: string) => {
@@ -180,7 +210,7 @@ export function UserProfilePage({
 
         {/* Main Content Tabs */}
         <div className="space-y-6">
-          <Tabs defaultValue="overview">
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="overview">{t("tabs.overview")}</TabsTrigger>
               <TabsTrigger value="orders">{t("tabs.orderHistory")}</TabsTrigger>
@@ -291,15 +321,66 @@ export function UserProfilePage({
                     <CardDescription>{tOrders("subtitle")}</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-center py-8">
-                      <Package className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                      <p className="text-muted-foreground">
-                        {tOrders("noOrdersDesc")}
-                      </p>
-                      <Button variant="outline" className="mt-4" asChild>
-                        <a href="#orders">{t("viewAllOrders")}</a>
-                      </Button>
-                    </div>
+                    {ordersLoading && recentOrders.length === 0 ? (
+                      <div className="space-y-3 animate-pulse">
+                        {[1, 2, 3].map((i) => (
+                          <div key={i} className="h-16 bg-muted rounded-lg" />
+                        ))}
+                      </div>
+                    ) : recentOrders.length === 0 ? (
+                      <div className="text-center py-8">
+                        <Package className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                        <p className="text-muted-foreground">
+                          {tOrders("noOrdersDesc")}
+                        </p>
+                        <Button variant="outline" className="mt-4" asChild>
+                          <Link href="/catalog">{tOrders("startShopping")}</Link>
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {recentOrders.map((order) => (
+                          <div
+                            key={order.id}
+                            className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
+                          >
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-sm truncate">
+                                {order.order_number?.replace(/^cq-/, "CQ-") ||
+                                  `Order ${order.id.slice(0, 8)}`}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {format(
+                                  new Date(order.created_at),
+                                  "MMM d, yyyy"
+                                )}
+                              </p>
+                            </div>
+                            <div className="text-right ml-4">
+                              <p className="font-semibold text-sm">
+                                {formatCurrency(
+                                  order.total_amount,
+                                  order.currency_code
+                                )}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {order.items?.length || 0}{" "}
+                                {order.items?.length === 1 ? "item" : "items"}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                        {orders.length > 3 && (
+                          <Button
+                            variant="outline"
+                            className="w-full mt-2"
+                            onClick={() => setActiveTab("orders")}
+                          >
+                            {t("viewAllOrders")}
+                          </Button>
+                        )}
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </div>
@@ -307,12 +388,48 @@ export function UserProfilePage({
 
             {/* Order History Tab */}
             <TabsContent value="orders">
-              <OrderHistory />
+              <OrderHistory
+                orders={orders}
+                loading={ordersLoading}
+                hasMore={ordersHasMore}
+                onLoadMore={loadMoreOrders}
+              />
+              {ordersError && (
+                <div className="mt-4 p-4 bg-destructive/10 text-destructive rounded-lg">
+                  <p className="text-sm">{ordersError}</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-2"
+                    onClick={() => router.refresh()}
+                  >
+                    Retry
+                  </Button>
+                </div>
+              )}
             </TabsContent>
 
             {/* Activity Tab */}
             <TabsContent value="activity">
-              <ActivityFeed />
+              <ActivityFeed
+                activities={activities}
+                loading={activitiesLoading}
+                hasMore={activitiesHasMore}
+                onLoadMore={loadMoreActivities}
+              />
+              {activitiesError && (
+                <div className="mt-4 p-4 bg-destructive/10 text-destructive rounded-lg">
+                  <p className="text-sm">{activitiesError}</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-2"
+                    onClick={() => router.refresh()}
+                  >
+                    Retry
+                  </Button>
+                </div>
+              )}
             </TabsContent>
 
             {/* Settings Tab */}
@@ -320,6 +437,7 @@ export function UserProfilePage({
               <ProfileSettings
                 user={user}
                 onUpdateProfile={onUpdateProfile}
+                onUpdatePreferences={onUpdatePreferences}
                 onChangePassword={onChangePassword}
               />
             </TabsContent>

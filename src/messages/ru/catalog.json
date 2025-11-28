@@ -171,18 +171,25 @@
     }
   },
   "gemstoneTypes": {
+    "diamond": "Бриллианты",
     "emerald": "Изумруды",
+    "ruby": "Рубины",
     "sapphire": "Сапфиры",
-    "garnet": "Гранаты",
-    "aquamarine": "Аквамарины",
-    "citrine": "Цитрины",
     "amethyst": "Аметисты",
+    "topaz": "Топазы",
+    "garnet": "Гранаты",
+    "peridot": "Перидоты",
+    "citrine": "Цитрины",
+    "tanzanite": "Танзаниты",
+    "aquamarine": "Аквамарины",
+    "morganite": "Морганиты",
+    "tourmaline": "Турмалины",
+    "zircon": "Цирконы",
     "apatite": "Апатиты",
     "quartz": "Кварц",
-    "peridot": "Перидоты",
-    "tanzanite": "Танзаниты",
-    "zircon": "Цирконы",
-    "tourmaline": "Турмалины",
-    "morganite": "Морганиты"
+    "paraiba": "Параибы",
+    "spinel": "Шпинели",
+    "alexandrite": "Александриты",
+    "agate": "Агаты"
   }
 }

@@ -171,18 +171,25 @@
     }
   },
   "gemstoneTypes": {
+    "diamond": "Diamonds",
     "emerald": "Emeralds",
+    "ruby": "Rubies",
     "sapphire": "Sapphires",
-    "garnet": "Garnets",
-    "aquamarine": "Aquamarines",
-    "citrine": "Citrines",
     "amethyst": "Amethysts",
+    "topaz": "Topazes",
+    "garnet": "Garnets",
+    "peridot": "Peridots",
+    "citrine": "Citrines",
+    "tanzanite": "Tanzanites",
+    "aquamarine": "Aquamarines",
+    "morganite": "Morganites",
+    "tourmaline": "Tourmalines",
+    "zircon": "Zircons",
     "apatite": "Apatites",
     "quartz": "Quartz",
-    "peridot": "Peridots",
-    "tanzanite": "Tanzanites",
-    "zircon": "Zircons",
-    "tourmaline": "Tourmalines",
-    "morganite": "Morganites"
+    "paraiba": "Paraibas",
+    "spinel": "Spinels",
+    "alexandrite": "Alexandrites",
+    "agate": "Agates"
   }
 }

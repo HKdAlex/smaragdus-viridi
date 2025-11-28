@@ -714,17 +714,130 @@
     "title": "User Management",
     "subtitle": "Manage user accounts, roles, and permissions",
     "addUser": "Add User",
+    "createUser": "Create User",
+    "editUser": "Edit User",
+    "deleteUser": "Delete User",
     "manageRoles": "Manage Roles",
+    "viewAuditLog": "View Audit Log",
+    "resetPassword": "Reset Password",
+    "sendInvitation": "Send Invitation",
+    "exportUsers": "Export Users",
+    "bulkActions": "Bulk Actions",
+    "selectedUsers": "{count} users selected",
+    "tabs": {
+      "allUsers": "All Users",
+      "invitations": "Invitations",
+      "auditLogs": "Audit Logs"
+    },
+    "filters": {
+      "search": "Search users...",
+      "role": "Role",
+      "status": "Status",
+      "dateRange": "Registration Date",
+      "hasOrders": "Has Orders",
+      "clearFilters": "Clear Filters",
+      "allRoles": "All Roles",
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "form": {
+      "name": "Full Name",
+      "email": "Email Address",
+      "phone": "Phone Number",
+      "role": "User Role",
+      "currency": "Preferred Currency",
+      "discount": "Discount Percentage",
+      "language": "Language Preference",
+      "sendInvite": "Send invitation email",
+      "password": "Password",
+      "passwordPlaceholder": "Leave empty to send invitation"
+    },
     "stats": {
       "totalUsers": "Total Users",
       "activeUsers": "Active Users",
       "vipUsers": "VIP Users",
-      "admins": "Admins"
+      "admins": "Admins",
+      "newThisMonth": "New This Month",
+      "conversionRate": "Conversion Rate"
     },
-    "system": {
-      "title": "User Management System",
-      "comingSoon": "User Management Coming Soon",
-      "description": "Advanced user management features will be available in the next update"
+    "actions": {
+      "edit": "Edit User",
+      "delete": "Delete User",
+      "viewLogs": "View Audit Logs",
+      "resetPassword": "Reset Password",
+      "suspend": "Suspend Account",
+      "activate": "Activate Account",
+      "changeRole": "Change Role"
+    },
+    "bulk": {
+      "changeRole": "Change Role",
+      "suspend": "Suspend Accounts",
+      "activate": "Activate Accounts",
+      "delete": "Delete Users",
+      "confirmDelete": "Are you sure you want to delete {count} users? This action cannot be undone.",
+      "confirmRoleChange": "Change role to {role} for {count} users?",
+      "success": "Bulk operation completed successfully",
+      "partialSuccess": "Completed: {success} successful, {failed} failed"
+    },
+    "invitations": {
+      "pending": "Pending Invitations",
+      "expired": "Expired",
+      "accepted": "Accepted",
+      "resend": "Resend",
+      "cancel": "Cancel",
+      "expiresOn": "Expires on {date}",
+      "sentBy": "Sent by {name}",
+      "createSuccess": "Invitation sent to {email}",
+      "resendSuccess": "Invitation resent",
+      "cancelSuccess": "Invitation cancelled",
+      "createInvitation": "Create Invitation",
+      "createInvitationDescription": "Send an email invitation to a new user. They will receive a link to create their account.",
+      "sendInvitation": "Send Invitation",
+      "noInvitations": "No Pending Invitations",
+      "noInvitationsDescription": "There are no pending invitations at the moment. Create a new invitation to invite someone to join."
+    },
+    "audit": {
+      "title": "Audit Log",
+      "action": "Action",
+      "performedBy": "Performed By",
+      "targetUser": "Target User",
+      "timestamp": "Timestamp",
+      "changes": "Changes",
+      "viewDetails": "View Details",
+      "actions": {
+        "create": "User Created",
+        "update": "Profile Updated",
+        "delete": "User Deleted",
+        "role_change": "Role Changed",
+        "suspend": "Account Suspended",
+        "activate": "Account Activated",
+        "password_reset": "Password Reset"
+      }
+    },
+    "confirmations": {
+      "deleteTitle": "Delete User",
+      "deleteMessage": "Are you sure you want to delete {name}? This will permanently remove their account and all associated data.",
+      "deleteLastAdmin": "Cannot delete the last admin user",
+      "deleteSelf": "You cannot delete your own account",
+      "roleChangeTitle": "Change User Role",
+      "roleChangeMessage": "Change {name}'s role from {currentRole} to {newRole}?",
+      "suspendTitle": "Suspend Account",
+      "suspendMessage": "Suspend {name}'s account? They will not be able to log in.",
+      "activateTitle": "Activate Account",
+      "activateMessage": "Activate {name}'s account?"
+    },
+    "messages": {
+      "createSuccess": "User created successfully",
+      "updateSuccess": "User updated successfully",
+      "deleteSuccess": "User deleted successfully",
+      "loadError": "Failed to load users",
+      "createError": "Failed to create user",
+      "updateError": "Failed to update user",
+      "deleteError": "Failed to delete user",
+      "exportSuccess": "Users exported successfully",
+      "exportError": "Failed to export users",
+      "passwordResetSuccess": "Password reset email sent to {email}",
+      "passwordResetError": "Failed to send password reset email"
     }
   },
   "settings": {

@@ -306,6 +306,7 @@ export class UserProfileService {
             updated_at: String(
               order?.updated_at ?? order?.created_at ?? new Date().toISOString()
             ),
+            order_number: order?.order_number ? String(order.order_number) : null,
             items,
             delivery_address: (order?.delivery_address as any) || undefined,
           };

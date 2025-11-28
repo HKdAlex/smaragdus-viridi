@@ -62,13 +62,9 @@ export function GemstoneActionsMenu({
   };
 
   const handleDelete = () => {
-    if (
-      window.confirm(
-        t("deleteConfirmation", { serialNumber: gemstone.serial_number })
-      )
-    ) {
-      onDelete?.(gemstone);
-    }
+    // Don't show confirmation here - let the parent handle it
+    // This prevents double confirmation dialogs
+    onDelete?.(gemstone);
     setIsOpen(false);
   };
 

@@ -31,6 +31,7 @@ interface GemstoneListOptimizedProps {
   onEdit?: (gemstone: GemstoneWithRelations) => void;
   onView?: (gemstone: GemstoneWithRelations) => void;
   onDelete?: (gemstone: GemstoneWithRelations) => void;
+  refreshKey?: number; // When this changes, the list will refresh
 }
 
 interface PaginatedGemstones {
@@ -57,6 +58,7 @@ export function GemstoneListOptimized({
   onEdit,
   onView,
   onDelete,
+  refreshKey = 0,
 }: GemstoneListOptimizedProps) {
   const t = useTranslations("admin.gemstoneList");
   const { formatPrice, convertPrice } = useCurrency();
@@ -214,6 +216,13 @@ export function GemstoneListOptimized({
   useEffect(() => {
     fetchGemstones(searchFilters, currentPage);
   }, [currentPage, pageSize, searchFilters, fetchGemstones]);
+
+  // Refresh when refreshKey changes (e.g., after delete)
+  useEffect(() => {
+    if (refreshKey > 0) {
+      fetchGemstones(searchFilters, currentPage);
+    }
+  }, [refreshKey, fetchGemstones, searchFilters, currentPage]);
 
   // Handle filter changes with debouncing
   const handleSearchFiltersChange = useCallback(

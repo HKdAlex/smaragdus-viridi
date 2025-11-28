@@ -36,6 +36,7 @@ export function AdminGemstoneManager({
   const [processedInitialGemstoneId, setProcessedInitialGemstoneId] = useState<
     string | null
   >(null);
+  const [listRefreshKey, setListRefreshKey] = useState(0);
 
   const handleCreateNew = () => {
     setSelectedGemstone(null);
@@ -71,16 +72,21 @@ export function AdminGemstoneManager({
   };
 
   const handleDelete = async (gemstone: GemstoneWithRelations) => {
+    // Show confirmation dialog
     if (
-      confirm(t("deleteConfirmation", { serialNumber: gemstone.serial_number }))
+      !confirm(t("deleteConfirmation", { serialNumber: gemstone.serial_number }))
     ) {
-      const result = await GemstoneAdminService.deleteGemstone(gemstone.id);
-      if (result.success) {
-        // The optimized list component will handle refreshing automatically
-        console.log(t("deleteSuccess"));
-      } else {
-        alert(t("deleteFailed", { error: result.error || "Unknown error" }));
-      }
+      return;
+    }
+
+    // Use API route for proper admin authentication
+    const result = await GemstoneAdminApiService.deleteGemstone(gemstone.id);
+    if (result.success) {
+      console.log(t("deleteSuccess"));
+      // Trigger list refresh by changing a refresh key
+      setListRefreshKey((prev) => prev + 1);
+    } else {
+      alert(t("deleteFailed", { error: result.error || "Unknown error" }));
     }
   };
 
@@ -251,6 +257,7 @@ export function AdminGemstoneManager({
         onEdit={handleEdit}
         onView={handleView}
         onDelete={handleDelete}
+        refreshKey={listRefreshKey}
       />
 
       {/* Bulk Import Modal */}

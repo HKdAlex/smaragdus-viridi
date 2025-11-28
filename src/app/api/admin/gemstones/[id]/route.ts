@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Database } from "@/shared/types/database";
 import { createClient } from "@supabase/supabase-js";
 import { mergeAdminGemstoneRecords } from "@/features/admin/utils/gemstone-record-merge";
+import { AdminAuthError, requireAdmin } from "@/app/api/admin/_utils/require-admin";
 
 // Server-side admin client
 const getAdminClient = () => {
@@ -561,6 +562,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    await requireAdmin();
     const { id } = await params;
 
     const { error } = await getAdminClient()
@@ -574,6 +576,10 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    if (error instanceof AdminAuthError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
+
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

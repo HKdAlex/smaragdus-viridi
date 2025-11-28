@@ -27,21 +27,32 @@ import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import { Separator } from "@/shared/components/ui/separator";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
+import { UserPreferencesService } from "../services/user-preferences-service";
+import type { UserPreferences } from "../services/user-preferences-service";
+import {
+  updateProfileSchema,
+  simplePasswordSchema,
+  formatZodErrors,
+} from "../validation/profile-schemas";
 
 interface ProfileSettingsProps {
   user: UserProfile;
   onUpdateProfile: (updates: UpdateProfileRequest) => Promise<void>;
+  onUpdatePreferences: (preferences: Partial<UserPreferences>) => Promise<void>;
   onChangePassword: (request: ChangePasswordRequest) => Promise<void>;
 }
 
 export function ProfileSettings({
   user,
   onUpdateProfile,
+  onUpdatePreferences,
   onChangePassword,
 }: ProfileSettingsProps) {
   const t = useTranslations("user.settings");
+  const router = useRouter();
 
   // Profile form state
   const [profileForm, setProfileForm] = useState({
@@ -52,11 +63,19 @@ export function ProfileSettings({
       user.language_preference === "en" || user.language_preference === "ru"
         ? user.language_preference
         : ("en" as "en" | "ru"),
-    // Preferences will be loaded from separate preferences table
-    email_notifications: true, // default value
-    order_updates: true, // default value
-    marketing_emails: false, // default value
   });
+
+  // Preferences state (separate from profile form)
+  const [preferences, setPreferences] = useState({
+    email_notifications: true,
+    order_updates: true,
+    marketing_emails: false,
+  });
+  const [loadingPreferences, setLoadingPreferences] = useState(true);
+  const [preferencesMessage, setPreferencesMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
 
   // Password form state
   const [passwordForm, setPasswordForm] = useState({
@@ -82,9 +101,77 @@ export function ProfileSettings({
     text: string;
   } | null>(null);
 
+  // Validation errors state
+  const [profileErrors, setProfileErrors] = useState<Record<string, string>>({});
+  const [passwordErrors, setPasswordErrors] = useState<Record<string, string>>({});
+
+  // Load preferences on mount
+  useEffect(() => {
+    const loadPreferences = async () => {
+      setLoadingPreferences(true);
+      try {
+        const preferencesService = new UserPreferencesService();
+        const loadedPreferences =
+          await preferencesService.getUserNotificationPreferences(user.user_id);
+        if (loadedPreferences) {
+          setPreferences({
+            email_notifications: loadedPreferences.email_notifications,
+            order_updates: loadedPreferences.order_updates,
+            marketing_emails: loadedPreferences.marketing_emails,
+          });
+        }
+      } catch (error) {
+        console.error("Failed to load preferences:", error);
+      } finally {
+        setLoadingPreferences(false);
+      }
+    };
+
+    loadPreferences();
+  }, [user.user_id]);
+
+  // Handle preferences update
+  const handlePreferencesUpdate = async (
+    key: keyof typeof preferences,
+    value: boolean
+  ) => {
+    const updatedPreferences = { ...preferences, [key]: value };
+    setPreferences(updatedPreferences);
+    setPreferencesMessage(null);
+
+    try {
+      await onUpdatePreferences(updatedPreferences);
+      setPreferencesMessage({
+        type: "success",
+        text: t("settingsSaved") || "Preferences saved successfully",
+      });
+      // Clear message after 3 seconds
+      setTimeout(() => setPreferencesMessage(null), 3000);
+    } catch (error) {
+      // Revert on error
+      setPreferences(preferences);
+      setPreferencesMessage({
+        type: "error",
+        text:
+          error instanceof Error
+            ? error.message
+            : t("profileUpdateFailed") || "Failed to save preferences",
+      });
+    }
+  };
+
   const handleProfileUpdate = async () => {
-    setUpdatingProfile(true);
+    setProfileErrors({});
     setProfileMessage(null);
+
+    // Validate with Zod schema
+    const validation = updateProfileSchema.safeParse(profileForm);
+    if (!validation.success) {
+      setProfileErrors(formatZodErrors(validation.error));
+      return;
+    }
+
+    setUpdatingProfile(true);
 
     try {
       await onUpdateProfile(profileForm);
@@ -92,6 +179,8 @@ export function ProfileSettings({
         type: "success",
         text: t("profileUpdatedSuccess"),
       });
+      // Refresh page data after successful update
+      router.refresh();
     } catch (error) {
       setProfileMessage({
         type: "error",
@@ -103,22 +192,17 @@ export function ProfileSettings({
   };
 
   const handlePasswordChange = async () => {
-    // Validate passwords
-    if (passwordForm.new_password !== passwordForm.confirm_password) {
-      setPasswordMessage({ type: "error", text: t("passwordsDoNotMatch") });
-      return;
-    }
+    setPasswordErrors({});
+    setPasswordMessage(null);
 
-    if (passwordForm.new_password.length < 8) {
-      setPasswordMessage({
-        type: "error",
-        text: t("passwordTooShort"),
-      });
+    // Validate with Zod schema
+    const validation = simplePasswordSchema.safeParse(passwordForm);
+    if (!validation.success) {
+      setPasswordErrors(formatZodErrors(validation.error));
       return;
     }
 
     setChangingPassword(true);
-    setPasswordMessage(null);
 
     try {
       await onChangePassword(passwordForm);
@@ -178,7 +262,11 @@ export function ProfileSettings({
                   setProfileForm((prev) => ({ ...prev, name: e.target.value }))
                 }
                 placeholder={t("enterFullName")}
+                className={profileErrors.name ? "border-red-500" : ""}
               />
+              {profileErrors.name && (
+                <p className="text-sm text-red-500">{profileErrors.name}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -190,7 +278,11 @@ export function ProfileSettings({
                   setProfileForm((prev) => ({ ...prev, phone: e.target.value }))
                 }
                 placeholder={t("enterPhone")}
+                className={profileErrors.phone ? "border-red-500" : ""}
               />
+              {profileErrors.phone && (
+                <p className="text-sm text-red-500">{profileErrors.phone}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -269,55 +361,77 @@ export function ProfileSettings({
               {t("notificationPreferences")}
             </h4>
 
-            <div className="space-y-3">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="email-notifications"
-                  checked={profileForm.email_notifications}
-                  onCheckedChange={(checked) =>
-                    setProfileForm((prev) => ({
-                      ...prev,
-                      email_notifications: checked as boolean,
-                    }))
-                  }
-                />
-                <Label htmlFor="email-notifications" className="text-sm">
-                  {t("emailNotifications")}
-                </Label>
+            {loadingPreferences ? (
+              <div className="space-y-3 animate-pulse">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-5 bg-muted rounded w-3/4" />
+                ))}
               </div>
+            ) : (
+              <>
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="email-notifications"
+                      checked={preferences.email_notifications}
+                      onCheckedChange={(checked) =>
+                        handlePreferencesUpdate(
+                          "email_notifications",
+                          checked as boolean
+                        )
+                      }
+                    />
+                    <Label htmlFor="email-notifications" className="text-sm">
+                      {t("emailNotifications")}
+                    </Label>
+                  </div>
 
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="order-updates"
-                  checked={profileForm.order_updates}
-                  onCheckedChange={(checked) =>
-                    setProfileForm((prev) => ({
-                      ...prev,
-                      order_updates: checked as boolean,
-                    }))
-                  }
-                />
-                <Label htmlFor="order-updates" className="text-sm">
-                  {t("orderUpdates")}
-                </Label>
-              </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="order-updates"
+                      checked={preferences.order_updates}
+                      onCheckedChange={(checked) =>
+                        handlePreferencesUpdate(
+                          "order_updates",
+                          checked as boolean
+                        )
+                      }
+                    />
+                    <Label htmlFor="order-updates" className="text-sm">
+                      {t("orderUpdates")}
+                    </Label>
+                  </div>
 
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="marketing-emails"
-                  checked={profileForm.marketing_emails}
-                  onCheckedChange={(checked) =>
-                    setProfileForm((prev) => ({
-                      ...prev,
-                      marketing_emails: checked as boolean,
-                    }))
-                  }
-                />
-                <Label htmlFor="marketing-emails" className="text-sm">
-                  {t("marketingEmails")}
-                </Label>
-              </div>
-            </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="marketing-emails"
+                      checked={preferences.marketing_emails}
+                      onCheckedChange={(checked) =>
+                        handlePreferencesUpdate(
+                          "marketing_emails",
+                          checked as boolean
+                        )
+                      }
+                    />
+                    <Label htmlFor="marketing-emails" className="text-sm">
+                      {t("marketingEmails")}
+                    </Label>
+                  </div>
+                </div>
+
+                {preferencesMessage && (
+                  <div
+                    className={`p-3 rounded-lg text-sm ${
+                      preferencesMessage.type === "success"
+                        ? "bg-green-50 text-green-800 border border-green-200"
+                        : "bg-red-50 text-red-800 border border-red-200"
+                    }`}
+                  >
+                    {preferencesMessage.text}
+                  </div>
+                )}
+              </>
+            )}
           </div>
 
           {profileMessage && (
@@ -373,6 +487,7 @@ export function ProfileSettings({
                   }
                   placeholder={t("enterCurrentPassword")}
                   autoComplete="current-password"
+                  className={passwordErrors.current_password ? "border-red-500" : ""}
                 />
                 <Button
                   type="button"
@@ -393,6 +508,9 @@ export function ProfileSettings({
                   )}
                 </Button>
               </div>
+              {passwordErrors.current_password && (
+                <p className="text-sm text-red-500">{passwordErrors.current_password}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -410,6 +528,7 @@ export function ProfileSettings({
                   }
                   placeholder={t("enterNewPassword")}
                   autoComplete="new-password"
+                  className={passwordErrors.new_password ? "border-red-500" : ""}
                 />
                 <Button
                   type="button"
@@ -430,6 +549,9 @@ export function ProfileSettings({
                   )}
                 </Button>
               </div>
+              {passwordErrors.new_password && (
+                <p className="text-sm text-red-500">{passwordErrors.new_password}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -447,6 +569,7 @@ export function ProfileSettings({
                   }
                   placeholder={t("confirmNewPassword")}
                   autoComplete="new-password"
+                  className={passwordErrors.confirm_password ? "border-red-500" : ""}
                 />
                 <Button
                   type="button"
@@ -467,6 +590,9 @@ export function ProfileSettings({
                   )}
                 </Button>
               </div>
+              {passwordErrors.confirm_password && (
+                <p className="text-sm text-red-500">{passwordErrors.confirm_password}</p>
+              )}
             </div>
           </div>
 

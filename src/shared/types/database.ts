@@ -1672,6 +1672,72 @@ export type Database = {
         }
         Relationships: []
       }
+      user_audit_logs: {
+        Row: {
+          action: string
+          admin_user_id: string
+          changes: Json | null
+          created_at: string | null
+          id: string
+          ip_address: string | null
+          target_user_id: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          action: string
+          admin_user_id: string
+          changes?: Json | null
+          created_at?: string | null
+          id?: string
+          ip_address?: string | null
+          target_user_id?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          action?: string
+          admin_user_id?: string
+          changes?: Json | null
+          created_at?: string | null
+          id?: string
+          ip_address?: string | null
+          target_user_id?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      user_invitations: {
+        Row: {
+          accepted_at: string | null
+          created_at: string | null
+          email: string
+          expires_at: string
+          id: string
+          invited_by: string
+          role: Database["public"]["Enums"]["user_role"] | null
+          token: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string | null
+          email: string
+          expires_at: string
+          id?: string
+          invited_by: string
+          role?: Database["public"]["Enums"]["user_role"] | null
+          token: string
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string | null
+          email?: string
+          expires_at?: string
+          id?: string
+          invited_by?: string
+          role?: Database["public"]["Enums"]["user_role"] | null
+          token?: string
+        }
+        Relationships: []
+      }
       user_preferences: {
         Row: {
           cart_updates: boolean | null
@@ -2217,7 +2283,10 @@ export type Database = {
           zero_result_count: number
         }[]
       }
+      get_user_statistics: { Args: never; Returns: Json }
+      is_admin: { Args: never; Returns: boolean }
       is_admin_user: { Args: never; Returns: boolean }
+      is_last_admin: { Args: { check_user_id: string }; Returns: boolean }
       search_gemstones_fulltext:
         | {
             Args: {

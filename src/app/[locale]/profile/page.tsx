@@ -1,9 +1,15 @@
 import { UserProfilePage } from "@/features/user/components/user-profile-page";
 import { UserProfileService } from "@/features/user/services/user-profile-service";
+import { UserPreferencesService } from "@/features/user/services/user-preferences-service";
 import { createServerSupabaseClient } from "@/lib/supabase";
 import { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
+import {
+  updateProfileSchema,
+  simplePasswordSchema,
+  updatePreferencesSchema,
+} from "@/features/user/validation/profile-schemas";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("user");
@@ -26,7 +32,7 @@ export default async function ProfilePage() {
   }
 
   // Create server-side UserProfileService instance
-  const serverUserProfileService = new UserProfileService(supabase as any);
+  const serverUserProfileService = new UserProfileService(supabase);
 
   // Get user profile
   let profile = await serverUserProfileService.getProfile(user.id);
@@ -75,19 +81,54 @@ export default async function ProfilePage() {
       stats={stats}
       onUpdateProfile={async (updates) => {
         "use server";
+        // Server-side validation
+        const validation = updateProfileSchema.safeParse(updates);
+        if (!validation.success) {
+          const firstError = validation.error.issues[0];
+          throw new Error(firstError?.message || "Invalid profile data");
+        }
+        
         const supabase = await createServerSupabaseClient();
-        const service = new UserProfileService(supabase as any);
-        await service.updateProfile(user.id, updates);
+        const service = new UserProfileService(supabase);
+        const result = await service.updateProfile(user.id, validation.data);
+        if (!result.success) {
+          throw new Error(result.error || "Failed to update profile");
+        }
       }}
       onUpdatePreferences={async (preferences) => {
         "use server";
-        // TODO: Implement preferences update
+        // Server-side validation
+        const validation = updatePreferencesSchema.safeParse(preferences);
+        if (!validation.success) {
+          const firstError = validation.error.issues[0];
+          throw new Error(firstError?.message || "Invalid preferences data");
+        }
+        
+        const supabase = await createServerSupabaseClient();
+        const preferencesService = new UserPreferencesService(supabase);
+        const result = await preferencesService.updatePreferences(
+          user.id,
+          validation.data
+        );
+        if (!result.success) {
+          throw new Error(result.error || "Failed to update preferences");
+        }
       }}
       onChangePassword={async (request) => {
         "use server";
+        // Server-side validation
+        const validation = simplePasswordSchema.safeParse(request);
+        if (!validation.success) {
+          const firstError = validation.error.issues[0];
+          throw new Error(firstError?.message || "Invalid password data");
+        }
+        
         const supabase = await createServerSupabaseClient();
-        const service = new UserProfileService(supabase as any);
-        await service.changePassword(user.id, request);
+        const service = new UserProfileService(supabase);
+        const result = await service.changePassword(user.id, validation.data);
+        if (!result.success) {
+          throw new Error(result.error || "Failed to change password");
+        }
       }}
     />
   );
