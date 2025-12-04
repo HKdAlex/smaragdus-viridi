@@ -204,6 +204,7 @@ export function MediaGallery({
       
       const video = videoRef.current;
       let retryCount = 0;
+      let isRetrying = false; // Prevent multiple simultaneous retries
       const maxRetries = 5; // Increased retries for files that may need time after upload
       const retryDelay = 2000; // 2 seconds - files may need time to be fully available
       
@@ -307,13 +308,82 @@ export function MediaGallery({
         }
       };
       
+      // Try loading video as blob URL (fallback for codec/CORS issues)
+      const tryBlobUrlFallback = async (): Promise<boolean> => {
+        try {
+          console.log("[MediaGallery] Attempting blob URL fallback...");
+          const response = await fetch(currentMedia.url, {
+            mode: "cors",
+            cache: "no-cache",
+          });
+          
+          if (!response.ok) {
+            console.error("[MediaGallery] Blob fetch failed:", response.status);
+            return false;
+          }
+          
+          const blob = await response.blob();
+          const blobUrl = URL.createObjectURL(blob);
+          
+          // Try loading with blob URL
+          video.src = blobUrl;
+          video.load();
+          
+          // Wait for video to load
+          await new Promise<void>((resolve, reject) => {
+            const timeout = setTimeout(() => {
+              reject(new Error("Timeout"));
+            }, 5000);
+            
+            const onLoadedData = () => {
+              clearTimeout(timeout);
+              video.removeEventListener("error", onError);
+              video.removeEventListener("loadeddata", onLoadedData);
+              resolve();
+            };
+            
+            const onError = () => {
+              clearTimeout(timeout);
+              video.removeEventListener("error", onError);
+              video.removeEventListener("loadeddata", onLoadedData);
+              URL.revokeObjectURL(blobUrl);
+              reject(new Error("Video error"));
+            };
+            
+            video.addEventListener("loadeddata", onLoadedData, { once: true });
+            video.addEventListener("error", onError, { once: true });
+          });
+          
+          console.log("[MediaGallery] Blob URL fallback successful!");
+          // Clean up blob URL after video starts playing
+          video.addEventListener("playing", () => {
+            URL.revokeObjectURL(blobUrl);
+          }, { once: true });
+          
+          return true;
+        } catch (error) {
+          console.warn("[MediaGallery] Blob URL fallback failed:", error);
+          return false;
+        }
+      };
+      
       // Retry mechanism for video loading
       const retryLoad = async () => {
-        if (retryCount >= maxRetries) {
-          console.error("[MediaGallery] Max retries reached, giving up");
+        if (isRetrying || retryCount >= maxRetries) {
+          if (retryCount >= maxRetries && !isRetrying) {
+            // Last resort: try blob URL fallback
+            console.log("[MediaGallery] All retries exhausted, trying blob URL fallback...");
+            const blobSuccess = await tryBlobUrlFallback();
+            if (!blobSuccess) {
+              console.error("[MediaGallery] All methods failed, showing error");
+              setVideoError(true);
+              setIsVideoPlaying(false);
+            }
+          }
           return;
         }
         
+        isRetrying = true;
         retryCount++;
         const delay = retryDelay * retryCount; // Exponential backoff
         console.log(`[MediaGallery] Retrying video load (attempt ${retryCount}/${maxRetries}) after ${delay}ms...`);
@@ -321,11 +391,18 @@ export function MediaGallery({
         setTimeout(async () => {
           // First verify the URL is still accessible
           try {
-            const response = await fetch(currentMedia.url, { method: "HEAD" });
+            const response = await fetch(currentMedia.url, { 
+              method: "HEAD",
+              cache: "no-cache",
+            });
             if (!response.ok) {
               console.error(`[MediaGallery] Retry ${retryCount}: URL still not accessible (${response.status})`);
+              isRetrying = false;
               if (retryCount >= maxRetries) {
-                setVideoError(true);
+                const blobSuccess = await tryBlobUrlFallback();
+                if (!blobSuccess) {
+                  setVideoError(true);
+                }
               }
               return;
             }
@@ -333,25 +410,23 @@ export function MediaGallery({
             console.warn(`[MediaGallery] Retry ${retryCount}: Could not verify URL:`, error);
           }
           
-          // Reset video source to trigger reload
+          // Reset video source to trigger reload (with cache-busting)
+          const url = new URL(currentMedia.url);
+          url.searchParams.set("_t", Date.now().toString()); // Cache-busting
           const currentSrc = video.src;
           video.src = '';
           video.load(); // Reset the video element
           
           setTimeout(() => {
-            video.src = currentSrc;
+            video.src = url.toString();
             video.load(); // Reload with the source
             
             // Try to play after reload
             setTimeout(() => {
+              isRetrying = false;
               if (video.readyState >= 2) {
                 video.play().catch((error) => {
                   console.warn(`[MediaGallery] Retry ${retryCount}: Play failed:`, error.name);
-                  if (retryCount < maxRetries && video.error?.code === 4) {
-                    retryLoad();
-                  } else if (retryCount >= maxRetries) {
-                    setVideoError(true);
-                  }
                 });
               }
             }, 500);
@@ -369,18 +444,27 @@ export function MediaGallery({
       const errorHandler = () => {
         const error = video.error;
         if (error && error.code === 4) {
-          console.warn("[MediaGallery] Video error code 4 detected, will retry:", {
+          console.warn("[MediaGallery] Video error code 4 detected:", {
             code: error.code,
             message: error.message,
             retryCount,
             maxRetries,
+            isRetrying,
+            url: currentMedia.url,
           });
-          if (retryCount < maxRetries) {
+          
+          // Only trigger retry if not already retrying
+          if (!isRetrying && retryCount < maxRetries) {
             retryLoad();
-          } else {
-            console.error("[MediaGallery] Max retries reached, showing error");
-            setVideoError(true);
-            setIsVideoPlaying(false);
+          } else if (!isRetrying && retryCount >= maxRetries) {
+            // Try blob URL fallback as last resort
+            tryBlobUrlFallback().then((success) => {
+              if (!success) {
+                console.error("[MediaGallery] All methods failed, showing error");
+                setVideoError(true);
+                setIsVideoPlaying(false);
+              }
+            });
           }
         } else if (error) {
           // Other error codes - don't retry, just show error
