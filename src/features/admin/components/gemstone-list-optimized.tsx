@@ -1,5 +1,6 @@
 "use client";
 
+import { queryKeys } from "@/lib/react-query/query-keys";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
@@ -10,47 +11,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
+import { useQueryClient } from "@tanstack/react-query";
 import { Edit, FileText, Gem, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { ExportService, type ExportOptions } from "../services/export-service";
 import {
   GemstoneAdminService,
   type GemstoneWithRelations,
 } from "../services/gemstone-admin-service";
 
+import { useCurrency } from "@/features/currency/hooks/use-currency";
 import { GemstoneImageThumbnail } from "@/features/gemstones/components/gemstone-image-thumbnail";
-import { adminCache } from "../services/admin-cache";
+import { useAdminGemstones } from "../hooks/use-admin-gemstones-query";
 import { BulkEditModal } from "./bulk-edit-modal";
 import { EnhancedSearch, type SearchFilters } from "./enhanced-search";
 import { GemstoneActionsMenu } from "./gemstone-actions-menu";
-import { useCurrency } from "@/features/currency/hooks/use-currency";
 
 interface GemstoneListOptimizedProps {
   onCreateNew?: () => void;
   onEdit?: (gemstone: GemstoneWithRelations) => void;
   onView?: (gemstone: GemstoneWithRelations) => void;
   onDelete?: (gemstone: GemstoneWithRelations) => void;
-  refreshKey?: number; // When this changes, the list will refresh
-}
-
-interface PaginatedGemstones {
-  gemstones: GemstoneWithRelations[];
-  pagination: {
-    page: number;
-    pageSize: number;
-    totalItems: number;
-    totalPages: number;
-    hasNextPage: boolean;
-    hasPrevPage: boolean;
-  };
-  stats: {
-    total: number;
-    inStock: number;
-    lowStock: number;
-    outOfStock: number;
-  };
-  error?: string;
 }
 
 export function GemstoneListOptimized({
@@ -58,12 +40,11 @@ export function GemstoneListOptimized({
   onEdit,
   onView,
   onDelete,
-  refreshKey = 0,
 }: GemstoneListOptimizedProps) {
   const t = useTranslations("admin.gemstoneList");
-  const { formatPrice, convertPrice } = useCurrency();
-  const [gemstones, setGemstones] = useState<GemstoneWithRelations[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { formatPrice } = useCurrency();
+  const queryClient = useQueryClient();
+
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(() => {
     // Load page size from localStorage, default to 50
@@ -72,15 +53,6 @@ export function GemstoneListOptimized({
       return saved ? parseInt(saved, 10) : 50;
     }
     return 50;
-  });
-  const [pagination, setPagination] = useState<
-    PaginatedGemstones["pagination"] | null
-  >(null);
-  const [stats, setStats] = useState<PaginatedGemstones["stats"]>({
-    total: 0,
-    inStock: 0,
-    lowStock: 0,
-    outOfStock: 0,
   });
   const [selectedGemstones, setSelectedGemstones] = useState<Set<string>>(
     new Set()
@@ -99,145 +71,36 @@ export function GemstoneListOptimized({
     withoutMedia: false,
     withoutPrice: false,
   });
-  const [availableOrigins, setAvailableOrigins] = useState<string[]>([]);
 
-  // Server-side filtering and pagination with caching
-  const fetchGemstones = useCallback(
-    async (filters: SearchFilters, page: number = 1) => {
-      try {
-        setLoading(true);
-
-        // Check cache first
-        const cachedResult = adminCache.getCachedSearchResults(filters, page);
-        if (cachedResult) {
-          setGemstones(cachedResult.gemstones);
-          setPagination(cachedResult.pagination);
-          setStats(cachedResult.stats);
-
-          // Extract unique origins for filter options
-          const origins = [
-            ...new Set(
-              cachedResult.gemstones
-                .filter((g: any) => g.origin?.name)
-                .map((g: any) => g.origin!.name)
-            ),
-          ].sort() as string[];
-          setAvailableOrigins(origins);
-
-          setLoading(false);
-          return;
-        }
-
-        // Build query parameters for server-side filtering
-        const queryParams = new URLSearchParams({
-          page: page.toString(),
-          pageSize: pageSize.toString(),
-          sortBy: filters.sortBy,
-          sortOrder: filters.sortOrder,
-        });
-
-        if (filters.query) queryParams.set("search", filters.query);
-        if (filters.types.length)
-          queryParams.set("types", filters.types.join(","));
-        if (filters.colors.length)
-          queryParams.set("colors", filters.colors.join(","));
-        if (filters.cuts.length)
-          queryParams.set("cuts", filters.cuts.join(","));
-        if (filters.clarities.length)
-          queryParams.set("clarities", filters.clarities.join(","));
-        if (filters.origins.length)
-          queryParams.set("origins", filters.origins.join(","));
-        if (filters.priceMin !== undefined)
-          queryParams.set("priceMin", filters.priceMin.toString());
-        if (filters.priceMax !== undefined)
-          queryParams.set("priceMax", filters.priceMax.toString());
-        if (filters.weightMin !== undefined)
-          queryParams.set("weightMin", filters.weightMin.toString());
-        if (filters.weightMax !== undefined)
-          queryParams.set("weightMax", filters.weightMax.toString());
-        if (filters.inStock !== undefined)
-          queryParams.set("inStock", filters.inStock.toString());
-        if (filters.withoutMedia)
-          queryParams.set("withoutMedia", "true");
-        if (filters.withoutPrice)
-          queryParams.set("withoutPrice", "true");
-
-        console.log("🔍 [GemstoneListOptimized] Fetching with filters:", {
-          filters,
-          page,
-          queryParams: queryParams.toString(),
-          timestamp: new Date().toISOString(),
-        });
-
-        // Call server-side API endpoint (we'll create this next)
-        const response = await fetch(`/api/admin/gemstones?${queryParams}`);
-        const result: PaginatedGemstones = await response.json();
-
-        if (!response.ok) {
-          throw new Error(result.error || "Failed to fetch gemstones");
-        }
-
-        console.log("✅ [GemstoneListOptimized] Fetched gemstones:", {
-          count: result.gemstones.length,
-          totalItems: result.pagination.totalItems,
-          page: result.pagination.page,
-          totalPages: result.pagination.totalPages,
-        });
-
-        setGemstones(result.gemstones);
-        setPagination(result.pagination);
-        setStats(result.stats);
-
-        // Cache the results
-        adminCache.setCachedSearchResults(filters, page, result);
-
-        // Extract unique origins for filter options
-        const origins = [
-          ...new Set(
-            result.gemstones
-              .filter((g) => g.origin?.name)
-              .map((g) => g.origin!.name)
-          ),
-        ].sort();
-        setAvailableOrigins(origins);
-      } catch (error) {
-        console.error(
-          "❌ [GemstoneListOptimized] Error fetching gemstones:",
-          error
-        );
-      } finally {
-        setLoading(false);
-      }
-    },
-    [pageSize]
+  // React Query hook for fetching gemstones
+  const { data, isLoading, isFetching, isError, error } = useAdminGemstones(
+    searchFilters,
+    currentPage,
+    pageSize
   );
 
-  // Initial load and page changes
-  useEffect(() => {
-    fetchGemstones(searchFilters, currentPage);
-  }, [currentPage, pageSize, searchFilters, fetchGemstones]);
+  // Extract data from query result - memoize to prevent unnecessary re-renders
+  const gemstones = useMemo(() => data?.gemstones ?? [], [data?.gemstones]);
+  const pagination = data?.pagination ?? null;
+  const stats = data?.stats ?? {
+    total: 0,
+    inStock: 0,
+    lowStock: 0,
+    outOfStock: 0,
+  };
 
-  // Refresh when refreshKey changes (e.g., after delete)
-  useEffect(() => {
-    if (refreshKey > 0) {
-      fetchGemstones(searchFilters, currentPage);
-    }
-  }, [refreshKey, fetchGemstones, searchFilters, currentPage]);
+  // Extract unique origins for filter options
+  const availableOrigins = [
+    ...new Set(
+      gemstones.filter((g) => g.origin?.name).map((g) => g.origin!.name)
+    ),
+  ].sort();
 
-  // Handle filter changes with debouncing
-  const handleSearchFiltersChange = useCallback(
-    (filters: SearchFilters) => {
-      console.log("🎯 [GemstoneListOptimized] Filter change received:", {
-        filters,
-        timestamp: new Date().toISOString(),
-      });
-
-      setSearchFilters(filters);
-      setCurrentPage(1); // Reset to first page when filters change
-      fetchGemstones(filters, 1);
-    },
-    [fetchGemstones]
-  );
+  // Handle filter changes
+  const handleSearchFiltersChange = useCallback((filters: SearchFilters) => {
+    setSearchFilters(filters);
+    setCurrentPage(1); // Reset to first page when filters change
+  }, []);
 
   // Handle page changes
   const handlePageChange = useCallback((page: number) => {
@@ -288,10 +151,12 @@ export function GemstoneListOptimized({
     (updatedCount: number) => {
       setBulkEditOpen(false);
       setSelectedGemstones(new Set()); // Clear selection after successful edit
-      // Refresh the current page
-      fetchGemstones(searchFilters, currentPage);
+      // Invalidate cache to refresh data
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.admin.gemstones.lists(),
+      });
     },
-    [fetchGemstones, searchFilters, currentPage]
+    [queryClient]
   );
 
   const handleBulkEditClose = useCallback(() => {
@@ -337,8 +202,10 @@ export function GemstoneListOptimized({
 
         if (result.success) {
           console.log(t("messages.duplicateSuccess"));
-          // Refresh the current page
-          fetchGemstones(searchFilters, currentPage);
+          // Invalidate cache to refresh data
+          queryClient.invalidateQueries({
+            queryKey: queryKeys.admin.gemstones.lists(),
+          });
         } else {
           alert(
             t("errors.duplicateFailed", {
@@ -351,7 +218,7 @@ export function GemstoneListOptimized({
         alert(t("errors.duplicateFailed"));
       }
     },
-    [t, fetchGemstones, searchFilters, currentPage]
+    [t, queryClient]
   );
 
   const handleArchive = useCallback(
@@ -363,8 +230,10 @@ export function GemstoneListOptimized({
 
         if (result.success) {
           console.log(t("messages.archiveSuccess"));
-          // Refresh the current page
-          fetchGemstones(searchFilters, currentPage);
+          // Invalidate cache to refresh data
+          queryClient.invalidateQueries({
+            queryKey: queryKeys.admin.gemstones.lists(),
+          });
         } else {
           alert(
             t("errors.archiveFailed", {
@@ -377,7 +246,7 @@ export function GemstoneListOptimized({
         alert(t("errors.archiveFailed"));
       }
     },
-    [t, fetchGemstones, searchFilters, currentPage]
+    [t, queryClient]
   );
 
   const handleRestore = useCallback(
@@ -389,8 +258,10 @@ export function GemstoneListOptimized({
 
         if (result.success) {
           console.log(t("messages.restoreSuccess"));
-          // Refresh the current page
-          fetchGemstones(searchFilters, currentPage);
+          // Invalidate cache to refresh data
+          queryClient.invalidateQueries({
+            queryKey: queryKeys.admin.gemstones.lists(),
+          });
         } else {
           alert(
             t("errors.restoreFailed", {
@@ -403,15 +274,36 @@ export function GemstoneListOptimized({
         alert(t("errors.restoreFailed"));
       }
     },
-    [t, fetchGemstones, searchFilters, currentPage]
+    [t, queryClient]
   );
 
-  // Export operations
+  // Export operations - defined below handleExport
   const handleExportSingle = useCallback(
     async (gemstone: GemstoneWithRelations) => {
-      await handleExport("csv", false, [gemstone.id]);
+      setExporting(true);
+      try {
+        const options: ExportOptions = {
+          format: "csv",
+          selectedGemstones: [gemstone.id],
+          includeImages: false,
+          includeMetadata: true,
+        };
+        const result = await ExportService.exportToCSV([gemstone], options);
+        if (result.success) {
+          ExportService.downloadFile(result);
+        } else {
+          alert(
+            t("errors.exportFailed", { error: result.error || "Unknown error" })
+          );
+        }
+      } catch (error) {
+        console.error(t("errors.exportError"), error);
+        alert(t("errors.exportFailed"));
+      } finally {
+        setExporting(false);
+      }
     },
-    []
+    [t]
   );
 
   const handleExport = useCallback(
@@ -472,7 +364,6 @@ export function GemstoneListOptimized({
     [gemstones, selectedGemstones, t]
   );
 
-
   const formatWeight = useCallback(
     (weight: number) => {
       return `${weight.toFixed(2)}${t("carats")}`;
@@ -509,13 +400,43 @@ export function GemstoneListOptimized({
     [t]
   );
 
-  if (loading) {
+  // Show loading state only on initial load (when we have no data yet)
+  const showInitialLoading = isLoading && gemstones.length === 0;
+
+  if (showInitialLoading) {
     return (
       <Card className="border-0 shadow-lg bg-gradient-to-br from-card to-muted/20">
         <CardContent className="p-8">
           <div className="flex items-center justify-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mr-4"></div>
             <p className="text-muted-foreground">{t("loading")}</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Show error state
+  if (isError) {
+    return (
+      <Card className="border-0 shadow-lg bg-gradient-to-br from-card to-muted/20">
+        <CardContent className="p-8">
+          <div className="text-center text-destructive">
+            <p>{t("errors.loadFailed")}</p>
+            <p className="text-sm text-muted-foreground mt-2">
+              {(error as Error)?.message || "Unknown error"}
+            </p>
+            <Button
+              variant="outline"
+              className="mt-4"
+              onClick={() =>
+                queryClient.invalidateQueries({
+                  queryKey: queryKeys.admin.gemstones.lists(),
+                })
+              }
+            >
+              {t("retry")}
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -574,7 +495,10 @@ export function GemstoneListOptimized({
 
       {/* Results Summary */}
       <div className="flex items-center justify-between text-sm text-muted-foreground">
-        <span>
+        <span className="flex items-center gap-2">
+          {isFetching && (
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+          )}
           {pagination
             ? searchFilters.query && searchFilters.query.trim()
               ? t("resultsSummary", {
@@ -694,12 +618,22 @@ export function GemstoneListOptimized({
                               {gemstone.serial_number}
                               {gemstone.internal_code &&
                                 ` • ${gemstone.internal_code}`}
-                              {gemstone.images &&
-                                gemstone.images.length > 0 && (
-                                  <span className="ml-2 text-xs text-green-600">
-                                    📷 {gemstone.images.length}
-                                  </span>
-                                )}
+                              {/* Show media counts from gemstones_enriched view */}
+                              {((gemstone.image_count ?? 0) > 0 ||
+                                (gemstone.video_count ?? 0) > 0) && (
+                                <span className="ml-2 text-xs">
+                                  {(gemstone.image_count ?? 0) > 0 && (
+                                    <span className="text-green-600 mr-1">
+                                      📷 {gemstone.image_count}
+                                    </span>
+                                  )}
+                                  {(gemstone.video_count ?? 0) > 0 && (
+                                    <span className="text-blue-600">
+                                      🎬 {gemstone.video_count}
+                                    </span>
+                                  )}
+                                </span>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -726,12 +660,19 @@ export function GemstoneListOptimized({
                       <td className="px-6 py-4">
                         <div className="text-sm">
                           <div className="font-medium text-foreground">
-                            {formatPrice(gemstone.price_amount, gemstone.price_currency)}
+                            {formatPrice(
+                              gemstone.price_amount,
+                              gemstone.price_currency
+                            )}
                           </div>
                           {gemstone.premium_price_amount && (
                             <div className="text-muted-foreground">
                               {t("premium")}:{" "}
-                              {formatPrice(gemstone.premium_price_amount, gemstone.premium_price_currency || gemstone.price_currency)}
+                              {formatPrice(
+                                gemstone.premium_price_amount,
+                                gemstone.premium_price_currency ||
+                                  gemstone.price_currency
+                              )}
                             </div>
                           )}
                         </div>
@@ -809,7 +750,7 @@ export function GemstoneListOptimized({
               <Button
                 variant="outline"
                 onClick={() => handlePageChange(currentPage - 1)}
-                disabled={!pagination.hasPrevPage || loading}
+                disabled={!pagination.hasPrevPage || isFetching}
               >
                 Previous
               </Button>
@@ -821,7 +762,7 @@ export function GemstoneListOptimized({
               <Button
                 variant="outline"
                 onClick={() => handlePageChange(currentPage + 1)}
-                disabled={!pagination.hasNextPage || loading}
+                disabled={!pagination.hasNextPage || isFetching}
               >
                 Next
               </Button>

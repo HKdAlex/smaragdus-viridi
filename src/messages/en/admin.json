@@ -357,7 +357,7 @@
   "gemstoneDetail": {
     "title": "Gemstone Details",
     "additionalInfo": "Additional Information",
-    "backToList": "← Back to List",
+    "backToList": "Back to List",
     "createdAt": "Created At",
     "editGemstone": "Edit Gemstone",
     "gemstoneDetails": "Gemstone Details",
@@ -1025,12 +1025,13 @@
     "bulkImport": "Bulk Import",
     "addGemstone": "Add Gemstone",
     "createNew": "Create New Gemstone",
-    "backToList": "← Back to List",
+    "backToList": "Back to List",
     "editGemstone": "Edit Gemstone: {serialNumber}",
     "deleteConfirmation": "Are you sure you want to delete \"{serialNumber}\"? This action cannot be undone.",
     "deleteFailed": "Failed to delete gemstone: {error}",
     "viewGemstone": "View gemstone: {gemstone}",
     "loadGemstoneStatsFailed": "Failed to load gemstone stats",
+    "loading": "Loading...",
     "stats": {
       "totalGemstones": "Total Gemstones",
       "inStock": "In Stock",

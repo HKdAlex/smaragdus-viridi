@@ -34,7 +34,7 @@ import {
   X,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import {
   MediaUploadService,
@@ -81,15 +81,9 @@ export function EnhancedMediaUpload({
     alt_text: string;
     has_watermark: boolean;
   } | null>(null);
+  const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Load existing media when gemstoneId changes
-  useEffect(() => {
-    if (gemstoneId) {
-      loadExistingMedia();
-    }
-  }, [gemstoneId]);
-
-  const loadExistingMedia = async () => {
+  const loadExistingMedia = useCallback(async () => {
     if (!gemstoneId) return;
 
     setLoading(true);
@@ -105,14 +99,30 @@ export function EnhancedMediaUpload({
     } finally {
       setLoading(false);
     }
-  };
+  }, [gemstoneId]);
+
+  // Load existing media when gemstoneId changes
+  useEffect(() => {
+    if (gemstoneId) {
+      loadExistingMedia();
+    }
+  }, [gemstoneId, loadExistingMedia]);
+
+  // Cleanup progress interval on unmount
+  useEffect(() => {
+    return () => {
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+      }
+    };
+  }, []);
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
       if (!gemstoneId || !serialNumber) {
-        onUploadError?.(
-          "Gemstone ID and serial number are required for upload"
-        );
+        const errorMsg = "Gemstone ID and serial number are required for upload";
+        console.error("[EnhancedMediaUpload]", errorMsg);
+        onUploadError?.(errorMsg);
         return;
       }
 
@@ -128,11 +138,19 @@ export function EnhancedMediaUpload({
           file.type.startsWith("video/")
         );
 
+        console.log("[EnhancedMediaUpload] Starting upload:", {
+          imageCount: imageFiles.length,
+          videoCount: videoFiles.length,
+          gemstoneId,
+        });
+
         let allResults: MediaUploadResult[] = [];
 
         // Upload images
         if (imageFiles.length > 0) {
-          setUploadProgress(25);
+          setUploadProgress(10);
+          console.log("[EnhancedMediaUpload] Uploading images...");
+          
           const imageResult = await MediaUploadService.uploadGemstoneImages(
             gemstoneId,
             imageFiles,
@@ -141,42 +159,98 @@ export function EnhancedMediaUpload({
 
           if (imageResult.success && imageResult.data) {
             allResults = [...allResults, ...imageResult.data];
+            setUploadProgress(30);
+            console.log("[EnhancedMediaUpload] Images uploaded successfully:", imageResult.data.length);
           } else {
-            throw new Error(imageResult.error || "Failed to upload images");
+            const errorMsg = imageResult.error || "Failed to upload images";
+            console.error("[EnhancedMediaUpload] Image upload failed:", errorMsg);
+            throw new Error(errorMsg);
           }
         }
 
         // Upload videos
         if (videoFiles.length > 0) {
-          setUploadProgress(75);
-          const videoResult = await MediaUploadService.uploadGemstoneVideos(
-            gemstoneId,
-            videoFiles,
-            serialNumber
-          );
+          setUploadProgress(40);
+          console.log("[EnhancedMediaUpload] Uploading videos...", {
+            count: videoFiles.length,
+            files: videoFiles.map(f => ({ name: f.name, size: f.size, type: f.type })),
+          });
+          
+          // Show progress animation for video uploads (since they can take a while)
+          progressIntervalRef.current = setInterval(() => {
+            setUploadProgress((prev) => {
+              // Gradually increase from 40% to 90% while uploading
+              if (prev < 90) {
+                return Math.min(prev + 2, 90);
+              }
+              return prev;
+            });
+          }, 500);
+          
+          try {
+            const videoResult = await MediaUploadService.uploadGemstoneVideos(
+              gemstoneId,
+              videoFiles,
+              serialNumber
+            );
 
-          if (videoResult.success && videoResult.data) {
-            allResults = [...allResults, ...videoResult.data];
-          } else {
-            throw new Error(videoResult.error || "Failed to upload videos");
+            if (progressIntervalRef.current) {
+              clearInterval(progressIntervalRef.current);
+              progressIntervalRef.current = null;
+            }
+
+            if (videoResult.success && videoResult.data) {
+              allResults = [...allResults, ...videoResult.data];
+              setUploadProgress(95);
+              console.log("[EnhancedMediaUpload] Videos uploaded successfully:", videoResult.data.length);
+            } else {
+              const errorMsg = videoResult.error || "Failed to upload videos";
+              console.error("[EnhancedMediaUpload] Video upload failed:", errorMsg, {
+                result: videoResult,
+              });
+              throw new Error(errorMsg);
+            }
+          } catch (error) {
+            if (progressIntervalRef.current) {
+              clearInterval(progressIntervalRef.current);
+              progressIntervalRef.current = null;
+            }
+            throw error;
           }
         }
 
-        setUploadProgress(100);
-        setUploadedMedia((prev) => [...prev, ...allResults]);
+        setUploadProgress(95);
         onUploadComplete?.(allResults);
 
         // Reload existing media to show new uploads
         await loadExistingMedia();
+        
+        // Clear uploadedMedia since items are now in existingMedia
+        setUploadedMedia([]);
+        
+        setUploadProgress(100);
+        console.log("[EnhancedMediaUpload] Upload completed successfully");
       } catch (error) {
-        console.error("Upload error:", error);
-        onUploadError?.((error as Error).message);
+        const errorMessage = error instanceof Error ? error.message : "Unknown upload error";
+        console.error("[EnhancedMediaUpload] Upload error:", {
+          error: errorMessage,
+          originalError: error,
+          gemstoneId,
+          serialNumber,
+        });
+        onUploadError?.(errorMessage);
       } finally {
+        // Clear progress interval if still running
+        if (progressIntervalRef.current) {
+          clearInterval(progressIntervalRef.current);
+          progressIntervalRef.current = null;
+        }
         setIsUploading(false);
         setUploadProgress(0);
+        console.log("[EnhancedMediaUpload] Upload finished, resetting state");
       }
     },
-    [gemstoneId, serialNumber, onUploadComplete, onUploadError]
+    [gemstoneId, serialNumber, onUploadComplete, onUploadError, loadExistingMedia]
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -195,16 +269,30 @@ export function EnhancedMediaUpload({
   ) => {
     try {
       if (!gemstoneId) {
-        onUploadError?.("Gemstone ID is required to delete media");
+        const errorMsg = "Gemstone ID is required to delete media";
+        console.error("[EnhancedMediaUpload] Delete failed:", errorMsg);
+        onUploadError?.(errorMsg);
         return;
       }
+
+      console.log("[EnhancedMediaUpload] Starting delete:", {
+        gemstoneId,
+        mediaId,
+        type,
+      });
 
       const result = await MediaUploadService.deleteMedia(
         gemstoneId,
         mediaId,
         type
       );
+
       if (result.success) {
+        console.log("[EnhancedMediaUpload] Delete successful, updating UI:", {
+          mediaId,
+          type,
+        });
+
         // Remove from existing media
         if (type === "image") {
           setExistingMedia((prev) => ({
@@ -222,11 +310,35 @@ export function EnhancedMediaUpload({
         setUploadedMedia((prev) =>
           prev.filter((media) => media.id !== mediaId)
         );
+
+        // Show warning if storage deletion failed
+        if (result.warning) {
+          console.warn("[EnhancedMediaUpload] Delete completed with warning:", {
+            warning: result.warning,
+            mediaId,
+            type,
+          });
+          // Optionally show warning to user, but don't treat as error
+          // since DB record was deleted successfully
+        }
       } else {
-        onUploadError?.(result.error || "Failed to delete media");
+        const errorMsg = result.error || "Failed to delete media";
+        console.error("[EnhancedMediaUpload] Delete failed:", {
+          error: errorMsg,
+          mediaId,
+          type,
+        });
+        onUploadError?.(errorMsg);
       }
     } catch (error) {
-      onUploadError?.((error as Error).message);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      console.error("[EnhancedMediaUpload] Delete error:", {
+        error: errorMessage,
+        originalError: error,
+        mediaId,
+        type,
+      });
+      onUploadError?.(errorMessage);
     }
   };
 

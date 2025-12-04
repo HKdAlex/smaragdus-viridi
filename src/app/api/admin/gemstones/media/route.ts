@@ -92,11 +92,23 @@ export async function POST(request: Request) {
     const serialNumber = formData.get("serialNumber");
     const file = formData.get("file");
 
+    console.log("[admin/gemstones/media] Upload request received:", {
+      gemstoneId: typeof gemstoneId === "string" ? gemstoneId : "invalid",
+      mediaType,
+      fileName: file instanceof File ? file.name : "invalid",
+      fileSize: file instanceof File ? file.size : "invalid",
+      fileType: file instanceof File ? file.type : "invalid",
+    });
+
     if (
       typeof gemstoneId !== "string" ||
       gemstoneId.length === 0 ||
       (mediaType !== "image" && mediaType !== "video")
     ) {
+      console.error("[admin/gemstones/media] Invalid request:", {
+        gemstoneId,
+        mediaType,
+      });
       return NextResponse.json(
         { error: "Invalid gemstoneId or mediaType" },
         { status: 400 }
@@ -104,17 +116,35 @@ export async function POST(request: Request) {
     }
 
     if (!(file instanceof File)) {
+      console.error("[admin/gemstones/media] File is not a File instance");
       return NextResponse.json(
         { error: "File upload is required" },
         { status: 400 }
       );
     }
 
-    validateFile(mediaType, file);
+    try {
+      validateFile(mediaType, file);
+    } catch (error) {
+      console.error("[admin/gemstones/media] File validation failed:", {
+        error: error instanceof Error ? error.message : String(error),
+        mediaType,
+        fileName: file.name,
+        fileType: file.type,
+        fileSize: file.size,
+      });
+      throw error;
+    }
 
     const originalName = file.name || `${mediaType}-${Date.now()}`;
     const storagePath = buildStoragePath(gemstoneId, mediaType, originalName);
     const adminClient = ensureAdminClient();
+
+    console.log("[admin/gemstones/media] Starting file upload:", {
+      storagePath,
+      fileSize: file.size,
+      mediaType,
+    });
 
     const arrayBuffer = await file.arrayBuffer();
     const { error: uploadError } = await adminClient.storage
@@ -126,11 +156,22 @@ export async function POST(request: Request) {
       });
 
     if (uploadError) {
+      console.error("[admin/gemstones/media] Storage upload failed:", {
+        error: uploadError.message,
+        storagePath,
+        fileSize: file.size,
+        mediaType,
+      });
       return NextResponse.json(
         { error: `Failed to upload file: ${uploadError.message}` },
         { status: 400 }
       );
     }
+
+    console.log("[admin/gemstones/media] File uploaded successfully:", {
+      storagePath,
+      mediaType,
+    });
 
     const { data: publicUrlData } = adminClient.storage
       .from(GEMSTONE_MEDIA_BUCKET)
@@ -192,6 +233,12 @@ export async function POST(request: Request) {
       "video_order"
     );
 
+    console.log("[admin/gemstones/media] Inserting video record:", {
+      gemstoneId,
+      videoOrder: nextOrder,
+      storagePath,
+    });
+
     const { data, error } = await adminClient
       .from("gemstone_videos")
       .insert({
@@ -207,6 +254,15 @@ export async function POST(request: Request) {
       .single();
 
     if (error) {
+      console.error("[admin/gemstones/media] Failed to save video record:", {
+        error: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
+        gemstoneId,
+        storagePath,
+      });
+      // Clean up uploaded file
       await adminClient.storage
         .from(GEMSTONE_MEDIA_BUCKET)
         .remove([storagePath]);
@@ -215,6 +271,11 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+
+    console.log("[admin/gemstones/media] Video record saved successfully:", {
+      id: data.id,
+      gemstoneId,
+    });
 
     return NextResponse.json({
       success: true,

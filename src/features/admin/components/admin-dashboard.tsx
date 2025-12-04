@@ -20,6 +20,7 @@ import {
   Upload,
   Users,
   X,
+  HardDrive,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
@@ -30,6 +31,7 @@ import { AdminPriceInventoryManager } from "./admin-price-inventory-manager";
 import { AdminSettings } from "./admin-settings";
 import { AdminUserManager } from "./admin-user-manager";
 import { AIModerationDashboard } from "./ai-moderation-dashboard";
+import { MediaStatsDashboard } from "./media-stats-dashboard";
 // Import admin components (will be created in subsequent phases)
 import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/shared/components/ui/button";
@@ -49,6 +51,7 @@ type AdminTab =
   | "pricing"
   | "users"
   | "analytics"
+  | "media-stats"
   | "ai-moderation"
   | "chat"
   | "settings";
@@ -91,6 +94,12 @@ const getAdminTabs = (t: any) => [
     description: t("tabs.analytics"),
   },
   {
+    id: "media-stats" as AdminTab,
+    name: "Media Stats",
+    icon: HardDrive,
+    description: "Media files and orphaned records statistics",
+  },
+  {
     id: "ai-moderation" as AdminTab,
     name: t("navigation.aiModeration"),
     icon: Shield,
@@ -112,11 +121,6 @@ const getAdminTabs = (t: any) => [
 
 export function AdminDashboard() {
   const { user, profile, signOut, isLoading } = useAdmin();
-  const [activeTab, setActiveTab] = useState<AdminTab>("dashboard");
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [pendingGemstoneId, setPendingGemstoneId] = useState<string | null>(
-    null
-  );
   const t = useTranslations("admin");
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -140,23 +144,92 @@ export function AdminDashboard() {
 
   const tabParam = searchParams.get("tab");
   const editParam = searchParams.get("edit");
+  const viewParam = searchParams.get("view");
 
+  // Initialize activeTab from URL param, localStorage, or default
+  const getInitialTab = (): AdminTab => {
+    // First check URL param
+    if (tabParam && validTabIds.has(tabParam as AdminTab)) {
+      return tabParam as AdminTab;
+    }
+    // Then check localStorage
+    if (typeof window !== "undefined") {
+      const savedTab = localStorage.getItem("admin-dashboard-active-tab");
+      if (savedTab && validTabIds.has(savedTab as AdminTab)) {
+        return savedTab as AdminTab;
+      }
+    }
+    // Default to dashboard
+    return "dashboard";
+  };
+
+  const [activeTab, setActiveTab] = useState<AdminTab>(getInitialTab);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [pendingGemstoneId, setPendingGemstoneId] = useState<string | null>(
+    null
+  );
+  const [pendingGemstoneMode, setPendingGemstoneMode] = useState<"edit" | "view" | null>(
+    null
+  );
+
+  // Update tab from URL param when it changes
   useEffect(() => {
     if (tabParam && validTabIds.has(tabParam as AdminTab)) {
-      setActiveTab(tabParam as AdminTab);
+      const newTab = tabParam as AdminTab;
+      setActiveTab(newTab);
+      // Sync to localStorage
+      if (typeof window !== "undefined") {
+        localStorage.setItem("admin-dashboard-active-tab", newTab);
+      }
     }
   }, [tabParam, validTabIds]);
 
+  // Handle edit/view params
   useEffect(() => {
     if (editParam) {
       setPendingGemstoneId(editParam);
+      setPendingGemstoneMode("edit");
       if (tabParam !== "gemstones") {
         setActiveTab("gemstones");
+        // Update URL and localStorage
+        const url = `/admin/dashboard?tab=gemstones&edit=${editParam}`;
+        router.replace(url as any);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("admin-dashboard-active-tab", "gemstones");
+        }
+      }
+    } else if (viewParam) {
+      setPendingGemstoneId(viewParam);
+      setPendingGemstoneMode("view");
+      if (tabParam !== "gemstones") {
+        setActiveTab("gemstones");
+        // Update URL and localStorage
+        const url = `/admin/dashboard?tab=gemstones&view=${viewParam}`;
+        router.replace(url as any);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("admin-dashboard-active-tab", "gemstones");
+        }
       }
     } else {
       setPendingGemstoneId(null);
+      setPendingGemstoneMode(null);
     }
-  }, [editParam, tabParam]);
+  }, [editParam, viewParam, tabParam, router]);
+
+  // Function to handle tab change with URL and localStorage updates
+  const handleTabChange = (tab: AdminTab) => {
+    setActiveTab(tab);
+    setSidebarOpen(false); // Close mobile sidebar
+    
+    // Update URL with query parameter
+    const url = `/admin/dashboard?tab=${tab}`;
+    router.replace(url as any);
+    
+    // Update localStorage
+    if (typeof window !== "undefined") {
+      localStorage.setItem("admin-dashboard-active-tab", tab);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -205,14 +278,12 @@ export function AdminDashboard() {
         return (
           <AdminGemstoneManager
             initialGemstoneId={pendingGemstoneId}
+            initialMode={pendingGemstoneMode}
             onInitialGemstoneHandled={() => {
-              if (pendingGemstoneId) {
-                setPendingGemstoneId(null);
-                router.replace({
-                  pathname: "/admin/dashboard",
-                  query: { tab: "gemstones" },
-                });
-              }
+              // Only clear the pending state - don't call handleTabChange
+              // as that would clear the edit/view URL params
+              setPendingGemstoneId(null);
+              setPendingGemstoneMode(null);
             }}
           />
         );
@@ -222,6 +293,8 @@ export function AdminDashboard() {
         return <AdminUserManager />;
       case "analytics":
         return <AdminAnalytics />;
+      case "media-stats":
+        return <MediaStatsDashboard />;
       case "ai-moderation":
         return <AIModerationDashboard />;
       case "chat":
@@ -325,10 +398,7 @@ export function AdminDashboard() {
                       ? "bg-primary text-primary-foreground shadow-md"
                       : "hover:bg-muted/50 hover:text-foreground"
                   }`}
-                  onClick={() => {
-                    setActiveTab(tab.id);
-                    setSidebarOpen(false); // Close mobile sidebar
-                  }}
+                  onClick={() => handleTabChange(tab.id)}
                 >
                   <Icon className="w-5 h-5 flex-shrink-0" />
                   <div className="text-left min-w-0 flex-1">

@@ -342,7 +342,7 @@
   "gemstoneDetail": {
     "title": "Детали камня",
     "additionalInfo": "Дополнительная информация",
-    "backToList": "← Назад к списку",
+    "backToList": "Назад к списку",
     "createdAt": "Дата создания",
     "editGemstone": "Редактировать камень",
     "gemstoneDetails": "Детали камня",
@@ -1009,12 +1009,13 @@
     "bulkImport": "Массовый импорт",
     "addGemstone": "Добавить камень",
     "createNew": "Создать новый камень",
-    "backToList": "← Назад к списку",
+    "backToList": "Назад к списку",
     "editGemstone": "Редактировать камень: {serialNumber}",
     "deleteConfirmation": "Вы уверены, что хотите удалить \"{serialNumber}\"? Это действие нельзя отменить.",
     "deleteFailed": "Не удалось удалить камень: {error}",
     "viewGemstone": "Просмотр камня: {gemstone}",
     "loadGemstoneStatsFailed": "Не удалось загрузить статистику камней",
+    "loading": "Загрузка...",
     "stats": {
       "totalGemstones": "Всего камней",
       "inStock": "В наличии",

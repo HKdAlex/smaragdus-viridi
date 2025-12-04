@@ -507,7 +507,7 @@ export class CartService {
           amount: totalAmount,
           currency,
         },
-        formatted_subtotal: this.formatPrice(totalAmount, currency),
+        formatted_subtotal: "", // Deprecated: Components should use useCurrency().formatPrice() instead
         last_updated: new Date().toISOString(),
       };
     } catch (error) {
@@ -519,7 +519,7 @@ export class CartService {
         items: [],
         total_items: 0,
         subtotal: { amount: 0, currency: "USD" },
-        formatted_subtotal: "$0.00",
+        formatted_subtotal: "", // Deprecated: Components should use useCurrency().formatPrice() instead
         last_updated: new Date().toISOString(),
       };
     }
@@ -615,39 +615,11 @@ export class CartService {
       gemstone,
       unit_price: unitPrice,
       line_total: lineTotal,
-      formatted_unit_price: this.formatPrice(
-        unitPrice.amount,
-        unitPrice.currency
-      ),
-      formatted_line_total: this.formatPrice(
-        lineTotal.amount,
-        lineTotal.currency
-      ),
+      formatted_unit_price: "", // Deprecated: Components should use useCurrency().formatPrice() instead
+      formatted_line_total: "", // Deprecated: Components should use useCurrency().formatPrice() instead
     };
   }
 
-  /**
-   * Format price for display
-   * 
-   * @deprecated This method is deprecated. Components should use useCurrency().formatPrice() 
-   * from the currency context instead for proper currency conversion and formatting.
-   * 
-   * The formatted_unit_price and formatted_line_total fields in CartItem are legacy.
-   * Components should format prices directly using currency context.
-   */
-  private formatPrice(amount: number, currency: CurrencyCode): string {
-    if (process.env.NODE_ENV !== "production") {
-      console.warn(
-        "[DEPRECATED] CartService.formatPrice is deprecated. Use useCurrency().formatPrice() instead."
-      );
-    }
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount / 100);
-  }
 
   /**
    * Get cart validation rules (for UI components)

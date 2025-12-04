@@ -146,8 +146,14 @@ export class MediaUploadService {
     gemstoneId: string,
     mediaId: string,
     type: "image" | "video"
-  ): Promise<{ success: boolean; error?: string }> {
+  ): Promise<{ success: boolean; error?: string; warning?: string }> {
     try {
+      console.log("[MediaUploadService] Deleting media:", {
+        gemstoneId,
+        mediaId,
+        type,
+      });
+
       const response = await fetch(`/api/admin/gemstones/${gemstoneId}/media`, {
         method: "DELETE",
         headers: {
@@ -162,15 +168,44 @@ export class MediaUploadService {
       const result = await response.json();
 
       if (!response.ok) {
+        console.error("[MediaUploadService] Delete failed:", {
+          status: response.status,
+          statusText: response.statusText,
+          error: result.error,
+          gemstoneId,
+          mediaId,
+          type,
+        });
         return {
           success: false,
           error: result.error || "Failed to delete media",
         };
       }
 
-      return { success: true };
+      if (result.warning) {
+        console.warn("[MediaUploadService] Delete completed with warning:", {
+          warning: result.warning,
+          gemstoneId,
+          mediaId,
+          type,
+        });
+      } else {
+        console.log("[MediaUploadService] Delete successful:", {
+          gemstoneId,
+          mediaId,
+          type,
+        });
+      }
+
+      return { success: true, warning: result.warning };
     } catch (error) {
-      console.error("Unexpected error deleting media:", error);
+      console.error("[MediaUploadService] Unexpected error deleting media:", {
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        gemstoneId,
+        mediaId,
+        type,
+      });
       return {
         success: false,
         error: "An unexpected error occurred while deleting media",
@@ -301,33 +336,112 @@ export class MediaUploadService {
     formData.append("serialNumber", params.serialNumber);
     formData.append("file", params.file);
 
-    const response = await fetch("/api/admin/gemstones/media", {
-      method: "POST",
-      body: formData,
-    });
+    // Add timeout for large video files (10 minutes)
+    const timeoutMs =
+      params.mediaType === "video" ? 10 * 60 * 1000 : 2 * 60 * 1000;
 
-    const result = await response.json();
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
-    if (!response.ok || !result?.success) {
-      return { success: false, error: result?.error || "Upload failed" };
-    }
+      const response = await fetch("/api/admin/gemstones/media", {
+        method: "POST",
+        body: formData,
+        signal: controller.signal,
+      });
 
-    const record = result.data;
+      clearTimeout(timeoutId);
 
-    if (!record?.id || !record?.url) {
+      // Check if response is ok before trying to parse JSON
+      if (!response.ok) {
+        let errorMessage = `Upload failed with status ${response.status}`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch {
+          // If response isn't JSON, use status text
+          errorMessage = response.statusText || errorMessage;
+        }
+        console.error(`[MediaUploadService] Upload failed:`, {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorMessage,
+          mediaType: params.mediaType,
+          fileName: params.file.name,
+          fileSize: params.file.size,
+        });
+        return { success: false, error: errorMessage };
+      }
+
+      const result = await response.json();
+
+      if (!result?.success) {
+        const errorMessage = result?.error || "Upload failed";
+        console.error(`[MediaUploadService] Upload failed:`, {
+          error: errorMessage,
+          mediaType: params.mediaType,
+          fileName: params.file.name,
+          result,
+        });
+        return { success: false, error: errorMessage };
+      }
+
+      const record = result.data;
+
+      if (!record?.id || !record?.url) {
+        const errorMessage =
+          "Upload succeeded but response payload is incomplete";
+        console.error(`[MediaUploadService] ${errorMessage}:`, {
+          mediaType: params.mediaType,
+          fileName: params.file.name,
+          record,
+        });
+        return {
+          success: false,
+          error: errorMessage,
+        };
+      }
+
+      console.log(`[MediaUploadService] Upload successful:`, {
+        mediaType: params.mediaType,
+        fileName: params.file.name,
+        fileSize: params.file.size,
+        id: record.id,
+      });
+
       return {
-        success: false,
-        error: "Upload succeeded but response payload is incomplete",
+        success: true,
+        data: {
+          id: record.id as string,
+          url: record.url as string,
+        },
       };
-    }
+    } catch (error) {
+      if (error instanceof Error && error.name === "AbortError") {
+        const errorMessage = `Upload timeout after ${
+          timeoutMs / 1000
+        }s. File may be too large.`;
+        console.error(`[MediaUploadService] ${errorMessage}:`, {
+          mediaType: params.mediaType,
+          fileName: params.file.name,
+          fileSize: params.file.size,
+        });
+        return { success: false, error: errorMessage };
+      }
 
-    return {
-      success: true,
-      data: {
-        id: record.id as string,
-        url: record.url as string,
-      },
-    };
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Upload failed with unknown error";
+      console.error(`[MediaUploadService] Upload error:`, {
+        error: errorMessage,
+        mediaType: params.mediaType,
+        fileName: params.file.name,
+        fileSize: params.file.size,
+        originalError: error,
+      });
+      return { success: false, error: errorMessage };
+    }
   }
 
   /**

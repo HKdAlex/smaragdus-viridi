@@ -150,7 +150,17 @@ export async function DELETE(
     const { id } = await params;
     const { mediaId, mediaType } = await request.json();
 
+    console.log("[admin/gemstones/[id]/media] DELETE request received:", {
+      gemstoneId: id,
+      mediaId,
+      mediaType,
+    });
+
     if (!mediaId || !mediaType) {
+      console.error("[admin/gemstones/[id]/media] Missing required fields:", {
+        mediaId: !!mediaId,
+        mediaType: !!mediaType,
+      });
       return NextResponse.json(
         { error: "Missing mediaId or mediaType" },
         { status: 400 }
@@ -162,46 +172,162 @@ export async function DELETE(
     const tableName =
       mediaType === "image" ? "gemstone_images" : "gemstone_videos";
 
-    // Get media record to get storage path
-    const { data: mediaRecord, error: fetchError } = await adminClient
-      .from(tableName)
-      .select("original_path")
-      .eq("id", mediaId)
-      .eq("gemstone_id", id)
-      .single();
+    console.log("[admin/gemstones/[id]/media] Fetching media record:", {
+      tableName,
+      mediaId,
+      gemstoneId: id,
+    });
+
+    // Get media record to get storage path and other info
+    // Use separate queries for proper TypeScript inference
+    let mediaRecord: { original_path: string | null; original_filename: string | null; image_url?: string; video_url?: string } | null = null;
+    let fetchError: any = null;
+
+    if (mediaType === "image") {
+      const result = await adminClient
+        .from("gemstone_images")
+        .select("original_path, original_filename, image_url")
+        .eq("id", mediaId)
+        .eq("gemstone_id", id)
+        .single();
+      mediaRecord = result.data;
+      fetchError = result.error;
+    } else {
+      const result = await adminClient
+        .from("gemstone_videos")
+        .select("original_path, original_filename, video_url")
+        .eq("id", mediaId)
+        .eq("gemstone_id", id)
+        .single();
+      mediaRecord = result.data;
+      fetchError = result.error;
+    }
 
     if (fetchError) {
+      console.error("[admin/gemstones/[id]/media] Failed to fetch media record:", {
+        error: fetchError.message,
+        code: fetchError.code,
+        details: fetchError.details,
+        mediaId,
+        gemstoneId: id,
+      });
       return NextResponse.json({ error: fetchError.message }, { status: 400 });
     }
 
-    // Delete from database
-    const { error: dbError } = await adminClient
+    if (!mediaRecord) {
+      console.error("[admin/gemstones/[id]/media] Media record not found:", {
+        mediaId,
+        gemstoneId: id,
+        tableName,
+      });
+      return NextResponse.json(
+        { error: "Media record not found" },
+        { status: 404 }
+      );
+    }
+
+    console.log("[admin/gemstones/[id]/media] Media record found:", {
+      mediaId,
+      originalPath: mediaRecord.original_path,
+      originalFilename: mediaRecord.original_filename,
+      ...(mediaType === "video"
+        ? { videoUrl: mediaRecord.video_url }
+        : { imageUrl: mediaRecord.image_url }),
+    });
+
+    // Delete from database first
+    console.log("[admin/gemstones/[id]/media] Deleting from database:", {
+      tableName,
+      mediaId,
+      gemstoneId: id,
+    });
+
+    const { error: dbError, data: deleteResult } = await adminClient
       .from(tableName)
       .delete()
       .eq("id", mediaId)
-      .eq("gemstone_id", id);
+      .eq("gemstone_id", id)
+      .select();
 
     if (dbError) {
+      console.error("[admin/gemstones/[id]/media] Database deletion failed:", {
+        error: dbError.message,
+        code: dbError.code,
+        details: dbError.details,
+        mediaId,
+        gemstoneId: id,
+      });
       return NextResponse.json({ error: dbError.message }, { status: 400 });
     }
 
+    console.log("[admin/gemstones/[id]/media] Database deletion successful:", {
+      deletedRecords: deleteResult?.length || 0,
+      mediaId,
+    });
+
     // Delete from storage if path exists
     if (mediaRecord?.original_path) {
-      const { error: storageError } = await adminClient
-        .storage.from("gemstone-media")
-        .remove([mediaRecord.original_path]);
+      console.log("[admin/gemstones/[id]/media] Deleting from storage:", {
+        storagePath: mediaRecord.original_path,
+        bucket: "gemstone-media",
+      });
+
+      const { error: storageError, data: storageDeleteResult } =
+        await adminClient.storage
+          .from("gemstone-media")
+          .remove([mediaRecord.original_path]);
 
       if (storageError) {
-        console.error("Failed to delete from storage:", storageError);
-        // Don't fail the request if storage deletion fails
+        console.error(
+          "[admin/gemstones/[id]/media] Storage deletion failed:",
+          {
+            error: storageError.message,
+            storagePath: mediaRecord.original_path,
+            mediaId,
+            gemstoneId: id,
+          }
+        );
+        // Don't fail the request if storage deletion fails - DB record is already deleted
+        // But log it as a warning
+        return NextResponse.json({
+          success: true,
+          warning: `Database record deleted but storage deletion failed: ${storageError.message}`,
+        });
       }
+
+      console.log("[admin/gemstones/[id]/media] Storage deletion successful:", {
+        storagePath: mediaRecord.original_path,
+        deletedFiles: storageDeleteResult?.length || 0,
+      });
+    } else {
+      console.warn(
+        "[admin/gemstones/[id]/media] No original_path found, skipping storage deletion:",
+        {
+          mediaId,
+          gemstoneId: id,
+          mediaRecord,
+        }
+      );
     }
+
+    console.log("[admin/gemstones/[id]/media] Delete operation completed successfully:", {
+      mediaId,
+      gemstoneId: id,
+      mediaType,
+      dbDeleted: true,
+      storageDeleted: !!mediaRecord?.original_path,
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {
     if (error instanceof AdminAuthError) {
       return NextResponse.json({ error: error.message }, { status: error.status });
     }
+
+    console.error("[admin/gemstones/[id]/media] DELETE failed with unexpected error:", {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+    });
 
     return NextResponse.json(
       { error: "Internal server error" },

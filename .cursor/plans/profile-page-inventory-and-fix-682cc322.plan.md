@@ -1,4 +1,48 @@
-<!-- 682cc322-be7a-423e-a1ca-6198ef83c7f2 e89a3dec-84c7-4c41-a73d-65443864bf71 -->
+---
+name: Profile Page Enhancements Phase 2
+overview: ""
+todos:
+  - id: a2ac839c-1eca-48fd-8b4d-671e64d468a4
+    content: Wire useOrderHistory hook in UserProfilePage and pass data to OrderHistory component
+    status: pending
+  - id: 6a48bdb4-00a9-43c1-850c-37ec5a6be607
+    content: Wire useActivityHistory hook in UserProfilePage and pass data to ActivityFeed component
+    status: pending
+  - id: 8e2307c1-31af-4823-8606-39847acee69d
+    content: Replace static no-orders message with actual recent orders from useOrderHistory hook
+    status: pending
+  - id: 53b3c148-5042-48ca-83a8-441e9fa93ef6
+    content: Check/create user preferences storage mechanism (table or extend user_profiles)
+    status: pending
+  - id: d06b719a-6006-4a12-8f50-83762ae88aba
+    content: Add getPreferences and updatePreferences methods to UserProfileService
+    status: pending
+  - id: 81deea8b-b5c9-46a8-8ef1-87e94c57620f
+    content: Replace TODO in profile page.tsx with actual onUpdatePreferences server action
+    status: pending
+  - id: a85d8d94-42a5-4dbf-a65c-291a14c6b9a1
+    content: Load and save preferences in ProfileSettings component
+    status: pending
+  - id: 039429a3-4282-4109-8bfb-25389446776b
+    content: Add error states and error boundaries to all profile components
+    status: pending
+  - id: 83a2b7f5-d645-4fb7-bf5b-c7fdeb56f3fb
+    content: Add proper loading skeletons and indicators throughout profile page
+    status: pending
+  - id: dbfa0501-97f7-4dd4-91bb-7aac2e22b6fb
+    content: Ensure profile updates trigger data refresh and UI updates
+    status: pending
+  - id: f5d99346-1c7f-4cfa-9a7d-c1d2cc90fb85
+    content: Replace all any types with proper TypeScript types
+    status: pending
+  - id: 5f8a62d8-8e8c-45c3-a16e-538335c91ea9
+    content: Add Zod schemas for profile updates and password changes
+    status: pending
+  - id: e6b2cc35-e076-4332-9525-577c31ceff6e
+    content: "Test all profile page functionality: updates, password change, preferences, order history, activity feed"
+    status: pending
+---
+
 # Profile Page Enhancements Phase 2
 
 ## Summary
@@ -427,19 +471,3 @@ npm run types:generate
 - Email delivery failures (mitigate: graceful error handling, don't fail main operation)
 - Activity table growth (mitigate: add retention policy later)
 - Bulk operations on large datasets (mitigate: add limits, pagination)
-
-### To-dos
-
-- [ ] Wire useOrderHistory hook in UserProfilePage and pass data to OrderHistory component
-- [ ] Wire useActivityHistory hook in UserProfilePage and pass data to ActivityFeed component
-- [ ] Replace static no-orders message with actual recent orders from useOrderHistory hook
-- [ ] Check/create user preferences storage mechanism (table or extend user_profiles)
-- [ ] Add getPreferences and updatePreferences methods to UserProfileService
-- [ ] Replace TODO in profile page.tsx with actual onUpdatePreferences server action
-- [ ] Load and save preferences in ProfileSettings component
-- [ ] Add error states and error boundaries to all profile components
-- [ ] Add proper loading skeletons and indicators throughout profile page
-- [ ] Ensure profile updates trigger data refresh and UI updates
-- [ ] Replace all any types with proper TypeScript types
-- [ ] Add Zod schemas for profile updates and password changes
-- [ ] Test all profile page functionality: updates, password change, preferences, order history, activity feed

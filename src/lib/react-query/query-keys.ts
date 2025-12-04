@@ -6,6 +6,7 @@
  */
 
 import type { AdvancedGemstoneFilters } from "@/features/gemstones/types/filter.types";
+import type { SearchFilters } from "@/features/admin/components/enhanced-search";
 
 export const queryKeys = {
   // Gemstones
@@ -68,6 +69,14 @@ export const queryKeys = {
     dashboard: {
       all: () => [...queryKeys.admin.all, "dashboard"] as const,
       stats: () => [...queryKeys.admin.dashboard.all(), "stats"] as const,
+    },
+    gemstones: {
+      all: () => [...queryKeys.admin.all, "gemstones"] as const,
+      lists: () => [...queryKeys.admin.gemstones.all(), "list"] as const,
+      list: (filters: SearchFilters, page: number, pageSize: number) =>
+        [...queryKeys.admin.gemstones.lists(), { filters, page, pageSize }] as const,
+      details: () => [...queryKeys.admin.gemstones.all(), "detail"] as const,
+      detail: (id: string) => [...queryKeys.admin.gemstones.details(), id] as const,
     },
   },
 } as const;

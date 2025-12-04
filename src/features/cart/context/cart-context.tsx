@@ -19,6 +19,7 @@ import {
 } from "react";
 
 import { CartService } from "../services/cart-service";
+import { useCurrency } from "@/features/currency/hooks/use-currency";
 
 interface CartContextType {
   // State
@@ -64,6 +65,7 @@ export function CartProvider({ children, userId }: CartProviderProps) {
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { formatPrice } = useCurrency();
 
   const cartService = useMemo(() => new CartService(), []);
 
@@ -216,8 +218,12 @@ export function CartProvider({ children, userId }: CartProviderProps) {
   }, [cartSummary]);
 
   const getTotalPrice = useCallback((): string => {
-    return cartSummary?.formatted_subtotal || "$0.00";
-  }, [cartSummary]);
+    if (!cartSummary) return formatPrice(0, "USD");
+    return formatPrice(
+      cartSummary.subtotal.amount,
+      cartSummary.subtotal.currency
+    );
+  }, [cartSummary, formatPrice]);
 
   const getValidationRules = useCallback((): CartValidationRules => {
     return cartService.getValidationRules();

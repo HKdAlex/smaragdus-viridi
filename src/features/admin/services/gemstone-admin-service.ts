@@ -74,6 +74,9 @@ export interface GemstoneWithRelations extends DatabaseGemstone {
   certifications?: DatabaseCertification[];
   individual_stones?: IndividualStone[];
   ai_analyzed?: boolean | null; // From gemstones_enriched view (aliased from ai_text_generated_v6)
+  // Media counts from gemstones_enriched view (optional for backward compatibility)
+  image_count?: number;
+  video_count?: number;
   ai_v6?: {
     technical_description_en?: string | null;
     emotional_description_en?: string | null;

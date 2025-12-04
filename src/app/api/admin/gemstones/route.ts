@@ -101,9 +101,32 @@ export async function GET(request: NextRequest) {
     const offset = (page - 1) * pageSize;
 
     // Build the base query using gemstones_enriched view
+    // Only select columns needed for the list view display (not AI descriptions, etc.)
+    const listViewColumns = [
+      "id",
+      "serial_number",
+      "internal_code",
+      "name",
+      "color",
+      "cut",
+      "clarity",
+      "weight_carats",
+      "price_amount",
+      "price_currency",
+      "premium_price_amount",
+      "premium_price_currency",
+      "in_stock",
+      "delivery_days",
+      "origin_id",
+      "primary_image_url",
+      "image_count",
+      "video_count",
+      "created_at",
+    ].join(",");
+
     let query = supabase
       .from("gemstones_enriched")
-      .select("*", { count: "exact" });
+      .select(listViewColumns, { count: "exact" });
 
     // Apply search filter
     if (search) {
@@ -270,11 +293,34 @@ export async function GET(request: NextRequest) {
       pageSize,
     });
 
-    // Add primary image to each gemstone for list view
+    // Fetch origin data and prepare images array for each gemstone
+    // Note: image_count and video_count are now computed columns in the gemstones_enriched view
     if (gemstones && gemstones.length > 0) {
-      gemstones.forEach((gemstone) => {
+      const originIds = [...new Set(gemstones.map((g: any) => g.origin_id).filter(Boolean))];
+      
+      // Get origin data
+      const { data: originsData } = originIds.length > 0
+        ? await supabase
+            .from("origins")
+            .select("id, name, country")
+            .in("id", originIds)
+        : { data: [] };
+      
+      // Map origins by ID
+      const originMap = new Map<string, { id: string; name: string; country: string }>();
+      originsData?.forEach((origin) => {
+        originMap.set(origin.id, origin);
+      });
+      
+      // Add origin data and images array to each gemstone
+      gemstones.forEach((gemstone: any) => {
+        // Add origin data
+        if (gemstone.origin_id) {
+          gemstone.origin = originMap.get(gemstone.origin_id) || null;
+        }
+        
+        // Create images array for thumbnail display
         if (gemstone.id && gemstone.primary_image_url) {
-          // Create a single image object with the primary image URL
           (gemstone as any).images = [
             {
               id: "primary",

@@ -22,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
@@ -100,6 +100,26 @@ export function EnhancedSearch({
   const [saveSearchName, setSaveSearchName] = useState("");
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [activeFiltersCount, setActiveFiltersCount] = useState(0);
+  
+  // Local state for search input to prevent focus loss
+  const [localQuery, setLocalQuery] = useState(filters.query || "");
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Store callbacks in refs to avoid dependency issues
+  const onFiltersChangeRef = useRef(onFiltersChange);
+  const onSearchRef = useRef(onSearch);
+  
+  // Update refs when callbacks change
+  useEffect(() => {
+    onFiltersChangeRef.current = onFiltersChange;
+    onSearchRef.current = onSearch;
+  }, [onFiltersChange, onSearch]);
+
+  // Update local query when filters change externally (e.g., from saved search)
+  useEffect(() => {
+    setLocalQuery(filters.query || "");
+  }, [filters.query]);
 
   useEffect(() => {
     // Calculate active filters count
@@ -117,15 +137,106 @@ export function EnhancedSearch({
     setActiveFiltersCount(count);
   }, [filters]);
 
+  // Debounced filter update - only triggers after user stops typing
   useEffect(() => {
-    onFiltersChange(filters);
-  }, [filters, onFiltersChange]);
+    // Clear existing timer
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
 
-  const handleQueryChange = (query: string) => {
-    const newFilters = { ...filters, query };
-    setFilters(newFilters);
-    onSearch(query);
-  };
+    // Set new timer for debounced update
+    debounceTimerRef.current = setTimeout(() => {
+      // Update filters with the debounced query value
+      setFilters((prevFilters) => {
+        // Only update if query actually changed
+        if (prevFilters.query !== localQuery) {
+          return { ...prevFilters, query: localQuery };
+        }
+        return prevFilters;
+      });
+    }, 300); // 300ms debounce delay
+
+    // Cleanup timer on unmount or when dependencies change
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, [localQuery]); // Only depend on localQuery
+
+  // Track the last filters we notified the parent about to prevent duplicate calls
+  const lastNotifiedFiltersRef = useRef<string>("");
+  // Track previous filters for query change detection
+  const prevFiltersRef = useRef<SearchFilters>(filters);
+  // Debounce timer for parent notifications
+  const notifyParentTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Update parent when filters change (debounced for query, immediate for others)
+  useEffect(() => {
+    // Only call onFiltersChange if query matches localQuery to avoid double updates
+    // This ensures we don't trigger updates while user is still typing
+    if (filters.query === localQuery) {
+      // Create a stable string representation of filters for comparison
+      const filtersKey = JSON.stringify({
+        query: filters.query,
+        sortBy: filters.sortBy,
+        sortOrder: filters.sortOrder,
+        priceMin: filters.priceMin,
+        priceMax: filters.priceMax,
+        weightMin: filters.weightMin,
+        weightMax: filters.weightMax,
+        types: [...filters.types].sort().join(","),
+        colors: [...filters.colors].sort().join(","),
+        cuts: [...filters.cuts].sort().join(","),
+        clarities: [...filters.clarities].sort().join(","),
+        origins: [...filters.origins].sort().join(","),
+        inStock: filters.inStock,
+        withoutMedia: filters.withoutMedia,
+        withoutPrice: filters.withoutPrice,
+      });
+      
+      // Only notify if filters actually changed
+      if (lastNotifiedFiltersRef.current !== filtersKey) {
+        // Clear any pending notification
+        if (notifyParentTimerRef.current) {
+          clearTimeout(notifyParentTimerRef.current);
+        }
+
+        // Track previous query to detect query-only changes
+        const prevQuery = prevFiltersRef.current?.query || "";
+        const queryChanged = prevQuery !== filters.query;
+        
+        // Update the ref for next comparison
+        prevFiltersRef.current = { ...filters };
+        
+        // Debounce the parent notification to batch rapid changes
+        notifyParentTimerRef.current = setTimeout(() => {
+          lastNotifiedFiltersRef.current = filtersKey;
+          
+          // Use refs to call callbacks to avoid dependency issues
+          onFiltersChangeRef.current(filters);
+          
+          // Only call onSearch when query actually changed
+          if (queryChanged && filters.query) {
+            onSearchRef.current(filters.query);
+          }
+        }, 150); // Small debounce to batch rapid filter changes
+      }
+    }
+
+    // Cleanup timer on unmount
+    return () => {
+      if (notifyParentTimerRef.current) {
+        clearTimeout(notifyParentTimerRef.current);
+      }
+    };
+  }, [filters, localQuery]); // Removed callbacks from dependencies
+
+  const handleQueryChange = useCallback((query: string) => {
+    // Update local state immediately for responsive UI
+    setLocalQuery(query);
+    // The debounced effect will handle updating filters
+  }, []);
 
   const handleSortChange = (value: string) => {
     setFilters({ ...filters, sortBy: value as SearchFilters["sortBy"] });
@@ -173,6 +284,7 @@ export function EnhancedSearch({
   };
 
   const clearAllFilters = () => {
+    setLocalQuery("");
     setFilters({
       query: "",
       sortBy: "created_at",
@@ -185,6 +297,10 @@ export function EnhancedSearch({
       withoutMedia: false,
       withoutPrice: false,
     });
+    // Maintain focus on search input after clearing
+    setTimeout(() => {
+      searchInputRef.current?.focus();
+    }, 0);
   };
 
   const saveCurrentSearch = () => {
@@ -196,8 +312,13 @@ export function EnhancedSearch({
   };
 
   const loadSavedSearch = (search: SavedSearch) => {
+    setLocalQuery(search.filters.query || "");
     setFilters(search.filters);
     onLoadSearch?.(search);
+    // Maintain focus on search input after loading
+    setTimeout(() => {
+      searchInputRef.current?.focus();
+    }, 0);
   };
 
   const deleteSavedSearch = (searchId: string) => {
@@ -290,10 +411,13 @@ export function EnhancedSearch({
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
           <Input
+            ref={searchInputRef}
             placeholder={t("searchPlaceholder")}
-            value={filters.query}
+            value={localQuery}
             onChange={(e) => handleQueryChange(e.target.value)}
             className="pl-10 min-h-[48px] text-base"
+            type="text"
+            autoComplete="off"
           />
         </div>
 

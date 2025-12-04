@@ -11,12 +11,14 @@ import type {
 import { useCallback, useEffect, useState } from 'react'
 
 import { CartService } from '../services/cart-service'
+import { useCurrency } from '@/features/currency/hooks/use-currency'
 
 export function useCart(userId?: string) {
   const [cartSummary, setCartSummary] = useState<CartSummary | null>(null)
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const { formatPrice } = useCurrency()
 
   const cartService = new CartService()
 
@@ -160,8 +162,12 @@ export function useCart(userId?: string) {
   }, [cartSummary])
 
   const getTotalPrice = useCallback((): string => {
-    return cartSummary?.formatted_subtotal || '$0.00'
-  }, [cartSummary])
+    if (!cartSummary) return formatPrice(0, 'USD')
+    return formatPrice(
+      cartSummary.subtotal.amount,
+      cartSummary.subtotal.currency
+    )
+  }, [cartSummary, formatPrice])
 
   const getValidationRules = useCallback((): CartValidationRules => {
     return cartService.getValidationRules()
