@@ -105,6 +105,7 @@ export function MediaGallery({
   const [videoCurrentTime, setVideoCurrentTime] = useState(0);
   const [videoDuration, setVideoDuration] = useState(0);
   const [imageError, setImageError] = useState(false);
+  const [videoError, setVideoError] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   // Touch/swipe state
@@ -194,15 +195,30 @@ export function MediaGallery({
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
-  // Reset video state when switching media
+  // Reset video state when switching media and ensure autoplay
   useEffect(() => {
-    if (currentMedia?.type === "video") {
+    if (currentMedia?.type === "video" && videoRef.current) {
       setIsVideoPlaying(true); // Videos autoplay
       setVideoCurrentTime(0);
+      setVideoError(false);
+      
+      // Programmatically play the video (required for some browsers)
+      const playPromise = videoRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            setIsVideoPlaying(true);
+          })
+          .catch((error) => {
+            console.error("[MediaGallery] Video autoplay failed:", error);
+            setIsVideoPlaying(false);
+            setVideoError(true);
+          });
+      }
     }
     // Reset image error when media changes
     setImageError(false);
-  }, [currentIndex, currentMedia?.type]);
+  }, [currentIndex, currentMedia?.type, currentMedia?.url]);
 
   if (mediaItems.length === 0) {
     return (
@@ -238,6 +254,14 @@ export function MediaGallery({
               onError={() => setImageError(true)}
             />
           )
+        ) : videoError ? (
+          <div className="w-full h-full flex items-center justify-center bg-muted/50">
+            <div className="text-center text-muted-foreground">
+              <div className="text-4xl mb-2">🎥</div>
+              <p className="text-sm">{tErrors("media.media.gemstone") || "Video failed to load"}</p>
+              <p className="text-xs mt-1 break-all px-4">{currentMedia.url}</p>
+            </div>
+          </div>
         ) : (
           <div className="relative w-full h-full p-2">
             <video
@@ -253,6 +277,18 @@ export function MediaGallery({
               onLoadedMetadata={handleVideoLoadedMetadata}
               onPlay={() => setIsVideoPlaying(true)}
               onPause={() => setIsVideoPlaying(false)}
+              onError={(e) => {
+                console.error("[MediaGallery] Video error:", e, {
+                  url: currentMedia.url,
+                  videoElement: videoRef.current,
+                });
+                setVideoError(true);
+                setIsVideoPlaying(false);
+              }}
+              onLoadStart={() => {
+                console.log("[MediaGallery] Video loading:", currentMedia.url);
+                setVideoError(false);
+              }}
             />
 
             {/* Video Controls Overlay */}
