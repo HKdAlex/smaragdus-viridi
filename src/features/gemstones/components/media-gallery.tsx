@@ -204,6 +204,24 @@ export function MediaGallery({
       
       const video = videoRef.current;
       
+      // Verify video URL is accessible (optional check)
+      const verifyUrl = async () => {
+        try {
+          const response = await fetch(currentMedia.url, { method: "HEAD" });
+          if (!response.ok) {
+            console.warn("[MediaGallery] Video URL not accessible:", {
+              status: response.status,
+              statusText: response.statusText,
+              url: currentMedia.url,
+            });
+            // Don't set error yet - let the video element handle it
+          }
+        } catch (error) {
+          console.warn("[MediaGallery] Could not verify video URL:", error);
+          // CORS or network issue - let video element handle it
+        }
+      };
+      
       // Wait for video to be ready before attempting to play
       const attemptPlay = () => {
         if (video.readyState >= 2) { // HAVE_CURRENT_DATA or higher
@@ -238,6 +256,9 @@ export function MediaGallery({
           video.addEventListener("loadeddata", attemptPlay, { once: true });
         }
       };
+      
+      // Verify URL accessibility (non-blocking)
+      verifyUrl();
       
       // Try to play immediately if ready, otherwise wait
       attemptPlay();
@@ -287,10 +308,25 @@ export function MediaGallery({
           )
         ) : videoError ? (
           <div className="w-full h-full flex items-center justify-center bg-muted/50">
-            <div className="text-center text-muted-foreground">
+            <div className="text-center text-muted-foreground px-4">
               <div className="text-4xl mb-2">🎥</div>
-              <p className="text-sm">{tErrors("media.gemstone") || "Video failed to load"}</p>
-              <p className="text-xs mt-1 break-all px-4 opacity-75">{currentMedia.url}</p>
+              <p className="text-sm font-medium mb-1">
+                {tErrors("media.gemstone") || "Video failed to load"}
+              </p>
+              <p className="text-xs opacity-75 mb-2">
+                The video format may not be supported or the file may not be accessible.
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  // Try to open video in new tab as fallback
+                  window.open(currentMedia.url, "_blank");
+                }}
+                className="mt-2"
+              >
+                Open Video Directly
+              </Button>
             </div>
           </div>
         ) : (
@@ -311,20 +347,40 @@ export function MediaGallery({
               onError={(e) => {
                 const video = e.currentTarget as HTMLVideoElement;
                 const error = video.error;
+                
+                // Error codes:
+                // 1 = MEDIA_ERR_ABORTED - fetching aborted
+                // 2 = MEDIA_ERR_NETWORK - network error
+                // 3 = MEDIA_ERR_DECODE - decoding error
+                // 4 = MEDIA_ERR_SRC_NOT_SUPPORTED - format not supported or source not accessible
                 const errorDetails = {
                   code: error?.code,
                   message: error?.message,
                   url: currentMedia.url,
                   networkState: video.networkState,
                   readyState: video.readyState,
+                  errorNames: {
+                    1: "MEDIA_ERR_ABORTED",
+                    2: "MEDIA_ERR_NETWORK", 
+                    3: "MEDIA_ERR_DECODE",
+                    4: "MEDIA_ERR_SRC_NOT_SUPPORTED",
+                  },
                 };
                 
-                console.error("[MediaGallery] Video error:", errorDetails);
+                const errorName = errorDetails.errorNames[error?.code as keyof typeof errorDetails.errorNames] || "UNKNOWN";
+                console.error(`[MediaGallery] Video error (${errorName}):`, errorDetails);
                 
-                // Only show error for actual loading/format errors, not autoplay prevention
-                if (error && error.code !== 0) {
+                // Show error for all actual errors (code 1-4)
+                // Code 0 means no error
+                if (error && error.code !== 0 && error.code !== undefined) {
                   setVideoError(true);
                   setIsVideoPlaying(false);
+                  
+                  // For code 4 (not supported), try to verify if URL is accessible
+                  if (error.code === 4) {
+                    console.warn("[MediaGallery] Video format may not be supported or file may not be accessible:", currentMedia.url);
+                    // Could add a fetch check here to verify URL accessibility
+                  }
                 }
               }}
               onLoadStart={() => {
