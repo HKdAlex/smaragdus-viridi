@@ -203,6 +203,30 @@ export function MediaGallery({
       setVideoError(false);
       
       const video = videoRef.current;
+      let retryCount = 0;
+      const maxRetries = 5; // Increased retries for files that may need time after upload
+      const retryDelay = 2000; // 2 seconds - files may need time to be fully available
+      
+      // Check if browser supports MP4 codec
+      const checkCodecSupport = () => {
+        // Check for common MP4 codecs
+        const codecs = [
+          'video/mp4; codecs="avc1.42E01E"', // H.264 Baseline
+          'video/mp4; codecs="avc1.4D401E"', // H.264 Main
+          'video/mp4; codecs="avc1.64001E"', // H.264 High
+          'video/mp4', // Generic MP4
+        ];
+        
+        for (const codec of codecs) {
+          if (video.canPlayType(codec) !== '') {
+            console.log(`[MediaGallery] Browser supports codec: ${codec}`);
+            return true;
+          }
+        }
+        
+        console.warn("[MediaGallery] Browser may not support MP4 codec");
+        return false;
+      };
       
       // Verify video URL is accessible (optional check)
       const verifyUrl = async () => {
@@ -224,12 +248,19 @@ export function MediaGallery({
               setIsVideoPlaying(false);
             }
           } else {
+            const contentType = response.headers.get("content-type");
+            const contentLength = response.headers.get("content-length");
             console.log("[MediaGallery] Video URL verified:", {
               status: response.status,
-              contentType: response.headers.get("content-type"),
-              contentLength: response.headers.get("content-length"),
+              contentType,
+              contentLength,
               url: currentMedia.url,
             });
+            
+            // Check if content-type matches expected video type
+            if (contentType && !contentType.startsWith("video/")) {
+              console.warn("[MediaGallery] Unexpected content-type:", contentType);
+            }
           }
         } catch (error) {
           console.warn("[MediaGallery] Could not verify video URL (CORS may be blocking):", error);
@@ -247,6 +278,7 @@ export function MediaGallery({
               .then(() => {
                 setIsVideoPlaying(true);
                 setVideoError(false);
+                console.log("[MediaGallery] Video playing successfully");
               })
               .catch((error) => {
                 // NotSupportedError usually means codec/format issue
@@ -256,6 +288,8 @@ export function MediaGallery({
                     error,
                     url: currentMedia.url,
                     videoElement: video,
+                    readyState: video.readyState,
+                    networkState: video.networkState,
                   });
                   setVideoError(true);
                   setIsVideoPlaying(false);
@@ -273,15 +307,106 @@ export function MediaGallery({
         }
       };
       
+      // Retry mechanism for video loading
+      const retryLoad = async () => {
+        if (retryCount >= maxRetries) {
+          console.error("[MediaGallery] Max retries reached, giving up");
+          return;
+        }
+        
+        retryCount++;
+        const delay = retryDelay * retryCount; // Exponential backoff
+        console.log(`[MediaGallery] Retrying video load (attempt ${retryCount}/${maxRetries}) after ${delay}ms...`);
+        
+        setTimeout(async () => {
+          // First verify the URL is still accessible
+          try {
+            const response = await fetch(currentMedia.url, { method: "HEAD" });
+            if (!response.ok) {
+              console.error(`[MediaGallery] Retry ${retryCount}: URL still not accessible (${response.status})`);
+              if (retryCount >= maxRetries) {
+                setVideoError(true);
+              }
+              return;
+            }
+          } catch (error) {
+            console.warn(`[MediaGallery] Retry ${retryCount}: Could not verify URL:`, error);
+          }
+          
+          // Reset video source to trigger reload
+          const currentSrc = video.src;
+          video.src = '';
+          video.load(); // Reset the video element
+          
+          setTimeout(() => {
+            video.src = currentSrc;
+            video.load(); // Reload with the source
+            
+            // Try to play after reload
+            setTimeout(() => {
+              if (video.readyState >= 2) {
+                video.play().catch((error) => {
+                  console.warn(`[MediaGallery] Retry ${retryCount}: Play failed:`, error.name);
+                  if (retryCount < maxRetries && video.error?.code === 4) {
+                    retryLoad();
+                  } else if (retryCount >= maxRetries) {
+                    setVideoError(true);
+                  }
+                });
+              }
+            }, 500);
+          }, 200);
+        }, delay);
+      };
+      
+      // Check codec support
+      checkCodecSupport();
+      
       // Verify URL accessibility (non-blocking)
       verifyUrl();
       
-      // Try to play immediately if ready, otherwise wait
-      attemptPlay();
+      // Set up error handler with retry BEFORE attempting to play
+      const errorHandler = () => {
+        const error = video.error;
+        if (error && error.code === 4) {
+          console.warn("[MediaGallery] Video error code 4 detected, will retry:", {
+            code: error.code,
+            message: error.message,
+            retryCount,
+            maxRetries,
+          });
+          if (retryCount < maxRetries) {
+            retryLoad();
+          } else {
+            console.error("[MediaGallery] Max retries reached, showing error");
+            setVideoError(true);
+            setIsVideoPlaying(false);
+          }
+        } else if (error) {
+          // Other error codes - don't retry, just show error
+          console.error("[MediaGallery] Video error (non-retryable):", {
+            code: error.code,
+            message: error.message,
+          });
+          setVideoError(true);
+          setIsVideoPlaying(false);
+        }
+      };
       
-      // Cleanup listener if component unmounts
+      video.addEventListener("error", errorHandler);
+      
+      // Add a small delay before first play attempt
+      // This helps with files that were just uploaded and may need a moment to be fully available
+      // Even though the file exists (HEAD request succeeds), playback might need a brief delay
+      setTimeout(() => {
+        // Try to play immediately if ready, otherwise wait
+        attemptPlay();
+      }, 500); // 500ms delay for newly uploaded files
+      
+      // Cleanup listeners if component unmounts
       return () => {
         video.removeEventListener("loadeddata", attemptPlay);
+        video.removeEventListener("error", errorHandler);
       };
     }
     // Reset image error when media changes
