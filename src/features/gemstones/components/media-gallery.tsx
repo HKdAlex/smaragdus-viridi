@@ -207,18 +207,34 @@ export function MediaGallery({
       // Verify video URL is accessible (optional check)
       const verifyUrl = async () => {
         try {
-          const response = await fetch(currentMedia.url, { method: "HEAD" });
+          const response = await fetch(currentMedia.url, { 
+            method: "HEAD",
+            mode: "cors",
+          });
           if (!response.ok) {
-            console.warn("[MediaGallery] Video URL not accessible:", {
+            console.error("[MediaGallery] Video URL not accessible:", {
               status: response.status,
               statusText: response.statusText,
               url: currentMedia.url,
+              headers: Object.fromEntries(response.headers.entries()),
             });
-            // Don't set error yet - let the video element handle it
+            // If 404, the file doesn't exist
+            if (response.status === 404) {
+              setVideoError(true);
+              setIsVideoPlaying(false);
+            }
+          } else {
+            console.log("[MediaGallery] Video URL verified:", {
+              status: response.status,
+              contentType: response.headers.get("content-type"),
+              contentLength: response.headers.get("content-length"),
+              url: currentMedia.url,
+            });
           }
         } catch (error) {
-          console.warn("[MediaGallery] Could not verify video URL:", error);
-          // CORS or network issue - let video element handle it
+          console.warn("[MediaGallery] Could not verify video URL (CORS may be blocking):", error);
+          // CORS issue - this is OK, video element will try anyway
+          // Don't set error - let the video element handle it
         }
       };
       
@@ -340,6 +356,7 @@ export function MediaGallery({
               autoPlay
               loop
               playsInline
+              preload="metadata"
               onTimeUpdate={handleVideoTimeUpdate}
               onLoadedMetadata={handleVideoLoadedMetadata}
               onPlay={() => setIsVideoPlaying(true)}
