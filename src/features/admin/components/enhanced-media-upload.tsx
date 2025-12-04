@@ -743,7 +743,7 @@ export function EnhancedMediaUpload({
                     <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate max-w-xs mx-auto">
                       {uploadInfo.currentFileName}
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                    <p className="text-xs text-gray-500 dark:text-gray-300">
                       {uploadInfo.totalFiles > 1
                         ? `File ${uploadInfo.currentFileIndex} of ${uploadInfo.totalFiles}`
                         : formatFileSize(uploadInfo.currentFileSize)}
@@ -761,7 +761,7 @@ export function EnhancedMediaUpload({
                   </div>
 
                   {/* Progress details */}
-                  <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                  <div className="flex justify-between text-xs text-gray-500 dark:text-gray-300">
                     <span>{uploadProgress}%</span>
                     {uploadInfo && (
                       <span>
@@ -773,7 +773,7 @@ export function EnhancedMediaUpload({
 
                   {/* Upload speed estimation */}
                   {uploadInfo && uploadInfo.uploadedBytes > 0 && (
-                    <p className="text-xs text-gray-400 dark:text-gray-500">
+                    <p className="text-xs text-gray-400 dark:text-gray-400">
                       {(() => {
                         const elapsedSeconds =
                           (Date.now() - uploadInfo.startTime) / 1000;
