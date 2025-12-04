@@ -202,19 +202,50 @@ export function MediaGallery({
       setVideoCurrentTime(0);
       setVideoError(false);
       
-      // Programmatically play the video (required for some browsers)
-      const playPromise = videoRef.current.play();
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            setIsVideoPlaying(true);
-          })
-          .catch((error) => {
-            console.error("[MediaGallery] Video autoplay failed:", error);
-            setIsVideoPlaying(false);
-            setVideoError(true);
-          });
-      }
+      const video = videoRef.current;
+      
+      // Wait for video to be ready before attempting to play
+      const attemptPlay = () => {
+        if (video.readyState >= 2) { // HAVE_CURRENT_DATA or higher
+          const playPromise = video.play();
+          if (playPromise !== undefined) {
+            playPromise
+              .then(() => {
+                setIsVideoPlaying(true);
+                setVideoError(false);
+              })
+              .catch((error) => {
+                // NotSupportedError usually means codec/format issue
+                // Other errors might be autoplay policy (which is OK, user can click play)
+                if (error.name === "NotSupportedError") {
+                  console.error("[MediaGallery] Video format not supported:", {
+                    error,
+                    url: currentMedia.url,
+                    videoElement: video,
+                  });
+                  setVideoError(true);
+                  setIsVideoPlaying(false);
+                } else {
+                  // Autoplay was prevented (common and OK)
+                  console.log("[MediaGallery] Video autoplay prevented (user interaction may be required):", error.name);
+                  setIsVideoPlaying(false);
+                  // Don't set error state for autoplay prevention
+                }
+              });
+          }
+        } else {
+          // Video not ready yet, wait for loadeddata event
+          video.addEventListener("loadeddata", attemptPlay, { once: true });
+        }
+      };
+      
+      // Try to play immediately if ready, otherwise wait
+      attemptPlay();
+      
+      // Cleanup listener if component unmounts
+      return () => {
+        video.removeEventListener("loadeddata", attemptPlay);
+      };
     }
     // Reset image error when media changes
     setImageError(false);
@@ -258,8 +289,8 @@ export function MediaGallery({
           <div className="w-full h-full flex items-center justify-center bg-muted/50">
             <div className="text-center text-muted-foreground">
               <div className="text-4xl mb-2">🎥</div>
-              <p className="text-sm">{tErrors("media.media.gemstone") || "Video failed to load"}</p>
-              <p className="text-xs mt-1 break-all px-4">{currentMedia.url}</p>
+              <p className="text-sm">{tErrors("media.gemstone") || "Video failed to load"}</p>
+              <p className="text-xs mt-1 break-all px-4 opacity-75">{currentMedia.url}</p>
             </div>
           </div>
         ) : (
@@ -278,12 +309,23 @@ export function MediaGallery({
               onPlay={() => setIsVideoPlaying(true)}
               onPause={() => setIsVideoPlaying(false)}
               onError={(e) => {
-                console.error("[MediaGallery] Video error:", e, {
+                const video = e.currentTarget as HTMLVideoElement;
+                const error = video.error;
+                const errorDetails = {
+                  code: error?.code,
+                  message: error?.message,
                   url: currentMedia.url,
-                  videoElement: videoRef.current,
-                });
-                setVideoError(true);
-                setIsVideoPlaying(false);
+                  networkState: video.networkState,
+                  readyState: video.readyState,
+                };
+                
+                console.error("[MediaGallery] Video error:", errorDetails);
+                
+                // Only show error for actual loading/format errors, not autoplay prevention
+                if (error && error.code !== 0) {
+                  setVideoError(true);
+                  setIsVideoPlaying(false);
+                }
               }}
               onLoadStart={() => {
                 console.log("[MediaGallery] Video loading:", currentMedia.url);
