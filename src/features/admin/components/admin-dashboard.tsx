@@ -95,9 +95,9 @@ const getAdminTabs = (t: any) => [
   },
   {
     id: "media-stats" as AdminTab,
-    name: "Media Stats",
+    name: t("navigation.mediaStats"),
     icon: HardDrive,
-    description: "Media files and orphaned records statistics",
+    description: t("tabs.mediaStats"),
   },
   {
     id: "ai-moderation" as AdminTab,

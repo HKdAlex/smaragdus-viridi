@@ -123,6 +123,7 @@
     "pricing": "Pricing analytics and inventory management",
     "users": "User management and permissions",
     "analytics": "Performance metrics and insights",
+    "mediaStats": "Media files and orphaned records statistics",
     "aiModeration": "Review and moderate AI-generated content",
     "settings": "System configuration and preferences",
     "chat": "Customer support chat and messaging"
@@ -155,6 +156,7 @@
     "pricing": "Price & Inventory",
     "users": "Users",
     "analytics": "Analytics",
+    "mediaStats": "Media Stats",
     "aiModeration": "AI Moderation",
     "settings": "Settings",
     "orders": "Orders",
@@ -1017,6 +1019,48 @@
     },
     "messages": {
       "singleStoneOnly": "Individual stone specifications are only available for items with multiple stones (quantity > 1)."
+    }
+  },
+  "mediaStats": {
+    "title": "Media Statistics",
+    "description": "Overview of media files and orphaned records",
+    "analyzing": "Analyzing Media Storage...",
+    "analyzingDescription": "This may take a moment as we scan all storage files and database records to identify orphaned items.",
+    "typicalTime": "Typically takes 10-30 seconds",
+    "loadingPhases": {
+      "fetchingDatabase": "Fetching database records...",
+      "scanningStorage": "Scanning storage files...",
+      "analyzingData": "Analyzing and comparing data...",
+      "elapsedTime": "Elapsed: {seconds}s"
+    },
+    "refresh": "Refresh",
+    "refreshing": "Refreshing...",
+    "retry": "Retry",
+    "failedToLoad": "Failed to Load Statistics",
+    "cards": {
+      "totalImages": "Total Images",
+      "totalVideos": "Total Videos",
+      "storageFiles": "Storage Files",
+      "orphanedItems": "Orphaned Items"
+    },
+    "orphaned": {
+      "images": "images",
+      "videos": "videos",
+      "files": "files",
+      "imageRecords": "Orphaned Image Records",
+      "videoRecords": "Orphaned Video Records",
+      "storageFiles": "Orphaned Storage Files",
+      "dbRecordsNoStorage": "Database records without corresponding storage files",
+      "storageNoDb": "Storage files without corresponding database records",
+      "showingFirst": "showing first {count}",
+      "missingFile": "Missing File",
+      "noDbRecord": "No DB Record",
+      "gemstone": "Gemstone",
+      "path": "Path"
+    },
+    "noOrphans": {
+      "title": "No Orphaned Items",
+      "description": "All media files are properly linked between database and storage."
     }
   },
   "gemstoneManagement": {

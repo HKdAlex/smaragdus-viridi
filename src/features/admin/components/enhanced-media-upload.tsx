@@ -34,11 +34,12 @@ import {
   X,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import {
   MediaUploadService,
   type MediaUploadResult,
+  type UploadProgressCallback,
 } from "../services/media-upload-service";
 
 interface EnhancedMediaUploadProps {
@@ -54,6 +55,25 @@ interface ExistingMedia {
   videos: DatabaseGemstoneVideo[];
 }
 
+// Helper to format file size
+function formatFileSize(bytes: number): string {
+  if (bytes === 0) return "0 B";
+  const k = 1024;
+  const sizes = ["B", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
+}
+
+interface UploadInfo {
+  currentFileName: string;
+  currentFileSize: number;
+  currentFileIndex: number;
+  totalFiles: number;
+  totalSize: number;
+  uploadedBytes: number;
+  startTime: number;
+}
+
 export function EnhancedMediaUpload({
   gemstoneId,
   serialNumber,
@@ -64,6 +84,7 @@ export function EnhancedMediaUpload({
   const t = useTranslations("admin.gemstoneForm");
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadInfo, setUploadInfo] = useState<UploadInfo | null>(null);
   const [uploadedMedia, setUploadedMedia] = useState<MediaUploadResult[]>([]);
   const [existingMedia, setExistingMedia] = useState<ExistingMedia>({
     images: [],
@@ -81,7 +102,6 @@ export function EnhancedMediaUpload({
     alt_text: string;
     has_watermark: boolean;
   } | null>(null);
-  const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const loadExistingMedia = useCallback(async () => {
     if (!gemstoneId) return;
@@ -108,19 +128,11 @@ export function EnhancedMediaUpload({
     }
   }, [gemstoneId, loadExistingMedia]);
 
-  // Cleanup progress interval on unmount
-  useEffect(() => {
-    return () => {
-      if (progressIntervalRef.current) {
-        clearInterval(progressIntervalRef.current);
-      }
-    };
-  }, []);
-
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
       if (!gemstoneId || !serialNumber) {
-        const errorMsg = "Gemstone ID and serial number are required for upload";
+        const errorMsg =
+          "Gemstone ID and serial number are required for upload";
         console.error("[EnhancedMediaUpload]", errorMsg);
         onUploadError?.(errorMsg);
         return;
@@ -138,84 +150,156 @@ export function EnhancedMediaUpload({
           file.type.startsWith("video/")
         );
 
+        // Combine all files for tracking
+        const allFiles = [...imageFiles, ...videoFiles];
+        const totalSize = allFiles.reduce((sum, f) => sum + f.size, 0);
+        const startTime = Date.now();
+
         console.log("[EnhancedMediaUpload] Starting upload:", {
           imageCount: imageFiles.length,
           videoCount: videoFiles.length,
+          totalSize: formatFileSize(totalSize),
           gemstoneId,
+        });
+
+        // Initialize upload info
+        setUploadInfo({
+          currentFileName: allFiles[0]?.name || "",
+          currentFileSize: allFiles[0]?.size || 0,
+          currentFileIndex: 1,
+          totalFiles: allFiles.length,
+          totalSize,
+          uploadedBytes: 0,
+          startTime,
         });
 
         let allResults: MediaUploadResult[] = [];
 
-        // Upload images
+        // Calculate progress distribution based on file sizes
+        const totalImageSize = imageFiles.reduce((sum, f) => sum + f.size, 0);
+        const totalVideoSize = videoFiles.reduce((sum, f) => sum + f.size, 0);
+
+        // Allocate progress percentage based on file size ratio
+        const imageProgressShare =
+          totalSize > 0 ? (totalImageSize / totalSize) * 95 : 0;
+        const videoProgressShare =
+          totalSize > 0 ? (totalVideoSize / totalSize) * 95 : 0;
+
+        // Upload images with real progress
         if (imageFiles.length > 0) {
-          setUploadProgress(10);
           console.log("[EnhancedMediaUpload] Uploading images...");
-          
+
+          let currentImageIndex = 0;
+          const handleImageProgress: UploadProgressCallback = (progress) => {
+            // Map image progress (0-100) to allocated share (0 to imageProgressShare)
+            const mappedProgress = (progress * imageProgressShare) / 100;
+            setUploadProgress(Math.round(mappedProgress));
+
+            // Update upload info with estimated bytes
+            const estimatedBytes = (progress / 100) * totalImageSize;
+            setUploadInfo((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    currentFileName:
+                      imageFiles[currentImageIndex]?.name ||
+                      prev.currentFileName,
+                    currentFileSize:
+                      imageFiles[currentImageIndex]?.size ||
+                      prev.currentFileSize,
+                    currentFileIndex: currentImageIndex + 1,
+                    uploadedBytes: estimatedBytes,
+                  }
+                : null
+            );
+          };
+
           const imageResult = await MediaUploadService.uploadGemstoneImages(
             gemstoneId,
             imageFiles,
-            serialNumber
+            serialNumber,
+            handleImageProgress
           );
 
           if (imageResult.success && imageResult.data) {
             allResults = [...allResults, ...imageResult.data];
-            setUploadProgress(30);
-            console.log("[EnhancedMediaUpload] Images uploaded successfully:", imageResult.data.length);
+            setUploadProgress(Math.round(imageProgressShare));
+            console.log(
+              "[EnhancedMediaUpload] Images uploaded successfully:",
+              imageResult.data.length
+            );
           } else {
             const errorMsg = imageResult.error || "Failed to upload images";
-            console.error("[EnhancedMediaUpload] Image upload failed:", errorMsg);
+            console.error(
+              "[EnhancedMediaUpload] Image upload failed:",
+              errorMsg
+            );
             throw new Error(errorMsg);
           }
         }
 
-        // Upload videos
+        // Upload videos with real progress
         if (videoFiles.length > 0) {
-          setUploadProgress(40);
           console.log("[EnhancedMediaUpload] Uploading videos...", {
             count: videoFiles.length,
-            files: videoFiles.map(f => ({ name: f.name, size: f.size, type: f.type })),
+            files: videoFiles.map((f) => ({
+              name: f.name,
+              size: f.size,
+              type: f.type,
+            })),
           });
-          
-          // Show progress animation for video uploads (since they can take a while)
-          progressIntervalRef.current = setInterval(() => {
-            setUploadProgress((prev) => {
-              // Gradually increase from 40% to 90% while uploading
-              if (prev < 90) {
-                return Math.min(prev + 2, 90);
-              }
-              return prev;
-            });
-          }, 500);
-          
-          try {
-            const videoResult = await MediaUploadService.uploadGemstoneVideos(
-              gemstoneId,
-              videoFiles,
-              serialNumber
+
+          let currentVideoIndex = 0;
+          const handleVideoProgress: UploadProgressCallback = (progress) => {
+            // Map video progress (0-100) to allocated share (imageProgressShare to 95)
+            const mappedProgress =
+              imageProgressShare + (progress * videoProgressShare) / 100;
+            setUploadProgress(Math.round(mappedProgress));
+
+            // Update upload info with estimated bytes
+            const estimatedBytes =
+              totalImageSize + (progress / 100) * totalVideoSize;
+            setUploadInfo((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    currentFileName:
+                      videoFiles[currentVideoIndex]?.name ||
+                      prev.currentFileName,
+                    currentFileSize:
+                      videoFiles[currentVideoIndex]?.size ||
+                      prev.currentFileSize,
+                    currentFileIndex: imageFiles.length + currentVideoIndex + 1,
+                    uploadedBytes: estimatedBytes,
+                  }
+                : null
             );
+          };
 
-            if (progressIntervalRef.current) {
-              clearInterval(progressIntervalRef.current);
-              progressIntervalRef.current = null;
-            }
+          const videoResult = await MediaUploadService.uploadGemstoneVideos(
+            gemstoneId,
+            videoFiles,
+            serialNumber,
+            handleVideoProgress
+          );
 
-            if (videoResult.success && videoResult.data) {
-              allResults = [...allResults, ...videoResult.data];
-              setUploadProgress(95);
-              console.log("[EnhancedMediaUpload] Videos uploaded successfully:", videoResult.data.length);
-            } else {
-              const errorMsg = videoResult.error || "Failed to upload videos";
-              console.error("[EnhancedMediaUpload] Video upload failed:", errorMsg, {
+          if (videoResult.success && videoResult.data) {
+            allResults = [...allResults, ...videoResult.data];
+            setUploadProgress(95);
+            console.log(
+              "[EnhancedMediaUpload] Videos uploaded successfully:",
+              videoResult.data.length
+            );
+          } else {
+            const errorMsg = videoResult.error || "Failed to upload videos";
+            console.error(
+              "[EnhancedMediaUpload] Video upload failed:",
+              errorMsg,
+              {
                 result: videoResult,
-              });
-              throw new Error(errorMsg);
-            }
-          } catch (error) {
-            if (progressIntervalRef.current) {
-              clearInterval(progressIntervalRef.current);
-              progressIntervalRef.current = null;
-            }
-            throw error;
+              }
+            );
+            throw new Error(errorMsg);
           }
         }
 
@@ -224,14 +308,15 @@ export function EnhancedMediaUpload({
 
         // Reload existing media to show new uploads
         await loadExistingMedia();
-        
+
         // Clear uploadedMedia since items are now in existingMedia
         setUploadedMedia([]);
-        
+
         setUploadProgress(100);
         console.log("[EnhancedMediaUpload] Upload completed successfully");
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "Unknown upload error";
+        const errorMessage =
+          error instanceof Error ? error.message : "Unknown upload error";
         console.error("[EnhancedMediaUpload] Upload error:", {
           error: errorMessage,
           originalError: error,
@@ -240,17 +325,19 @@ export function EnhancedMediaUpload({
         });
         onUploadError?.(errorMessage);
       } finally {
-        // Clear progress interval if still running
-        if (progressIntervalRef.current) {
-          clearInterval(progressIntervalRef.current);
-          progressIntervalRef.current = null;
-        }
         setIsUploading(false);
         setUploadProgress(0);
+        setUploadInfo(null);
         console.log("[EnhancedMediaUpload] Upload finished, resetting state");
       }
     },
-    [gemstoneId, serialNumber, onUploadComplete, onUploadError, loadExistingMedia]
+    [
+      gemstoneId,
+      serialNumber,
+      onUploadComplete,
+      onUploadError,
+      loadExistingMedia,
+    ]
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -331,7 +418,8 @@ export function EnhancedMediaUpload({
         onUploadError?.(errorMsg);
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       console.error("[EnhancedMediaUpload] Delete error:", {
         error: errorMessage,
         originalError: error,
@@ -536,7 +624,9 @@ export function EnhancedMediaUpload({
     return (
       <div
         key={media.id}
-        className={`relative group cursor-move ${isDragging ? "opacity-50" : ""}`}
+        className={`relative group cursor-move ${
+          isDragging ? "opacity-50" : ""
+        }`}
         draggable
         onDragStart={(e) => handleDragStart(e, media.id, type, index)}
         onDragOver={handleDragOver}
@@ -622,8 +712,10 @@ export function EnhancedMediaUpload({
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <Upload className="w-5 h-5" />
-        <h3 className="text-lg font-medium">{t("labels.mediaUpload")}</h3>
+        <Upload className="w-5 h-5 text-gray-900 dark:text-gray-100" />
+        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+          {t("labels.mediaUpload")}
+        </h3>
       </div>
 
       {/* Upload Area */}
@@ -633,8 +725,8 @@ export function EnhancedMediaUpload({
             {...getRootProps()}
             className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
               isDragActive
-                ? "border-blue-400 bg-blue-50"
-                : "border-gray-300 hover:border-gray-400"
+                ? "border-blue-400 bg-blue-50 dark:border-blue-500 dark:bg-blue-950/30"
+                : "border-gray-300 hover:border-gray-400 dark:border-gray-600 dark:hover:border-gray-500"
             } ${
               isUploading || disabled ? "opacity-50 cursor-not-allowed" : ""
             }`}
@@ -643,25 +735,92 @@ export function EnhancedMediaUpload({
 
             {isUploading ? (
               <div className="space-y-4">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto" />
-                <p className="text-sm text-gray-600">{t("uploading")}</p>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${uploadProgress}%` }}
-                  />
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 dark:border-blue-400 mx-auto" />
+
+                {/* File info */}
+                {uploadInfo && (
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate max-w-xs mx-auto">
+                      {uploadInfo.currentFileName}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {uploadInfo.totalFiles > 1
+                        ? `File ${uploadInfo.currentFileIndex} of ${uploadInfo.totalFiles}`
+                        : formatFileSize(uploadInfo.currentFileSize)}
+                    </p>
+                  </div>
+                )}
+
+                {/* Progress bar */}
+                <div className="space-y-2">
+                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                    <div
+                      className="bg-blue-600 dark:bg-blue-500 h-2.5 rounded-full transition-all duration-300"
+                      style={{ width: `${uploadProgress}%` }}
+                    />
+                  </div>
+
+                  {/* Progress details */}
+                  <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                    <span>{uploadProgress}%</span>
+                    {uploadInfo && (
+                      <span>
+                        {formatFileSize(uploadInfo.uploadedBytes)} /{" "}
+                        {formatFileSize(uploadInfo.totalSize)}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Upload speed estimation */}
+                  {uploadInfo && uploadInfo.uploadedBytes > 0 && (
+                    <p className="text-xs text-gray-400 dark:text-gray-500">
+                      {(() => {
+                        const elapsedSeconds =
+                          (Date.now() - uploadInfo.startTime) / 1000;
+                        const bytesPerSecond =
+                          uploadInfo.uploadedBytes / elapsedSeconds;
+                        const remainingBytes =
+                          uploadInfo.totalSize - uploadInfo.uploadedBytes;
+                        const remainingSeconds =
+                          remainingBytes / bytesPerSecond;
+
+                        if (remainingSeconds < 60) {
+                          return `~${Math.ceil(remainingSeconds)}s remaining`;
+                        } else if (remainingSeconds < 3600) {
+                          return `~${Math.ceil(
+                            remainingSeconds / 60
+                          )}m remaining`;
+                        }
+                        return `~${Math.ceil(
+                          remainingSeconds / 3600
+                        )}h remaining`;
+                      })()}
+                      {" • "}
+                      {(() => {
+                        const elapsedSeconds =
+                          (Date.now() - uploadInfo.startTime) / 1000;
+                        const bytesPerSecond =
+                          uploadInfo.uploadedBytes / elapsedSeconds;
+                        return `${formatFileSize(bytesPerSecond)}/s`;
+                      })()}
+                    </p>
+                  )}
                 </div>
               </div>
             ) : (
               <div className="space-y-2">
-                <div className="text-4xl text-gray-400">📷</div>
-                <p className="text-lg font-medium text-gray-900">
+                <div className="text-4xl text-gray-400 dark:text-gray-500">
+                  📷
+                </div>
+                <p className="text-lg font-medium text-gray-900 dark:text-gray-100">
                   {isDragActive ? t("dropFiles") : t("uploadMedia")}
                 </p>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
                   {t("dragDropDescription")}
                 </p>
-                <p className="text-xs text-gray-500">{t("supportedFormats")}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-500">
+                  {t("supportedFormats")}
+                </p>
               </div>
             )}
           </div>
@@ -763,7 +922,10 @@ export function EnhancedMediaUpload({
 
       {/* Edit Media Dialog */}
       {editingMedia && (
-        <Dialog open={!!editingMedia} onOpenChange={() => setEditingMedia(null)}>
+        <Dialog
+          open={!!editingMedia}
+          onOpenChange={() => setEditingMedia(null)}
+        >
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Edit Media Metadata</DialogTitle>

@@ -78,5 +78,9 @@ export const queryKeys = {
       details: () => [...queryKeys.admin.gemstones.all(), "detail"] as const,
       detail: (id: string) => [...queryKeys.admin.gemstones.details(), id] as const,
     },
+    mediaStats: {
+      all: () => [...queryKeys.admin.all, "mediaStats"] as const,
+      stats: () => [...queryKeys.admin.mediaStats.all(), "stats"] as const,
+    },
   },
 } as const;
