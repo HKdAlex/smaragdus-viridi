@@ -787,14 +787,24 @@ export function MediaGallery({
                 />
               ) : (
                 <div className="relative w-full h-full bg-muted">
-                  <video
-                    src={media.url}
-                    className="w-full h-full object-cover"
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                  />
+                  {media.thumbnailUrl ? (
+                    <Image
+                      src={media.thumbnailUrl}
+                      alt={t("thumbnail")}
+                      fill
+                      className="object-cover"
+                      sizes="80px"
+                    />
+                  ) : (
+                    <video
+                      src={media.url}
+                      className="w-full h-full object-cover"
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                    />
+                  )}
                   <div className="absolute inset-0 bg-black/20 dark:bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                     <Play className="w-4 h-4 text-white dark:text-foreground" />
                   </div>
