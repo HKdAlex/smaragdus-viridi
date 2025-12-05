@@ -230,13 +230,17 @@ export class MediaUploadService {
   /**
    * Get media for a gemstone
    */
-  static async getGemstoneMedia(gemstoneId: string): Promise<{
+  static async getGemstoneMedia(gemstoneId: string, forceRefresh = false): Promise<{
     success: boolean;
     data?: { images: DatabaseGemstoneImage[]; videos: DatabaseGemstoneVideo[] };
     error?: string;
   }> {
     try {
-      const response = await fetch(`/api/admin/gemstones/${gemstoneId}/media`);
+      // Add cache-busting parameter for production to ensure fresh data
+      const url = `/api/admin/gemstones/${gemstoneId}/media${forceRefresh ? `?t=${Date.now()}` : ""}`;
+      const response = await fetch(url, {
+        cache: forceRefresh ? "no-store" : "default",
+      });
       const result = await response.json();
 
       if (!response.ok) {

@@ -119,7 +119,7 @@ export function EnhancedMediaUpload({
   // Track video optimization status in real-time
   useVideoOptimizationStatus({
     videoIds: uploadedVideoIds,
-    onStatusChange: (videoId, status) => {
+    onStatusChange: (videoId, status, videoData) => {
       setOptimizationStatuses((prev) => {
         const newMap = new Map(prev);
         newMap.set(videoId, {
@@ -130,8 +130,20 @@ export function EnhancedMediaUpload({
         });
         return newMap;
       });
+      
+      // Update existingMedia when thumbnail_url becomes available
+      if (videoData?.thumbnail_url) {
+        setExistingMedia((prev) => ({
+          ...prev,
+          videos: prev.videos.map((video) =>
+            video.id === videoId
+              ? { ...video, thumbnail_url: videoData.thumbnail_url }
+              : video
+          ),
+        }));
+      }
     },
-    onComplete: (videoId, status) => {
+    onComplete: (videoId, status, videoData) => {
       const originalSize = status.originalSize || 0;
       const optimizedSize = status.optimizedSize || 0;
       const percentage = status.optimizationPercentage || 0;
@@ -139,6 +151,10 @@ export function EnhancedMediaUpload({
       console.log(
         `[EnhancedMediaUpload] Video ${videoId} optimized: ${formatFileSize(originalSize)} → ${formatFileSize(optimizedSize)} (${percentage.toFixed(1)}% reduction)`
       );
+      
+      // Reload existing media with cache-busting to ensure we have the latest data including thumbnail_url
+      // This is especially important on Vercel where CDN caching might serve stale data
+      loadExistingMedia(true);
       
       // Show success notification
       if (percentage > 0) {
@@ -157,12 +173,12 @@ export function EnhancedMediaUpload({
     },
   });
 
-  const loadExistingMedia = useCallback(async () => {
+  const loadExistingMedia = useCallback(async (forceRefresh = false) => {
     if (!gemstoneId) return;
 
     setLoading(true);
     try {
-      const result = await MediaUploadService.getGemstoneMedia(gemstoneId);
+      const result = await MediaUploadService.getGemstoneMedia(gemstoneId, forceRefresh);
       if (result.success && result.data) {
         setExistingMedia(result.data);
       } else {

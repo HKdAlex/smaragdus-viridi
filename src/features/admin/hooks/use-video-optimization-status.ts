@@ -12,8 +12,8 @@ interface VideoOptimizationStatus {
 
 interface UseVideoOptimizationStatusOptions {
   videoIds: string[];
-  onStatusChange?: (videoId: string, status: VideoOptimizationStatus) => void;
-  onComplete?: (videoId: string, status: VideoOptimizationStatus) => void;
+  onStatusChange?: (videoId: string, status: VideoOptimizationStatus, videoData?: DatabaseGemstoneVideo) => void;
+  onComplete?: (videoId: string, status: VideoOptimizationStatus, videoData?: DatabaseGemstoneVideo) => void;
   onError?: (videoId: string, error: string) => void;
 }
 
@@ -61,12 +61,12 @@ export function useVideoOptimizationStatus({
             optimizationPercentage: video.optimization_percentage ?? undefined,
           };
 
-          // Call status change callback
-          onStatusChange?.(video.id, status);
+          // Call status change callback with full video data
+          onStatusChange?.(video.id, status, video);
 
           // Call completion callback if completed
           if (status.status === "completed") {
-            onComplete?.(video.id, status);
+            onComplete?.(video.id, status, video);
           }
 
           // Call error callback if failed
