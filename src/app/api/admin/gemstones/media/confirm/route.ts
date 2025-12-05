@@ -222,6 +222,8 @@ export async function POST(request: Request) {
         thumbnail_url: null,
         original_path: storagePath,
         original_filename: fileName || storagePath.split("/").pop(),
+        processing_status: "pending",
+        original_size_bytes: fileSize,
       })
       .select()
       .single();
@@ -249,6 +251,42 @@ export async function POST(request: Request) {
       id: data.id,
       gemstoneId,
     });
+
+    // Trigger video optimization Edge Function asynchronously (non-blocking)
+    // This happens after the video is confirmed and database record is created
+    if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      const edgeFunctionUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/optimize-video`;
+      
+      // Fire and forget - don't wait for response
+      fetch(edgeFunctionUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+        },
+        body: JSON.stringify({
+          type: "INSERT",
+          table: "objects",
+          record: {
+            id: data.id,
+            name: storagePath,
+            bucket_id: GEMSTONE_MEDIA_BUCKET,
+            path: storagePath,
+            metadata: {
+              size: fileSize,
+              mimetype: "video/mp4",
+            },
+            created_at: new Date().toISOString(),
+          },
+        }),
+      }).catch((error) => {
+        // Log error but don't fail the upload
+        console.error(
+          "[admin/gemstones/media/confirm] Failed to trigger optimization:",
+          error
+        );
+      });
+    }
 
     return NextResponse.json({
       success: true,

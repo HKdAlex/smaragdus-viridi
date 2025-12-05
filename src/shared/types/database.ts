@@ -786,10 +786,15 @@ export type Database = {
           ai_analysis_date: string | null
           created_at: string | null
           duration_seconds: number | null
+          error_message: string | null
           gemstone_id: string
           id: string
+          optimization_percentage: number | null
+          optimized_size_bytes: number | null
           original_filename: string | null
           original_path: string | null
+          original_size_bytes: number | null
+          processing_status: string | null
           thumbnail_url: string | null
           title: string | null
           video_order: number
@@ -799,10 +804,15 @@ export type Database = {
           ai_analysis_date?: string | null
           created_at?: string | null
           duration_seconds?: number | null
+          error_message?: string | null
           gemstone_id: string
           id?: string
+          optimization_percentage?: number | null
+          optimized_size_bytes?: number | null
           original_filename?: string | null
           original_path?: string | null
+          original_size_bytes?: number | null
+          processing_status?: string | null
           thumbnail_url?: string | null
           title?: string | null
           video_order: number
@@ -812,10 +822,15 @@ export type Database = {
           ai_analysis_date?: string | null
           created_at?: string | null
           duration_seconds?: number | null
+          error_message?: string | null
           gemstone_id?: string
           id?: string
+          optimization_percentage?: number | null
+          optimized_size_bytes?: number | null
           original_filename?: string | null
           original_path?: string | null
+          original_size_bytes?: number | null
+          processing_status?: string | null
           thumbnail_url?: string | null
           title?: string | null
           video_order?: number
@@ -1896,6 +1911,7 @@ export type Database = {
           historical_context_en: string | null
           historical_context_ru: string | null
           id: string | null
+          image_count: number | null
           in_stock: boolean | null
           internal_code: string | null
           length_mm: number | null
@@ -1925,6 +1941,7 @@ export type Database = {
           technical_description_ru: string | null
           type_code: string | null
           updated_at: string | null
+          video_count: number | null
           weight_carats: number | null
           width_mm: number | null
         }

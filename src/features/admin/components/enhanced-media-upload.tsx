@@ -26,6 +26,7 @@ import {
   Edit2,
   GripVertical,
   Image as ImageIcon,
+  Play,
   Star,
   StarOff,
   Trash2,
@@ -41,6 +42,7 @@ import {
   type MediaUploadResult,
   type UploadProgressCallback,
 } from "../services/media-upload-service";
+import { useVideoOptimizationStatus } from "../hooks/use-video-optimization-status";
 
 interface EnhancedMediaUploadProps {
   gemstoneId?: string;
@@ -62,6 +64,13 @@ function formatFileSize(bytes: number): string {
   const sizes = ["B", "KB", "MB", "GB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
+}
+
+// Helper to format duration in seconds to MM:SS format
+function formatDuration(seconds: number): string {
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
 }
 
 interface UploadInfo {
@@ -102,6 +111,51 @@ export function EnhancedMediaUpload({
     alt_text: string;
     has_watermark: boolean;
   } | null>(null);
+  const [optimizationStatuses, setOptimizationStatuses] = useState<
+    Map<string, { status: string; originalSize?: number; optimizedSize?: number; percentage?: number }>
+  >(new Map());
+  const [uploadedVideoIds, setUploadedVideoIds] = useState<string[]>([]);
+
+  // Track video optimization status in real-time
+  useVideoOptimizationStatus({
+    videoIds: uploadedVideoIds,
+    onStatusChange: (videoId, status) => {
+      setOptimizationStatuses((prev) => {
+        const newMap = new Map(prev);
+        newMap.set(videoId, {
+          status: status.status,
+          originalSize: status.originalSize,
+          optimizedSize: status.optimizedSize,
+          percentage: status.optimizationPercentage,
+        });
+        return newMap;
+      });
+    },
+    onComplete: (videoId, status) => {
+      const originalSize = status.originalSize || 0;
+      const optimizedSize = status.optimizedSize || 0;
+      const percentage = status.optimizationPercentage || 0;
+      
+      console.log(
+        `[EnhancedMediaUpload] Video ${videoId} optimized: ${formatFileSize(originalSize)} → ${formatFileSize(optimizedSize)} (${percentage.toFixed(1)}% reduction)`
+      );
+      
+      // Show success notification
+      if (percentage > 0) {
+        alert(
+          `Video optimized successfully!\n` +
+          `Original: ${formatFileSize(originalSize)}\n` +
+          `Optimized: ${formatFileSize(optimizedSize)}\n` +
+          `Reduction: ${percentage.toFixed(1)}%\n` +
+          `Status: Web-optimized ✓`
+        );
+      }
+    },
+    onError: (videoId, error) => {
+      console.error(`[EnhancedMediaUpload] Video ${videoId} optimization failed:`, error);
+      alert(`Video optimization failed: ${error}`);
+    },
+  });
 
   const loadExistingMedia = useCallback(async () => {
     if (!gemstoneId) return;
@@ -285,6 +339,22 @@ export function EnhancedMediaUpload({
 
           if (videoResult.success && videoResult.data) {
             allResults = [...allResults, ...videoResult.data];
+            
+            // Track video IDs for optimization status monitoring
+            const videoIds = videoResult.data
+              .filter((r) => r.type === "video")
+              .map((r) => r.id);
+            setUploadedVideoIds((prev) => [...prev, ...videoIds]);
+            
+            // Initialize optimization statuses
+            videoIds.forEach((id) => {
+              setOptimizationStatuses((prev) => {
+                const newMap = new Map(prev);
+                newMap.set(id, { status: "pending" });
+                return newMap;
+              });
+            });
+            
             setUploadProgress(95);
             console.log(
               "[EnhancedMediaUpload] Videos uploaded successfully:",
@@ -639,7 +709,7 @@ export function EnhancedMediaUpload({
           </div>
         </div>
 
-        <div className="aspect-square rounded-lg overflow-hidden bg-gray-100 border">
+        <div className="aspect-square rounded-lg overflow-hidden bg-gray-100 border relative">
           {type === "image" ? (
             <img
               src={(media as DatabaseGemstoneImage).image_url}
@@ -647,9 +717,42 @@ export function EnhancedMediaUpload({
               className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <Video className="w-8 h-8 text-gray-400" />
-            </div>
+            <>
+              {(media as DatabaseGemstoneVideo).thumbnail_url ? (
+                <img
+                  src={(media as DatabaseGemstoneVideo).thumbnail_url!}
+                  alt={media.original_filename || "Video thumbnail"}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <Video className="w-8 h-8 text-gray-400" />
+                </div>
+              )}
+              {/* Video play icon overlay */}
+              <div className="absolute inset-0 flex items-center justify-center bg-black/20 dark:bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                <div className="bg-white/90 dark:bg-gray-800/90 rounded-full p-3 shadow-lg">
+                  <Play className="w-6 h-6 text-gray-900 dark:text-gray-100 fill-gray-900 dark:fill-gray-100" />
+                </div>
+              </div>
+              {/* Video badge indicator - show only if not primary to avoid overlap */}
+              {!isPrimary && (
+                <div className="absolute top-2 left-2 z-10">
+                  <Badge variant="secondary" className="bg-blue-600 text-white text-xs font-semibold">
+                    <Video className="w-3 h-3 mr-1" />
+                    Video
+                  </Badge>
+                </div>
+              )}
+              {/* Duration indicator */}
+              {(media as DatabaseGemstoneVideo).duration_seconds && (
+                <div className="absolute bottom-2 right-2 z-10">
+                  <Badge variant="secondary" className="bg-black/70 text-white text-xs font-mono">
+                    {formatDuration((media as DatabaseGemstoneVideo).duration_seconds!)}
+                  </Badge>
+                </div>
+              )}
+            </>
           )}
         </div>
 
@@ -662,6 +765,45 @@ export function EnhancedMediaUpload({
             </Badge>
           </div>
         )}
+
+        {/* Optimization status indicator for videos */}
+        {type === "video" && (() => {
+          const optStatus = optimizationStatuses.get(media.id);
+          if (optStatus?.status === "processing") {
+            return (
+              <div className="absolute bottom-2 left-2">
+                <Badge variant="secondary" className="bg-blue-500 text-white">
+                  Processing...
+                </Badge>
+              </div>
+            );
+          } else if (optStatus?.status === "completed" && optStatus.percentage) {
+            return (
+              <div className="absolute bottom-2 left-2">
+                <Badge variant="default" className="bg-green-500 text-white">
+                  ✓ Optimized ({optStatus.percentage.toFixed(0)}%)
+                </Badge>
+              </div>
+            );
+          } else if (optStatus?.status === "failed") {
+            return (
+              <div className="absolute bottom-2 left-2">
+                <Badge variant="destructive">
+                  Optimization Failed
+                </Badge>
+              </div>
+            );
+          } else if (optStatus?.status === "pending") {
+            return (
+              <div className="absolute bottom-2 left-2">
+                <Badge variant="secondary" className="bg-gray-500 text-white">
+                  Pending...
+                </Badge>
+              </div>
+            );
+          }
+          return null;
+        })()}
 
         {/* Action buttons */}
         <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
