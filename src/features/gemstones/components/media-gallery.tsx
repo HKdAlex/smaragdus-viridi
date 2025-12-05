@@ -1,10 +1,5 @@
 "use client";
 
-import { Dialog, DialogContent } from "@/shared/components/ui/dialog";
-import type {
-  DatabaseGemstoneImage,
-  DatabaseGemstoneVideo,
-} from "@/shared/types";
 import {
   ChevronLeft,
   ChevronRight,
@@ -15,12 +10,17 @@ import {
   VolumeX,
   X,
 } from "lucide-react";
+import type {
+  DatabaseGemstoneImage,
+  DatabaseGemstoneVideo,
+} from "@/shared/types";
+import { Dialog, DialogContent } from "@/shared/components/ui/dialog";
 import { useEffect, useRef, useState } from "react";
 
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { useTranslations } from "next-intl";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 
 interface MediaGalleryProps {
   images: DatabaseGemstoneImage[];
@@ -201,13 +201,13 @@ export function MediaGallery({
       setIsVideoPlaying(true); // Videos autoplay
       setVideoCurrentTime(0);
       setVideoError(false);
-      
+
       const video = videoRef.current;
       let retryCount = 0;
       let isRetrying = false; // Prevent multiple simultaneous retries
       const maxRetries = 5; // Increased retries for files that may need time after upload
       const retryDelay = 2000; // 2 seconds - files may need time to be fully available
-      
+
       // Check if browser supports MP4 codec
       const checkCodecSupport = () => {
         // Check for common MP4 codecs
@@ -215,24 +215,24 @@ export function MediaGallery({
           'video/mp4; codecs="avc1.42E01E"', // H.264 Baseline
           'video/mp4; codecs="avc1.4D401E"', // H.264 Main
           'video/mp4; codecs="avc1.64001E"', // H.264 High
-          'video/mp4', // Generic MP4
+          "video/mp4", // Generic MP4
         ];
-        
+
         for (const codec of codecs) {
-          if (video.canPlayType(codec) !== '') {
+          if (video.canPlayType(codec) !== "") {
             console.log(`[MediaGallery] Browser supports codec: ${codec}`);
             return true;
           }
         }
-        
+
         console.warn("[MediaGallery] Browser may not support MP4 codec");
         return false;
       };
-      
+
       // Verify video URL is accessible (optional check)
       const verifyUrl = async () => {
         try {
-          const response = await fetch(currentMedia.url, { 
+          const response = await fetch(currentMedia.url, {
             method: "HEAD",
             mode: "cors",
           });
@@ -257,22 +257,29 @@ export function MediaGallery({
               contentLength,
               url: currentMedia.url,
             });
-            
+
             // Check if content-type matches expected video type
             if (contentType && !contentType.startsWith("video/")) {
-              console.warn("[MediaGallery] Unexpected content-type:", contentType);
+              console.warn(
+                "[MediaGallery] Unexpected content-type:",
+                contentType
+              );
             }
           }
         } catch (error) {
-          console.warn("[MediaGallery] Could not verify video URL (CORS may be blocking):", error);
+          console.warn(
+            "[MediaGallery] Could not verify video URL (CORS may be blocking):",
+            error
+          );
           // CORS issue - this is OK, video element will try anyway
           // Don't set error - let the video element handle it
         }
       };
-      
+
       // Wait for video to be ready before attempting to play
       const attemptPlay = () => {
-        if (video.readyState >= 2) { // HAVE_CURRENT_DATA or higher
+        if (video.readyState >= 2) {
+          // HAVE_CURRENT_DATA or higher
           const playPromise = video.play();
           if (playPromise !== undefined) {
             playPromise
@@ -296,7 +303,10 @@ export function MediaGallery({
                   setIsVideoPlaying(false);
                 } else {
                   // Autoplay was prevented (common and OK)
-                  console.log("[MediaGallery] Video autoplay prevented (user interaction may be required):", error.name);
+                  console.log(
+                    "[MediaGallery] Video autoplay prevented (user interaction may be required):",
+                    error.name
+                  );
                   setIsVideoPlaying(false);
                   // Don't set error state for autoplay prevention
                 }
@@ -307,7 +317,7 @@ export function MediaGallery({
           video.addEventListener("loadeddata", attemptPlay, { once: true });
         }
       };
-      
+
       // Try loading video as blob URL (fallback for codec/CORS issues)
       const tryBlobUrlFallback = async (): Promise<boolean> => {
         try {
@@ -316,32 +326,32 @@ export function MediaGallery({
             mode: "cors",
             cache: "no-cache",
           });
-          
+
           if (!response.ok) {
             console.error("[MediaGallery] Blob fetch failed:", response.status);
             return false;
           }
-          
+
           const blob = await response.blob();
           const blobUrl = URL.createObjectURL(blob);
-          
+
           // Try loading with blob URL
           video.src = blobUrl;
           video.load();
-          
+
           // Wait for video to load
           await new Promise<void>((resolve, reject) => {
             const timeout = setTimeout(() => {
               reject(new Error("Timeout"));
             }, 5000);
-            
+
             const onLoadedData = () => {
               clearTimeout(timeout);
               video.removeEventListener("error", onError);
               video.removeEventListener("loadeddata", onLoadedData);
               resolve();
             };
-            
+
             const onError = () => {
               clearTimeout(timeout);
               video.removeEventListener("error", onError);
@@ -349,30 +359,36 @@ export function MediaGallery({
               URL.revokeObjectURL(blobUrl);
               reject(new Error("Video error"));
             };
-            
+
             video.addEventListener("loadeddata", onLoadedData, { once: true });
             video.addEventListener("error", onError, { once: true });
           });
-          
+
           console.log("[MediaGallery] Blob URL fallback successful!");
           // Clean up blob URL after video starts playing
-          video.addEventListener("playing", () => {
-            URL.revokeObjectURL(blobUrl);
-          }, { once: true });
-          
+          video.addEventListener(
+            "playing",
+            () => {
+              URL.revokeObjectURL(blobUrl);
+            },
+            { once: true }
+          );
+
           return true;
         } catch (error) {
           console.warn("[MediaGallery] Blob URL fallback failed:", error);
           return false;
         }
       };
-      
+
       // Retry mechanism for video loading
       const retryLoad = async () => {
         if (isRetrying || retryCount >= maxRetries) {
           if (retryCount >= maxRetries && !isRetrying) {
             // Last resort: try blob URL fallback
-            console.log("[MediaGallery] All retries exhausted, trying blob URL fallback...");
+            console.log(
+              "[MediaGallery] All retries exhausted, trying blob URL fallback..."
+            );
             const blobSuccess = await tryBlobUrlFallback();
             if (!blobSuccess) {
               console.error("[MediaGallery] All methods failed, showing error");
@@ -382,21 +398,25 @@ export function MediaGallery({
           }
           return;
         }
-        
+
         isRetrying = true;
         retryCount++;
         const delay = retryDelay * retryCount; // Exponential backoff
-        console.log(`[MediaGallery] Retrying video load (attempt ${retryCount}/${maxRetries}) after ${delay}ms...`);
-        
+        console.log(
+          `[MediaGallery] Retrying video load (attempt ${retryCount}/${maxRetries}) after ${delay}ms...`
+        );
+
         setTimeout(async () => {
           // First verify the URL is still accessible
           try {
-            const response = await fetch(currentMedia.url, { 
+            const response = await fetch(currentMedia.url, {
               method: "HEAD",
               cache: "no-cache",
             });
             if (!response.ok) {
-              console.error(`[MediaGallery] Retry ${retryCount}: URL still not accessible (${response.status})`);
+              console.error(
+                `[MediaGallery] Retry ${retryCount}: URL still not accessible (${response.status})`
+              );
               isRetrying = false;
               if (retryCount >= maxRetries) {
                 const blobSuccess = await tryBlobUrlFallback();
@@ -407,39 +427,45 @@ export function MediaGallery({
               return;
             }
           } catch (error) {
-            console.warn(`[MediaGallery] Retry ${retryCount}: Could not verify URL:`, error);
+            console.warn(
+              `[MediaGallery] Retry ${retryCount}: Could not verify URL:`,
+              error
+            );
           }
-          
+
           // Reset video source to trigger reload (with cache-busting)
           const url = new URL(currentMedia.url);
           url.searchParams.set("_t", Date.now().toString()); // Cache-busting
           const currentSrc = video.src;
-          video.src = '';
+          video.src = "";
           video.load(); // Reset the video element
-          
+
           setTimeout(() => {
             video.src = url.toString();
             video.load(); // Reload with the source
-            
+
             // Try to play after reload
             setTimeout(() => {
               isRetrying = false;
               if (video.readyState >= 2) {
                 video.play().catch((error) => {
-                  console.warn(`[MediaGallery] Retry ${retryCount}: Play failed:`, error.name);
+                  console.warn(
+                    `[MediaGallery] Retry ${retryCount}: Play failed:`,
+                    error.name
+                  );
                 });
               }
             }, 500);
           }, 200);
         }, delay);
       };
-      
+
       // Check codec support
       checkCodecSupport();
-      
+
       // Verify URL accessibility (non-blocking)
       verifyUrl();
-      
+
       // Set up error handler with retry BEFORE attempting to play
       const errorHandler = () => {
         const error = video.error;
@@ -452,7 +478,7 @@ export function MediaGallery({
             isRetrying,
             url: currentMedia.url,
           });
-          
+
           // Only trigger retry if not already retrying
           if (!isRetrying && retryCount < maxRetries) {
             retryLoad();
@@ -460,7 +486,9 @@ export function MediaGallery({
             // Try blob URL fallback as last resort
             tryBlobUrlFallback().then((success) => {
               if (!success) {
-                console.error("[MediaGallery] All methods failed, showing error");
+                console.error(
+                  "[MediaGallery] All methods failed, showing error"
+                );
                 setVideoError(true);
                 setIsVideoPlaying(false);
               }
@@ -476,9 +504,9 @@ export function MediaGallery({
           setIsVideoPlaying(false);
         }
       };
-      
+
       video.addEventListener("error", errorHandler);
-      
+
       // Add a small delay before first play attempt
       // This helps with files that were just uploaded and may need a moment to be fully available
       // Even though the file exists (HEAD request succeeds), playback might need a brief delay
@@ -486,7 +514,7 @@ export function MediaGallery({
         // Try to play immediately if ready, otherwise wait
         attemptPlay();
       }, 500); // 500ms delay for newly uploaded files
-      
+
       // Cleanup listeners if component unmounts
       return () => {
         video.removeEventListener("loadeddata", attemptPlay);
@@ -539,7 +567,8 @@ export function MediaGallery({
                 {tErrors("media.gemstone") || "Video failed to load"}
               </p>
               <p className="text-xs opacity-75 mb-2">
-                The video format may not be supported or the file may not be accessible.
+                The video format may not be supported or the file may not be
+                accessible.
               </p>
               <Button
                 variant="outline"
@@ -573,7 +602,7 @@ export function MediaGallery({
               onError={(e) => {
                 const video = e.currentTarget as HTMLVideoElement;
                 const error = video.error;
-                
+
                 // Error codes:
                 // 1 = MEDIA_ERR_ABORTED - fetching aborted
                 // 2 = MEDIA_ERR_NETWORK - network error
@@ -587,24 +616,33 @@ export function MediaGallery({
                   readyState: video.readyState,
                   errorNames: {
                     1: "MEDIA_ERR_ABORTED",
-                    2: "MEDIA_ERR_NETWORK", 
+                    2: "MEDIA_ERR_NETWORK",
                     3: "MEDIA_ERR_DECODE",
                     4: "MEDIA_ERR_SRC_NOT_SUPPORTED",
                   },
                 };
-                
-                const errorName = errorDetails.errorNames[error?.code as keyof typeof errorDetails.errorNames] || "UNKNOWN";
-                console.error(`[MediaGallery] Video error (${errorName}):`, errorDetails);
-                
+
+                const errorName =
+                  errorDetails.errorNames[
+                    error?.code as keyof typeof errorDetails.errorNames
+                  ] || "UNKNOWN";
+                console.error(
+                  `[MediaGallery] Video error (${errorName}):`,
+                  errorDetails
+                );
+
                 // Show error for all actual errors (code 1-4)
                 // Code 0 means no error
                 if (error && error.code !== 0 && error.code !== undefined) {
                   setVideoError(true);
                   setIsVideoPlaying(false);
-                  
+
                   // For code 4 (not supported), try to verify if URL is accessible
                   if (error.code === 4) {
-                    console.warn("[MediaGallery] Video format may not be supported or file may not be accessible:", currentMedia.url);
+                    console.warn(
+                      "[MediaGallery] Video format may not be supported or file may not be accessible:",
+                      currentMedia.url
+                    );
                     // Could add a fetch check here to verify URL accessibility
                   }
                 }
