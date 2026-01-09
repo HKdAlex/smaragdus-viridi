@@ -41,6 +41,25 @@ export type DatabaseImageClassification =
   Database["public"]["Tables"]["image_classifications"]["Row"];
 export type DatabaseImportBatch =
   Database["public"]["Tables"]["import_batches"]["Row"];
+export type DatabaseCut = Database["public"]["Tables"]["cuts"]["Row"];
+
+// ===== CUT TYPES (CUT-C1.1) =====
+// Cut type for application use
+export interface Cut {
+  readonly id: string;
+  readonly code: string;
+  readonly name_en: string;
+  readonly name_ru: string;
+  readonly description_en: string | null;
+  readonly description_ru: string | null;
+  readonly display_order: number;
+  readonly is_active: boolean;
+  readonly created_at: string;
+  readonly updated_at: string;
+}
+
+// Helper type for cut codes
+export type CutCode = string;
 
 // ===== APPLICATION LAYER EXTENSIONS =====
 // These extend database types with computed properties and business logic
@@ -118,6 +137,7 @@ export interface DetailGemstone {
   color: GemColor;
   ai_color: string | null; // AI-detected color (overrides manual color if present)
   cut: GemCut;
+  cut_id: string | null; // FK to cuts table (CUT-C1.1)
   clarity: GemClarity;
   price_amount: number;
   price_currency: CurrencyCode;

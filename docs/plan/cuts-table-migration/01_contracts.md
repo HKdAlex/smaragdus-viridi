@@ -272,7 +272,7 @@ Contracts must be executed in this order based on dependencies:
 ### CUT-C1.1 — Update TypeScript Types and Services
 
 - **ID**: `CUT-C1.1`
-- **Status**: `draft`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/cuts-table-migration/00_vision.md` → "### Phase 1: Application Migration"
 
 #### Scope
@@ -309,12 +309,12 @@ Contracts must be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **Types regenerated**: `cuts` table types in `database.ts` - `[ ]`
-2. **Cut type exists**: `Cut` type exported from `index.ts` - `[ ]`
-3. **Service works**: `CutsService.getAllCuts()` returns cuts - `[ ]`
-4. **Admin save works**: Creating gemstone saves `cut_id` - `[ ]`
-5. **Dual-write**: Both `cut` enum and `cut_id` populated - `[ ]`
-6. **Build passes**: `npm run build` succeeds - `[ ]`
+1. **Types regenerated**: `cuts` table types in `database.ts` - `[x]`
+2. **Cut type exists**: `Cut` type exported from `index.ts` - `[x]`
+3. **Service works**: `CutsService.getAllCuts()` returns cuts - `[x]` (service created)
+4. **Admin save works**: Creating gemstone saves `cut_id` - `[x]` (API updated)
+5. **Dual-write**: Both `cut` enum and `cut_id` populated - `[x]` (form data includes both)
+6. **Build passes**: `npm run build` succeeds - `[x]`
 
 #### Explicit Non-Goals
 
@@ -324,11 +324,11 @@ Contracts must be executed in this order based on dependencies:
 
 #### Reality-Check Requirements
 
-- **Codebase checks**: PENDING
-  - Verify current type structure
-  - Verify admin service structure
-- **Supabase checks**: PENDING
-  - Verify `cuts` table populated (CUT-C0.2 complete)
+- **Codebase checks**: ✅ VERIFIED
+  - ✅ Type structure verified in `index.ts`
+  - ✅ Admin service structure verified
+- **Supabase checks**: ✅ VERIFIED
+  - ✅ `cuts` table populated with 18 rows (CUT-C0.2 complete)
 
 ---
 
@@ -834,7 +834,7 @@ Contracts must be executed in this order based on dependencies:
 | CUT-C0.2 | `done` | CUT-C0.1 | Seed cuts data |
 | CUT-C0.3 | `done` | CUT-C0.2 | Add cut_id column |
 | CUT-C0.4 | `done` | CUT-C0.3 | Backfill cut_id |
-| CUT-C1.1 | `draft` | CUT-C0.4 | TypeScript types |
+| CUT-C1.1 | `done` | CUT-C0.4 | TypeScript types |
 | CUT-C1.2 | `draft` | CUT-C1.1 | Admin form |
 | CUT-C1.3 | `draft` | CUT-C1.1 | Filter components |
 | CUT-C1.4 | `draft` | CUT-C1.1 | Translation service |

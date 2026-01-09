@@ -25,6 +25,7 @@ export interface GemstoneFormData {
   name: DatabaseGemstone["name"];
   color: DatabaseGemstone["color"];
   cut: DatabaseGemstone["cut"];
+  cut_id?: string | null; // FK to cuts table (CUT-C1.1)
   clarity: DatabaseGemstone["clarity"];
   // Custom text fields for flexible admin entry (FLEX-C1.x)
   name_custom?: string | null;
@@ -173,12 +174,14 @@ export class GemstoneAdminService {
         cutting_country?: string | null;
         quality_classification?: string | null;
         enhancement_notes?: string | null;
+        cut_id?: string | null;
       } = {
         name: formData.name,
         type_code: formData.type_code ?? formData.name,
         color: formData.color,
         color_code: formData.color_code ?? formData.color,
         cut: formData.cut,
+        cut_id: formData.cut_id ?? null, // FK to cuts table (CUT-C1.1)
         cut_code: formData.cut_code ?? formData.cut,
         clarity: formData.clarity,
         clarity_code: formData.clarity_code ?? formData.clarity,
