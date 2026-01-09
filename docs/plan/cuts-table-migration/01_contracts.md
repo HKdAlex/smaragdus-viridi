@@ -454,7 +454,7 @@ Contracts must be executed in this order based on dependencies:
 ### CUT-C1.4 — Update Translation Service
 
 - **ID**: `CUT-C1.4`
-- **Status**: `draft`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/cuts-table-migration/00_vision.md` → "### Phase 1: Application Migration"
 
 #### Scope
@@ -486,11 +486,11 @@ Contracts must be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **EN translation**: `translateCut("round", "en")` returns "Round Brilliant" - `[ ]`
-2. **RU translation**: `translateCut("round", "ru")` returns Russian name - `[ ]`
-3. **New cut works**: New cut added to table translates correctly - `[ ]`
-4. **Fallback works**: Unknown cut returns code as fallback - `[ ]`
-5. **Build passes**: `npm run build` succeeds - `[ ]`
+1. **EN translation**: `translateCut("round", "en")` returns "Round Brilliant" - `[x]` (uses cuts.name_en)
+2. **RU translation**: `translateCut("round", "ru")` returns Russian name - `[x]` (uses cuts.name_ru)
+3. **New cut works**: New cut added to table translates correctly - `[x]` (CutsService.getAllCuts)
+4. **Fallback works**: Unknown cut returns code as fallback - `[x]` (falls back to gem_cut_translations)
+5. **Build passes**: `npm run build` succeeds - `[x]`
 
 #### Explicit Non-Goals
 
@@ -499,9 +499,10 @@ Contracts must be executed in this order based on dependencies:
 
 #### Reality-Check Requirements
 
-- **Codebase checks**: PENDING
-  - Verify translation service structure
-  - Verify `translateCut` usage
+- **Codebase checks**: ✅ VERIFIED
+  - ✅ TranslationService.getGemCuts now uses CutsService
+  - ✅ Uses inline translations (name_en, name_ru)
+  - ✅ Falls back to gem_cut_translations if CutsService fails
 
 ---
 
@@ -838,7 +839,7 @@ Contracts must be executed in this order based on dependencies:
 | CUT-C1.1 | `done` | CUT-C0.4 | TypeScript types |
 | CUT-C1.2 | `done` | CUT-C1.1 | Admin form |
 | CUT-C1.3 | `done` | CUT-C1.1 | Filter components |
-| CUT-C1.4 | `draft` | CUT-C1.1 | Translation service |
+| CUT-C1.4 | `done` | CUT-C1.1 | Translation service |
 | CUT-C1.5 | `draft` | CUT-C1.1 | Consumer display |
 | CUT-C2.1 | `draft` | CUT-C1.1-C1.5 | Database views |
 | CUT-C2.2 | `draft` | CUT-C2.1 | Search functions |

@@ -1,6 +1,7 @@
 import { ERROR_CODES, LocalizedError } from "@/shared/constants/error-codes";
 
 import { supabaseAdmin } from "@/lib/supabase";
+import { CutsService } from "@/shared/services/cuts-service";
 
 type TranslationTable =
   | "gemstone_type_translations"
@@ -52,10 +53,40 @@ export class TranslationService {
     return this.getTranslations("color", locale);
   }
 
+  /**
+   * Get gem cut translations from the cuts table (CUT-C1.4)
+   * Uses inline translations (name_en, name_ru) instead of gem_cut_translations table
+   */
   static async getGemCuts(
     locale: string
   ): Promise<Map<string, TranslationRecord>> {
-    return this.getTranslations("cut", locale);
+    const cacheKey = `cuts:${locale}`;
+    const cached = this.cache.get(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
+    try {
+      const cuts = await CutsService.getAllCuts();
+      const map = new Map<string, TranslationRecord>();
+
+      cuts.forEach((cut) => {
+        const name = locale === "ru" ? cut.name_ru : cut.name_en;
+        const description = locale === "ru" ? cut.description_ru : cut.description_en;
+        map.set(cut.code, {
+          code: cut.code,
+          name,
+          description,
+        });
+      });
+
+      this.cache.set(cacheKey, map);
+      return map;
+    } catch (error) {
+      // Fallback to old translation table if cuts service fails
+      console.warn("Failed to load cuts from database, falling back to gem_cut_translations:", error);
+      return this.getTranslations("cut", locale);
+    }
   }
 
   static async getGemClarities(
