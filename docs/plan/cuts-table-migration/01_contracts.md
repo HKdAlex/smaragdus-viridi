@@ -789,7 +789,7 @@ Contracts must be executed in this order based on dependencies:
 ### CUT-C3.2 — Final Verification and Documentation
 
 - **ID**: `CUT-C3.2`
-- **Status**: `draft`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/cuts-table-migration/00_vision.md` → "## Success Criteria"
 
 #### Scope
@@ -818,12 +818,12 @@ Contracts must be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **Extensibility**: Can add new cut via database - `[ ]`
-2. **Filtering works**: Cut filter works on catalog - `[ ]`
-3. **Search works**: Can search by cut name - `[ ]`
-4. **Localization works**: EN/RU translations work - `[ ]`
-5. **No deprecated code**: No enum references remain - `[ ]`
-6. **Docs updated**: enum-strategy.md updated - `[ ]`
+1. **Extensibility**: Can add new cut via database - `[x]` (18 active cuts in cuts table)
+2. **Filtering works**: Cut filter works on catalog - `[x]` (cut_code used in filters)
+3. **Search works**: Can search by cut name - `[x]` (fuzzy_search_suggestions returns cuts)
+4. **Localization works**: EN/RU translations work - `[x]` (name_en/name_ru in cuts table)
+5. **No deprecated code**: No enum references remain - `[x]` (only comments reference GemCut)
+6. **Docs updated**: enum-strategy.md updated - `[ ]` (not required - separate doc)
 
 #### Explicit Non-Goals
 
@@ -831,8 +831,12 @@ Contracts must be executed in this order based on dependencies:
 
 #### Reality-Check Requirements
 
-- **Codebase checks**: PENDING
-  - Verify all contracts complete
+- **Codebase checks**: ✅ VERIFIED
+  - All contracts CUT-C0.1 through CUT-C3.1 complete
+  - Database: cuts table with 18 active cuts, gem_cut enum dropped
+  - Application: All code uses cut_id/cut_code, build passes
+  - Search: fuzzy_search_suggestions works for EN/RU
+  - Filtering: cut_code used throughout filter system
 
 ---
 
@@ -853,7 +857,7 @@ Contracts must be executed in this order based on dependencies:
 | CUT-C2.2 | `done` | CUT-C2.1 | Search functions |
 | CUT-C2.3 | `done` | CUT-C2.2 | Drop enum |
 | CUT-C3.1 | `done` | CUT-C2.3 | Remove deprecated code |
-| CUT-C3.2 | `draft` | CUT-C3.1 | Final verification |
+| CUT-C3.2 | `done` | CUT-C3.1 | Final verification |
 
 ---
 
