@@ -216,7 +216,7 @@ Contracts must be executed in this order based on dependencies:
 ### CUT-C0.4 — Backfill `cut_id` from Existing Data
 
 - **ID**: `CUT-C0.4`
-- **Status**: `draft`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/cuts-table-migration/00_vision.md` → "### Phase 0: Preparation"
 
 #### Scope
@@ -249,11 +249,11 @@ Contracts must be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **All populated**: `SELECT COUNT(*) FROM gemstones WHERE cut_id IS NULL` returns 0 - `[ ]`
-2. **Correct mapping**: Sample verification of `cut` → `cut_id` mapping - `[ ]`
-3. **Row count unchanged**: Same number of gemstones before/after - `[ ]`
-4. **Other data intact**: Spot check other columns unchanged - `[ ]`
-5. **Build passes**: `npm run build` succeeds - `[ ]`
+1. **All populated**: `SELECT COUNT(*) FROM gemstones WHERE cut_id IS NULL` returns 0 - `[x]` (1414/1414 populated)
+2. **Correct mapping**: Sample verification of `cut` → `cut_id` mapping - `[x]` (verified cut_enum matches cut_code)
+3. **Row count unchanged**: Same number of gemstones before/after - `[x]` (1414 before and after)
+4. **Other data intact**: Spot check other columns unchanged - `[x]`
+5. **Build passes**: `npm run build` succeeds - `[x]`
 
 #### Explicit Non-Goals
 
@@ -263,9 +263,9 @@ Contracts must be executed in this order based on dependencies:
 
 #### Reality-Check Requirements
 
-- **Supabase checks**: PENDING
-  - Count gemstones before backfill
-  - Verify all `cut` values exist in `cuts.code`
+- **Supabase checks**: ✅ VERIFIED
+  - ✅ 1414 gemstones before backfill
+  - ✅ All `cut` enum values exist in `cuts.code` (no orphans)
 
 ---
 
@@ -833,7 +833,7 @@ Contracts must be executed in this order based on dependencies:
 | CUT-C0.1 | `done` | None | Create cuts table |
 | CUT-C0.2 | `done` | CUT-C0.1 | Seed cuts data |
 | CUT-C0.3 | `done` | CUT-C0.2 | Add cut_id column |
-| CUT-C0.4 | `draft` | CUT-C0.3 | Backfill cut_id |
+| CUT-C0.4 | `done` | CUT-C0.3 | Backfill cut_id |
 | CUT-C1.1 | `draft` | CUT-C0.4 | TypeScript types |
 | CUT-C1.2 | `draft` | CUT-C1.1 | Admin form |
 | CUT-C1.3 | `draft` | CUT-C1.1 | Filter components |
