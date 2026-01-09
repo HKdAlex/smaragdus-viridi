@@ -36,7 +36,9 @@ import { useGemstoneTranslations } from "../utils/gemstone-translations";
 import { CertificationDisplay } from "./certification-display";
 import { GemstoneDetailV6Tabs } from "./gemstone-detail-v6-tabs";
 import { MediaGallery } from "./media-gallery";
+import { ProfessionalSpecifications } from "./professional-specifications";
 import { RelatedGemstones } from "./related-gemstones";
+import { TreatmentDisclosure } from "./treatment-disclosure";
 
 // DetailGemstone interface is now imported from shared types
 
@@ -887,6 +889,12 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
               </div>
             </CardContent>
           </Card>
+
+          {/* Professional Specifications (FLEX-C3.1) */}
+          <ProfessionalSpecifications gemstone={gemstone} />
+
+          {/* Treatment & Enhancement Disclosure (FLEX-C3.2) */}
+          <TreatmentDisclosure gemstone={gemstone} />
 
           {/* Certifications */}
           {gemstone.certifications.length > 0 && (

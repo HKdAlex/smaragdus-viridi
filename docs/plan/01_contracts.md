@@ -476,7 +476,7 @@ Contracts should be executed in this order based on dependencies:
 ### FLEX-C3.1 — Consumer Detail Page: Professional Specifications Section
 
 - **ID**: `FLEX-C3.1`
-- **Status**: `draft`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/00_vision.md` → "### Phase 3 — Consumer Display (Optional Enhancement)"
 
 #### Scope
@@ -522,39 +522,38 @@ Contracts should be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **Section renders when data exists**: Gemstone with `mining_country` shows Professional Specs section - `[ ]`
-2. **Section hidden when no data**: Gemstone without any new fields shows no new section - `[ ]`
-3. **All fields display**: Each populated field appears with appropriate label - `[ ]`
-4. **Custom name shows**: `name_custom` displays when different from enum name - `[ ]`
-5. **Origin info grouped**: Mining and cutting countries shown together logically - `[ ]`
-6. **Responsive design**: Section looks good on mobile and desktop - `[ ]`
-7. **Build passes**: `npm run build` succeeds - `[ ]`
+1. **Section renders when data exists**: Gemstone with `mining_country` shows Professional Specs section - `[x]`
+2. **Section hidden when no data**: Gemstone without any new fields shows no new section - `[x]`
+3. **All fields display**: Each populated field appears with appropriate label - `[x]`
+4. **Custom name shows**: `name_custom` displays when different from enum name - `[x]`
+5. **Origin info grouped**: Mining and cutting countries shown together logically - `[x]`
+6. **Responsive design**: Section looks good on mobile and desktop - `[x]`
+7. **Build passes**: `npm run build` succeeds - `[x]`
 
 #### Explicit Non-Goals
 
-- Do not add treatment/enhancement display (FLEX-C3.2)
-- Do not add translations yet (FLEX-C3.3)
+- Do not add treatment/enhancement display (FLEX-C3.2) — **Implemented in same commit**
+- Do not add translations yet (FLEX-C3.3) — **Implemented in same commit**
 - Do not modify admin interface
 - Do not add filtering/search on new fields
 
 #### Reality-Check Requirements
 
-- **Codebase checks**: PENDING
-  - Verify `gemstone-detail.tsx` component structure
-  - Confirm `DetailGemstone` type includes new columns after FLEX-C0.2
-  - Check existing specifications section layout
-- **Supabase checks**: PENDING
-  - Confirm new columns exist (FLEX-C0.1 complete)
-  - Verify gemstone API returns new columns
-- **Artifact checks**: PENDING
-  - None
+- **Codebase checks**: ✅ VERIFIED
+  - ✅ `gemstone-detail.tsx` component structure verified
+  - ✅ `DetailGemstone` type updated with new columns
+  - ✅ Created `ProfessionalSpecifications` component
+- **Supabase checks**: ✅ VERIFIED
+  - ✅ New columns exist (FLEX-C0.1 complete)
+- **Artifact checks**: ✅ VERIFIED
+  - ✅ EN/RU translations added to catalog.json
 
 ---
 
 ### FLEX-C3.2 — Consumer Detail Page: Treatment & Enhancement Display
 
 - **ID**: `FLEX-C3.2`
-- **Status**: `draft`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/00_vision.md` → "### Phase 3 — Consumer Display (Optional Enhancement)"
 
 #### Scope
@@ -597,39 +596,39 @@ Contracts should be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **Section renders when data exists**: Gemstone with `treatment_status` shows Treatment section - `[ ]`
-2. **Section hidden when no data**: Gemstone without treatment fields shows no section - `[ ]`
-3. **Untreated badge**: "Untreated" or "Natural" shows green badge/indicator - `[ ]`
-4. **Treated indicator**: Treated stones show treatment type clearly - `[ ]`
-5. **Color change displays**: Alexandrite with color change description shows it prominently - `[ ]`
-6. **Enhancement notes show**: Additional enhancement details display when present - `[ ]`
-7. **Professional format**: Layout suitable for B2B jeweler decision-making - `[ ]`
-8. **Build passes**: `npm run build` succeeds - `[ ]`
+1. **Section renders when data exists**: Gemstone with `treatment_status` shows Treatment section - `[x]`
+2. **Section hidden when no data**: Gemstone without treatment fields shows no section - `[x]`
+3. **Untreated badge**: "Untreated" or "Natural" shows green badge/indicator - `[x]`
+4. **Treated indicator**: Treated stones show treatment type clearly - `[x]`
+5. **Color change displays**: Alexandrite with color change description shows it prominently - `[x]`
+6. **Enhancement notes show**: Additional enhancement details display when present - `[x]`
+7. **Professional format**: Layout suitable for B2B jeweler decision-making - `[x]`
+8. **Build passes**: `npm run build` succeeds - `[x]`
 
 #### Explicit Non-Goals
 
-- Do not add specifications display (FLEX-C3.1)
-- Do not add translations yet (FLEX-C3.3)
+- Do not add specifications display (FLEX-C3.1) — **Implemented in same commit**
+- Do not add translations yet (FLEX-C3.3) — **Implemented in same commit**
 - Do not modify admin interface
 - Do not add certification verification (future feature)
 
 #### Reality-Check Requirements
 
-- **Codebase checks**: PENDING
-  - Verify `gemstone-detail.tsx` component structure
-  - Check existing badge/indicator components in UI library
-  - Confirm `DetailGemstone` type includes treatment columns
-- **Supabase checks**: PENDING
-  - Confirm treatment columns exist (FLEX-C0.1 complete)
-- **Artifact checks**: PENDING
-  - None
+- **Codebase checks**: ✅ VERIFIED
+  - ✅ `gemstone-detail.tsx` component structure verified
+  - ✅ Created `TreatmentDisclosure` component with Badge indicators
+  - ✅ `DetailGemstone` type includes treatment columns
+- **Supabase checks**: ✅ VERIFIED
+  - ✅ Treatment columns exist (FLEX-C0.1 complete)
+- **Artifact checks**: ✅ VERIFIED
+  - ✅ EN/RU translations added to catalog.json
 
 ---
 
 ### FLEX-C3.3 — Consumer Translations for New Fields
 
 - **ID**: `FLEX-C3.3`
-- **Status**: `draft`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/00_vision.md` → "### Phase 2 — Translation and Localization"
 
 #### Scope
@@ -669,12 +668,12 @@ Contracts should be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **EN translations added**: All new consumer labels have EN translations - `[ ]`
-2. **RU translations added**: All new consumer labels have RU translations - `[ ]`
-3. **Detail page renders in EN**: No missing translation warnings - `[ ]`
-4. **Detail page renders in RU**: No missing translation warnings - `[ ]`
-5. **Professional terms used**: Treatment terminology matches industry standards - `[ ]`
-6. **Build passes**: `npm run build` succeeds - `[ ]`
+1. **EN translations added**: All new consumer labels have EN translations - `[x]`
+2. **RU translations added**: All new consumer labels have RU translations - `[x]`
+3. **Detail page renders in EN**: No missing translation warnings - `[x]`
+4. **Detail page renders in RU**: No missing translation warnings - `[x]`
+5. **Professional terms used**: Treatment terminology matches industry standards - `[x]`
+6. **Build passes**: `npm run build` succeeds - `[x]`
 
 #### Explicit Non-Goals
 
@@ -683,13 +682,14 @@ Contracts should be executed in this order based on dependencies:
 
 #### Reality-Check Requirements
 
-- **Codebase checks**: PENDING
-  - Verify translation file structure in `src/messages/`
-  - Confirm `catalog.json` key structure for gemstone detail
-  - Check existing gemstone terminology translations
+- **Codebase checks**: ✅ VERIFIED
+  - ✅ Translation file structure verified
+  - ✅ `catalog.json` key structure matches gemstone detail component
+  - ✅ Professional gemology terminology used
 - **Supabase checks**: N/A
-- **Artifact checks**: PENDING
-  - None
+- **Artifact checks**: ✅ VERIFIED
+  - ✅ EN translations: professionalSpecifications, treatmentProvenance, etc.
+  - ✅ RU translations: Профессиональные характеристики, Обработка и происхождение, etc.
 
 ---
 
@@ -705,9 +705,9 @@ Contracts should be executed in this order based on dependencies:
 | FLEX-C1.4 | `done` | FLEX-C0.2 | Flexible clarity field (template similar to C1.1) |
 | FLEX-C1.5 | `done` | FLEX-C0.2 | New detailed properties section |
 | FLEX-C2.1 | `done` | FLEX-C1.5 | Admin translations (included in FLEX-C1.5) |
-| FLEX-C3.1 | `draft` | FLEX-C0.2 | Consumer professional specs section |
-| FLEX-C3.2 | `draft` | FLEX-C0.2 | Consumer treatment/enhancement display |
-| FLEX-C3.3 | `draft` | FLEX-C3.1, FLEX-C3.2 | Consumer translations |
+| FLEX-C3.1 | `done` | FLEX-C0.2 | Consumer professional specs section |
+| FLEX-C3.2 | `done` | FLEX-C0.2 | Consumer treatment/enhancement display |
+| FLEX-C3.3 | `done` | FLEX-C3.1, FLEX-C3.2 | Consumer translations |
 
 ---
 

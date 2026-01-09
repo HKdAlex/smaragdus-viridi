@@ -167,7 +167,25 @@
       "favorite": "Favorite",
       "favorited": "Favorited",
       "share": "Share",
-      "editGemstone": "Edit Gemstone"
+      "editGemstone": "Edit Gemstone",
+      "professionalSpecifications": "Professional Specifications",
+      "detailedCharacteristics": "Detailed Characteristics",
+      "originProvenance": "Origin & Provenance",
+      "gemstoneType": "Gemstone Type",
+      "colorDescription": "Color Description",
+      "cutDescription": "Cut Description",
+      "clarityDescription": "Clarity Description",
+      "qualityClassification": "Quality Classification",
+      "miningCountry": "Mining Country",
+      "cuttingCountry": "Cutting Country",
+      "treatmentProvenance": "Treatment & Provenance",
+      "treatmentStatus": "Treatment Status",
+      "colorChangeEffect": "Color Change Effect",
+      "enhancementNotes": "Enhancement Notes",
+      "natural": "Natural",
+      "treated": "Treated",
+      "heatTreated": "Heat Treated",
+      "oiled": "Oiled"
     }
   },
   "gemstoneTypes": {

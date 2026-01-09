@@ -148,6 +148,17 @@ export interface DetailGemstone {
   origin: DatabaseOrigin | null;
   certifications: DatabaseCertification[];
   individual_stones?: IndividualStone[];
+  // Flexible property fields (FLEX-C1.x, FLEX-C3.x)
+  name_custom?: string | null;
+  color_custom?: string | null;
+  cut_custom?: string | null;
+  clarity_custom?: string | null;
+  treatment_status?: string | null;
+  color_change_description?: string | null;
+  mining_country?: string | null;
+  cutting_country?: string | null;
+  quality_classification?: string | null;
+  enhancement_notes?: string | null;
   // ai_analysis_results table has been removed
 }
 
