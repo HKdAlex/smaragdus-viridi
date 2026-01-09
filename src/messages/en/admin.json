@@ -937,6 +937,7 @@
     "sections": {
       "basicInformation": "Basic Information",
       "properties": "Properties",
+      "detailedProperties": "Detailed Properties",
       "dimensions": "Dimensions",
       "individualStones": "Individual Stones",
       "pricing": "Pricing",
@@ -988,7 +989,21 @@
       "narrativeStory": "Narrative Story",
       "individualStones": "Individual Stones",
       "totalQuantity": "total pieces",
-      "stoneNumber": "Stone #{number}"
+      "stoneNumber": "Stone #{number}",
+      "treatmentStatus": "Treatment Status",
+      "colorChangeDescription": "Color Change Effect",
+      "qualityClassification": "Quality Classification",
+      "miningCountry": "Mining Country",
+      "cuttingCountry": "Cutting Country",
+      "enhancementNotes": "Enhancement Notes"
+    },
+    "placeholders": {
+      "treatmentStatus": "e.g., Heat treated, Untreated, Oiled",
+      "colorChangeDescription": "e.g., Green to red color change under different lighting",
+      "qualityClassification": "e.g., Russian ТУ Г1, GIA Excellent",
+      "miningCountry": "e.g., Russia, Colombia, Sri Lanka",
+      "cuttingCountry": "e.g., India, Thailand, Germany",
+      "enhancementNotes": "Additional details about treatments or natural status..."
     },
     "actions": {
       "cancel": "Cancel",
@@ -1018,7 +1033,10 @@
       "rejected": "Rejected"
     },
     "hints": {
-      "pricePerCaratHelper": "Uses gemstone weight to calculate total price when price per carat is provided."
+      "pricePerCaratHelper": "Uses gemstone weight to calculate total price when price per carat is provided.",
+      "treatmentStatus": "Describe any treatments applied (heat, oiling, diffusion) or indicate if natural/untreated",
+      "colorChangeDescription": "For alexandrites and similar stones, describe the color change effect",
+      "qualityClassification": "Use the appropriate grading system for this stone type (e.g., Russian ТУ for alexandrites)"
     },
     "descriptions": {
       "individualStones": "Specify unique dimensions for each stone in this multi-stone item. Leave blank to use overall dimensions."

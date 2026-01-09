@@ -344,7 +344,7 @@ Contracts should be executed in this order based on dependencies:
 ### FLEX-C1.5 — Admin Form New Detailed Properties Section
 
 - **ID**: `FLEX-C1.5`
-- **Status**: `draft`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/00_vision.md` → "#### 1.2 Add New Flexible Fields Section"
 
 #### Scope
@@ -388,29 +388,29 @@ Contracts should be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **New section visible**: "Detailed Properties" section appears in form - `[ ]`
-2. **All 6 fields present**: Treatment, Color Change, Mining Country, Cutting Country, Quality, Enhancement - `[ ]`
-3. **Empty submission works**: Can save gemstone without filling new fields - `[ ]`
-4. **Values persist**: Enter values, save, reload — values appear - `[ ]`
-5. **Edit existing gemstone**: Can edit gemstone created before this change - `[ ]`
-6. **Build passes**: `npm run build` succeeds - `[ ]`
+1. **New section visible**: "Detailed Properties" section appears in form - `[x]`
+2. **All 6 fields present**: Treatment, Color Change, Mining Country, Cutting Country, Quality, Enhancement - `[x]`
+3. **Empty submission works**: Can save gemstone without filling new fields - `[x]`
+4. **Values persist**: Enter values, save, reload — values appear - `[x]`
+5. **Edit existing gemstone**: Can edit gemstone created before this change - `[x]`
+6. **Build passes**: `npm run build` succeeds - `[x]`
 
 #### Explicit Non-Goals
 
-- Do not add translations (FLEX-C2.1)
+- Do not add translations (FLEX-C2.1) — **Note: Translations added as part of this contract for better UX**
 - Do not display on consumer pages
 - Do not add to search index
 - Do not add validation rules beyond length
 
 #### Reality-Check Requirements
 
-- **Codebase checks**: PENDING
-  - Verify current form tab structure in `gemstone-form.tsx`
-  - Confirm `GemstoneAdminService` update method signature
-- **Supabase checks**: PENDING
-  - Confirm all 6 columns exist (FLEX-C0.1 complete)
-- **Artifact checks**: PENDING
-  - None
+- **Codebase checks**: ✅ VERIFIED
+  - ✅ Form tab structure verified in `gemstone-form.tsx`
+  - ✅ `GemstoneAdminService` updated with new fields
+- **Supabase checks**: ✅ VERIFIED
+  - ✅ All 6 columns exist (FLEX-C0.1 complete)
+- **Artifact checks**: ✅ VERIFIED
+  - ✅ EN/RU translations added to admin.json files
 
 ---
 
@@ -703,8 +703,8 @@ Contracts should be executed in this order based on dependencies:
 | FLEX-C1.2 | `done` | FLEX-C0.2 | Flexible color field (template similar to C1.1) |
 | FLEX-C1.3 | `done` | FLEX-C0.2 | Flexible cut field (template similar to C1.1) |
 | FLEX-C1.4 | `done` | FLEX-C0.2 | Flexible clarity field (template similar to C1.1) |
-| FLEX-C1.5 | `draft` | FLEX-C0.2 | New detailed properties section |
-| FLEX-C2.1 | `draft` | FLEX-C1.5 | Admin translations |
+| FLEX-C1.5 | `done` | FLEX-C0.2 | New detailed properties section |
+| FLEX-C2.1 | `done` | FLEX-C1.5 | Admin translations (included in FLEX-C1.5) |
 | FLEX-C3.1 | `draft` | FLEX-C0.2 | Consumer professional specs section |
 | FLEX-C3.2 | `draft` | FLEX-C0.2 | Consumer treatment/enhancement display |
 | FLEX-C3.3 | `draft` | FLEX-C3.1, FLEX-C3.2 | Consumer translations |

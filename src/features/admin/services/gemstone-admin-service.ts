@@ -31,6 +31,13 @@ export interface GemstoneFormData {
   color_custom?: string | null;
   cut_custom?: string | null;
   clarity_custom?: string | null;
+  // Detailed property fields (FLEX-C1.5)
+  treatment_status?: string | null;
+  color_change_description?: string | null;
+  mining_country?: string | null;
+  cutting_country?: string | null;
+  quality_classification?: string | null;
+  enhancement_notes?: string | null;
   type_code?: string;
   color_code?: string;
   cut_code?: string;
@@ -160,6 +167,12 @@ export class GemstoneAdminService {
         color_custom?: string | null;
         cut_custom?: string | null;
         clarity_custom?: string | null;
+        treatment_status?: string | null;
+        color_change_description?: string | null;
+        mining_country?: string | null;
+        cutting_country?: string | null;
+        quality_classification?: string | null;
+        enhancement_notes?: string | null;
       } = {
         name: formData.name,
         type_code: formData.type_code ?? formData.name,
@@ -174,6 +187,13 @@ export class GemstoneAdminService {
         color_custom: formData.color_custom ?? null,
         cut_custom: formData.cut_custom ?? null,
         clarity_custom: formData.clarity_custom ?? null,
+        // Detailed property fields (FLEX-C1.5)
+        treatment_status: formData.treatment_status ?? null,
+        color_change_description: formData.color_change_description ?? null,
+        mining_country: formData.mining_country ?? null,
+        cutting_country: formData.cutting_country ?? null,
+        quality_classification: formData.quality_classification ?? null,
+        enhancement_notes: formData.enhancement_notes ?? null,
         weight_carats: formData.weight_carats,
         length_mm: formData.length_mm,
         width_mm: formData.width_mm,

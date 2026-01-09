@@ -285,6 +285,13 @@ export function GemstoneForm({
       color_custom: (gemstone as any)?.color_custom || undefined,
       cut_custom: (gemstone as any)?.cut_custom || undefined,
       clarity_custom: (gemstone as any)?.clarity_custom || undefined,
+      // Detailed property fields (FLEX-C1.5)
+      treatment_status: (gemstone as any)?.treatment_status || undefined,
+      color_change_description: (gemstone as any)?.color_change_description || undefined,
+      mining_country: (gemstone as any)?.mining_country || undefined,
+      cutting_country: (gemstone as any)?.cutting_country || undefined,
+      quality_classification: (gemstone as any)?.quality_classification || undefined,
+      enhancement_notes: (gemstone as any)?.enhancement_notes || undefined,
       weight_carats: gemstone?.weight_carats || 0,
       length_mm: parseDimensionValue(gemstone?.length_mm),
       width_mm: parseDimensionValue(gemstone?.width_mm),
@@ -358,6 +365,13 @@ export function GemstoneForm({
         color_custom: (gemstone as any)?.color_custom || undefined,
         cut_custom: (gemstone as any)?.cut_custom || undefined,
         clarity_custom: (gemstone as any)?.clarity_custom || undefined,
+        // Detailed property fields (FLEX-C1.5)
+        treatment_status: (gemstone as any)?.treatment_status || undefined,
+        color_change_description: (gemstone as any)?.color_change_description || undefined,
+        mining_country: (gemstone as any)?.mining_country || undefined,
+        cutting_country: (gemstone as any)?.cutting_country || undefined,
+        quality_classification: (gemstone as any)?.quality_classification || undefined,
+        enhancement_notes: (gemstone as any)?.enhancement_notes || undefined,
         weight_carats: gemstone.weight_carats || 0,
         length_mm: parseDimensionValue(gemstone.length_mm),
         width_mm: parseDimensionValue(gemstone.width_mm),
@@ -906,6 +920,115 @@ export function GemstoneForm({
                 </div>
               </div>
             
+              </div>
+
+              {/* Detailed Properties Section (FLEX-C1.5) */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold border-b pb-2">
+                  {t("sections.detailedProperties")}
+                </h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="space-y-2">
+                    <label htmlFor="treatment_status" className="text-sm font-medium text-foreground">
+                      {t("labels.treatmentStatus")}
+                    </label>
+                    <Input
+                      id="treatment_status"
+                      value={formData.treatment_status || ""}
+                      onChange={(e) =>
+                        handleInputChange("treatment_status", e.target.value || null)
+                      }
+                      placeholder={t("placeholders.treatmentStatus")}
+                      maxLength={500}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      {t("hints.treatmentStatus")}
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label htmlFor="color_change_description" className="text-sm font-medium text-foreground">
+                      {t("labels.colorChangeDescription")}
+                    </label>
+                    <Input
+                      id="color_change_description"
+                      value={formData.color_change_description || ""}
+                      onChange={(e) =>
+                        handleInputChange("color_change_description", e.target.value || null)
+                      }
+                      placeholder={t("placeholders.colorChangeDescription")}
+                      maxLength={500}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      {t("hints.colorChangeDescription")}
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label htmlFor="quality_classification" className="text-sm font-medium text-foreground">
+                      {t("labels.qualityClassification")}
+                    </label>
+                    <Input
+                      id="quality_classification"
+                      value={formData.quality_classification || ""}
+                      onChange={(e) =>
+                        handleInputChange("quality_classification", e.target.value || null)
+                      }
+                      placeholder={t("placeholders.qualityClassification")}
+                      maxLength={500}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      {t("hints.qualityClassification")}
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label htmlFor="mining_country" className="text-sm font-medium text-foreground">
+                      {t("labels.miningCountry")}
+                    </label>
+                    <Input
+                      id="mining_country"
+                      value={formData.mining_country || ""}
+                      onChange={(e) =>
+                        handleInputChange("mining_country", e.target.value || null)
+                      }
+                      placeholder={t("placeholders.miningCountry")}
+                      maxLength={100}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label htmlFor="cutting_country" className="text-sm font-medium text-foreground">
+                      {t("labels.cuttingCountry")}
+                    </label>
+                    <Input
+                      id="cutting_country"
+                      value={formData.cutting_country || ""}
+                      onChange={(e) =>
+                        handleInputChange("cutting_country", e.target.value || null)
+                      }
+                      placeholder={t("placeholders.cuttingCountry")}
+                      maxLength={100}
+                    />
+                  </div>
+
+                  <div className="space-y-2 md:col-span-2 lg:col-span-1">
+                    <label htmlFor="enhancement_notes" className="text-sm font-medium text-foreground">
+                      {t("labels.enhancementNotes")}
+                    </label>
+                    <Textarea
+                      id="enhancement_notes"
+                      value={formData.enhancement_notes || ""}
+                      onChange={(e) =>
+                        handleInputChange("enhancement_notes", e.target.value || null)
+                      }
+                      placeholder={t("placeholders.enhancementNotes")}
+                      rows={3}
+                      maxLength={1000}
+                    />
+                  </div>
+                </div>
               </div>
 
               {/* Dimensions Section */}
