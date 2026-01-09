@@ -1979,6 +1979,10 @@ export type Database = {
           cut: string | null
           cut_code: string | null
           cut_detection_confidence: number | null
+          cut_id: string | null
+          cut_name_en: string | null
+          cut_name_ru: string | null
+          cut_table_code: string | null
           delivery_days: number | null
           depth_mm: number | null
           description: string | null
@@ -2026,6 +2030,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "gemstones_cut_id_fkey"
+            columns: ["cut_id"]
+            isOneToOne: false
+            referencedRelation: "cuts"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "gemstones_origin_id_fkey"
             columns: ["origin_id"]
             isOneToOne: false
@@ -2069,6 +2080,10 @@ export type Database = {
           created_at: string | null
           cut: Database["public"]["Enums"]["gem_cut"] | null
           cut_code: string | null
+          cut_id: string | null
+          cut_name_en: string | null
+          cut_name_ru: string | null
+          cut_table_code: string | null
           delivery_days: number | null
           depth_mm: number | null
           description: string | null
@@ -2103,152 +2118,19 @@ export type Database = {
           weight_source: string | null
           width_mm: number | null
         }
-        Insert: {
-          ai_analysis_date?: string | null
-          ai_analyzed?: boolean | null
-          ai_clarity?: string | null
-          ai_color?: string | null
-          ai_confidence_score?: number | null
-          ai_cut?: string | null
-          ai_data_completeness?: number | null
-          ai_depth_mm?: number | null
-          ai_description_cost_usd?: number | null
-          ai_description_date?: string | null
-          ai_description_model?: string | null
-          ai_extracted_date?: string | null
-          ai_extraction_confidence?: number | null
-          ai_length_mm?: number | null
-          ai_origin?: string | null
-          ai_quality_grade?: string | null
-          ai_treatment?: string | null
-          ai_weight_carats?: number | null
-          ai_width_mm?: number | null
-          best_clarity?: never
-          best_color?: never
-          best_cut?: never
-          best_depth_mm?: never
-          best_length_mm?: never
-          best_weight_carats?: never
-          best_width_mm?: never
-          clarity?: Database["public"]["Enums"]["gem_clarity"] | null
-          clarity_code?: string | null
-          color?: Database["public"]["Enums"]["gem_color"] | null
-          color_code?: string | null
-          created_at?: string | null
-          cut?: Database["public"]["Enums"]["gem_cut"] | null
-          cut_code?: string | null
-          delivery_days?: number | null
-          depth_mm?: number | null
-          description?: string | null
-          description_vector_en?: unknown
-          description_vector_ru?: unknown
-          id?: string | null
-          import_batch_id?: string | null
-          import_folder_path?: string | null
-          import_notes?: string | null
-          in_stock?: boolean | null
-          internal_code?: string | null
-          length_mm?: number | null
-          marketing_highlights?: string[] | null
-          metadata_status?:
-            | Database["public"]["Enums"]["metadata_status"]
-            | null
-          name?: Database["public"]["Enums"]["gemstone_type"] | null
-          origin_id?: string | null
-          premium_price_amount?: number | null
-          premium_price_currency?:
-            | Database["public"]["Enums"]["currency_code"]
-            | null
-          price_amount?: number | null
-          price_currency?: Database["public"]["Enums"]["currency_code"] | null
-          price_per_carat?: number | null
-          promotional_text?: string | null
-          quantity?: number | null
-          search_vector_en?: unknown
-          search_vector_ru?: unknown
-          serial_number?: string | null
-          type_code?: string | null
-          updated_at?: string | null
-          weight_carats?: number | null
-          weight_source?: never
-          width_mm?: number | null
-        }
-        Update: {
-          ai_analysis_date?: string | null
-          ai_analyzed?: boolean | null
-          ai_clarity?: string | null
-          ai_color?: string | null
-          ai_confidence_score?: number | null
-          ai_cut?: string | null
-          ai_data_completeness?: number | null
-          ai_depth_mm?: number | null
-          ai_description_cost_usd?: number | null
-          ai_description_date?: string | null
-          ai_description_model?: string | null
-          ai_extracted_date?: string | null
-          ai_extraction_confidence?: number | null
-          ai_length_mm?: number | null
-          ai_origin?: string | null
-          ai_quality_grade?: string | null
-          ai_treatment?: string | null
-          ai_weight_carats?: number | null
-          ai_width_mm?: number | null
-          best_clarity?: never
-          best_color?: never
-          best_cut?: never
-          best_depth_mm?: never
-          best_length_mm?: never
-          best_weight_carats?: never
-          best_width_mm?: never
-          clarity?: Database["public"]["Enums"]["gem_clarity"] | null
-          clarity_code?: string | null
-          color?: Database["public"]["Enums"]["gem_color"] | null
-          color_code?: string | null
-          created_at?: string | null
-          cut?: Database["public"]["Enums"]["gem_cut"] | null
-          cut_code?: string | null
-          delivery_days?: number | null
-          depth_mm?: number | null
-          description?: string | null
-          description_vector_en?: unknown
-          description_vector_ru?: unknown
-          id?: string | null
-          import_batch_id?: string | null
-          import_folder_path?: string | null
-          import_notes?: string | null
-          in_stock?: boolean | null
-          internal_code?: string | null
-          length_mm?: number | null
-          marketing_highlights?: string[] | null
-          metadata_status?:
-            | Database["public"]["Enums"]["metadata_status"]
-            | null
-          name?: Database["public"]["Enums"]["gemstone_type"] | null
-          origin_id?: string | null
-          premium_price_amount?: number | null
-          premium_price_currency?:
-            | Database["public"]["Enums"]["currency_code"]
-            | null
-          price_amount?: number | null
-          price_currency?: Database["public"]["Enums"]["currency_code"] | null
-          price_per_carat?: number | null
-          promotional_text?: string | null
-          quantity?: number | null
-          search_vector_en?: unknown
-          search_vector_ru?: unknown
-          serial_number?: string | null
-          type_code?: string | null
-          updated_at?: string | null
-          weight_carats?: number | null
-          weight_source?: never
-          width_mm?: number | null
-        }
         Relationships: [
           {
             foreignKeyName: "fk_gemstones_import_batch_id"
             columns: ["import_batch_id"]
             isOneToOne: false
             referencedRelation: "import_batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gemstones_cut_id_fkey"
+            columns: ["cut_id"]
+            isOneToOne: false
+            referencedRelation: "cuts"
             referencedColumns: ["id"]
           },
           {
@@ -2273,6 +2155,9 @@ export type Database = {
           currency_code: Database["public"]["Enums"]["currency_code"] | null
           gemstone_color: Database["public"]["Enums"]["gem_color"] | null
           gemstone_cut: Database["public"]["Enums"]["gem_cut"] | null
+          gemstone_cut_id: string | null
+          gemstone_cut_name_en: string | null
+          gemstone_cut_name_ru: string | null
           gemstone_id: string | null
           gemstone_name: Database["public"]["Enums"]["gemstone_type"] | null
           in_stock: boolean | null
@@ -2293,7 +2178,15 @@ export type Database = {
           user_role: Database["public"]["Enums"]["user_role"] | null
           weight_carats: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "gemstones_cut_id_fkey"
+            columns: ["gemstone_cut_id"]
+            isOneToOne: false
+            referencedRelation: "cuts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       orders_with_user_details: {
         Row: {

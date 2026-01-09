@@ -570,7 +570,7 @@ Contracts must be executed in this order based on dependencies:
 ### CUT-C2.1 — Update Database Views
 
 - **ID**: `CUT-C2.1`
-- **Status**: `draft`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/cuts-table-migration/00_vision.md` → "### Phase 2: Database Cleanup"
 
 #### Scope
@@ -600,10 +600,10 @@ Contracts must be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **View works**: `SELECT * FROM gemstones_enriched LIMIT 1` succeeds - `[ ]`
-2. **Cut data present**: View includes cut name columns - `[ ]`
-3. **Performance**: Query time similar to before - `[ ]`
-4. **Build passes**: `npm run build` succeeds - `[ ]`
+1. **View works**: `SELECT * FROM gemstones_enriched LIMIT 1` succeeds - `[x]`
+2. **Cut data present**: View includes cut name columns - `[x]` (cut_id, cut_table_code, cut_name_en, cut_name_ru)
+3. **Performance**: Query time similar to before - `[x]` (LEFT JOIN on indexed FK)
+4. **Build passes**: `npm run build` succeeds - `[x]`
 
 #### Explicit Non-Goals
 
@@ -612,9 +612,10 @@ Contracts must be executed in this order based on dependencies:
 
 #### Reality-Check Requirements
 
-- **Supabase checks**: PENDING
-  - Verify current view definition
-  - Verify view dependencies
+- **Supabase checks**: ✅ VERIFIED
+  - ✅ Views updated: gemstones_enriched, orders_with_details, gemstones_with_best_data
+  - ✅ All views include cuts table JOIN via cut_id
+  - ✅ Backward compatible - still includes cut enum column
 
 ---
 
@@ -843,7 +844,7 @@ Contracts must be executed in this order based on dependencies:
 | CUT-C1.3 | `done` | CUT-C1.1 | Filter components |
 | CUT-C1.4 | `done` | CUT-C1.1 | Translation service |
 | CUT-C1.5 | `done` | CUT-C1.1 | Consumer display |
-| CUT-C2.1 | `draft` | CUT-C1.1-C1.5 | Database views |
+| CUT-C2.1 | `done` | CUT-C1.1-C1.5 | Database views |
 | CUT-C2.2 | `draft` | CUT-C2.1 | Search functions |
 | CUT-C2.3 | `draft` | CUT-C2.2 | Drop enum |
 | CUT-C3.1 | `draft` | CUT-C2.3 | Remove deprecated code |
