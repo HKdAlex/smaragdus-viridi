@@ -218,7 +218,7 @@ Contracts should be executed in this order based on dependencies:
 ### FLEX-C0.2 — TypeScript Types Regeneration
 
 - **ID**: `FLEX-C0.2`
-- **Status**: `draft`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/00_vision.md` → "#### 0.2 Regenerate TypeScript Types"
 
 #### Scope
@@ -252,10 +252,10 @@ Contracts should be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **Types regenerated**: `npm run types:generate` completes successfully - `[ ]`
-2. **New columns in types**: `gemstones.Row` includes all 10 new fields - `[ ]`
-3. **Build passes**: `npm run build` succeeds without errors - `[ ]`
-4. **Insert type includes new fields**: `gemstones.Insert` includes new optional fields - `[ ]`
+1. **Types regenerated**: `npm run types:generate` completes successfully - `[x]`
+2. **New columns in types**: `gemstones.Row` includes all 10 new fields - `[x]`
+3. **Build passes**: `npm run build` succeeds without errors - `[x]`
+4. **Insert type includes new fields**: `gemstones.Insert` includes new optional fields - `[x]`
 
 #### Explicit Non-Goals
 
@@ -264,13 +264,13 @@ Contracts should be executed in this order based on dependencies:
 
 #### Reality-Check Requirements
 
-- **Codebase checks**: PENDING
-  - Verify `npm run types:generate` script exists and works
-  - Confirm current `database.ts` structure
-- **Supabase checks**: PENDING
-  - Confirm FLEX-C0.1 migration has been applied
-- **Artifact checks**: PENDING
-  - None
+- **Codebase checks**: ✅ VERIFIED
+  - ✅ `npm run types:generate` script exists and works
+  - ✅ `database.ts` regenerated with new columns
+- **Supabase checks**: ✅ VERIFIED
+  - ✅ FLEX-C0.1 migration has been applied
+- **Artifact checks**: ✅ VERIFIED
+  - ✅ Fixed demo page (3d-visualizer-demo) to include new fields in sample data
 
 ---
 
@@ -698,7 +698,7 @@ Contracts should be executed in this order based on dependencies:
 | Contract ID | Status | Dependencies | Notes |
 |------------|--------|--------------|-------|
 | FLEX-C0.1 | `done` | None | Database schema extension |
-| FLEX-C0.2 | `draft` | FLEX-C0.1 | TypeScript types regeneration |
+| FLEX-C0.2 | `done` | FLEX-C0.1 | TypeScript types regeneration |
 | FLEX-C1.1 | `draft` | FLEX-C0.2 | Flexible name field |
 | FLEX-C1.2 | `draft` | FLEX-C0.2 | Flexible color field (template similar to C1.1) |
 | FLEX-C1.3 | `draft` | FLEX-C0.2 | Flexible cut field (template similar to C1.1) |

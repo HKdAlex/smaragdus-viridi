@@ -105,6 +105,17 @@ const sampleGemstones: Gemstone[] = [
     import_notes: null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
+    // Flexible property fields (FLEX-C0.1)
+    name_custom: null,
+    color_custom: null,
+    cut_custom: null,
+    clarity_custom: null,
+    treatment_status: null,
+    color_change_description: null,
+    mining_country: null,
+    cutting_country: null,
+    quality_classification: null,
+    enhancement_notes: null,
     // Enhanced properties
     dimensions: {
       length_mm: 7.4,
@@ -182,6 +193,17 @@ const sampleGemstones: Gemstone[] = [
     import_notes: null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
+    // Flexible property fields (FLEX-C0.1)
+    name_custom: null,
+    color_custom: null,
+    cut_custom: null,
+    clarity_custom: null,
+    treatment_status: null,
+    color_change_description: null,
+    mining_country: null,
+    cutting_country: null,
+    quality_classification: null,
+    enhancement_notes: null,
     // Enhanced properties
     dimensions: {
       length_mm: 8.5,
@@ -259,6 +281,17 @@ const sampleGemstones: Gemstone[] = [
     import_notes: null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
+    // Flexible property fields (FLEX-C0.1)
+    name_custom: null,
+    color_custom: null,
+    cut_custom: null,
+    clarity_custom: null,
+    treatment_status: null,
+    color_change_description: null,
+    mining_country: null,
+    cutting_country: null,
+    quality_classification: null,
+    enhancement_notes: null,
     // Enhanced properties
     dimensions: {
       length_mm: 9.2,
@@ -336,6 +369,17 @@ const sampleGemstones: Gemstone[] = [
     import_notes: null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
+    // Flexible property fields (FLEX-C0.1)
+    name_custom: null,
+    color_custom: null,
+    cut_custom: null,
+    clarity_custom: null,
+    treatment_status: null,
+    color_change_description: null,
+    mining_country: null,
+    cutting_country: null,
+    quality_classification: null,
+    enhancement_notes: null,
     // Enhanced properties
     dimensions: {
       length_mm: 8.8,
@@ -413,6 +457,17 @@ const sampleGemstones: Gemstone[] = [
     import_notes: null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
+    // Flexible property fields (FLEX-C0.1)
+    name_custom: null,
+    color_custom: null,
+    cut_custom: null,
+    clarity_custom: null,
+    treatment_status: null,
+    color_change_description: null,
+    mining_country: null,
+    cutting_country: null,
+    quality_classification: null,
+    enhancement_notes: null,
     // Enhanced properties
     dimensions: {
       length_mm: 9.1,
@@ -490,6 +545,17 @@ const sampleGemstones: Gemstone[] = [
     import_notes: null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
+    // Flexible property fields (FLEX-C0.1)
+    name_custom: null,
+    color_custom: null,
+    cut_custom: null,
+    clarity_custom: null,
+    treatment_status: null,
+    color_change_description: null,
+    mining_country: null,
+    cutting_country: null,
+    quality_classification: null,
+    enhancement_notes: null,
     // Enhanced properties
     dimensions: {
       length_mm: 6.8,

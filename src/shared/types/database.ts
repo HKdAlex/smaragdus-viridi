@@ -895,16 +895,22 @@ export type Database = {
           ai_width_mm: number | null
           clarity: Database["public"]["Enums"]["gem_clarity"]
           clarity_code: string
+          clarity_custom: string | null
           color: Database["public"]["Enums"]["gem_color"]
+          color_change_description: string | null
           color_code: string
+          color_custom: string | null
           created_at: string | null
           cut: Database["public"]["Enums"]["gem_cut"]
           cut_code: string
+          cut_custom: string | null
+          cutting_country: string | null
           delivery_days: number | null
           depth_mm: number
           description: string | null
           description_vector_en: unknown
           description_vector_ru: unknown
+          enhancement_notes: string | null
           id: string
           import_batch_id: string | null
           import_folder_path: string | null
@@ -914,7 +920,9 @@ export type Database = {
           length_mm: number
           marketing_highlights: string[] | null
           metadata_status: Database["public"]["Enums"]["metadata_status"] | null
+          mining_country: string | null
           name: Database["public"]["Enums"]["gemstone_type"]
+          name_custom: string | null
           origin_id: string | null
           premium_price_amount: number | null
           premium_price_currency:
@@ -926,10 +934,12 @@ export type Database = {
           primary_image_url: string | null
           primary_video_url: string | null
           promotional_text: string | null
+          quality_classification: string | null
           quantity: number
           search_vector_en: unknown
           search_vector_ru: unknown
           serial_number: string
+          treatment_status: string | null
           type_code: string
           updated_at: string | null
           weight_carats: number
@@ -962,16 +972,22 @@ export type Database = {
           ai_width_mm?: number | null
           clarity: Database["public"]["Enums"]["gem_clarity"]
           clarity_code: string
+          clarity_custom?: string | null
           color: Database["public"]["Enums"]["gem_color"]
+          color_change_description?: string | null
           color_code: string
+          color_custom?: string | null
           created_at?: string | null
           cut: Database["public"]["Enums"]["gem_cut"]
           cut_code: string
+          cut_custom?: string | null
+          cutting_country?: string | null
           delivery_days?: number | null
           depth_mm: number
           description?: string | null
           description_vector_en?: unknown
           description_vector_ru?: unknown
+          enhancement_notes?: string | null
           id?: string
           import_batch_id?: string | null
           import_folder_path?: string | null
@@ -983,7 +999,9 @@ export type Database = {
           metadata_status?:
             | Database["public"]["Enums"]["metadata_status"]
             | null
+          mining_country?: string | null
           name: Database["public"]["Enums"]["gemstone_type"]
+          name_custom?: string | null
           origin_id?: string | null
           premium_price_amount?: number | null
           premium_price_currency?:
@@ -995,10 +1013,12 @@ export type Database = {
           primary_image_url?: string | null
           primary_video_url?: string | null
           promotional_text?: string | null
+          quality_classification?: string | null
           quantity?: number
           search_vector_en?: unknown
           search_vector_ru?: unknown
           serial_number: string
+          treatment_status?: string | null
           type_code: string
           updated_at?: string | null
           weight_carats: number
@@ -1031,16 +1051,22 @@ export type Database = {
           ai_width_mm?: number | null
           clarity?: Database["public"]["Enums"]["gem_clarity"]
           clarity_code?: string
+          clarity_custom?: string | null
           color?: Database["public"]["Enums"]["gem_color"]
+          color_change_description?: string | null
           color_code?: string
+          color_custom?: string | null
           created_at?: string | null
           cut?: Database["public"]["Enums"]["gem_cut"]
           cut_code?: string
+          cut_custom?: string | null
+          cutting_country?: string | null
           delivery_days?: number | null
           depth_mm?: number
           description?: string | null
           description_vector_en?: unknown
           description_vector_ru?: unknown
+          enhancement_notes?: string | null
           id?: string
           import_batch_id?: string | null
           import_folder_path?: string | null
@@ -1052,7 +1078,9 @@ export type Database = {
           metadata_status?:
             | Database["public"]["Enums"]["metadata_status"]
             | null
+          mining_country?: string | null
           name?: Database["public"]["Enums"]["gemstone_type"]
+          name_custom?: string | null
           origin_id?: string | null
           premium_price_amount?: number | null
           premium_price_currency?:
@@ -1064,10 +1092,12 @@ export type Database = {
           primary_image_url?: string | null
           primary_video_url?: string | null
           promotional_text?: string | null
+          quality_classification?: string | null
           quantity?: number
           search_vector_en?: unknown
           search_vector_ru?: unknown
           serial_number?: string
+          treatment_status?: string | null
           type_code?: string
           updated_at?: string | null
           weight_carats?: number
@@ -2334,35 +2364,6 @@ export type Database = {
       search_gemstones_fulltext:
         | {
             Args: {
-              filters: Json
-              page_num: number
-              page_size: number
-              search_query: string
-            }
-            Returns: {
-              clarity: Database["public"]["Enums"]["gem_clarity"]
-              color: Database["public"]["Enums"]["gem_color"]
-              created_at: string
-              cut: Database["public"]["Enums"]["gem_cut"]
-              description: string
-              has_ai_analysis: boolean
-              has_certification: boolean
-              id: string
-              in_stock: boolean
-              metadata_status: Database["public"]["Enums"]["metadata_status"]
-              name: Database["public"]["Enums"]["gemstone_type"]
-              origin_id: string
-              price_amount: number
-              price_currency: Database["public"]["Enums"]["currency_code"]
-              relevance_score: number
-              serial_number: string
-              total_count: number
-              updated_at: string
-              weight_carats: number
-            }[]
-          }
-        | {
-            Args: {
               filters?: Json
               page_num?: number
               page_size?: number
@@ -2383,6 +2384,35 @@ export type Database = {
               origin_id: string
               price_amount: number
               price_currency: string
+              relevance_score: number
+              serial_number: string
+              total_count: number
+              updated_at: string
+              weight_carats: number
+            }[]
+          }
+        | {
+            Args: {
+              filters: Json
+              page_num: number
+              page_size: number
+              search_query: string
+            }
+            Returns: {
+              clarity: Database["public"]["Enums"]["gem_clarity"]
+              color: Database["public"]["Enums"]["gem_color"]
+              created_at: string
+              cut: Database["public"]["Enums"]["gem_cut"]
+              description: string
+              has_ai_analysis: boolean
+              has_certification: boolean
+              id: string
+              in_stock: boolean
+              metadata_status: Database["public"]["Enums"]["metadata_status"]
+              name: Database["public"]["Enums"]["gemstone_type"]
+              origin_id: string
+              price_amount: number
+              price_currency: Database["public"]["Enums"]["currency_code"]
               relevance_score: number
               serial_number: string
               total_count: number
