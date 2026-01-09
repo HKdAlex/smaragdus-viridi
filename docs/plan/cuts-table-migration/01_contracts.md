@@ -335,7 +335,7 @@ Contracts must be executed in this order based on dependencies:
 ### CUT-C1.2 — Update Admin Form to Use `cuts` Table
 
 - **ID**: `CUT-C1.2`
-- **Status**: `draft`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/cuts-table-migration/00_vision.md` → "### Phase 1: Application Migration"
 
 #### Scope
@@ -367,13 +367,13 @@ Contracts must be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **Cuts loaded**: Dropdown shows all cuts from database - `[ ]`
-2. **Translations work**: Cuts show translated names based on locale - `[ ]`
-3. **Selection works**: Selecting a cut populates form correctly - `[ ]`
-4. **Custom entry works**: Typing custom cut saves to `cut_custom` - `[ ]`
-5. **Save works**: Form submission saves `cut_id` - `[ ]`
-6. **Edit works**: Editing gemstone loads correct cut - `[ ]`
-7. **Build passes**: `npm run build` succeeds - `[ ]`
+1. **Cuts loaded**: Dropdown shows all cuts from database - `[x]` (CutsService.getAllCuts)
+2. **Translations work**: Cuts show translated names based on locale - `[x]` (inline name_en/name_ru)
+3. **Selection works**: Selecting a cut populates form correctly - `[x]` (handleFlexibleCutChange)
+4. **Custom entry works**: Typing custom cut saves to `cut_custom` - `[x]` (unchanged behavior)
+5. **Save works**: Form submission saves `cut_id` - `[x]` (formData includes cut_id)
+6. **Edit works**: Editing gemstone loads correct cut - `[x]` (cut_id in initial state)
+7. **Build passes**: `npm run build` succeeds - `[x]`
 
 #### Explicit Non-Goals
 
@@ -382,9 +382,9 @@ Contracts must be executed in this order based on dependencies:
 
 #### Reality-Check Requirements
 
-- **Codebase checks**: PENDING
-  - Verify current form structure
-  - Verify `FlexibleSelect` component interface
+- **Codebase checks**: ✅ VERIFIED
+  - ✅ Form structure verified
+  - ✅ FlexibleSelect component interface verified
 
 ---
 
@@ -835,7 +835,7 @@ Contracts must be executed in this order based on dependencies:
 | CUT-C0.3 | `done` | CUT-C0.2 | Add cut_id column |
 | CUT-C0.4 | `done` | CUT-C0.3 | Backfill cut_id |
 | CUT-C1.1 | `done` | CUT-C0.4 | TypeScript types |
-| CUT-C1.2 | `draft` | CUT-C1.1 | Admin form |
+| CUT-C1.2 | `done` | CUT-C1.1 | Admin form |
 | CUT-C1.3 | `draft` | CUT-C1.1 | Filter components |
 | CUT-C1.4 | `draft` | CUT-C1.1 | Translation service |
 | CUT-C1.5 | `draft` | CUT-C1.1 | Consumer display |
