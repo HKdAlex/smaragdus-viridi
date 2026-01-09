@@ -277,7 +277,7 @@ Contracts should be executed in this order based on dependencies:
 ### FLEX-C1.1 — Admin Form Flexible Name Field
 
 - **ID**: `FLEX-C1.1`
-- **Status**: `draft`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/00_vision.md` → "#### 1.1 Convert Select Components to Combobox/Input with Suggestions"
 
 #### Scope
@@ -315,12 +315,12 @@ Contracts should be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **Input field renders**: Gemstone type shows as text input with suggestions - `[ ]`
-2. **Autocomplete works**: Typing "emer" shows "emerald" suggestion - `[ ]`
-3. **Known type saves correctly**: Selecting "emerald" sets both `name` and `name_custom` - `[ ]`
-4. **Custom type saves**: Entering "Paraiba Tourmaline" saves to `name_custom` - `[ ]`
-5. **Edit existing gemstone**: Can load and edit gemstone with enum-only name - `[ ]`
-6. **Build passes**: `npm run build` succeeds - `[ ]`
+1. **Input field renders**: Gemstone type shows as text input with suggestions - `[x]`
+2. **Autocomplete works**: Typing "emer" shows "emerald" suggestion - `[x]`
+3. **Known type saves correctly**: Selecting "emerald" sets both `name` and `name_custom` - `[x]`
+4. **Custom type saves**: Entering "Paraiba Tourmaline" saves to `name_custom` - `[x]`
+5. **Edit existing gemstone**: Can load and edit gemstone with enum-only name - `[x]`
+6. **Build passes**: `npm run build` succeeds - `[x]`
 
 #### Explicit Non-Goals
 
@@ -330,14 +330,14 @@ Contracts should be executed in this order based on dependencies:
 
 #### Reality-Check Requirements
 
-- **Codebase checks**: PENDING
-  - Verify current `gemstone-form.tsx` uses `<Select>` for name field
-  - Confirm `GEMSTONE_TYPES` array exists in `database-enums.ts`
-  - Check `GemstoneFormData` interface structure
-- **Supabase checks**: PENDING
-  - Confirm `name_custom` column exists (FLEX-C0.1 complete)
-- **Artifact checks**: PENDING
-  - None
+- **Codebase checks**: ✅ VERIFIED
+  - ✅ `gemstone-form.tsx` previously used `<Select>` for name field (now replaced with FlexibleSelect)
+  - ✅ `GEMSTONE_TYPES` array exists in `database-enums.ts` (line 115)
+  - ✅ `GemstoneFormData` interface updated with `name_custom` field
+- **Supabase checks**: ✅ VERIFIED
+  - ✅ `name_custom` column exists (FLEX-C0.1 complete)
+- **Artifact checks**: ✅ VERIFIED
+  - ✅ Created `FlexibleSelect` component at `src/shared/components/ui/flexible-select.tsx`
 
 ---
 
@@ -699,7 +699,7 @@ Contracts should be executed in this order based on dependencies:
 |------------|--------|--------------|-------|
 | FLEX-C0.1 | `done` | None | Database schema extension |
 | FLEX-C0.2 | `done` | FLEX-C0.1 | TypeScript types regeneration |
-| FLEX-C1.1 | `draft` | FLEX-C0.2 | Flexible name field |
+| FLEX-C1.1 | `done` | FLEX-C0.2 | Flexible name field |
 | FLEX-C1.2 | `draft` | FLEX-C0.2 | Flexible color field (template similar to C1.1) |
 | FLEX-C1.3 | `draft` | FLEX-C0.2 | Flexible cut field (template similar to C1.1) |
 | FLEX-C1.4 | `draft` | FLEX-C0.2 | Flexible clarity field (template similar to C1.1) |

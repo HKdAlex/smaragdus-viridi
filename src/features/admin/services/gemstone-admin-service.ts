@@ -26,6 +26,11 @@ export interface GemstoneFormData {
   color: DatabaseGemstone["color"];
   cut: DatabaseGemstone["cut"];
   clarity: DatabaseGemstone["clarity"];
+  // Custom text fields for flexible admin entry (FLEX-C1.x)
+  name_custom?: string | null;
+  color_custom?: string | null;
+  cut_custom?: string | null;
+  clarity_custom?: string | null;
   type_code?: string;
   color_code?: string;
   cut_code?: string;
@@ -151,6 +156,10 @@ export class GemstoneAdminService {
       const payload: TablesInsert<"gemstones"> & {
         metadata_status?: string | null;
         quantity?: number | null;
+        name_custom?: string | null;
+        color_custom?: string | null;
+        cut_custom?: string | null;
+        clarity_custom?: string | null;
       } = {
         name: formData.name,
         type_code: formData.type_code ?? formData.name,
@@ -160,6 +169,11 @@ export class GemstoneAdminService {
         cut_code: formData.cut_code ?? formData.cut,
         clarity: formData.clarity,
         clarity_code: formData.clarity_code ?? formData.clarity,
+        // Custom text fields for flexible admin entry (FLEX-C1.x)
+        name_custom: formData.name_custom ?? null,
+        color_custom: formData.color_custom ?? null,
+        cut_custom: formData.cut_custom ?? null,
+        clarity_custom: formData.clarity_custom ?? null,
         weight_carats: formData.weight_carats,
         length_mm: formData.length_mm,
         width_mm: formData.width_mm,

@@ -11,6 +11,7 @@ import {
   CardTitle,
 } from "@/shared/components/ui/card";
 import { Checkbox } from "@/shared/components/ui/checkbox";
+import { FlexibleSelect } from "@/shared/components/ui/flexible-select";
 import { Input } from "@/shared/components/ui/input";
 import {
   Select,
@@ -53,7 +54,7 @@ import {
   X,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   GemstoneAdminService,
   type GemstoneFormData,
@@ -219,6 +220,17 @@ export function GemstoneForm({
     translateOrigin,
   } = useGemstoneTranslations();
   const router = useRouter();
+
+  // Memoized options for FlexibleSelect components (FLEX-C1.x)
+  const gemstoneTypeOptions = useMemo(
+    () =>
+      GEMSTONE_TYPES.map((type) => ({
+        value: type,
+        label: translateGemstoneType(type),
+      })),
+    [translateGemstoneType]
+  );
+
   const [isLoading, setIsLoading] = useState(false);
   const [origins, setOrigins] = useState<DatabaseOrigin[]>([]);
   const [marketingHighlights, setMarketingHighlights] = useState<string[]>([]);
@@ -241,6 +253,11 @@ export function GemstoneForm({
       color: gemstone?.color || DEFAULT_GEMSTONE_VALUES.color,
       cut: gemstone?.cut || DEFAULT_GEMSTONE_VALUES.cut,
       clarity: gemstone?.clarity || DEFAULT_GEMSTONE_VALUES.clarity,
+      // Custom text fields for flexible admin entry (FLEX-C1.x)
+      name_custom: (gemstone as any)?.name_custom || undefined,
+      color_custom: (gemstone as any)?.color_custom || undefined,
+      cut_custom: (gemstone as any)?.cut_custom || undefined,
+      clarity_custom: (gemstone as any)?.clarity_custom || undefined,
       weight_carats: gemstone?.weight_carats || 0,
       length_mm: parseDimensionValue(gemstone?.length_mm),
       width_mm: parseDimensionValue(gemstone?.width_mm),
@@ -309,6 +326,11 @@ export function GemstoneForm({
         color: gemstone.color || DEFAULT_GEMSTONE_VALUES.color,
         cut: gemstone.cut || DEFAULT_GEMSTONE_VALUES.cut,
         clarity: gemstone.clarity || DEFAULT_GEMSTONE_VALUES.clarity,
+        // Custom text fields for flexible admin entry (FLEX-C1.x)
+        name_custom: (gemstone as any)?.name_custom || undefined,
+        color_custom: (gemstone as any)?.color_custom || undefined,
+        cut_custom: (gemstone as any)?.cut_custom || undefined,
+        clarity_custom: (gemstone as any)?.clarity_custom || undefined,
         weight_carats: gemstone.weight_carats || 0,
         length_mm: parseDimensionValue(gemstone.length_mm),
         width_mm: parseDimensionValue(gemstone.width_mm),
@@ -402,6 +424,44 @@ export function GemstoneForm({
       setErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
+
+  /**
+   * Handle flexible name field change (FLEX-C1.1)
+   * - If value matches a known enum, set both `name` (enum) and `name_custom` (text)
+   * - If value is custom, set `name` to default and `name_custom` to the custom value
+   */
+  const handleFlexibleNameChange = useCallback(
+    (value: string, isKnownValue: boolean) => {
+      setFormData((prev) => {
+        if (isKnownValue) {
+          // Value matches a known gemstone type enum
+          const enumValue = GEMSTONE_TYPES.find(
+            (type) =>
+              type.toLowerCase() === value.toLowerCase() ||
+              translateGemstoneType(type).toLowerCase() === value.toLowerCase()
+          );
+          return {
+            ...prev,
+            name: enumValue || prev.name,
+            name_custom: value, // Store the display value
+          };
+        } else {
+          // Custom value - keep the enum at a default but store the custom text
+          return {
+            ...prev,
+            // Keep existing enum value for filtering compatibility
+            name: prev.name || DEFAULT_GEMSTONE_VALUES.type,
+            name_custom: value,
+          };
+        }
+      });
+      // Clear error
+      if (errors.name) {
+        setErrors((prev) => ({ ...prev, name: "" }));
+      }
+    },
+    [translateGemstoneType, errors.name]
+  );
 
   const addMarketingHighlight = () => {
     if (currentHighlight.trim()) {
@@ -658,31 +718,14 @@ export function GemstoneForm({
                   <label className="text-sm font-medium text-foreground">
                     {t("labels.type")}
                   </label>
-                  <Select
-                    value={formData.name}
-                    onValueChange={(value) => handleInputChange("name", value)}
-                  >
-                    <SelectTrigger
-                      className={errors.name ? "border-red-500" : ""}
-                    >
-                      <span className="text-sm">
-                        {formData.name ? (
-                          translateGemstoneType(formData.name)
-                        ) : (
-                          <span className="text-muted-foreground">
-                            {t("selectTypePlaceholder")}
-                          </span>
-                        )}
-                      </span>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {GEMSTONE_TYPES.map((type) => (
-                        <SelectItem key={type} value={type}>
-                          {translateGemstoneType(type)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  {/* FlexibleSelect for gemstone type (FLEX-C1.1) */}
+                  <FlexibleSelect
+                    value={formData.name_custom || translateGemstoneType(formData.name)}
+                    onChange={handleFlexibleNameChange}
+                    options={gemstoneTypeOptions}
+                    placeholder={t("selectTypePlaceholder")}
+                    error={!!errors.name}
+                  />
                   {errors.name && (
                     <p className="text-sm text-red-600">{errors.name}</p>
                   )}
