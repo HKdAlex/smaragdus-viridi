@@ -916,7 +916,6 @@ export type Database = {
           color_code: string
           color_custom: string | null
           created_at: string | null
-          cut: Database["public"]["Enums"]["gem_cut"]
           cut_code: string
           cut_custom: string | null
           cut_id: string
@@ -994,7 +993,6 @@ export type Database = {
           color_code: string
           color_custom?: string | null
           created_at?: string | null
-          cut: Database["public"]["Enums"]["gem_cut"]
           cut_code: string
           cut_custom?: string | null
           cut_id: string
@@ -1074,7 +1072,6 @@ export type Database = {
           color_code?: string
           color_custom?: string | null
           created_at?: string | null
-          cut?: Database["public"]["Enums"]["gem_cut"]
           cut_code?: string
           cut_custom?: string | null
           cut_id?: string
@@ -1958,7 +1955,6 @@ export type Database = {
           cut_id: string | null
           cut_name_en: string | null
           cut_name_ru: string | null
-          cut_table_code: string | null
           delivery_days: number | null
           depth_mm: number | null
           description: string | null
@@ -2054,12 +2050,11 @@ export type Database = {
           color: Database["public"]["Enums"]["gem_color"] | null
           color_code: string | null
           created_at: string | null
-          cut: Database["public"]["Enums"]["gem_cut"] | null
+          cut: string | null
           cut_code: string | null
           cut_id: string | null
           cut_name_en: string | null
           cut_name_ru: string | null
-          cut_table_code: string | null
           delivery_days: number | null
           depth_mm: number | null
           description: string | null
@@ -2130,7 +2125,7 @@ export type Database = {
           created_at: string | null
           currency_code: Database["public"]["Enums"]["currency_code"] | null
           gemstone_color: Database["public"]["Enums"]["gem_color"] | null
-          gemstone_cut: Database["public"]["Enums"]["gem_cut"] | null
+          gemstone_cut: string | null
           gemstone_cut_id: string | null
           gemstone_cut_name_en: string | null
           gemstone_cut_name_ru: string | null
@@ -2270,65 +2265,35 @@ export type Database = {
       is_admin: { Args: never; Returns: boolean }
       is_admin_user: { Args: never; Returns: boolean }
       is_last_admin: { Args: { check_user_id: string }; Returns: boolean }
-      search_gemstones_fulltext:
-        | {
-            Args: {
-              filters?: Json
-              page_num?: number
-              page_size?: number
-              search_query?: string
-            }
-            Returns: {
-              clarity: string
-              color: string
-              created_at: string
-              cut: string
-              description: string
-              has_ai_analysis: boolean
-              has_certification: boolean
-              id: string
-              in_stock: boolean
-              metadata_status: string
-              name: string
-              origin_id: string
-              price_amount: number
-              price_currency: string
-              relevance_score: number
-              serial_number: string
-              total_count: number
-              updated_at: string
-              weight_carats: number
-            }[]
-          }
-        | {
-            Args: {
-              filters: Json
-              page_num: number
-              page_size: number
-              search_query: string
-            }
-            Returns: {
-              clarity: Database["public"]["Enums"]["gem_clarity"]
-              color: Database["public"]["Enums"]["gem_color"]
-              created_at: string
-              cut: Database["public"]["Enums"]["gem_cut"]
-              description: string
-              has_ai_analysis: boolean
-              has_certification: boolean
-              id: string
-              in_stock: boolean
-              metadata_status: Database["public"]["Enums"]["metadata_status"]
-              name: Database["public"]["Enums"]["gemstone_type"]
-              origin_id: string
-              price_amount: number
-              price_currency: Database["public"]["Enums"]["currency_code"]
-              relevance_score: number
-              serial_number: string
-              total_count: number
-              updated_at: string
-              weight_carats: number
-            }[]
-          }
+      search_gemstones_fulltext: {
+        Args: {
+          filters?: Json
+          page_num?: number
+          page_size?: number
+          search_query?: string
+        }
+        Returns: {
+          clarity: string
+          color: string
+          created_at: string
+          cut: string
+          description: string
+          has_ai_analysis: boolean
+          has_certification: boolean
+          id: string
+          in_stock: boolean
+          metadata_status: string
+          name: string
+          origin_id: string
+          price_amount: number
+          price_currency: string
+          relevance_score: number
+          serial_number: string
+          total_count: number
+          updated_at: string
+          weight_carats: number
+        }[]
+      }
       search_gemstones_multilingual: {
         Args: {
           description_enabled?: boolean
@@ -2360,99 +2325,52 @@ export type Database = {
           weight_carats: number
         }[]
       }
-      search_gemstones_optimized:
-        | {
-            Args: {
-              clarities?: Database["public"]["Enums"]["gem_clarity"][]
-              colors?: Database["public"]["Enums"]["gem_color"][]
-              cuts?: Database["public"]["Enums"]["gem_cut"][]
-              gemstone_types?: Database["public"]["Enums"]["gemstone_type"][]
-              has_ai_analysis?: boolean
-              has_certifications?: boolean
-              has_images?: boolean
-              in_stock_only?: boolean
-              max_price?: number
-              max_weight?: number
-              min_price?: number
-              min_weight?: number
-              origins?: string[]
-              page_limit?: number
-              page_offset?: number
-              search_term?: string
-              sort_by?: string
-              sort_direction?: string
-            }
-            Returns: {
-              ai_analysis_count: number
-              certifications_count: number
-              clarity: Database["public"]["Enums"]["gem_clarity"]
-              color: Database["public"]["Enums"]["gem_color"]
-              created_at: string
-              cut: Database["public"]["Enums"]["gem_cut"]
-              delivery_days: number
-              id: string
-              in_stock: boolean
-              internal_code: string
-              name: Database["public"]["Enums"]["gemstone_type"]
-              origin_country: string
-              origin_name: string
-              premium_price_amount: number
-              premium_price_currency: string
-              price_amount: number
-              price_currency: string
-              primary_image_url: string
-              serial_number: string
-              total_count: number
-              updated_at: string
-              weight_carats: number
-            }[]
-          }
-        | {
-            Args: {
-              clarities?: string[]
-              colors?: string[]
-              cuts?: string[]
-              gemstone_types?: string[]
-              has_ai_analysis?: boolean
-              has_certifications?: boolean
-              has_images?: boolean
-              in_stock_only?: boolean
-              max_price?: number
-              max_weight?: number
-              min_price?: number
-              min_weight?: number
-              origins?: string[]
-              page_limit?: number
-              page_offset?: number
-              search_term?: string
-              sort_by?: string
-              sort_direction?: string
-            }
-            Returns: {
-              ai_analysis_count: number
-              certifications_count: number
-              clarity: string
-              color: string
-              created_at: string
-              cut: string
-              delivery_days: number
-              id: string
-              in_stock: boolean
-              internal_code: string
-              name: string
-              origin_country: string
-              origin_name: string
-              premium_price_amount: number
-              premium_price_currency: string
-              price_amount: number
-              price_currency: string
-              primary_image_url: string
-              serial_number: string
-              total_count: number
-              updated_at: string
-              weight_carats: number
-            }[]
-          }
+      search_gemstones_optimized: {
+        Args: {
+          clarities?: string[]
+          colors?: string[]
+          cuts?: string[]
+          gemstone_types?: string[]
+          has_ai_analysis?: boolean
+          has_certifications?: boolean
+          has_images?: boolean
+          in_stock_only?: boolean
+          max_price?: number
+          max_weight?: number
+          min_price?: number
+          min_weight?: number
+          origins?: string[]
+          page_limit?: number
+          page_offset?: number
+          search_term?: string
+          sort_by?: string
+          sort_direction?: string
+        }
+        Returns: {
+          ai_analysis_count: number
+          certifications_count: number
+          clarity: string
+          color: string
+          created_at: string
+          cut: string
+          delivery_days: number
+          id: string
+          in_stock: boolean
+          internal_code: string
+          name: string
+          origin_country: string
+          origin_name: string
+          premium_price_amount: number
+          premium_price_currency: string
+          price_amount: number
+          price_currency: string
+          primary_image_url: string
+          serial_number: string
+          total_count: number
+          updated_at: string
+          weight_carats: number
+        }[]
+      }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
       unaccent: { Args: { "": string }; Returns: string }
@@ -2500,25 +2418,6 @@ export type Database = {
         | "fancy-blue"
         | "fancy-pink"
         | "fancy-green"
-      gem_cut:
-        | "round"
-        | "oval"
-        | "marquise"
-        | "pear"
-        | "emerald"
-        | "princess"
-        | "cushion"
-        | "radiant"
-        | "fantasy"
-        | "baguette"
-        | "asscher"
-        | "rhombus"
-        | "trapezoid"
-        | "triangle"
-        | "heart"
-        | "cabochon"
-        | "pentagon"
-        | "hexagon"
       gemstone_type:
         | "diamond"
         | "emerald"
@@ -2717,26 +2616,6 @@ export const Constants = {
         "fancy-blue",
         "fancy-pink",
         "fancy-green",
-      ],
-      gem_cut: [
-        "round",
-        "oval",
-        "marquise",
-        "pear",
-        "emerald",
-        "princess",
-        "cushion",
-        "radiant",
-        "fantasy",
-        "baguette",
-        "asscher",
-        "rhombus",
-        "trapezoid",
-        "triangle",
-        "heart",
-        "cabochon",
-        "pentagon",
-        "hexagon",
       ],
       gemstone_type: [
         "diamond",

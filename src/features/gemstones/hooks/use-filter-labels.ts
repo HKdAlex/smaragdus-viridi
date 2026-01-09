@@ -4,7 +4,7 @@
 import type {
   GemClarity,
   GemColor,
-  GemCut,
+  // CUT-C3.1: GemCut enum removed
   GemstoneType,
 } from "@/shared/types";
 
@@ -14,7 +14,7 @@ import { useTranslations } from "next-intl";
 export interface FilterLabels {
   gemstoneTypes: Record<GemstoneType, string>;
   colors: Record<GemColor, string>;
-  cuts: Record<GemCut, string>;
+  cuts: Record<string, string>; // CUT-C3.1: cuts are now strings
   clarity: Record<GemClarity, string>;
   sort: Record<string, string>;
 }
@@ -114,7 +114,8 @@ export function useColorLabel(color: GemColor): string {
   return labels.colors[color] || color;
 }
 
-export function useCutLabel(cut: GemCut): string {
+// CUT-C3.1: cuts are now strings
+export function useCutLabel(cut: string): string {
   const labels = useFilterLabels();
   return labels.cuts[cut] || cut;
 }

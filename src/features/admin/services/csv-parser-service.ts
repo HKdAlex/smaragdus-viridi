@@ -234,12 +234,12 @@ export class CSVParserService {
         return position >= 0 && position < rowData.length ? rowData[position] : '';
       };
 
-      // Parse and validate data
+      // Parse and validate data (CUT-C3.1: use cut_code instead of cut)
       const gemstoneData: BulkImportData = {
         serialNumber: getValue('serialNumber').trim(),
         name: this.parseGemstoneType(getValue('name')),
         color: this.parseColor(getValue('color')),
-        cut: this.parseCut(getValue('cut')),
+        cut_code: this.parseCut(getValue('cut')), // CUT-C3.1: store as cut_code
         clarity: this.parseClarity(getValue('clarity')),
         weight_carats: this.parseNumber(getValue('weight_carats'), 'weight'),
         price_amount: Math.round(this.parseNumber(getValue('price_amount'), 'price') * 100), // Convert to cents
@@ -360,11 +360,11 @@ export class CSVParserService {
   }
 
   /**
-   * Parse cut from string
+   * Parse cut from string (CUT-C3.1: returns cut_code string)
    */
-  private static parseCut(value: string): BulkImportData['cut'] {
+  private static parseCut(value: string): string {
     const normalized = value.toLowerCase().trim();
-    const cutMap: Record<string, BulkImportData['cut']> = {
+    const cutMap: Record<string, string> = {
       'round': 'round', 'princess': 'princess', 'emerald': 'emerald', 'oval': 'oval',
       'marquise': 'marquise', 'pear': 'pear', 'cushion': 'cushion', 'radiant': 'radiant',
       'fantasy': 'fantasy'

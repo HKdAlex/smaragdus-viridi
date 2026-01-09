@@ -6,14 +6,14 @@ export async function GET(request: NextRequest) {
   try {
     const supabase = await createServerSupabaseClient();
 
-    // Get all gemstones with their properties and count
+    // Get all gemstones with their properties and count (CUT-C3.1: use cut_code instead of cut)
     const {
       data: gemstones,
       error,
       count: totalCount,
     } = await supabase
       .from("gemstones")
-      .select("id, name, color, cut, price_amount, in_stock", {
+      .select("id, name, color, cut_code, price_amount, in_stock", {
         count: "exact",
       });
 
@@ -41,10 +41,10 @@ export async function GET(request: NextRequest) {
       byColor[color] = (byColor[color] || 0) + 1;
     });
 
-    // Calculate by cut
+    // Calculate by cut (CUT-C3.1: use cut_code)
     const byCut: Record<string, number> = {};
     gemstones?.forEach((gem) => {
-      const cut = gem.cut || "unknown";
+      const cut = gem.cut_code || "unknown";
       byCut[cut] = (byCut[cut] || 0) + 1;
     });
 

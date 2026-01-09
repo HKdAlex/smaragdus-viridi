@@ -370,7 +370,7 @@ export function InventoryManagementDashboard() {
                       {gemstone.name} {gemstone.color}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {gemstone.cut} cut
+                      {gemstone.cut_code} cut
                     </p>
                   </div>
                   <div className="text-right">
@@ -442,7 +442,7 @@ export function InventoryManagementDashboard() {
                         {gemstone.name} {gemstone.color}
                       </h4>
                       <p className="text-sm text-red-700 dark:text-red-300">
-                        {gemstone.cut} cut • {gemstone.serial_number}
+                        {gemstone.cut_code} cut • {gemstone.serial_number}
                       </p>
                     </div>
                     <input

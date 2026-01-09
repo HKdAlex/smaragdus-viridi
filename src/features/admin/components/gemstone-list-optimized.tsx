@@ -179,8 +179,9 @@ export function GemstoneListOptimized({
           serial_number: `${gemstone.serial_number}_copy_${Date.now()}`,
           name: gemstone.name,
           color: gemstone.color,
-          cut: gemstone.cut,
-          cut_id: (gemstone as any).cut_id, // CUT-C2.3: FK to cuts table (required)
+          // CUT-C3.1: use cut_code instead of cut
+          cut_code: gemstone.cut_code,
+          cut_id: (gemstone as any).cut_id, // FK to cuts table (required)
           clarity: gemstone.clarity,
           weight_carats: gemstone.weight_carats,
           length_mm: gemstone.length_mm ?? undefined,
@@ -642,7 +643,7 @@ export function GemstoneListOptimized({
                       <td className="px-6 py-4">
                         <div className="text-sm text-foreground">
                           <div>
-                            {t("labels.cut")}: {getLocalizedCut(gemstone.cut)}
+                            {t("labels.cut")}: {getLocalizedCut(gemstone.cut_code)}
                           </div>
                           <div>
                             {t("labels.clarity")}:{" "}

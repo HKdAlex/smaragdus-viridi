@@ -33,7 +33,7 @@ import {
     GEMSTONE_TYPES,
     GEM_CLARITIES,
     GEM_COLORS,
-    GEM_CUTS,
+    // CUT-C3.1: GEM_CUTS removed - using CutsService instead
     METADATA_STATUSES,
 } from "@/shared/services/database-enums";
 import { CutsService } from "@/shared/services/cuts-service";
@@ -251,26 +251,18 @@ export function GemstoneForm({
 
   const [isLoading, setIsLoading] = useState(false);
   const [origins, setOrigins] = useState<DatabaseOrigin[]>([]);
-  const [cuts, setCuts] = useState<Cut[]>([]); // CUT-C1.2: Database cuts
+  const [cuts, setCuts] = useState<Cut[]>([]); // CUT-C3.1: Database cuts
 
-  // CUT-C1.2: Use database cuts with inline translations
-  // Falls back to GEM_CUTS if database cuts not loaded yet
+  // CUT-C3.1: Use database cuts with inline translations
   // Note: Must be after cuts state declaration
   const cutOptions = useMemo(
     () => {
-      if (cuts.length > 0) {
-        // Use database cuts with inline translations
-        // Detect locale from translateCut output (if Russian translation exists)
-        const isRussian = translateCut("round") !== "Round Brilliant";
-        return cuts.map((cut) => ({
-          value: cut.code,
-          label: isRussian ? cut.name_ru : cut.name_en,
-        }));
-      }
-      // Fallback to enum-based cuts while loading
-      return GEM_CUTS.map((cut) => ({
-        value: cut,
-        label: translateCut(cut),
+      // Use database cuts with inline translations
+      // Detect locale from translateCut output (if Russian translation exists)
+      const isRussian = translateCut("round") !== "Round Brilliant";
+      return cuts.map((cut) => ({
+        value: cut.code,
+        label: isRussian ? cut.name_ru : cut.name_en,
       }));
     },
     [cuts, translateCut]
@@ -299,8 +291,8 @@ export function GemstoneForm({
     return {
       name: gemstone?.name || DEFAULT_GEMSTONE_VALUES.type,
       color: gemstone?.color || DEFAULT_GEMSTONE_VALUES.color,
-      cut: gemstone?.cut || DEFAULT_GEMSTONE_VALUES.cut,
-      cut_id: (gemstone as any)?.cut_id || "", // CUT-C2.3: FK to cuts table (required)
+      cut_code: gemstone?.cut_code || DEFAULT_GEMSTONE_VALUES.cut_code, // CUT-C3.1
+      cut_id: (gemstone as any)?.cut_id || "", // FK to cuts table (required)
       clarity: gemstone?.clarity || DEFAULT_GEMSTONE_VALUES.clarity,
       // Custom text fields for flexible admin entry (FLEX-C1.x)
       name_custom: (gemstone as any)?.name_custom || undefined,
@@ -391,8 +383,8 @@ export function GemstoneForm({
       setFormData({
         name: gemstone.name || DEFAULT_GEMSTONE_VALUES.type,
         color: gemstone.color || DEFAULT_GEMSTONE_VALUES.color,
-        cut: gemstone.cut || DEFAULT_GEMSTONE_VALUES.cut,
-        cut_id: (gemstone as any)?.cut_id || "", // CUT-C2.3: FK to cuts table (required)
+        cut_code: gemstone.cut_code || DEFAULT_GEMSTONE_VALUES.cut_code, // CUT-C3.1
+        cut_id: (gemstone as any)?.cut_id || "", // FK to cuts table (required)
         clarity: gemstone.clarity || DEFAULT_GEMSTONE_VALUES.clarity,
         // Custom text fields for flexible admin entry (FLEX-C1.x)
         name_custom: (gemstone as any)?.name_custom || undefined,
@@ -585,26 +577,19 @@ export function GemstoneForm({
               cut.name_en.toLowerCase() === value.toLowerCase() ||
               cut.name_ru.toLowerCase() === value.toLowerCase()
           );
-          
-          // Fallback to enum for backward compatibility
-          const enumValue = GEM_CUTS.find(
-            (cut) =>
-              cut.toLowerCase() === value.toLowerCase() ||
-              translateCut(cut).toLowerCase() === value.toLowerCase()
-          );
-          
+          // CUT-C3.1: Use cut_code from database cuts
           return {
             ...prev,
-            cut: enumValue || prev.cut,
-            cut_id: dbCut?.id ?? prev.cut_id, // CUT-C2.3: Set cut_id from database (required)
+            cut_code: dbCut?.code ?? prev.cut_code,
+            cut_id: dbCut?.id ?? prev.cut_id,
             cut_custom: value,
           };
         } else {
           // Custom cut - keep existing cut_id (required field)
           return {
             ...prev,
-            cut: prev.cut || DEFAULT_GEMSTONE_VALUES.cut,
-            cut_id: prev.cut_id, // CUT-C2.3: Keep existing cut_id for custom cuts
+            cut_code: prev.cut_code || DEFAULT_GEMSTONE_VALUES.cut_code,
+            cut_id: prev.cut_id,
             cut_custom: value,
           };
         }
@@ -613,7 +598,7 @@ export function GemstoneForm({
         setErrors((prev) => ({ ...prev, cut: "" }));
       }
     },
-    [cuts, translateCut, errors.cut] // CUT-C1.2: Added cuts dependency
+    [cuts, translateCut, errors.cut]
   );
 
   /**
@@ -990,9 +975,9 @@ export function GemstoneForm({
                   <label className="text-sm font-medium text-foreground">
                     {t("labels.cut")}
                   </label>
-                  {/* FlexibleSelect for cut (FLEX-C1.3) */}
+                  {/* FlexibleSelect for cut (CUT-C3.1) */}
                   <FlexibleSelect
-                    value={formData.cut_custom || translateCut(formData.cut)}
+                    value={formData.cut_custom || translateCut(formData.cut_code)}
                     onChange={handleFlexibleCutChange}
                     options={cutOptions}
                     placeholder={t("selectCutPlaceholder")}

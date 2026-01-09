@@ -25,8 +25,9 @@ const logger = {
 export interface GemstoneFormData {
   name: DatabaseGemstone["name"];
   color: DatabaseGemstone["color"];
-  cut: DatabaseGemstone["cut"];
-  cut_id: string; // FK to cuts table (CUT-C2.3: now required)
+  // CUT-C3.1: cut column removed, use cut_code and cut_id
+  cut_code: string; // Cut code for display/filtering
+  cut_id: string; // FK to cuts table (required)
   clarity: DatabaseGemstone["clarity"];
   // Custom text fields for flexible admin entry (FLEX-C1.x)
   name_custom?: string | null;
@@ -42,7 +43,6 @@ export interface GemstoneFormData {
   enhancement_notes?: string | null;
   type_code?: string;
   color_code?: string;
-  cut_code?: string;
   clarity_code?: string;
   weight_carats: number;
   length_mm: number;
@@ -119,12 +119,12 @@ export interface BulkImportData {
   serialNumber: string;
   name: DatabaseGemstone["name"];
   color: DatabaseGemstone["color"];
-  cut: DatabaseGemstone["cut"];
-  cut_id?: string; // CUT-C2.3: FK to cuts table (will be looked up if not provided)
+  // CUT-C3.1: cut column removed, use cut_code and cut_id
+  cut_code: string;
+  cut_id?: string; // FK to cuts table (will be looked up if not provided)
   clarity: DatabaseGemstone["clarity"];
   type_code?: string;
   color_code?: string;
-  cut_code?: string;
   clarity_code?: string;
   weight_carats: number;
   length_mm?: number;
@@ -182,9 +182,9 @@ export class GemstoneAdminService {
         type_code: formData.type_code ?? formData.name,
         color: formData.color,
         color_code: formData.color_code ?? formData.color,
-        cut: formData.cut,
-        cut_id: formData.cut_id, // FK to cuts table (CUT-C2.3: now required)
-        cut_code: formData.cut_code ?? formData.cut,
+        // CUT-C3.1: cut column removed, use cut_id and cut_code
+        cut_id: formData.cut_id, // FK to cuts table (required)
+        cut_code: formData.cut_code,
         clarity: formData.clarity,
         clarity_code: formData.clarity_code ?? formData.clarity,
         // Custom text fields for flexible admin entry (FLEX-C1.x)
@@ -527,10 +527,12 @@ export class GemstoneAdminService {
       errors.push("Invalid gem color");
     }
 
-    if (!formData.cut) {
-      errors.push("Cut is required");
-    } else if (!DatabaseEnums.isValidGemCut(formData.cut)) {
-      errors.push("Invalid gem cut");
+    // CUT-C3.1: Validate cut_id and cut_code instead of cut enum
+    if (!formData.cut_id) {
+      errors.push("Cut ID is required");
+    }
+    if (!formData.cut_code) {
+      errors.push("Cut code is required");
     }
 
     if (!formData.clarity) {
@@ -683,16 +685,16 @@ export class GemstoneAdminService {
               continue;
             }
 
-            // Look up cut_id from cut code if not provided (CUT-C2.3)
+            // Look up cut_id from cut code if not provided (CUT-C3.1)
             let cutId = gemstoneData.cut_id;
             if (!cutId) {
-              const cut = await CutsService.getCutByCode(gemstoneData.cut);
+              const cut = await CutsService.getCutByCode(gemstoneData.cut_code);
               if (cut) {
                 cutId = cut.id;
               } else {
                 result.errors.push({
                   row: rowNumber,
-                  error: `Unknown cut code: ${gemstoneData.cut}`,
+                  error: `Unknown cut code: ${gemstoneData.cut_code}`,
                   data: gemstoneData,
                 });
                 result.failed++;
@@ -700,16 +702,15 @@ export class GemstoneAdminService {
               }
             }
 
-            // Convert to database format
+            // Convert to database format (CUT-C3.1: cut column removed)
             const dbData: TablesInsert<"gemstones"> = {
               serial_number: gemstoneData.serialNumber,
               name: gemstoneData.name,
               type_code: gemstoneData.type_code ?? gemstoneData.name,
               color: gemstoneData.color,
               color_code: gemstoneData.color_code ?? gemstoneData.color,
-              cut: gemstoneData.cut,
-              cut_id: cutId, // CUT-C2.3: FK to cuts table (required)
-              cut_code: gemstoneData.cut_code ?? gemstoneData.cut,
+              cut_id: cutId, // FK to cuts table (required)
+              cut_code: gemstoneData.cut_code,
               clarity: gemstoneData.clarity,
               clarity_code: gemstoneData.clarity_code ?? gemstoneData.clarity,
               weight_carats: gemstoneData.weight_carats,
@@ -822,10 +823,9 @@ export class GemstoneAdminService {
       return { success: false, error: "Invalid gem color" };
     }
 
-    if (!data.cut) {
-      return { success: false, error: "Cut is required" };
-    } else if (!DatabaseEnums.isValidGemCut(data.cut)) {
-      return { success: false, error: "Invalid gem cut" };
+    // CUT-C3.1: Validate cut_code instead of cut enum
+    if (!data.cut_code) {
+      return { success: false, error: "Cut code is required" };
     }
 
     if (!data.clarity) {

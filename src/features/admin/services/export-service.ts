@@ -73,7 +73,7 @@ export class ExportService {
           gemstone.serial_number,
           gemstone.name,
           gemstone.color,
-          gemstone.cut,
+          gemstone.cut_code, // CUT-C3.1
           gemstone.clarity,
           gemstone.weight_carats.toString(),
           gemstone.length_mm?.toString() || "",
@@ -256,7 +256,7 @@ export class ExportService {
             </div>
             <div class="detail-item">
               <span class="detail-label">Cut:</span>
-              <span class="detail-value">${gemstone.cut}</span>
+              <span class="detail-value">${gemstone.cut_code}</span>
             </div>
             <div class="detail-item">
               <span class="detail-label">Clarity:</span>

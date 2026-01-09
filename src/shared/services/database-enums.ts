@@ -10,7 +10,7 @@ import { Constants } from "@/shared/types/database";
 export type GemstoneType =
   (typeof Constants.public.Enums.gemstone_type)[number];
 export type GemColor = (typeof Constants.public.Enums.gem_color)[number];
-export type GemCut = (typeof Constants.public.Enums.gem_cut)[number];
+// CUT-C3.1: GemCut enum removed - use CutsService instead
 export type GemClarity = (typeof Constants.public.Enums.gem_clarity)[number];
 export type CurrencyCode =
   (typeof Constants.public.Enums.currency_code)[number];
@@ -36,12 +36,7 @@ export const DatabaseEnums = {
     return Constants.public.Enums.gem_color;
   },
 
-  /**
-   * Get all gem cuts
-   */
-  getGemCuts(): readonly GemCut[] {
-    return Constants.public.Enums.gem_cut;
-  },
+  // CUT-C3.1: getGemCuts removed - use CutsService.getAllCuts() instead
 
   /**
    * Get all gem clarities
@@ -78,12 +73,7 @@ export const DatabaseEnums = {
     return Constants.public.Enums.gem_color.includes(value as GemColor);
   },
 
-  /**
-   * Check if a value is a valid gem cut
-   */
-  isValidGemCut(value: string): value is GemCut {
-    return Constants.public.Enums.gem_cut.includes(value as GemCut);
-  },
+  // CUT-C3.1: isValidGemCut removed - use CutsService.getCutByCode() instead
 
   /**
    * Check if a value is a valid gem clarity
@@ -114,7 +104,7 @@ export const DatabaseEnums = {
  */
 export const GEMSTONE_TYPES = DatabaseEnums.getGemstoneTypes();
 export const GEM_COLORS = DatabaseEnums.getGemColors();
-export const GEM_CUTS = DatabaseEnums.getGemCuts();
+// CUT-C3.1: GEM_CUTS removed - use CutsService.getAllCuts() instead
 export const GEM_CLARITIES = DatabaseEnums.getGemClarities();
 export const CURRENCY_CODES = DatabaseEnums.getCurrencyCodes();
 export const METADATA_STATUSES = DatabaseEnums.getMetadataStatuses();
@@ -125,7 +115,7 @@ export const METADATA_STATUSES = DatabaseEnums.getMetadataStatuses();
 export const DEFAULT_GEMSTONE_VALUES = {
   type: "diamond" as const,
   color: "D" as const,
-  cut: "round" as const,
+  cut_code: "round" as const, // CUT-C3.1: Use cut_code instead of cut
   clarity: "FL" as const,
   currency: "USD" as const,
 } as const;

@@ -243,7 +243,7 @@ export async function POST(
 
     console.log(`🤖 [AI Generation] Starting for gemstone: ${id}`);
 
-    // Fetch gemstone with origin
+    // Fetch gemstone with origin and cut (CUT-C3.1)
     const { data: gemstone, error: gemError } = await supabase
       .from("gemstones")
       .select(`
@@ -261,7 +261,7 @@ export async function POST(
         clarity,
         clarity_custom,
         clarity_code,
-        cut,
+        cut_id,
         cut_custom,
         cut_code,
         quantity,
@@ -278,6 +278,11 @@ export async function POST(
           name,
           country,
           region
+        ),
+        cuts!gemstones_cut_id_fkey (
+          code,
+          name_en,
+          name_ru
         )
       `)
       .eq("id", id)
@@ -311,10 +316,12 @@ export async function POST(
     }
     console.log(`📷 [AI Generation] Downloaded ${base64Images.length} images`);
 
-    // Prepare metadata
+    // Prepare metadata (CUT-C3.1: get cut from cuts table)
     const origin = gemstone.origins as any;
+    const cutData = gemstone.cuts as any;
     const metadata = {
       ...gemstone,
+      cut: cutData?.code || gemstone.cut_code, // CUT-C3.1: derive cut from cuts table
       origin_name: origin?.name || null,
       origin_country: origin?.country || null,
       origin_region: origin?.region || null,

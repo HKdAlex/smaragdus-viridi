@@ -7,7 +7,7 @@ import { usePathname, useRouter } from "@/i18n/navigation";
 import type {
   GemClarity,
   GemColor,
-  GemCut,
+  // CUT-C3.1: GemCut enum removed
   GemstoneType,
 } from "@/shared/types";
 import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
@@ -226,7 +226,7 @@ export interface UseAdvancedFiltersReturn {
   setSearch: (search: string) => void;
   toggleGemstoneType: (type: GemstoneType) => void;
   toggleColor: (color: GemColor) => void;
-  toggleCut: (cut: GemCut) => void;
+  toggleCut: (cut: string) => void; // CUT-C3.1: cuts are now strings
   toggleClarity: (clarity: GemClarity) => void;
   toggleOrigin: (origin: string) => void;
   setPriceRange: (range: PriceRange) => void;
@@ -364,7 +364,8 @@ export const useAdvancedFilters = (
     dispatch({ type: "TOGGLE_COLOR", payload: color });
   }, []);
 
-  const toggleCut = useCallback((cut: GemCut) => {
+  // CUT-C3.1: cuts are now strings
+  const toggleCut = useCallback((cut: string) => {
     dispatch({ type: "TOGGLE_CUT", payload: cut });
   }, []);
 

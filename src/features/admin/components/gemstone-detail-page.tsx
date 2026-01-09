@@ -353,7 +353,7 @@ export function GemstoneDetailPage({
                   <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                     {t("cut")}
                   </label>
-                  <p className="text-sm">{translateCut(gemstone.cut)}</p>
+                  <p className="text-sm">{translateCut(gemstone.cut_code)}</p>
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">

@@ -8,7 +8,7 @@
 import type {
   GemClarity,
   GemColor,
-  GemCut,
+  // CUT-C3.1: GemCut enum removed
   GemstoneType,
 } from "@/shared/types";
 
@@ -121,9 +121,9 @@ export function isGemColor(value: unknown): value is GemColor {
 }
 
 /**
- * Type guard to check if a value is a valid GemCut
+ * Type guard to check if a value is a valid GemCut (CUT-C3.1: returns string)
  */
-export function isGemCut(value: unknown): value is GemCut {
+export function isGemCut(value: unknown): value is string {
   return typeof value === "string" && VALID_GEM_CUTS.has(value);
 }
 
@@ -159,9 +159,9 @@ export function parseGemColors(value: string): GemColor[] {
 }
 
 /**
- * Parse comma-separated string into valid GemCut array
+ * Parse comma-separated string into valid GemCut array (CUT-C3.1: returns string[])
  */
-export function parseGemCuts(value: string): GemCut[] {
+export function parseGemCuts(value: string): string[] {
   if (!value) return [];
 
   return value

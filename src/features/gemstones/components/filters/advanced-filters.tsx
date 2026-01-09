@@ -19,7 +19,7 @@ import {
 import type {
   GemClarity,
   GemColor,
-  GemCut,
+  // CUT-C3.1: GemCut enum removed
   GemstoneType,
 } from "@/shared/types";
 import { useEffect, useMemo, useRef } from "react";
@@ -157,12 +157,13 @@ export function AdvancedFilters({
   }, [options.colors, filterActions.isFilterActive, filterLabels.colors]);
 
   const cutOptions = useMemo(() => {
+    // CUT-C3.1: cuts are now strings
     const available = options.cuts || [];
     return Object.entries(filterLabels.cuts)
       .map(([value, label]) => {
         const option = available.find((opt) => opt.value === value);
         return {
-          value: value as GemCut,
+          value: value,
           label,
           count: option?.count || 0,
           disabled: !option || option.count === 0,

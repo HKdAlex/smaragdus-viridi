@@ -22,6 +22,8 @@ import type { AdvancedGemstoneFilters } from "../types/filter.types";
 // ===== TYPES =====
 
 export interface CatalogGemstone extends DatabaseGemstone {
+  // CUT-C3.1: cut field is derived from cuts table via cut_id (provided by views)
+  cut?: string;
   images?: DatabaseGemstoneImage[];
   origin?: DatabaseOrigin | null;
   certifications?: DatabaseCertification[];

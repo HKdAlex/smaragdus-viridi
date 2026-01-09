@@ -27,7 +27,7 @@ import {
 import type {
   GemClarity,
   GemColor,
-  GemCut,
+  // CUT-C3.1: GemCut enum removed
   GemstoneType,
 } from "@/shared/types";
 import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/outline";
@@ -137,12 +137,12 @@ export function AdvancedFiltersControlled({
     [filters, onChange]
   );
 
-  // Handle cut filter
+  // Handle cut filter (CUT-C3.1: cuts are now strings)
   const handleCutChange = useCallback(
     (cuts: string[]) => {
       onChange({
         ...filters,
-        cuts: cuts.length > 0 ? (cuts as GemCut[]) : undefined,
+        cuts: cuts.length > 0 ? cuts : undefined,
       });
     },
     [filters, onChange]
@@ -239,10 +239,11 @@ export function AdvancedFiltersControlled({
     });
   }, [options.colors, filterLabels.colors]);
 
+  // CUT-C3.1: cuts are now strings
   const cutOptions = useMemo(() => {
     return options.cuts.map((opt) => ({
       value: opt.value,
-      label: filterLabels.cuts[opt.value as GemCut] || opt.label,
+      label: filterLabels.cuts[opt.value] || opt.label,
       count: opt.count,
       disabled: opt.count === 0,
     }));

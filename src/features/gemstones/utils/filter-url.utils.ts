@@ -17,7 +17,7 @@ import {
 import type {
   GemClarity,
   GemColor,
-  GemCut,
+  // CUT-C3.1: GemCut enum removed
   GemstoneType,
 } from "@/shared/types";
 
@@ -128,8 +128,9 @@ export const urlParamsToFilters = (
     filters.colors = params.colors.split(",").filter(Boolean) as GemColor[];
   }
 
+  // CUT-C3.1: cuts are now strings
   if (params.cuts) {
-    filters.cuts = params.cuts.split(",").filter(Boolean) as GemCut[];
+    filters.cuts = params.cuts.split(",").filter(Boolean);
   }
 
   if (params.clarities) {

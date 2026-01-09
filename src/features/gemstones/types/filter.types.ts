@@ -5,7 +5,7 @@ import type {
   CurrencyCode,
   GemClarity,
   GemColor,
-  GemCut,
+  // CUT-C3.1: GemCut enum removed
   GemstoneType,
 } from "@/shared/types";
 
@@ -29,7 +29,7 @@ export interface AdvancedGemstoneFilters {
   // Categorical filters (multi-select)
   readonly gemstoneTypes?: GemstoneType[];
   readonly colors?: GemColor[];
-  readonly cuts?: GemCut[];
+  readonly cuts?: string[]; // CUT-C3.1: cuts are now strings
   readonly clarities?: GemClarity[];
   readonly origins?: string[]; // Origin names
 
@@ -56,7 +56,7 @@ export interface MutableAdvancedGemstoneFilters {
   // Categorical filters (multi-select)
   gemstoneTypes?: GemstoneType[];
   colors?: GemColor[];
-  cuts?: GemCut[];
+  cuts?: string[]; // CUT-C3.1: cuts are now strings
   clarities?: GemClarity[];
   origins?: string[]; // Origin names
 
@@ -98,7 +98,7 @@ export interface FilterOptions {
     category: "diamond" | "colored" | "fancy";
   }>;
   readonly cuts: Array<{
-    value: GemCut;
+    value: string; // CUT-C3.1: cuts are now strings
     label: string;
     count: number;
   }>;
@@ -138,7 +138,7 @@ export type FilterAction =
   | { type: "SET_SEARCH"; payload: string }
   | { type: "TOGGLE_GEMSTONE_TYPE"; payload: GemstoneType }
   | { type: "TOGGLE_COLOR"; payload: GemColor }
-  | { type: "TOGGLE_CUT"; payload: GemCut }
+  | { type: "TOGGLE_CUT"; payload: string } // CUT-C3.1: cuts are now strings
   | { type: "TOGGLE_CLARITY"; payload: GemClarity }
   | { type: "TOGGLE_ORIGIN"; payload: string }
   | { type: "SET_PRICE_RANGE"; payload: PriceRange }
@@ -236,7 +236,8 @@ export const COLOR_LABELS: Record<GemColor, string> = {
   "fancy-green": "Fancy Green",
 };
 
-export const CUT_LABELS: Record<GemCut, string> = {
+// CUT-C3.1: cuts are now strings
+export const CUT_LABELS: Record<string, string> = {
   round: "Round",
   oval: "Oval",
   marquise: "Marquise",

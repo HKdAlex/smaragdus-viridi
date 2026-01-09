@@ -100,8 +100,9 @@ export function GemstoneCard({
 
   // For color and cut, prioritize AI-detected values for the actual data
   // but respect pre-translated displayColor/displayCut for the label
+  // CUT-C3.1: use cut_code or cut (from view) instead of cut enum
   const effectiveColor = (gemstone as any).ai_color || gemstone.color;
-  const effectiveCut = (gemstone as any).v6_text?.detected_cut || gemstone.cut;
+  const effectiveCut = (gemstone as any).v6_text?.detected_cut || gemstone.cut || gemstone.cut_code;
 
   const colorLabel = gemstone.displayColor ?? translateColor(effectiveColor);
   const cutLabel =

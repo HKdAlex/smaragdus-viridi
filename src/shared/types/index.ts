@@ -7,7 +7,7 @@ import type { Database } from "./database";
 /* eslint-disable no-restricted-syntax */
 export type GemstoneType = Database["public"]["Enums"]["gemstone_type"];
 export type GemColor = Database["public"]["Enums"]["gem_color"];
-export type GemCut = Database["public"]["Enums"]["gem_cut"];
+// CUT-C3.1: GemCut enum removed - use Cut type from cuts table instead
 export type GemClarity = Database["public"]["Enums"]["gem_clarity"];
 export type CurrencyCode = Database["public"]["Enums"]["currency_code"];
 export type UserRole = Database["public"]["Enums"]["user_role"];
@@ -87,6 +87,9 @@ export interface IndividualStone {
 
 // Enhanced gemstone type with relationships and computed properties
 export interface Gemstone extends DatabaseGemstone {
+  // CUT-C3.1: cut field is now derived from cuts table via cut_id
+  // Views provide this field, but the base table doesn't have it
+  readonly cut?: string;
   readonly origin?: DatabaseOrigin;
   readonly images?: DatabaseGemstoneImage[];
   readonly videos?: DatabaseGemstoneVideo[];
@@ -136,8 +139,10 @@ export interface DetailGemstone {
   weight_carats: number;
   color: GemColor;
   ai_color: string | null; // AI-detected color (overrides manual color if present)
-  cut: GemCut;
-  cut_id: string; // FK to cuts table (CUT-C2.3: now required)
+  // CUT-C3.1: cut is now derived from cuts table via cut_id
+  cut: string; // Cut code (from cuts.code via cut_id)
+  cut_id: string; // FK to cuts table (required)
+  cut_code: string; // Cut code for filtering/display (same as cut)
   clarity: GemClarity;
   price_amount: number;
   price_currency: CurrencyCode;

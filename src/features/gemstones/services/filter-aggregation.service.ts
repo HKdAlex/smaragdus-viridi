@@ -13,7 +13,7 @@
 import type {
   GemClarity,
   GemColor,
-  GemCut,
+  // CUT-C3.1: GemCut enum removed
   GemstoneType,
 } from "@/shared/types";
 
@@ -42,7 +42,7 @@ export interface OriginFilterOption extends FilterOption<string> {
 export interface AggregatedFilterOptions {
   gemstoneTypes: FilterOption<GemstoneType>[];
   colors: ColorFilterOption[];
-  cuts: FilterOption<GemCut>[];
+  cuts: FilterOption<string>[]; // CUT-C3.1: cuts are now strings
   clarities: ClarityFilterOption[];
   origins: OriginFilterOption[];
   priceRange: {
@@ -118,12 +118,12 @@ export class FilterAggregationService {
   }
 
   /**
-   * Process cut counts into filter options
+   * Process cut counts into filter options (CUT-C3.1: cuts are now strings)
    */
-  static aggregateCuts(counts: Record<string, number>): FilterOption<GemCut>[] {
+  static aggregateCuts(counts: Record<string, number>): FilterOption<string>[] {
     return Object.entries(counts)
       .map(([value, count]) => ({
-        value: value as GemCut,
+        value: value,
         label: this.formatCutLabel(value),
         count,
       }))

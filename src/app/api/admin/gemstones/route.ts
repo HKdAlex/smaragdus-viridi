@@ -445,15 +445,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // CUT-C3.1: cut column removed, use cut_id and cut_code
     const insertPayload: TablesInsert<"gemstones"> = {
       serial_number: body.serial_number,
       name: body.name,
       type_code: body.type_code ?? body.name,
       color: body.color,
       color_code: body.color_code ?? body.color,
-      cut: body.cut,
-      cut_id: body.cut_id, // FK to cuts table (CUT-C2.3: now required)
-      cut_code: body.cut_code ?? body.cut,
+      cut_id: body.cut_id, // FK to cuts table (required)
+      cut_code: body.cut_code ?? body.cut ?? "", // Use cut as fallback for cut_code
       clarity: body.clarity,
       clarity_code: body.clarity_code ?? body.clarity,
       weight_carats: Number(body.weight_carats),

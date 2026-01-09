@@ -245,7 +245,7 @@ export class InventoryManagementService {
           id: `alert-${g.id}`,
           gemstone_id: g.id,
           alert_type: "out_of_stock" as const,
-          message: `${g.name} ${g.color} ${g.cut} is out of stock`,
+          message: `${g.name} ${g.color} ${g.cut_code} is out of stock`, // CUT-C3.1
           created_at: g.updated_at || "",
           is_active: true,
         }));
@@ -318,10 +318,10 @@ export class InventoryManagementService {
     try {
       logger.info("Fetching active inventory alerts");
 
-      // Get out of stock gemstones as alerts
+      // Get out of stock gemstones as alerts (CUT-C3.1: use cut_code)
       const { data: outOfStockGems, error } = await supabaseAdmin!
         .from("gemstones")
-        .select("id, name, color, cut, updated_at")
+        .select("id, name, color, cut_code, updated_at")
         .eq("in_stock", false)
         .order("updated_at", { ascending: false });
 
@@ -333,7 +333,7 @@ export class InventoryManagementService {
         id: `alert-${gem.id}`,
         gemstone_id: gem.id,
         alert_type: "out_of_stock" as const,
-        message: `${gem.name} ${gem.color} ${gem.cut} is out of stock`,
+        message: `${gem.name} ${gem.color} ${gem.cut_code} is out of stock`, // CUT-C3.1
         created_at: gem.updated_at || "",
         is_active: true,
       }));
@@ -356,22 +356,22 @@ export class InventoryManagementService {
     try {
       const { data: gemstone } = await supabaseAdmin!
         .from("gemstones")
-        .select("name, color, cut")
+        .select("name, color, cut_code") // CUT-C3.1
         .eq("id", gemstoneId)
         .single();
 
       if (!gemstone) return;
 
-      // Create alert based on stock change
+      // Create alert based on stock change (CUT-C3.1: use cut_code)
       let alertType: InventoryAlert["alert_type"];
       let message: string;
 
       if (!oldData.in_stock && newData.inStock) {
         alertType = "back_in_stock";
-        message = `${gemstone.name} ${gemstone.color} ${gemstone.cut} is back in stock`;
+        message = `${gemstone.name} ${gemstone.color} ${gemstone.cut_code} is back in stock`;
       } else if (oldData.in_stock && !newData.inStock) {
         alertType = "out_of_stock";
-        message = `${gemstone.name} ${gemstone.color} ${gemstone.cut} is now out of stock`;
+        message = `${gemstone.name} ${gemstone.color} ${gemstone.cut_code} is now out of stock`;
       } else {
         return; // No stock status change
       }

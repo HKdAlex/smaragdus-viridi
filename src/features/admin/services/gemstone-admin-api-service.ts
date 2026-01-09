@@ -9,11 +9,12 @@ export interface GemstoneCRUDResult<T = DatabaseGemstone> {
 export interface GemstoneFormData {
   name: DatabaseGemstone["name"];
   color: DatabaseGemstone["color"];
-  cut: DatabaseGemstone["cut"];
+  // CUT-C3.1: cut column removed, use cut_code and cut_id
+  cut_code: string;
+  cut_id: string;
   clarity: DatabaseGemstone["clarity"];
   type_code?: string;
   color_code?: string;
-  cut_code?: string;
   clarity_code?: string;
   weight_carats: number;
   length_mm: number;

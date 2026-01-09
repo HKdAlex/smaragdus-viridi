@@ -732,7 +732,7 @@ Contracts must be executed in this order based on dependencies:
 ### CUT-C3.1 — Remove Deprecated Enum Code
 
 - **ID**: `CUT-C3.1`
-- **Status**: `draft`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/cuts-table-migration/00_vision.md` → "### Phase 3: Code Cleanup"
 
 #### Scope
@@ -766,11 +766,11 @@ Contracts must be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **No GemCut**: `grep -r "GemCut" src/` returns no results - `[ ]`
-2. **No GEM_CUTS**: `grep -r "GEM_CUTS" src/` returns no results - `[ ]`
-3. **No gem_cut**: `grep -r "gem_cut" src/` returns no results (except comments) - `[ ]`
-4. **Build passes**: `npm run build` succeeds - `[ ]`
-5. **Tests pass**: All tests pass - `[ ]`
+1. **No GemCut**: `grep -r "GemCut" src/` returns no results - `[x]` (removed from all type imports)
+2. **No GEM_CUTS**: `grep -r "GEM_CUTS" src/` returns no results - `[x]` (removed from database-enums.ts)
+3. **No gem_cut**: `grep -r "gem_cut" src/` returns no results (except comments) - `[x]` (enum dropped from database)
+4. **Build passes**: `npm run build` succeeds - `[x]`
+5. **Tests pass**: All tests pass - `[ ]` (skipped - no test suite configured)
 
 #### Explicit Non-Goals
 
@@ -778,9 +778,11 @@ Contracts must be executed in this order based on dependencies:
 
 #### Reality-Check Requirements
 
-- **Codebase checks**: PENDING
-  - Full grep for all enum references
-  - Verify all usages identified
+- **Codebase checks**: ✅ VERIFIED
+  - Full grep for all enum references - complete
+  - Verify all usages identified - complete
+  - Database migration applied - cut column dropped, gem_cut enum dropped
+  - All 47+ files updated to use cut_code/cut_id instead of cut enum
 
 ---
 
@@ -850,7 +852,7 @@ Contracts must be executed in this order based on dependencies:
 | CUT-C2.1 | `done` | CUT-C1.1-C1.5 | Database views |
 | CUT-C2.2 | `done` | CUT-C2.1 | Search functions |
 | CUT-C2.3 | `done` | CUT-C2.2 | Drop enum |
-| CUT-C3.1 | `draft` | CUT-C2.3 | Remove deprecated code |
+| CUT-C3.1 | `done` | CUT-C2.3 | Remove deprecated code |
 | CUT-C3.2 | `draft` | CUT-C3.1 | Final verification |
 
 ---

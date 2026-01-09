@@ -389,7 +389,7 @@ export function RelatedGemstones({
                         )}
                       </h4>
                       <p className="text-xs text-muted-foreground line-clamp-1">
-                        {translateCut((gemstone as DatabaseGemstone).cut)}{" "}
+                        {translateCut((gemstone as any).cut || (gemstone as DatabaseGemstone).cut_code)}{" "}
                         {translateCutLabel()} •{" "}
                         {translateClarity(
                           (gemstone as DatabaseGemstone).clarity
