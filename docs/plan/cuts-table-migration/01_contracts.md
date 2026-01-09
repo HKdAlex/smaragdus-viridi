@@ -105,7 +105,7 @@ Contracts must be executed in this order based on dependencies:
 ### CUT-C0.2 — Seed `cuts` Table with Existing Enum Values
 
 - **ID**: `CUT-C0.2`
-- **Status**: `draft`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/cuts-table-migration/00_vision.md` → "### Phase 0: Preparation"
 
 #### Scope
@@ -136,12 +136,12 @@ Contracts must be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **Row count**: `cuts` table has 18 rows - `[ ]`
-2. **All codes present**: All enum values exist as `code` values - `[ ]`
-3. **EN translations**: All rows have `name_en` populated - `[ ]`
-4. **RU translations**: All rows have `name_ru` populated - `[ ]`
-5. **Display order**: Rows have sequential `display_order` values - `[ ]`
-6. **Build passes**: `npm run build` succeeds - `[ ]`
+1. **Row count**: `cuts` table has 18 rows - `[x]`
+2. **All codes present**: All enum values exist as `code` values - `[x]`
+3. **EN translations**: All rows have `name_en` populated - `[x]`
+4. **RU translations**: All rows have `name_ru` populated - `[x]`
+5. **Display order**: Rows have sequential `display_order` values - `[x]` (1-18)
+6. **Build passes**: `npm run build` succeeds - `[x]`
 
 #### Explicit Non-Goals
 
@@ -150,9 +150,9 @@ Contracts must be executed in this order based on dependencies:
 
 #### Reality-Check Requirements
 
-- **Supabase checks**: PENDING
-  - Query `gem_cut_translations` to get existing translations
-  - Verify all 18 enum values have translations
+- **Supabase checks**: ✅ VERIFIED
+  - ✅ Queried `gem_cut_translations` - all 18 cuts have EN and RU translations
+  - ✅ All translations copied to `cuts` table
 
 ---
 
@@ -831,7 +831,7 @@ Contracts must be executed in this order based on dependencies:
 | Contract ID | Status | Dependencies | Notes |
 |------------|--------|--------------|-------|
 | CUT-C0.1 | `done` | None | Create cuts table |
-| CUT-C0.2 | `draft` | CUT-C0.1 | Seed cuts data |
+| CUT-C0.2 | `done` | CUT-C0.1 | Seed cuts data |
 | CUT-C0.3 | `draft` | CUT-C0.2 | Add cut_id column |
 | CUT-C0.4 | `draft` | CUT-C0.3 | Backfill cut_id |
 | CUT-C1.1 | `draft` | CUT-C0.4 | TypeScript types |
