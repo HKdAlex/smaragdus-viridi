@@ -391,7 +391,7 @@ Contracts must be executed in this order based on dependencies:
 ### CUT-C1.3 — Update Filter Components
 
 - **ID**: `CUT-C1.3`
-- **Status**: `draft`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/cuts-table-migration/00_vision.md` → "### Phase 1: Application Migration"
 
 #### Scope
@@ -429,13 +429,13 @@ Contracts must be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **Filters load cuts**: Cut filter shows all database cuts - `[ ]`
-2. **Selection works**: Selecting cut filters catalog correctly - `[ ]`
-3. **URL params work**: Cut filter persists in URL - `[ ]`
-4. **Labels translated**: Cut names show in correct locale - `[ ]`
-5. **Multiple selection**: Can select multiple cuts - `[ ]`
-6. **Clear works**: Clearing filter removes cut selection - `[ ]`
-7. **Build passes**: `npm run build` succeeds - `[ ]`
+1. **Filters load cuts**: Cut filter shows all database cuts - `[x]` (admin filters use CutsService)
+2. **Selection works**: Selecting cut filters catalog correctly - `[x]` (unchanged - uses cut codes)
+3. **URL params work**: Cut filter persists in URL - `[x]` (unchanged - uses cut codes)
+4. **Labels translated**: Cut names show in correct locale - `[x]` (useFilterLabels + translateCut)
+5. **Multiple selection**: Can select multiple cuts - `[x]` (unchanged behavior)
+6. **Clear works**: Clearing filter removes cut selection - `[x]` (unchanged behavior)
+7. **Build passes**: `npm run build` succeeds - `[x]`
 
 #### Explicit Non-Goals
 
@@ -444,9 +444,10 @@ Contracts must be executed in this order based on dependencies:
 
 #### Reality-Check Requirements
 
-- **Codebase checks**: PENDING
-  - Verify filter component structure
-  - Verify filter types
+- **Codebase checks**: ✅ VERIFIED
+  - ✅ Consumer filters use server options + useFilterLabels (no changes needed)
+  - ✅ Admin filters updated to use CutsService
+  - ✅ Filter types use cut codes that match database
 
 ---
 
@@ -836,7 +837,7 @@ Contracts must be executed in this order based on dependencies:
 | CUT-C0.4 | `done` | CUT-C0.3 | Backfill cut_id |
 | CUT-C1.1 | `done` | CUT-C0.4 | TypeScript types |
 | CUT-C1.2 | `done` | CUT-C1.1 | Admin form |
-| CUT-C1.3 | `draft` | CUT-C1.1 | Filter components |
+| CUT-C1.3 | `done` | CUT-C1.1 | Filter components |
 | CUT-C1.4 | `draft` | CUT-C1.1 | Translation service |
 | CUT-C1.5 | `draft` | CUT-C1.1 | Consumer display |
 | CUT-C2.1 | `draft` | CUT-C1.1-C1.5 | Database views |

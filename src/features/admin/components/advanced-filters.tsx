@@ -20,6 +20,8 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Input } from "@/shared/components/ui/input";
+import { CutsService } from "@/shared/services/cuts-service";
+import type { Cut } from "@/shared/types";
 import { useTranslations } from "next-intl";
 
 export interface AdvancedFiltersState {
@@ -81,7 +83,8 @@ const GEM_COLORS = [
   "colorless",
 ] as const;
 
-const GEM_CUTS = [
+// CUT-C1.3: Fallback cuts while loading from database
+const FALLBACK_CUTS = [
   "round",
   "princess",
   "emerald",
@@ -122,6 +125,23 @@ export function AdvancedFilters({
   } = useGemstoneTranslations();
   const [localFilters, setLocalFilters] =
     useState<AdvancedFiltersState>(filters);
+  const [cuts, setCuts] = useState<Cut[]>([]); // CUT-C1.3: Database cuts
+
+  // CUT-C1.3: Load cuts from database
+  useEffect(() => {
+    const loadCuts = async () => {
+      try {
+        const cutsData = await CutsService.getAllCuts();
+        setCuts(cutsData);
+      } catch (error) {
+        console.error("Failed to load cuts:", error);
+      }
+    };
+    loadCuts();
+  }, []);
+
+  // Get cut codes for display (use database cuts if loaded, fallback otherwise)
+  const cutCodes = cuts.length > 0 ? cuts.map((c) => c.code) : [...FALLBACK_CUTS];
 
   // Update local filters when props change
   useEffect(() => {
@@ -307,11 +327,11 @@ export function AdvancedFilters({
               </div>
             </div>
 
-            {/* Cut Filter */}
+            {/* Cut Filter - CUT-C1.3: Uses database cuts */}
             <div>
               <h4 className="font-medium text-gray-900 mb-3">{t("cut")}</h4>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                {GEM_CUTS.map((cut) => (
+                {cutCodes.map((cut) => (
                   <label
                     key={cut}
                     className="flex items-center space-x-2 cursor-pointer"
