@@ -1013,6 +1013,15 @@
       "add": "Add",
       "autoCalculatePricePerCarat": "Auto-calc"
     },
+    "aiGeneration": {
+      "generate": "Generate AI Content",
+      "regenerate": "Regenerate AI Content",
+      "generating": "Generating...",
+      "success": "AI content generated successfully",
+      "error": "Failed to generate AI content",
+      "saveFirst": "Please save the gemstone first before generating AI content",
+      "confidence": "Confidence"
+    },
     "errors": {
       "serialNumberExists": "Serial number already exists",
       "unexpectedError": "An unexpected error occurred",
@@ -1036,7 +1045,11 @@
       "pricePerCaratHelper": "Uses gemstone weight to calculate total price when price per carat is provided.",
       "treatmentStatus": "Describe any treatments applied (heat, oiling, diffusion) or indicate if natural/untreated",
       "colorChangeDescription": "For alexandrites and similar stones, describe the color change effect",
-      "qualityClassification": "Use the appropriate grading system for this stone type (e.g., Russian ТУ for alexandrites)"
+      "qualityClassification": "Use the appropriate grading system for this stone type (e.g., Russian ТУ for alexandrites)",
+      "miningCountry": "Free-text field for custom mining location. Can list multiple countries. Use 'Origin' dropdown below for structured filtering.",
+      "cuttingCountry": "Free-text field for where the stone was cut/faceted. Distinct from mining location.",
+      "origin": "Structured origin selection for filtering and consistency. Populate the origins table first. Use 'Mining Country' above for custom descriptions.",
+      "originEmpty": "⚠️ Origins table is empty. Populate it first to use this dropdown for filtering."
     },
     "descriptions": {
       "individualStones": "Specify unique dimensions for each stone in this multi-stone item. Leave blank to use overall dimensions."

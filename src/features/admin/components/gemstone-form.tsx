@@ -49,8 +49,10 @@ import {
   Package,
   Palette,
   Plus,
+  RefreshCw,
   Ruler,
   Save,
+  Sparkles,
   X,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -273,6 +275,12 @@ export function GemstoneForm({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [uploadedMedia, setUploadedMedia] = useState<MediaUploadResult[]>([]);
   const [hasManualPricePerCarat, setHasManualPricePerCarat] = useState(false);
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false);
+  const [aiGenerationStatus, setAiGenerationStatus] = useState<{
+    success?: boolean;
+    message?: string;
+    confidence?: number;
+  } | null>(null);
 
   const [formData, setFormData] = useState<GemstoneFormData>(() => {
     return {
@@ -753,6 +761,59 @@ export function GemstoneForm({
     }
   };
 
+  /**
+   * Generate AI content for the current gemstone
+   * Calls the API endpoint to generate descriptions, stories, etc.
+   */
+  const handleGenerateAI = async () => {
+    if (!gemstone?.id) {
+      setAiGenerationStatus({
+        success: false,
+        message: t("aiGeneration.saveFirst"),
+      });
+      return;
+    }
+
+    setIsGeneratingAI(true);
+    setAiGenerationStatus(null);
+
+    try {
+      const response = await fetch(`/api/admin/gemstones/${gemstone.id}/generate-ai`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        setAiGenerationStatus({
+          success: false,
+          message: result.error || t("aiGeneration.error"),
+        });
+        return;
+      }
+
+      setAiGenerationStatus({
+        success: true,
+        message: t("aiGeneration.success"),
+        confidence: result.data?.confidence,
+      });
+
+      // Reload the gemstone data to get the new AI content
+      // We need to refresh the form with the new AI-generated content
+      window.location.reload();
+    } catch (error) {
+      setAiGenerationStatus({
+        success: false,
+        message: t("aiGeneration.error"),
+      });
+    } finally {
+      setIsGeneratingAI(false);
+    }
+  };
+
   return (
     <Card className="w-full max-w-7xl mx-auto">
       <CardHeader>
@@ -996,6 +1057,9 @@ export function GemstoneForm({
                       placeholder={t("placeholders.miningCountry")}
                       maxLength={100}
                     />
+                    <p className="text-xs text-muted-foreground">
+                      {t("hints.miningCountry")}
+                    </p>
                   </div>
 
                   <div className="space-y-2">
@@ -1011,6 +1075,9 @@ export function GemstoneForm({
                       placeholder={t("placeholders.cuttingCountry")}
                       maxLength={100}
                     />
+                    <p className="text-xs text-muted-foreground">
+                      {t("hints.cuttingCountry")}
+                    </p>
                   </div>
 
                   <div className="space-y-2 md:col-span-2 lg:col-span-1">
@@ -1139,6 +1206,14 @@ export function GemstoneForm({
                     ))}
                   </SelectContent>
                 </Select>
+                {origins.length === 0 && (
+                  <p className="text-xs text-amber-600 dark:text-amber-400">
+                    {t("hints.originEmpty")}
+                  </p>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  {t("hints.origin")}
+                </p>
               </div>
             
               </div>
@@ -1748,12 +1823,65 @@ export function GemstoneForm({
             {/* AI Content Tab */}
             <TabsContent value="ai-content" className="space-y-6 mt-6">
               <div className="space-y-6">
-                <div className="flex items-center gap-2">
-                  <Gem className="w-5 h-5" />
-                  <h3 className="text-lg font-medium">
-                    {t("labels.aiGeneratedContent")}
-                  </h3>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Gem className="w-5 h-5" />
+                    <h3 className="text-lg font-medium">
+                      {t("labels.aiGeneratedContent")}
+                    </h3>
+                  </div>
+                  
+                  {/* AI Generation Button */}
+                  <div className="flex items-center gap-3">
+                    {aiGenerationStatus && (
+                      <div
+                        className={`text-sm px-3 py-1 rounded-md ${
+                          aiGenerationStatus.success
+                            ? "bg-green-50 text-green-700 border border-green-200"
+                            : "bg-red-50 text-red-700 border border-red-200"
+                        }`}
+                      >
+                        {aiGenerationStatus.message}
+                        {aiGenerationStatus.confidence && (
+                          <span className="ml-2 text-xs opacity-75">
+                            ({t("aiGeneration.confidence")}: {(aiGenerationStatus.confidence * 100).toFixed(0)}%)
+                          </span>
+                        )}
+                      </div>
+                    )}
+                    <Button
+                      type="button"
+                      variant={formData.description_technical_en ? "outline" : "default"}
+                      onClick={handleGenerateAI}
+                      disabled={isGeneratingAI || !gemstone?.id}
+                      className="gap-2"
+                    >
+                      {isGeneratingAI ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          {t("aiGeneration.generating")}
+                        </>
+                      ) : formData.description_technical_en ? (
+                        <>
+                          <RefreshCw className="w-4 h-4" />
+                          {t("aiGeneration.regenerate")}
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="w-4 h-4" />
+                          {t("aiGeneration.generate")}
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </div>
+                
+                {!gemstone?.id && (
+                  <div className="p-4 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-sm">
+                    <AlertCircle className="w-4 h-4 inline mr-2" />
+                    {t("aiGeneration.saveFirst")}
+                  </div>
+                )}
 
                 {/* English Fields */}
                 <div className="space-y-4">
