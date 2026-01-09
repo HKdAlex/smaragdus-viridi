@@ -232,6 +232,22 @@ Corpus entries should be stored as JSON files in `tests/corpus/` with the follow
 
 ---
 
+## Related Migrations
+
+### Cuts Table Migration
+
+The cuts table migration has its own test corpus at `docs/plan/cuts-table-migration/03_test_corpus.md`.
+
+Key test categories for cuts migration:
+- Migration integrity (enum → table)
+- Translation preservation
+- Filter functionality
+- Admin form functionality
+- Extensibility (adding new cuts)
+- Backward compatibility
+
+---
+
 ## Template Usage Notes
 
 This test corpus document is customized for the Crystallique gemstone platform flexible fields feature. All placeholders have been replaced with project-specific details.

@@ -324,6 +324,22 @@ Key example given: Alexandrite classification using Russian ТУ system (Г1, Г
 
 ---
 
+---
+
+## Related Migrations
+
+### Cuts Table Migration
+
+If working on the cuts table migration (converting `gem_cut` enum to `cuts` table), use the dedicated planning documents:
+
+- **Location**: `docs/plan/cuts-table-migration/`
+- **Agent Prompt**: `docs/plan/cuts-table-migration/AGENT_PROMPT.md`
+- **Contracts**: `docs/plan/cuts-table-migration/01_contracts.md` (CUT-C* prefix)
+
+The cuts migration is a separate but related effort that enables full extensibility for cut types.
+
+---
+
 ## Template Usage Notes
 
 This agent prompt is customized for the Crystallique gemstone platform flexible fields feature. All placeholders have been replaced with project-specific details.

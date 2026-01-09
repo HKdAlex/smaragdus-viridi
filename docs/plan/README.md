@@ -81,17 +81,49 @@ This planning harness covers the **Flexible Gemstone Property Entry** feature fo
 **Contracts**:
 | ID | Description | Status |
 |----|-------------|--------|
-| FLEX-C0.1 | Database schema extension (10 new columns) | draft |
-| FLEX-C0.2 | TypeScript types regeneration | draft |
-| FLEX-C1.1 | Flexible name field in admin form | draft |
-| FLEX-C1.2 | Flexible color field in admin form | draft |
-| FLEX-C1.3 | Flexible cut field in admin form | draft |
-| FLEX-C1.4 | Flexible clarity field in admin form | draft |
-| FLEX-C1.5 | New detailed properties section | draft |
-| FLEX-C2.1 | Admin EN/RU translations | draft |
-| FLEX-C3.1 | Consumer professional specs section | draft |
-| FLEX-C3.2 | Consumer treatment/enhancement display | draft |
-| FLEX-C3.3 | Consumer EN/RU translations | draft |
+| FLEX-C0.1 | Database schema extension (10 new columns) | done |
+| FLEX-C0.2 | TypeScript types regeneration | done |
+| FLEX-C1.1 | Flexible name field in admin form | done |
+| FLEX-C1.2 | Flexible color field in admin form | done |
+| FLEX-C1.3 | Flexible cut field in admin form | done |
+| FLEX-C1.4 | Flexible clarity field in admin form | done |
+| FLEX-C1.5 | New detailed properties section | done |
+| FLEX-C2.1 | Admin EN/RU translations | done |
+| FLEX-C3.1 | Consumer professional specs section | done |
+| FLEX-C3.2 | Consumer treatment/enhancement display | done |
+| FLEX-C3.3 | Consumer EN/RU translations | done |
+
+---
+
+## Related Migrations
+
+### Cuts Table Migration
+
+**Location**: `docs/plan/cuts-table-migration/`
+
+**Problem**: The `gem_cut` PostgreSQL ENUM requires database migrations to add new cut types. This is inflexible for administrators who need to add custom cuts without developer intervention.
+
+**Solution**: Migrate from `gem_cut` ENUM to a `cuts` reference table with inline translations.
+
+**Contracts**:
+| ID | Description | Status |
+|----|-------------|--------|
+| CUT-C0.1 | Create cuts table | draft |
+| CUT-C0.2 | Seed cuts data | draft |
+| CUT-C0.3 | Add cut_id column | draft |
+| CUT-C0.4 | Backfill cut_id | draft |
+| CUT-C1.1 | TypeScript types | draft |
+| CUT-C1.2 | Admin form | draft |
+| CUT-C1.3 | Filter components | draft |
+| CUT-C1.4 | Translation service | draft |
+| CUT-C1.5 | Consumer display | draft |
+| CUT-C2.1 | Database views | draft |
+| CUT-C2.2 | Search functions | draft |
+| CUT-C2.3 | Drop enum | draft |
+| CUT-C3.1 | Remove deprecated code | draft |
+| CUT-C3.2 | Final verification | draft |
+
+**See**: `docs/plan/cuts-table-migration/README.md` for full details
 
 ## Quick Start
 

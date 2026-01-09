@@ -287,6 +287,28 @@ Detailed notes on natural vs. synthetic vs. enhanced status:
 
 ---
 
+## Related Migrations
+
+### Cuts Table Migration
+
+**Status**: Planned
+
+**Location**: `docs/plan/cuts-table-migration/`
+
+**Summary**: Migrate `gem_cut` PostgreSQL ENUM to a `cuts` reference table, enabling administrators to add new cut types without database migrations.
+
+**Why**: The current `gem_cut` enum requires `ALTER TYPE gem_cut ADD VALUE` migrations to add new cuts. This is inflexible and requires developer intervention for what should be a data management task.
+
+**Contracts**: 14 contracts (CUT-C0.1 through CUT-C3.2) covering:
+- Phase 0: Database preparation (create table, seed, add FK, backfill)
+- Phase 1: Application migration (types, form, filters, translations, display)
+- Phase 2: Database cleanup (views, functions, drop enum)
+- Phase 3: Code cleanup (remove deprecated code, final verification)
+
+**See**: `docs/plan/cuts-table-migration/00_vision.md` for full details
+
+---
+
 ## Template Usage Notes
 
 This vision document is customized for the Crystallique gemstone platform flexible fields feature. All placeholders have been replaced with project-specific details.

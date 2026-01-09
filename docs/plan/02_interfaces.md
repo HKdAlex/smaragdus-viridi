@@ -158,6 +158,22 @@ Consumer Filtering ← Filter components ← Enum columns only (not custom colum
 
 ---
 
+---
+
+## Related Migrations
+
+### Cuts Table Migration
+
+The `gem_cut` enum is being migrated to a `cuts` reference table. During and after this migration:
+
+- **Before migration**: `gem_cut` enum is authoritative for cut values
+- **During migration**: Both enum and `cuts` table exist; dual-write to both
+- **After migration**: `cuts` table is authoritative; enum is dropped
+
+See `docs/plan/cuts-table-migration/02_interfaces.md` for migration-specific boundaries.
+
+---
+
 ## Template Usage Notes
 
 This interfaces document is customized for the Crystallique gemstone platform. All placeholders have been replaced with project-specific details.
