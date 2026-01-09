@@ -231,6 +231,33 @@ export function GemstoneForm({
     [translateGemstoneType]
   );
 
+  const colorOptions = useMemo(
+    () =>
+      GEM_COLORS.map((color) => ({
+        value: color,
+        label: translateColor(color),
+      })),
+    [translateColor]
+  );
+
+  const cutOptions = useMemo(
+    () =>
+      GEM_CUTS.map((cut) => ({
+        value: cut,
+        label: translateCut(cut),
+      })),
+    [translateCut]
+  );
+
+  const clarityOptions = useMemo(
+    () =>
+      GEM_CLARITIES.map((clarity) => ({
+        value: clarity,
+        label: translateClarity(clarity),
+      })),
+    [translateClarity]
+  );
+
   const [isLoading, setIsLoading] = useState(false);
   const [origins, setOrigins] = useState<DatabaseOrigin[]>([]);
   const [marketingHighlights, setMarketingHighlights] = useState<string[]>([]);
@@ -461,6 +488,102 @@ export function GemstoneForm({
       }
     },
     [translateGemstoneType, errors.name]
+  );
+
+  /**
+   * Handle flexible color field change (FLEX-C1.2)
+   */
+  const handleFlexibleColorChange = useCallback(
+    (value: string, isKnownValue: boolean) => {
+      setFormData((prev) => {
+        if (isKnownValue) {
+          const enumValue = GEM_COLORS.find(
+            (color) =>
+              color.toLowerCase() === value.toLowerCase() ||
+              translateColor(color).toLowerCase() === value.toLowerCase()
+          );
+          return {
+            ...prev,
+            color: enumValue || prev.color,
+            color_custom: value,
+          };
+        } else {
+          return {
+            ...prev,
+            color: prev.color || DEFAULT_GEMSTONE_VALUES.color,
+            color_custom: value,
+          };
+        }
+      });
+      if (errors.color) {
+        setErrors((prev) => ({ ...prev, color: "" }));
+      }
+    },
+    [translateColor, errors.color]
+  );
+
+  /**
+   * Handle flexible cut field change (FLEX-C1.3)
+   */
+  const handleFlexibleCutChange = useCallback(
+    (value: string, isKnownValue: boolean) => {
+      setFormData((prev) => {
+        if (isKnownValue) {
+          const enumValue = GEM_CUTS.find(
+            (cut) =>
+              cut.toLowerCase() === value.toLowerCase() ||
+              translateCut(cut).toLowerCase() === value.toLowerCase()
+          );
+          return {
+            ...prev,
+            cut: enumValue || prev.cut,
+            cut_custom: value,
+          };
+        } else {
+          return {
+            ...prev,
+            cut: prev.cut || DEFAULT_GEMSTONE_VALUES.cut,
+            cut_custom: value,
+          };
+        }
+      });
+      if (errors.cut) {
+        setErrors((prev) => ({ ...prev, cut: "" }));
+      }
+    },
+    [translateCut, errors.cut]
+  );
+
+  /**
+   * Handle flexible clarity field change (FLEX-C1.4)
+   */
+  const handleFlexibleClarityChange = useCallback(
+    (value: string, isKnownValue: boolean) => {
+      setFormData((prev) => {
+        if (isKnownValue) {
+          const enumValue = GEM_CLARITIES.find(
+            (clarity) =>
+              clarity.toLowerCase() === value.toLowerCase() ||
+              translateClarity(clarity).toLowerCase() === value.toLowerCase()
+          );
+          return {
+            ...prev,
+            clarity: enumValue || prev.clarity,
+            clarity_custom: value,
+          };
+        } else {
+          return {
+            ...prev,
+            clarity: prev.clarity || DEFAULT_GEMSTONE_VALUES.clarity,
+            clarity_custom: value,
+          };
+        }
+      });
+      if (errors.clarity) {
+        setErrors((prev) => ({ ...prev, clarity: "" }));
+      }
+    },
+    [translateClarity, errors.clarity]
   );
 
   const addMarketingHighlight = () => {
@@ -735,31 +858,14 @@ export function GemstoneForm({
                   <label className="text-sm font-medium text-foreground">
                     {t("labels.color")}
                   </label>
-                  <Select
-                    value={formData.color}
-                    onValueChange={(value) => handleInputChange("color", value)}
-                  >
-                    <SelectTrigger
-                      className={errors.color ? "border-red-500" : ""}
-                    >
-                      <span className="text-sm">
-                        {formData.color ? (
-                          translateColor(formData.color)
-                        ) : (
-                          <span className="text-muted-foreground">
-                            {t("selectColorPlaceholder")}
-                          </span>
-                        )}
-                      </span>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {GEM_COLORS.map((color) => (
-                        <SelectItem key={color} value={color}>
-                          {translateColor(color)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  {/* FlexibleSelect for color (FLEX-C1.2) */}
+                  <FlexibleSelect
+                    value={formData.color_custom || translateColor(formData.color)}
+                    onChange={handleFlexibleColorChange}
+                    options={colorOptions}
+                    placeholder={t("selectColorPlaceholder")}
+                    error={!!errors.color}
+                  />
                   {errors.color && (
                     <p className="text-sm text-red-600">{errors.color}</p>
                   )}
@@ -769,31 +875,14 @@ export function GemstoneForm({
                   <label className="text-sm font-medium text-foreground">
                     {t("labels.cut")}
                   </label>
-                  <Select
-                    value={formData.cut}
-                    onValueChange={(value) => handleInputChange("cut", value)}
-                  >
-                    <SelectTrigger
-                      className={errors.cut ? "border-red-500" : ""}
-                    >
-                      <span className="text-sm">
-                        {formData.cut ? (
-                          translateCut(formData.cut)
-                        ) : (
-                          <span className="text-muted-foreground">
-                            {t("selectCutPlaceholder")}
-                          </span>
-                        )}
-                      </span>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {GEM_CUTS.map((cut) => (
-                        <SelectItem key={cut} value={cut}>
-                          {translateCut(cut)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  {/* FlexibleSelect for cut (FLEX-C1.3) */}
+                  <FlexibleSelect
+                    value={formData.cut_custom || translateCut(formData.cut)}
+                    onChange={handleFlexibleCutChange}
+                    options={cutOptions}
+                    placeholder={t("selectCutPlaceholder")}
+                    error={!!errors.cut}
+                  />
                   {errors.cut && (
                     <p className="text-sm text-red-600">{errors.cut}</p>
                   )}
@@ -803,33 +892,14 @@ export function GemstoneForm({
                   <label className="text-sm font-medium text-foreground">
                     {t("labels.clarity")}
                   </label>
-                  <Select
-                    value={formData.clarity}
-                    onValueChange={(value) =>
-                      handleInputChange("clarity", value)
-                    }
-                  >
-                    <SelectTrigger
-                      className={errors.clarity ? "border-red-500" : ""}
-                    >
-                      <span className="text-sm">
-                        {formData.clarity ? (
-                          translateClarity(formData.clarity)
-                        ) : (
-                          <span className="text-muted-foreground">
-                            {t("selectClarityPlaceholder")}
-                          </span>
-                        )}
-                      </span>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {GEM_CLARITIES.map((clarity) => (
-                        <SelectItem key={clarity} value={clarity}>
-                          {translateClarity(clarity)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  {/* FlexibleSelect for clarity (FLEX-C1.4) */}
+                  <FlexibleSelect
+                    value={formData.clarity_custom || translateClarity(formData.clarity)}
+                    onChange={handleFlexibleClarityChange}
+                    options={clarityOptions}
+                    placeholder={t("selectClarityPlaceholder")}
+                    error={!!errors.clarity}
+                  />
                   {errors.clarity && (
                     <p className="text-sm text-red-600">{errors.clarity}</p>
                   )}

@@ -700,9 +700,9 @@ Contracts should be executed in this order based on dependencies:
 | FLEX-C0.1 | `done` | None | Database schema extension |
 | FLEX-C0.2 | `done` | FLEX-C0.1 | TypeScript types regeneration |
 | FLEX-C1.1 | `done` | FLEX-C0.2 | Flexible name field |
-| FLEX-C1.2 | `draft` | FLEX-C0.2 | Flexible color field (template similar to C1.1) |
-| FLEX-C1.3 | `draft` | FLEX-C0.2 | Flexible cut field (template similar to C1.1) |
-| FLEX-C1.4 | `draft` | FLEX-C0.2 | Flexible clarity field (template similar to C1.1) |
+| FLEX-C1.2 | `done` | FLEX-C0.2 | Flexible color field (template similar to C1.1) |
+| FLEX-C1.3 | `done` | FLEX-C0.2 | Flexible cut field (template similar to C1.1) |
+| FLEX-C1.4 | `done` | FLEX-C0.2 | Flexible clarity field (template similar to C1.1) |
 | FLEX-C1.5 | `draft` | FLEX-C0.2 | New detailed properties section |
 | FLEX-C2.1 | `draft` | FLEX-C1.5 | Admin translations |
 | FLEX-C3.1 | `draft` | FLEX-C0.2 | Consumer professional specs section |
