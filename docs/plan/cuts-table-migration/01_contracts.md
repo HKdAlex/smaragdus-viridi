@@ -622,7 +622,7 @@ Contracts must be executed in this order based on dependencies:
 ### CUT-C2.2 — Update Search Functions
 
 - **ID**: `CUT-C2.2`
-- **Status**: `draft`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/cuts-table-migration/00_vision.md` → "### Phase 2: Database Cleanup"
 
 #### Scope
@@ -653,10 +653,10 @@ Contracts must be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **Search works**: Searching for "round" finds gemstones - `[ ]`
-2. **RU search works**: Searching for Russian cut name works - `[ ]`
-3. **Suggestions work**: Cut names appear in suggestions - `[ ]`
-4. **Build passes**: `npm run build` succeeds - `[ ]`
+1. **Search works**: Searching for "round" finds gemstones - `[x]` (fuzzy_search_suggestions returns "Round Brilliant")
+2. **RU search works**: Searching for Russian cut name works - `[x]` (returns "Круглая огранка")
+3. **Suggestions work**: Cut names appear in suggestions - `[x]` (get_search_suggestions returns cut from cuts table)
+4. **Build passes**: `npm run build` succeeds - `[x]`
 
 #### Explicit Non-Goals
 
@@ -665,9 +665,10 @@ Contracts must be executed in this order based on dependencies:
 
 #### Reality-Check Requirements
 
-- **Supabase checks**: PENDING
-  - Verify current function definitions
-  - Verify search vector structure
+- **Supabase checks**: ✅ VERIFIED
+  - ✅ fuzzy_search_suggestions updated to use cuts table
+  - ✅ get_search_suggestions updated to use cuts table via cut_id JOIN
+  - ✅ update_gemstone_search_vectors updated to use cuts table via cut_id
 
 ---
 
@@ -845,7 +846,7 @@ Contracts must be executed in this order based on dependencies:
 | CUT-C1.4 | `done` | CUT-C1.1 | Translation service |
 | CUT-C1.5 | `done` | CUT-C1.1 | Consumer display |
 | CUT-C2.1 | `done` | CUT-C1.1-C1.5 | Database views |
-| CUT-C2.2 | `draft` | CUT-C2.1 | Search functions |
+| CUT-C2.2 | `done` | CUT-C2.1 | Search functions |
 | CUT-C2.3 | `draft` | CUT-C2.2 | Drop enum |
 | CUT-C3.1 | `draft` | CUT-C2.3 | Remove deprecated code |
 | CUT-C3.2 | `draft` | CUT-C3.1 | Final verification |
