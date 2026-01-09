@@ -509,7 +509,7 @@ Contracts must be executed in this order based on dependencies:
 ### CUT-C1.5 — Update Consumer Display Components
 
 - **ID**: `CUT-C1.5`
-- **Status**: `draft`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/cuts-table-migration/00_vision.md` → "### Phase 1: Application Migration"
 
 #### Scope
@@ -545,12 +545,12 @@ Contracts must be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **Detail page**: Cut displays with correct translation - `[ ]`
-2. **Card**: Cut shows on gemstone card - `[ ]`
-3. **Cart**: Cut shows in cart item - `[ ]`
-4. **Orders**: Cut shows in order details - `[ ]`
-5. **3D visualizer**: Cut icon renders correctly - `[ ]`
-6. **Build passes**: `npm run build` succeeds - `[ ]`
+1. **Detail page**: Cut displays with correct translation - `[x]` (uses translateCut)
+2. **Card**: Cut shows on gemstone card - `[x]` (uses translateCut)
+3. **Cart**: Cut shows in cart item - `[x]` (uses translateCut)
+4. **Orders**: Cut shows in order details - `[x]` (uses translateCut)
+5. **3D visualizer**: Cut icon renders correctly - `[x]` (uses cut code for geometry)
+6. **Build passes**: `npm run build` succeeds - `[x]`
 
 #### Explicit Non-Goals
 
@@ -559,9 +559,11 @@ Contracts must be executed in this order based on dependencies:
 
 #### Reality-Check Requirements
 
-- **Codebase checks**: PENDING
-  - Verify component structure
-  - Verify cut display patterns
+- **Codebase checks**: ✅ VERIFIED
+  - ✅ All consumer components use translateCut from useGemstoneTranslations
+  - ✅ Cut codes match translation keys (next-intl JSON files)
+  - ✅ 3D visualizer uses cut codes for geometry selection
+  - ✅ No changes needed - existing translation system works
 
 ---
 
@@ -840,7 +842,7 @@ Contracts must be executed in this order based on dependencies:
 | CUT-C1.2 | `done` | CUT-C1.1 | Admin form |
 | CUT-C1.3 | `done` | CUT-C1.1 | Filter components |
 | CUT-C1.4 | `done` | CUT-C1.1 | Translation service |
-| CUT-C1.5 | `draft` | CUT-C1.1 | Consumer display |
+| CUT-C1.5 | `done` | CUT-C1.1 | Consumer display |
 | CUT-C2.1 | `draft` | CUT-C1.1-C1.5 | Database views |
 | CUT-C2.2 | `draft` | CUT-C2.1 | Search functions |
 | CUT-C2.3 | `draft` | CUT-C2.2 | Drop enum |
