@@ -425,6 +425,45 @@ export type Database = {
         }
         Relationships: []
       }
+      cuts: {
+        Row: {
+          code: string
+          created_at: string | null
+          description_en: string | null
+          description_ru: string | null
+          display_order: number | null
+          id: string
+          is_active: boolean | null
+          name_en: string
+          name_ru: string
+          updated_at: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          description_en?: string | null
+          description_ru?: string | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          name_en: string
+          name_ru: string
+          updated_at?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          description_en?: string | null
+          description_ru?: string | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          name_en?: string
+          name_ru?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       favorites: {
         Row: {
           created_at: string | null
@@ -904,6 +943,7 @@ export type Database = {
           cut: Database["public"]["Enums"]["gem_cut"]
           cut_code: string
           cut_custom: string | null
+          cut_id: string | null
           cutting_country: string | null
           delivery_days: number | null
           depth_mm: number
@@ -981,6 +1021,7 @@ export type Database = {
           cut: Database["public"]["Enums"]["gem_cut"]
           cut_code: string
           cut_custom?: string | null
+          cut_id?: string | null
           cutting_country?: string | null
           delivery_days?: number | null
           depth_mm: number
@@ -1060,6 +1101,7 @@ export type Database = {
           cut?: Database["public"]["Enums"]["gem_cut"]
           cut_code?: string
           cut_custom?: string | null
+          cut_id?: string | null
           cutting_country?: string | null
           delivery_days?: number | null
           depth_mm?: number
@@ -1109,6 +1151,13 @@ export type Database = {
             columns: ["import_batch_id"]
             isOneToOne: false
             referencedRelation: "import_batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gemstones_cut_id_fkey"
+            columns: ["cut_id"]
+            isOneToOne: false
+            referencedRelation: "cuts"
             referencedColumns: ["id"]
           },
           {

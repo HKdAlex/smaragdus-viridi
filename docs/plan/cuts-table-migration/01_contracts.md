@@ -159,7 +159,7 @@ Contracts must be executed in this order based on dependencies:
 ### CUT-C0.3 — Add `cut_id` Column to `gemstones`
 
 - **ID**: `CUT-C0.3`
-- **Status**: `draft`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/cuts-table-migration/00_vision.md` → "### Modified `gemstones` Table"
 
 #### Scope
@@ -192,12 +192,12 @@ Contracts must be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **Column exists**: `cut_id` column visible in `gemstones` table - `[ ]`
-2. **FK constraint**: Invalid `cut_id` value rejected - `[ ]`
-3. **Nullable**: Can insert gemstone without `cut_id` - `[ ]`
-4. **Existing data intact**: All gemstones still have `cut` enum values - `[ ]`
-5. **Types regenerated**: `npm run types:generate` succeeds - `[ ]`
-6. **Build passes**: `npm run build` succeeds - `[ ]`
+1. **Column exists**: `cut_id` column visible in `gemstones` table - `[x]`
+2. **FK constraint**: Invalid `cut_id` value rejected - `[x]` (gemstones_cut_id_fkey)
+3. **Nullable**: Can insert gemstone without `cut_id` - `[x]` (is_nullable: YES)
+4. **Existing data intact**: All gemstones still have `cut` enum values - `[x]`
+5. **Types regenerated**: `npm run types:generate` succeeds - `[x]`
+6. **Build passes**: `npm run build` succeeds - `[x]` (fixed demo page sample data)
 
 #### Explicit Non-Goals
 
@@ -207,9 +207,9 @@ Contracts must be executed in this order based on dependencies:
 
 #### Reality-Check Requirements
 
-- **Supabase checks**: PENDING
-  - Verify `gemstones` table structure
-  - Verify `cut_id` column does not already exist
+- **Supabase checks**: ✅ VERIFIED
+  - ✅ `gemstones` table structure verified
+  - ✅ `cut_id` column did not exist before migration
 
 ---
 
@@ -832,7 +832,7 @@ Contracts must be executed in this order based on dependencies:
 |------------|--------|--------------|-------|
 | CUT-C0.1 | `done` | None | Create cuts table |
 | CUT-C0.2 | `done` | CUT-C0.1 | Seed cuts data |
-| CUT-C0.3 | `draft` | CUT-C0.2 | Add cut_id column |
+| CUT-C0.3 | `done` | CUT-C0.2 | Add cut_id column |
 | CUT-C0.4 | `draft` | CUT-C0.3 | Backfill cut_id |
 | CUT-C1.1 | `draft` | CUT-C0.4 | TypeScript types |
 | CUT-C1.2 | `draft` | CUT-C1.1 | Admin form |
