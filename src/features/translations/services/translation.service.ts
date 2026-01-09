@@ -3,16 +3,15 @@ import { ERROR_CODES, LocalizedError } from "@/shared/constants/error-codes";
 import { supabaseAdmin } from "@/lib/supabase";
 import { CutsService } from "@/shared/services/cuts-service";
 
+// CUT-C2.3: Removed gem_cut_translations (now using cuts table)
 type TranslationTable =
   | "gemstone_type_translations"
   | "gem_color_translations"
-  | "gem_cut_translations"
   | "gem_clarity_translations";
 
 type TranslationCodeColumn =
   | "type_code"
   | "color_code"
-  | "cut_code"
   | "clarity_code";
 
 type TranslationConfig = {
@@ -26,10 +25,10 @@ type TranslationRecord = {
   description: string | null;
 };
 
+// CUT-C2.3: Removed cut config (now using CutsService)
 const TABLE_CONFIG: Record<string, TranslationConfig> = {
   type: { table: "gemstone_type_translations", codeColumn: "type_code" },
   color: { table: "gem_color_translations", codeColumn: "color_code" },
-  cut: { table: "gem_cut_translations", codeColumn: "cut_code" },
   clarity: { table: "gem_clarity_translations", codeColumn: "clarity_code" },
 };
 
@@ -54,8 +53,9 @@ export class TranslationService {
   }
 
   /**
-   * Get gem cut translations from the cuts table (CUT-C1.4)
-   * Uses inline translations (name_en, name_ru) instead of gem_cut_translations table
+   * Get gem cut translations from the cuts table (CUT-C2.3)
+   * Uses inline translations (name_en, name_ru) from cuts table
+   * Note: gem_cut_translations table has been dropped
    */
   static async getGemCuts(
     locale: string
@@ -66,27 +66,21 @@ export class TranslationService {
       return cached;
     }
 
-    try {
-      const cuts = await CutsService.getAllCuts();
-      const map = new Map<string, TranslationRecord>();
+    const cuts = await CutsService.getAllCuts();
+    const map = new Map<string, TranslationRecord>();
 
-      cuts.forEach((cut) => {
-        const name = locale === "ru" ? cut.name_ru : cut.name_en;
-        const description = locale === "ru" ? cut.description_ru : cut.description_en;
-        map.set(cut.code, {
-          code: cut.code,
-          name,
-          description,
-        });
+    cuts.forEach((cut) => {
+      const name = locale === "ru" ? cut.name_ru : cut.name_en;
+      const description = locale === "ru" ? cut.description_ru : cut.description_en;
+      map.set(cut.code, {
+        code: cut.code,
+        name,
+        description,
       });
+    });
 
-      this.cache.set(cacheKey, map);
-      return map;
-    } catch (error) {
-      // Fallback to old translation table if cuts service fails
-      console.warn("Failed to load cuts from database, falling back to gem_cut_translations:", error);
-      return this.getTranslations("cut", locale);
-    }
+    this.cache.set(cacheKey, map);
+    return map;
   }
 
   static async getGemClarities(

@@ -300,7 +300,7 @@ export function GemstoneForm({
       name: gemstone?.name || DEFAULT_GEMSTONE_VALUES.type,
       color: gemstone?.color || DEFAULT_GEMSTONE_VALUES.color,
       cut: gemstone?.cut || DEFAULT_GEMSTONE_VALUES.cut,
-      cut_id: (gemstone as any)?.cut_id || undefined, // CUT-C1.2: FK to cuts table
+      cut_id: (gemstone as any)?.cut_id || "", // CUT-C2.3: FK to cuts table (required)
       clarity: gemstone?.clarity || DEFAULT_GEMSTONE_VALUES.clarity,
       // Custom text fields for flexible admin entry (FLEX-C1.x)
       name_custom: (gemstone as any)?.name_custom || undefined,
@@ -392,7 +392,7 @@ export function GemstoneForm({
         name: gemstone.name || DEFAULT_GEMSTONE_VALUES.type,
         color: gemstone.color || DEFAULT_GEMSTONE_VALUES.color,
         cut: gemstone.cut || DEFAULT_GEMSTONE_VALUES.cut,
-        cut_id: (gemstone as any)?.cut_id || undefined, // CUT-C1.2: FK to cuts table
+        cut_id: (gemstone as any)?.cut_id || "", // CUT-C2.3: FK to cuts table (required)
         clarity: gemstone.clarity || DEFAULT_GEMSTONE_VALUES.clarity,
         // Custom text fields for flexible admin entry (FLEX-C1.x)
         name_custom: (gemstone as any)?.name_custom || undefined,
@@ -596,14 +596,15 @@ export function GemstoneForm({
           return {
             ...prev,
             cut: enumValue || prev.cut,
-            cut_id: dbCut?.id ?? null, // CUT-C1.2: Set cut_id from database
+            cut_id: dbCut?.id ?? prev.cut_id, // CUT-C2.3: Set cut_id from database (required)
             cut_custom: value,
           };
         } else {
+          // Custom cut - keep existing cut_id (required field)
           return {
             ...prev,
             cut: prev.cut || DEFAULT_GEMSTONE_VALUES.cut,
-            cut_id: null, // Custom cut doesn't have a cut_id
+            cut_id: prev.cut_id, // CUT-C2.3: Keep existing cut_id for custom cuts
             cut_custom: value,
           };
         }

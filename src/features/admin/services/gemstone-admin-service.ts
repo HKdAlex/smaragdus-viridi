@@ -9,6 +9,7 @@ import type {
 import type { TablesInsert, TablesUpdate } from "@/shared/types/database";
 
 import { DatabaseEnums } from "@/shared/services/database-enums";
+import { CutsService } from "@/shared/services/cuts-service";
 import { supabase } from "@/lib/supabase";
 
 // Simple logger for now
@@ -25,7 +26,7 @@ export interface GemstoneFormData {
   name: DatabaseGemstone["name"];
   color: DatabaseGemstone["color"];
   cut: DatabaseGemstone["cut"];
-  cut_id?: string | null; // FK to cuts table (CUT-C1.1)
+  cut_id: string; // FK to cuts table (CUT-C2.3: now required)
   clarity: DatabaseGemstone["clarity"];
   // Custom text fields for flexible admin entry (FLEX-C1.x)
   name_custom?: string | null;
@@ -119,6 +120,7 @@ export interface BulkImportData {
   name: DatabaseGemstone["name"];
   color: DatabaseGemstone["color"];
   cut: DatabaseGemstone["cut"];
+  cut_id?: string; // CUT-C2.3: FK to cuts table (will be looked up if not provided)
   clarity: DatabaseGemstone["clarity"];
   type_code?: string;
   color_code?: string;
@@ -174,14 +176,14 @@ export class GemstoneAdminService {
         cutting_country?: string | null;
         quality_classification?: string | null;
         enhancement_notes?: string | null;
-        cut_id?: string | null;
+        cut_id: string;
       } = {
         name: formData.name,
         type_code: formData.type_code ?? formData.name,
         color: formData.color,
         color_code: formData.color_code ?? formData.color,
         cut: formData.cut,
-        cut_id: formData.cut_id ?? null, // FK to cuts table (CUT-C1.1)
+        cut_id: formData.cut_id, // FK to cuts table (CUT-C2.3: now required)
         cut_code: formData.cut_code ?? formData.cut,
         clarity: formData.clarity,
         clarity_code: formData.clarity_code ?? formData.clarity,
@@ -681,6 +683,23 @@ export class GemstoneAdminService {
               continue;
             }
 
+            // Look up cut_id from cut code if not provided (CUT-C2.3)
+            let cutId = gemstoneData.cut_id;
+            if (!cutId) {
+              const cut = await CutsService.getCutByCode(gemstoneData.cut);
+              if (cut) {
+                cutId = cut.id;
+              } else {
+                result.errors.push({
+                  row: rowNumber,
+                  error: `Unknown cut code: ${gemstoneData.cut}`,
+                  data: gemstoneData,
+                });
+                result.failed++;
+                continue;
+              }
+            }
+
             // Convert to database format
             const dbData: TablesInsert<"gemstones"> = {
               serial_number: gemstoneData.serialNumber,
@@ -689,6 +708,7 @@ export class GemstoneAdminService {
               color: gemstoneData.color,
               color_code: gemstoneData.color_code ?? gemstoneData.color,
               cut: gemstoneData.cut,
+              cut_id: cutId, // CUT-C2.3: FK to cuts table (required)
               cut_code: gemstoneData.cut_code ?? gemstoneData.cut,
               clarity: gemstoneData.clarity,
               clarity_code: gemstoneData.clarity_code ?? gemstoneData.clarity,

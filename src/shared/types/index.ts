@@ -137,7 +137,7 @@ export interface DetailGemstone {
   color: GemColor;
   ai_color: string | null; // AI-detected color (overrides manual color if present)
   cut: GemCut;
-  cut_id: string | null; // FK to cuts table (CUT-C1.1)
+  cut_id: string; // FK to cuts table (CUT-C2.3: now required)
   clarity: GemClarity;
   price_amount: number;
   price_currency: CurrencyCode;

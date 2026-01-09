@@ -109,7 +109,7 @@ const sampleGemstones: Gemstone[] = [
     name_custom: null,
     color_custom: null,
     cut_custom: null,
-    cut_id: null,
+    cut_id: "86858697-c654-442d-a3ee-c3281b003dc8", // round cut
     clarity_custom: null,
     treatment_status: null,
     color_change_description: null,
@@ -198,7 +198,7 @@ const sampleGemstones: Gemstone[] = [
     name_custom: null,
     color_custom: null,
     cut_custom: null,
-    cut_id: null,
+    cut_id: "626194d2-2963-4b1e-925f-b2344b28ee4d", // emerald cut
     clarity_custom: null,
     treatment_status: null,
     color_change_description: null,
@@ -287,7 +287,7 @@ const sampleGemstones: Gemstone[] = [
     name_custom: null,
     color_custom: null,
     cut_custom: null,
-    cut_id: null,
+    cut_id: "65cadf10-c5a4-4882-8c22-441ae231394f", // oval cut
     clarity_custom: null,
     treatment_status: null,
     color_change_description: null,
@@ -376,7 +376,7 @@ const sampleGemstones: Gemstone[] = [
     name_custom: null,
     color_custom: null,
     cut_custom: null,
-    cut_id: null,
+    cut_id: "4b95e0ba-d3ad-400a-9378-983e98023be2", // cushion cut
     clarity_custom: null,
     treatment_status: null,
     color_change_description: null,
@@ -465,7 +465,7 @@ const sampleGemstones: Gemstone[] = [
     name_custom: null,
     color_custom: null,
     cut_custom: null,
-    cut_id: null,
+    cut_id: "7255fec4-6b15-4a40-88fd-44265d88fcdf", // princess cut
     clarity_custom: null,
     treatment_status: null,
     color_change_description: null,
@@ -554,7 +554,7 @@ const sampleGemstones: Gemstone[] = [
     name_custom: null,
     color_custom: null,
     cut_custom: null,
-    cut_id: null,
+    cut_id: "ba5ff8a4-63c4-4758-bc86-3778f268b03b", // heart cut
     clarity_custom: null,
     treatment_status: null,
     color_change_description: null,

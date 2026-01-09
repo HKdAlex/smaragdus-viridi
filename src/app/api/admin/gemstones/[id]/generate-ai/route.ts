@@ -1,7 +1,9 @@
+import { AdminAuthError, requireAdmin } from "@/app/api/admin/_utils/require-admin";
 import { NextRequest, NextResponse } from "next/server";
+
+import type { Database } from "@/shared/types/database";
 import { createClient } from "@supabase/supabase-js";
 import OpenAI from "openai";
-import type { Database } from "@/shared/types/database";
 
 // Server-side admin client
 const getAdminClient = () => {
@@ -221,6 +223,18 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  try {
+    await requireAdmin();
+  } catch (error) {
+    if (error instanceof AdminAuthError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
+    return NextResponse.json(
+      { error: "Authentication failed" },
+      { status: 401 }
+    );
+  }
+
   const startTime = Date.now();
   
   try {

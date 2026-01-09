@@ -452,7 +452,7 @@ export async function POST(request: NextRequest) {
       color: body.color,
       color_code: body.color_code ?? body.color,
       cut: body.cut,
-      cut_id: body.cut_id ?? null, // FK to cuts table (CUT-C1.1)
+      cut_id: body.cut_id, // FK to cuts table (CUT-C2.3: now required)
       cut_code: body.cut_code ?? body.cut,
       clarity: body.clarity,
       clarity_code: body.clarity_code ?? body.clarity,

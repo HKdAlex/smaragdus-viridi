@@ -180,6 +180,7 @@ export function GemstoneListOptimized({
           name: gemstone.name,
           color: gemstone.color,
           cut: gemstone.cut,
+          cut_id: (gemstone as any).cut_id, // CUT-C2.3: FK to cuts table (required)
           clarity: gemstone.clarity,
           weight_carats: gemstone.weight_carats,
           length_mm: gemstone.length_mm ?? undefined,

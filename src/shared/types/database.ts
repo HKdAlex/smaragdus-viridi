@@ -562,30 +562,6 @@ export type Database = {
         }
         Relationships: []
       }
-      gem_cut_translations: {
-        Row: {
-          cut_code: string
-          description: string | null
-          id: string
-          locale: string
-          name: string
-        }
-        Insert: {
-          cut_code: string
-          description?: string | null
-          id?: string
-          locale: string
-          name: string
-        }
-        Update: {
-          cut_code?: string
-          description?: string | null
-          id?: string
-          locale?: string
-          name?: string
-        }
-        Relationships: []
-      }
       gem_image_extractions: {
         Row: {
           claims: Json
@@ -943,7 +919,7 @@ export type Database = {
           cut: Database["public"]["Enums"]["gem_cut"]
           cut_code: string
           cut_custom: string | null
-          cut_id: string | null
+          cut_id: string
           cutting_country: string | null
           delivery_days: number | null
           depth_mm: number
@@ -1021,7 +997,7 @@ export type Database = {
           cut: Database["public"]["Enums"]["gem_cut"]
           cut_code: string
           cut_custom?: string | null
-          cut_id?: string | null
+          cut_id: string
           cutting_country?: string | null
           delivery_days?: number | null
           depth_mm: number
@@ -1101,7 +1077,7 @@ export type Database = {
           cut?: Database["public"]["Enums"]["gem_cut"]
           cut_code?: string
           cut_custom?: string | null
-          cut_id?: string | null
+          cut_id?: string
           cutting_country?: string | null
           delivery_days?: number | null
           depth_mm?: number
@@ -2231,27 +2207,18 @@ export type Database = {
         Returns: undefined
       }
       detect_query_locale: { Args: { query: string }; Returns: string }
-      fuzzy_search_suggestions:
-        | {
-            Args: { search_term: string; suggestion_limit?: number }
-            Returns: {
-              match_type: string
-              similarity_score: number
-              suggestion: string
-            }[]
-          }
-        | {
-            Args: {
-              search_locale?: string
-              search_term: string
-              suggestion_limit?: number
-            }
-            Returns: {
-              match_type: string
-              similarity_score: number
-              suggestion: string
-            }[]
-          }
+      fuzzy_search_suggestions: {
+        Args: {
+          search_locale?: string
+          search_term: string
+          suggestion_limit?: number
+        }
+        Returns: {
+          match_type: string
+          similarity_score: number
+          suggestion: string
+        }[]
+      }
       generate_order_number: { Args: never; Returns: string }
       get_active_chat_sessions: {
         Args: never
