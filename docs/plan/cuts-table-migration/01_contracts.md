@@ -47,7 +47,7 @@ Contracts must be executed in this order based on dependencies:
 ### CUT-C0.1 — Create `cuts` Table
 
 - **ID**: `CUT-C0.1`
-- **Status**: `draft`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/cuts-table-migration/00_vision.md` → "### New `cuts` Table"
 
 #### Scope
@@ -81,12 +81,12 @@ Contracts must be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **Table exists**: `cuts` table visible in Supabase - `[ ]`
-2. **All columns present**: All 10 columns exist with correct types - `[ ]`
-3. **Unique constraint**: Inserting duplicate `code` fails - `[ ]`
-4. **RLS read**: Anonymous user can SELECT from `cuts` - `[ ]`
-5. **RLS write**: Only admin can INSERT/UPDATE/DELETE - `[ ]`
-6. **Build passes**: `npm run build` succeeds - `[ ]`
+1. **Table exists**: `cuts` table visible in Supabase - `[x]`
+2. **All columns present**: All 10 columns exist with correct types - `[x]`
+3. **Unique constraint**: Inserting duplicate `code` fails - `[x]` (cuts_code_key unique index)
+4. **RLS read**: Anonymous user can SELECT from `cuts` - `[x]` (cuts_select_policy)
+5. **RLS write**: Only admin can INSERT/UPDATE/DELETE - `[x]` (cuts_insert/update/delete_policy)
+6. **Build passes**: `npm run build` succeeds - `[x]`
 
 #### Explicit Non-Goals
 
@@ -96,9 +96,9 @@ Contracts must be executed in this order based on dependencies:
 
 #### Reality-Check Requirements
 
-- **Supabase checks**: PENDING
-  - Verify `cuts` table does not already exist
-  - Verify admin role exists for RLS policies
+- **Supabase checks**: ✅ VERIFIED
+  - ✅ `cuts` table did not exist before migration
+  - ✅ Admin role exists via user_profiles.role = 'admin' check
 
 ---
 
@@ -830,7 +830,7 @@ Contracts must be executed in this order based on dependencies:
 
 | Contract ID | Status | Dependencies | Notes |
 |------------|--------|--------------|-------|
-| CUT-C0.1 | `draft` | None | Create cuts table |
+| CUT-C0.1 | `done` | None | Create cuts table |
 | CUT-C0.2 | `draft` | CUT-C0.1 | Seed cuts data |
 | CUT-C0.3 | `draft` | CUT-C0.2 | Add cut_id column |
 | CUT-C0.4 | `draft` | CUT-C0.3 | Backfill cut_id |
