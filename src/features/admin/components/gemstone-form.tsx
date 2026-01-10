@@ -1270,7 +1270,18 @@ export function GemstoneForm({
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder={t("selectOriginPlaceholder")} />
+                    <SelectValue placeholder={t("selectOriginPlaceholder")}>
+                      {formData.origin_id
+                        ? (() => {
+                            const selectedOrigin = origins.find(
+                              (o) => o.id === formData.origin_id
+                            );
+                            return selectedOrigin
+                              ? `${translateOrigin(selectedOrigin.name)} - ${selectedOrigin.country}`
+                              : t("selectOriginPlaceholder");
+                          })()
+                        : t("selectOriginPlaceholder")}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="">{t("noOriginSpecified")}</SelectItem>

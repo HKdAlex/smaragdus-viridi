@@ -66,17 +66,23 @@ async function fetchGemstoneById(
     }
 
     // Fetch additional related data separately (not in the view)
-    const [imagesResult, videosResult, certificationsResult, individualStonesResult] =
+    const [imagesResult, videosResult, certificationsResult, individualStonesResult, originResult] =
       await Promise.all([
         supabaseAdmin.from("gemstone_images").select("*").eq("gemstone_id", id),
         supabaseAdmin.from("gemstone_videos").select("*").eq("gemstone_id", id),
         supabaseAdmin.from("certifications").select("*").eq("gemstone_id", id),
         supabaseAdmin.from("gemstone_individual_stones").select("*").eq("gemstone_id", id).order("stone_number"),
+        // Fetch origin if origin_id exists
+        gemstone.origin_id 
+          ? supabaseAdmin.from("origins").select("*").eq("id", gemstone.origin_id).single()
+          : Promise.resolve({ data: null, error: null }),
       ]);
 
     const images = imagesResult.data || [];
     const videos = videosResult.data || [];
     const certifications = certificationsResult.data || [];
+    const origin = originResult.data || null;
+    
     // Transform individual_stones from database format to application format
     const individual_stones = (individualStonesResult.data || []).map((stone: any) => ({
       id: stone.id,
@@ -115,6 +121,12 @@ async function fetchGemstoneById(
         individualStonesResult.error
       );
     }
+    if (originResult.error && gemstone.origin_id) {
+      console.warn(
+        `⚠️ [GemstoneDetail] Failed to fetch origin:`,
+        originResult.error
+      );
+    }
 
     // Sort images by order
     if (images && Array.isArray(images)) {
@@ -139,6 +151,7 @@ async function fetchGemstoneById(
       images_count: images?.length || 0,
       videos_count: videos?.length || 0,
       has_origin: !!gemstone.origin_id,
+      origin_country: origin?.country || null,
       certifications_count: certifications?.length || 0,
       individual_stones_count: individual_stones?.length || 0,
       has_ai_content: !!gemstone.technical_description_en,
@@ -146,6 +159,7 @@ async function fetchGemstoneById(
 
     const finalGemstone = {
       ...gemstone,
+      origin, // Add origin object for Professional Specifications fallback
       images,
       videos,
       certifications,
