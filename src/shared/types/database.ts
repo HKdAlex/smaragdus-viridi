@@ -1944,17 +1944,22 @@ export type Database = {
           care_instructions_ru: string | null
           clarity: string | null
           clarity_code: string | null
+          clarity_custom: string | null
           color: string | null
+          color_change_description: string | null
           color_code: string | null
+          color_custom: string | null
           color_detection_confidence: number | null
           confidence_score: number | null
           created_at: string | null
           cut: string | null
           cut_code: string | null
+          cut_custom: string | null
           cut_detection_confidence: number | null
           cut_id: string | null
           cut_name_en: string | null
           cut_name_ru: string | null
+          cutting_country: string | null
           delivery_days: number | null
           depth_mm: number | null
           description: string | null
@@ -1963,6 +1968,7 @@ export type Database = {
           detected_cut: string | null
           emotional_description_en: string | null
           emotional_description_ru: string | null
+          enhancement_notes: string | null
           historical_context_en: string | null
           historical_context_ru: string | null
           id: string | null
@@ -1973,8 +1979,10 @@ export type Database = {
           marketing_highlights_en: string[] | null
           marketing_highlights_ru: string[] | null
           metadata_status: string | null
+          mining_country: string | null
           model_version: string | null
           name: string | null
+          name_custom: string | null
           narrative_story_en: string | null
           narrative_story_ru: string | null
           needs_review: boolean | null
@@ -1988,12 +1996,14 @@ export type Database = {
           primary_video_url: string | null
           promotional_text_en: string | null
           promotional_text_ru: string | null
+          quality_classification: string | null
           quantity: number | null
           recommended_primary_image_index: number | null
           selected_image_uuid: string | null
           serial_number: string | null
           technical_description_en: string | null
           technical_description_ru: string | null
+          treatment_status: string | null
           type_code: string | null
           updated_at: string | null
           video_count: number | null
