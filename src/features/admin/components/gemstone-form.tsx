@@ -1270,8 +1270,9 @@ export function GemstoneForm({
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder={t("selectOriginPlaceholder")}>
-                      {formData.origin_id
+                    {/* Custom display value since SelectValue doesn't support children */}
+                    <span className="text-sm truncate">
+                      {formData.origin_id && origins.length > 0
                         ? (() => {
                             const selectedOrigin = origins.find(
                               (o) => o.id === formData.origin_id
@@ -1280,8 +1281,8 @@ export function GemstoneForm({
                               ? `${translateOrigin(selectedOrigin.name)} - ${selectedOrigin.country}`
                               : t("selectOriginPlaceholder");
                           })()
-                        : t("selectOriginPlaceholder")}
-                    </SelectValue>
+                        : <span className="text-muted-foreground">{t("selectOriginPlaceholder")}</span>}
+                    </span>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="">{t("noOriginSpecified")}</SelectItem>
