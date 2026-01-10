@@ -154,13 +154,23 @@ QUALITY STANDARDS:
 - Avoid generic templates; make each description unique`;
 
 // Helper to download image as base64
-async function downloadImageAsBase64(url: string): Promise<string | null> {
+async function downloadImageAsBase64(url: string, requestId?: string): Promise<string | null> {
+  const downloadStart = Date.now();
   try {
     const response = await fetch(url, { signal: AbortSignal.timeout(5000) });
-    if (!response.ok) return null;
+    if (!response.ok) {
+      console.warn(`⚠️ [AI Generation]${requestId ? ` [${requestId}]` : ''} Image download failed: ${response.status} ${response.statusText}`);
+      return null;
+    }
     const buffer = await response.arrayBuffer();
-    return Buffer.from(buffer).toString("base64");
-  } catch {
+    const base64 = Buffer.from(buffer).toString("base64");
+    const downloadTime = Date.now() - downloadStart;
+    const sizeKB = Math.round(buffer.byteLength / 1024);
+    console.log(`✅ [AI Generation]${requestId ? ` [${requestId}]` : ''} Image downloaded: ${sizeKB}KB in ${downloadTime}ms`);
+    return base64;
+  } catch (error) {
+    const downloadTime = Date.now() - downloadStart;
+    console.warn(`⚠️ [AI Generation]${requestId ? ` [${requestId}]` : ''} Image download error after ${downloadTime}ms:`, error instanceof Error ? error.message : String(error));
     return null;
   }
 }
@@ -236,12 +246,14 @@ export async function POST(
   }
 
   const startTime = Date.now();
+  const requestId = `req-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   
   try {
     const { id } = await params;
     const supabase = getAdminClient();
 
-    console.log(`🤖 [AI Generation] Starting for gemstone: ${id}`);
+    console.log(`🤖 [AI Generation] [${requestId}] Starting for gemstone: ${id}`);
+    console.log(`📋 [AI Generation] [${requestId}] Model: ${DEFAULT_MODEL}, Timeout: ${TIMEOUT_MS}ms`);
 
     // Fetch gemstone with origin and cut (CUT-C3.1)
     const { data: gemstone, error: gemError } = await supabase
@@ -289,12 +301,25 @@ export async function POST(
       .single();
 
     if (gemError || !gemstone) {
-      console.error(`❌ [AI Generation] Failed to fetch gemstone:`, gemError);
+      console.error(`❌ [AI Generation] [${requestId}] Failed to fetch gemstone:`, gemError);
+      console.error(`❌ [AI Generation] [${requestId}] Error details:`, JSON.stringify(gemError, null, 2));
       return NextResponse.json(
-        { error: "Gemstone not found" },
+        { error: "Gemstone not found", requestId },
         { status: 404 }
       );
     }
+
+    console.log(`✅ [AI Generation] [${requestId}] Fetched gemstone: ${gemstone.serial_number || gemstone.id}`);
+    console.log(`📊 [AI Generation] [${requestId}] Gemstone data:`, {
+      name: gemstone.name_custom || gemstone.name,
+      weight: gemstone.weight_carats,
+      color: gemstone.color_custom || gemstone.color,
+      cut: gemstone.cut_custom || gemstone.cut_code,
+      clarity: gemstone.clarity_custom || gemstone.clarity,
+      quantity: gemstone.quantity,
+      hasCustomFields: !!(gemstone.name_custom || gemstone.color_custom || gemstone.cut_custom || gemstone.clarity_custom),
+      hasDetailedProps: !!(gemstone.treatment_status || gemstone.mining_country || gemstone.cutting_country),
+    });
 
     // Fetch images
     const { data: images } = await supabase
@@ -306,15 +331,29 @@ export async function POST(
       .limit(5);
 
     const imageUrls = images?.map((m) => m.image_url).filter(Boolean) || [];
-    console.log(`📷 [AI Generation] Found ${imageUrls.length} images`);
+    console.log(`📷 [AI Generation] [${requestId}] Found ${imageUrls.length} images`);
+    if (imageUrls.length > 0) {
+      console.log(`📷 [AI Generation] [${requestId}] Image URLs:`, imageUrls.slice(0, 3).map((url, i) => `${i + 1}. ${url.substring(0, 80)}...`));
+    }
 
     // Download images as base64 (limit to 3 for efficiency)
+    const imageDownloadStart = Date.now();
     const base64Images: string[] = [];
-    for (const url of imageUrls.slice(0, 3)) {
-      const base64 = await downloadImageAsBase64(url);
-      if (base64) base64Images.push(base64);
+    for (let i = 0; i < imageUrls.slice(0, 3).length; i++) {
+      const url = imageUrls[i];
+      const imgStart = Date.now();
+      console.log(`📥 [AI Generation] [${requestId}] Downloading image ${i + 1}/${Math.min(imageUrls.length, 3)}: ${url.substring(0, 80)}...`);
+      const base64 = await downloadImageAsBase64(url, requestId);
+      const imgTime = Date.now() - imgStart;
+      if (base64) {
+        base64Images.push(base64);
+        console.log(`✅ [AI Generation] [${requestId}] Image ${i + 1} downloaded (${imgTime}ms, ${Math.round(base64.length / 1024)}KB base64)`);
+      } else {
+        console.warn(`⚠️ [AI Generation] [${requestId}] Failed to download image ${i + 1} (${imgTime}ms)`);
+      }
     }
-    console.log(`📷 [AI Generation] Downloaded ${base64Images.length} images`);
+    const imageDownloadTime = Date.now() - imageDownloadStart;
+    console.log(`📷 [AI Generation] [${requestId}] Downloaded ${base64Images.length}/${Math.min(imageUrls.length, 3)} images (${imageDownloadTime}ms total)`);
 
     // Prepare metadata (CUT-C3.1: get cut from cuts table)
     const origin = gemstone.origins as any;
@@ -327,7 +366,25 @@ export async function POST(
       origin_region: origin?.region || null,
     };
 
+    console.log(`📝 [AI Generation] [${requestId}] Preparing metadata...`);
+    console.log(`📝 [AI Generation] [${requestId}] Cut data:`, {
+      cut_id: gemstone.cut_id,
+      cut_code: gemstone.cut_code,
+      cut_custom: gemstone.cut_custom,
+      cut_from_table: cutData?.code,
+      cut_name_en: cutData?.name_en,
+      cut_name_ru: cutData?.name_ru,
+    });
+    console.log(`📝 [AI Generation] [${requestId}] Origin data:`, {
+      origin_id: gemstone.origin_id,
+      origin_name: origin?.name,
+      origin_country: origin?.country,
+      origin_region: origin?.region,
+    });
+
     const metadataText = formatMetadata(metadata);
+    console.log(`📝 [AI Generation] [${requestId}] Metadata text length: ${metadataText.length} chars`);
+    console.log(`📝 [AI Generation] [${requestId}] Metadata preview:\n${metadataText.substring(0, 500)}...`);
 
     // Build message content
     const hasImages = base64Images.length > 0;
@@ -365,7 +422,16 @@ ${userPromptSuffix}`,
     }
 
     // Call OpenAI
-    console.log(`🤖 [AI Generation] Calling OpenAI with model: ${DEFAULT_MODEL}`);
+    const openaiCallStart = Date.now();
+    console.log(`🤖 [AI Generation] [${requestId}] Calling OpenAI with model: ${DEFAULT_MODEL}`);
+    console.log(`🤖 [AI Generation] [${requestId}] Request config:`, {
+      model: DEFAULT_MODEL,
+      temperature: DEFAULT_TEMPERATURE,
+      max_tokens: MAX_TOKENS_OUTPUT,
+      has_images: hasImages,
+      num_images: base64Images.length,
+      metadata_length: metadataText.length,
+    });
     const openai = getOpenAIClient();
 
     const response = await Promise.race([
@@ -391,6 +457,14 @@ ${userPromptSuffix}`,
       ),
     ]);
 
+    const openaiCallTime = Date.now() - openaiCallStart;
+    console.log(`✅ [AI Generation] [${requestId}] OpenAI call completed in ${openaiCallTime}ms`);
+    console.log(`📊 [AI Generation] [${requestId}] Token usage:`, {
+      prompt_tokens: response.usage?.prompt_tokens,
+      completion_tokens: response.usage?.completion_tokens,
+      total_tokens: response.usage?.total_tokens,
+    });
+
     const generatedContent = JSON.parse(
       response.choices[0].message.content || "{}"
     );
@@ -398,7 +472,17 @@ ${userPromptSuffix}`,
     const processingTime = Date.now() - startTime;
     const cost = calculateCost(response.usage, DEFAULT_MODEL);
 
-    console.log(`✅ [AI Generation] Completed in ${processingTime}ms, cost: $${cost.toFixed(4)}`);
+    console.log(`✅ [AI Generation] [${requestId}] Generation completed in ${processingTime}ms, cost: $${cost.toFixed(4)}`);
+    console.log(`📊 [AI Generation] [${requestId}] Generated content summary:`, {
+      confidence: generatedContent.confidence,
+      has_technical_en: !!generatedContent.technical_description?.en,
+      has_technical_ru: !!generatedContent.technical_description?.ru,
+      has_emotional_en: !!generatedContent.emotional_description?.en,
+      has_emotional_ru: !!generatedContent.emotional_description?.ru,
+      has_narrative_en: !!generatedContent.narrative_story?.en,
+      has_narrative_ru: !!generatedContent.narrative_story?.ru,
+      marketing_highlights_count: generatedContent.marketing_highlights?.en?.length || 0,
+    });
 
     // Save to gemstones_ai_v6 table
     const aiRecord = {
@@ -427,20 +511,27 @@ ${userPromptSuffix}`,
       updated_at: new Date().toISOString(),
     };
 
+    const saveStart = Date.now();
+    console.log(`💾 [AI Generation] [${requestId}] Saving to database...`);
     const { error: upsertError } = await supabase
       .from("gemstones_ai_v6")
       .upsert(aiRecord, { onConflict: "gemstone_id" });
 
     if (upsertError) {
-      console.error(`❌ [AI Generation] Failed to save:`, upsertError);
+      console.error(`❌ [AI Generation] [${requestId}] Failed to save:`, upsertError);
+      console.error(`❌ [AI Generation] [${requestId}] Error details:`, JSON.stringify(upsertError, null, 2));
       return NextResponse.json(
-        { error: "Failed to save AI content" },
+        { error: "Failed to save AI content", requestId, details: upsertError.message },
         { status: 500 }
       );
     }
 
+    const saveTime = Date.now() - saveStart;
+    console.log(`✅ [AI Generation] [${requestId}] Saved to gemstones_ai_v6 in ${saveTime}ms`);
+
     // Update gemstone flags
-    await supabase
+    const flagUpdateStart = Date.now();
+    const { error: flagError } = await supabase
       .from("gemstones")
       .update({
         ai_text_generated_v6: true,
@@ -448,7 +539,21 @@ ${userPromptSuffix}`,
       })
       .eq("id", id);
 
-    console.log(`✅ [AI Generation] Saved successfully`);
+    if (flagError) {
+      console.warn(`⚠️ [AI Generation] [${requestId}] Failed to update flags:`, flagError);
+    } else {
+      const flagUpdateTime = Date.now() - flagUpdateStart;
+      console.log(`✅ [AI Generation] [${requestId}] Updated gemstone flags in ${flagUpdateTime}ms`);
+    }
+
+    const totalTime = Date.now() - startTime;
+    console.log(`✅ [AI Generation] [${requestId}] Saved successfully. Total time: ${totalTime}ms`);
+    console.log(`📊 [AI Generation] [${requestId}] Performance breakdown:`, {
+      image_download: imageDownloadTime,
+      openai_call: openaiCallTime,
+      database_save: saveTime,
+      total: totalTime,
+    });
 
     return NextResponse.json({
       success: true,
@@ -461,9 +566,21 @@ ${userPromptSuffix}`,
       },
     });
   } catch (error) {
-    console.error(`❌ [AI Generation] Error:`, error);
+    const errorTime = Date.now() - startTime;
+    console.error(`❌ [AI Generation] [${requestId}] Error after ${errorTime}ms:`, error);
+    if (error instanceof Error) {
+      console.error(`❌ [AI Generation] [${requestId}] Error message:`, error.message);
+      console.error(`❌ [AI Generation] [${requestId}] Error stack:`, error.stack);
+    }
+    if (error && typeof error === 'object' && 'response' in error) {
+      console.error(`❌ [AI Generation] [${requestId}] OpenAI API error:`, JSON.stringify((error as any).response, null, 2));
+    }
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "AI generation failed" },
+      { 
+        error: error instanceof Error ? error.message : "AI generation failed",
+        requestId,
+        timeElapsed: errorTime,
+      },
       { status: 500 }
     );
   }

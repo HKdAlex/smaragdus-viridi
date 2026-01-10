@@ -791,7 +791,11 @@ export function GemstoneForm({
    * Calls the API endpoint to generate descriptions, stories, etc.
    */
   const handleGenerateAI = async () => {
+    const startTime = Date.now();
+    const requestId = `client-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
     if (!gemstone?.id) {
+      console.warn(`[AI Generation] [${requestId}] Cannot generate: gemstone not saved yet`);
       setAiGenerationStatus({
         success: false,
         message: t("aiGeneration.saveFirst"),
@@ -799,10 +803,21 @@ export function GemstoneForm({
       return;
     }
 
+    console.log(`[AI Generation] [${requestId}] Starting generation for gemstone: ${gemstone.id}`);
+    console.log(`[AI Generation] [${requestId}] Gemstone info:`, {
+      id: gemstone.id,
+      serial_number: gemstone.serial_number,
+      name: gemstone.name,
+      has_existing_ai: !!formData.description_technical_en,
+    });
+
     setIsGeneratingAI(true);
     setAiGenerationStatus(null);
 
     try {
+      const fetchStart = Date.now();
+      console.log(`[AI Generation] [${requestId}] Calling API: /api/admin/gemstones/${gemstone.id}/generate-ai`);
+      
       const response = await fetch(`/api/admin/gemstones/${gemstone.id}/generate-ai`, {
         method: "POST",
         headers: {
@@ -810,15 +825,43 @@ export function GemstoneForm({
         },
       });
 
+      const fetchTime = Date.now() - fetchStart;
+      console.log(`[AI Generation] [${requestId}] API response received in ${fetchTime}ms, status: ${response.status}`);
+
       const result = await response.json();
+      console.log(`[AI Generation] [${requestId}] Response data:`, {
+        success: result.success,
+        has_data: !!result.data,
+        confidence: result.data?.confidence,
+        processingTime: result.data?.processingTime,
+        cost: result.data?.cost,
+        usedImages: result.data?.usedImages,
+        requestId: result.requestId,
+      });
 
       if (!response.ok) {
+        console.error(`[AI Generation] [${requestId}] API error:`, {
+          status: response.status,
+          error: result.error,
+          requestId: result.requestId,
+          details: result.details,
+        });
         setAiGenerationStatus({
           success: false,
           message: result.error || t("aiGeneration.error"),
         });
         return;
       }
+
+      const totalTime = Date.now() - startTime;
+      console.log(`[AI Generation] [${requestId}] Generation successful! Total time: ${totalTime}ms`);
+      console.log(`[AI Generation] [${requestId}] Results:`, {
+        confidence: result.data?.confidence,
+        confidencePercent: result.data?.confidence ? `${(result.data.confidence * 100).toFixed(0)}%` : 'N/A',
+        cost: result.data?.cost ? `$${result.data.cost.toFixed(4)}` : 'N/A',
+        usedImages: result.data?.usedImages,
+        numImages: result.data?.numImages,
+      });
 
       setAiGenerationStatus({
         success: true,
@@ -828,8 +871,15 @@ export function GemstoneForm({
 
       // Reload the gemstone data to get the new AI content
       // We need to refresh the form with the new AI-generated content
+      console.log(`[AI Generation] [${requestId}] Reloading page to show new content...`);
       window.location.reload();
     } catch (error) {
+      const errorTime = Date.now() - startTime;
+      console.error(`[AI Generation] [${requestId}] Error after ${errorTime}ms:`, error);
+      if (error instanceof Error) {
+        console.error(`[AI Generation] [${requestId}] Error message:`, error.message);
+        console.error(`[AI Generation] [${requestId}] Error stack:`, error.stack);
+      }
       setAiGenerationStatus({
         success: false,
         message: t("aiGeneration.error"),

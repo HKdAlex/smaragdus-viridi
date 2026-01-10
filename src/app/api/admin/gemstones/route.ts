@@ -102,6 +102,7 @@ export async function GET(request: NextRequest) {
 
     // Build the base query using gemstones_enriched view
     // Only select columns needed for the list view display (not AI descriptions, etc.)
+    // CUT-C3.1: Include both cut and cut_code for compatibility
     const listViewColumns = [
       "id",
       "serial_number",
@@ -109,6 +110,8 @@ export async function GET(request: NextRequest) {
       "name",
       "color",
       "cut",
+      "cut_code",
+      "cut_id",
       "clarity",
       "weight_carats",
       "price_amount",
