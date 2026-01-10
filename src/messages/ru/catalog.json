@@ -177,6 +177,7 @@
       "clarityDescription": "Описание чистоты",
       "qualityClassification": "Классификация качества",
       "miningCountry": "Страна добычи",
+      "originCountry": "Страна происхождения",
       "cuttingCountry": "Страна огранки",
       "treatmentProvenance": "Обработка и происхождение",
       "treatmentStatus": "Статус обработки",

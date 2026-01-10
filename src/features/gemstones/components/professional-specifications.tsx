@@ -41,6 +41,15 @@ export function ProfessionalSpecifications({
   const hasQualityClassification = gemstone.quality_classification && gemstone.quality_classification.trim();
   const hasMiningCountry = gemstone.mining_country && gemstone.mining_country.trim();
   const hasCuttingCountry = gemstone.cutting_country && gemstone.cutting_country.trim();
+  
+  // Origin fallback: use origin.country if mining_country is not specified
+  const hasOriginCountry = gemstone.origin?.country && gemstone.origin.country.trim();
+  
+  // Effective mining country: mining_country overrides origin.country
+  const effectiveMiningCountry = hasMiningCountry 
+    ? gemstone.mining_country 
+    : (hasOriginCountry ? gemstone.origin?.country : null);
+  const hasEffectiveMiningCountry = !!effectiveMiningCountry;
 
   const hasAnyData =
     hasNameCustom ||
@@ -48,7 +57,7 @@ export function ProfessionalSpecifications({
     hasCutCustom ||
     hasClarityCustom ||
     hasQualityClassification ||
-    hasMiningCountry ||
+    hasEffectiveMiningCountry ||
     hasCuttingCountry;
 
   // Don't render if no data
@@ -156,22 +165,23 @@ export function ProfessionalSpecifications({
           )}
 
           {/* Origin Section */}
-          {(hasMiningCountry || hasCuttingCountry) && (
+          {(hasEffectiveMiningCountry || hasCuttingCountry) && (
             <div className="bg-white/5 dark:bg-black/20 backdrop-blur-xl p-3 sm:p-4 rounded-xl border border-white/10 shadow-lg">
               <h4 className="font-bold text-sm sm:text-base text-foreground mb-3 sm:mb-4 flex items-center">
                 <div className="w-1 h-5 bg-gradient-to-b from-emerald-500 to-emerald-600 rounded-full mr-2" />
                 {t("originProvenance")}
               </h4>
               <div className="space-y-3 sm:space-y-4 text-sm sm:text-base leading-relaxed">
-                {hasMiningCountry && (
+                {hasEffectiveMiningCountry && (
                   <div className="grid grid-cols-[auto_1fr] gap-3 items-start">
                     <MapPin className="w-5 h-5 text-emerald-500 mt-0.5" />
                     <div>
                       <span className="text-muted-foreground block text-xs uppercase tracking-wider mb-1">
-                        {t("miningCountry")}
+                        {/* Show different label based on source */}
+                        {hasMiningCountry ? t("miningCountry") : t("originCountry")}
                       </span>
                       <span className="font-medium text-foreground">
-                        {gemstone.mining_country}
+                        {effectiveMiningCountry}
                       </span>
                     </div>
                   </div>

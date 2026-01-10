@@ -177,6 +177,7 @@
       "clarityDescription": "Clarity Description",
       "qualityClassification": "Quality Classification",
       "miningCountry": "Mining Country",
+      "originCountry": "Country of Origin",
       "cuttingCountry": "Cutting Country",
       "treatmentProvenance": "Treatment & Provenance",
       "treatmentStatus": "Treatment Status",
