@@ -199,6 +199,7 @@ export class OrderService {
 
   async getOrder(orderId: string, userId: string): Promise<OrderResult> {
     try {
+      // CUT-C3.1: Use cut_code instead of cut (cut column was dropped)
       const { data: order, error: orderError } = await supabase
         .from("orders")
         .select(
@@ -210,7 +211,7 @@ export class OrderService {
               id,
               name,
               color,
-              cut,
+              cut_code,
               weight_carats,
               serial_number,
               gemstone_images (
@@ -259,7 +260,7 @@ export class OrderService {
                   id: item.gemstones.id,
                   name: item.gemstones.name,
                   color: item.gemstones.color,
-                  cut: item.gemstones.cut,
+                  cut: item.gemstones.cut_code, // CUT-C3.1: map cut_code to cut for display
                   weight_carats: item.gemstones.weight_carats,
                   serial_number: item.gemstones.serial_number,
                   images:

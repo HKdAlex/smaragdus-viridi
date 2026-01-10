@@ -97,6 +97,7 @@ export class CartService {
         });
 
         // Fetch the existing item with gemstone data
+        // CUT-C3.1: Use cut_code instead of cut (cut column was dropped)
         const { data, error } = await this.supabase
           .from("cart_items")
           .select(
@@ -106,7 +107,7 @@ export class CartService {
               id,
               name,
               color,
-              cut,
+              cut_code,
               weight_carats,
               price_amount,
               price_currency,
@@ -146,6 +147,7 @@ export class CartService {
           updated_at: new Date().toISOString(),
         };
 
+        // CUT-C3.1: Use cut_code instead of cut (cut column was dropped)
         const { data, error } = await this.supabase
           .from("cart_items")
           .insert(insertData)
@@ -156,7 +158,7 @@ export class CartService {
               id,
               name,
               color,
-              cut,
+              cut_code,
               weight_carats,
               price_amount,
               price_currency,
@@ -265,6 +267,7 @@ export class CartService {
       }
 
       // Update quantity
+      // CUT-C3.1: Use cut_code instead of cut (cut column was dropped)
       const { data, error } = await this.supabase
         .from("cart_items")
         .update({
@@ -279,7 +282,7 @@ export class CartService {
             id,
             name,
             color,
-            cut,
+            cut_code,
             weight_carats,
             price_amount,
             price_currency,
@@ -449,6 +452,7 @@ export class CartService {
    */
   async getCartSummary(userId: string): Promise<CartSummary> {
     try {
+      // CUT-C3.1: Use cut_code instead of cut (cut column was dropped)
       const { data: cartItems, error } = await this.supabase
         .from("cart_items")
         .select(
@@ -458,7 +462,7 @@ export class CartService {
             id,
             name,
             color,
-            cut,
+            cut_code,
             weight_carats,
             price_amount,
             price_currency,
@@ -607,8 +611,12 @@ export class CartService {
       currency: unitPrice.currency,
     };
 
-    // Cast the gemstone data to Gemstone type with required properties
-    const gemstone: Gemstone = gemstoneData as Gemstone;
+    // CUT-C3.1: Map cut_code to cut for display compatibility
+    // The database returns cut_code, but components expect cut
+    const gemstone: Gemstone = {
+      ...gemstoneData,
+      cut: gemstoneData.cut_code, // Map cut_code to cut for display
+    } as Gemstone;
 
     return {
       ...cartItem,

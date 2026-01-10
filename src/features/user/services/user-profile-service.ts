@@ -215,6 +215,7 @@ export class UserProfileService {
 
       const offset = (page - 1) * limit;
 
+      // CUT-C3.1: Use cut_code instead of cut (cut column was dropped)
       let query = this.supabase
         .from("orders")
         .select(
@@ -226,7 +227,7 @@ export class UserProfileService {
               id,
               name,
               color,
-              cut,
+              cut_code,
               weight_carats,
               serial_number
             )
@@ -282,13 +283,14 @@ export class UserProfileService {
             const quantity =
               typeof item?.quantity === "number" ? item.quantity : 1;
 
+            // CUT-C3.1: Map cut_code to cut for display compatibility
             return {
               id: String(item?.id ?? ""),
               gemstone: {
                 id: String(g?.id ?? ""),
                 name: String(g?.name ?? ""),
                 color: String(g?.color ?? ""),
-                cut: String(g?.cut ?? ""),
+                cut: String(g?.cut_code ?? ""), // Map cut_code to cut
                 weight_carats: Number(g?.weight_carats ?? 0),
                 serial_number: String(g?.serial_number ?? ""),
               },
