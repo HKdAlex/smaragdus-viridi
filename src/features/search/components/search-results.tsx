@@ -1,7 +1,8 @@
 /**
  * Search Results Component
  *
- * Displays search results with infinite scroll.
+ * Displays search results with infinite scroll and filter sidebar.
+ * FILTER-C0.1: Re-enabled filter sidebar for search page.
  */
 
 "use client";
@@ -12,6 +13,7 @@ import { useLocale, useTranslations } from "next-intl";
 import type { CatalogGemstone } from "@/features/gemstones/services/gemstone-fetch.service";
 import { DescriptionSearchToggle } from "./description-search-toggle";
 import { EmptyState } from "@/features/gemstones/components/empty-state";
+import { FilterSidebar } from "@/features/gemstones/components/filters/filter-sidebar";
 import { FuzzySearchBanner } from "./fuzzy-search-banner";
 import { GemstoneGrid } from "@/features/gemstones/components/gemstone-grid";
 import { InfiniteScrollTrigger } from "@/features/gemstones/components/infinite-scroll-trigger";
@@ -107,10 +109,12 @@ export function SearchResults() {
     });
   }, [allResults]);
 
-  // Fetch filter counts - temporarily disabled to test search functionality
-  const { data: filterCountsData } = useFilterCountsQuery({
-    enabled: false, // Temporarily disable to test search functionality
-  });
+  // Fetch filter counts for the filter sidebar
+  // FILTER-C0.1: Re-enabled filter counts for search page
+  const { data: filterCountsData, isLoading: filterCountsLoading } =
+    useFilterCountsQuery({
+      enabled: true,
+    });
 
   // Fetch fuzzy suggestions when no results are found
   useEffect(() => {
@@ -255,18 +259,16 @@ export function SearchResults() {
         />
       </div>
 
-      {/* Filter Sidebar - temporarily disabled to test search functionality */}
-      {/*
-      {filterCountsData && data && data.results.length > 0 && (
+      {/* Filter Sidebar - FILTER-C0.1: Re-enabled for search page */}
+      {filterCountsData && (
         <FilterSidebar
           filters={filters}
           onChange={handleFiltersChange}
           options={filterCountsData.aggregated}
-          loading={isLoading}
+          loading={isLoading || filterCountsLoading}
           defaultOpen={false}
         />
       )}
-      */}
 
       {/* Results */}
       {allResults.length === 0 ? (
