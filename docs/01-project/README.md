@@ -64,7 +64,7 @@ Crystallique is a sophisticated gemstone trading platform designed for professio
 | **🔍 Sprint 12: Production**           | 📋 Planned  | 0%       | Deployment and launch preparation                               |
 | **🤖 Sprint 13: AI Enhancement**       | 📋 Planned  | 0%       | AI metadata generation and analysis                             |
 
-> **Note**: This overview shows 13 development sprints across 6 major phases. For complete 14-week sprint tracking, see [Living Development Dashboard](../06-tracking/LIVING_PLAN.md).
+> **Note**: This overview shows 15 development sprints across 6 major phases. For complete 14-week sprint tracking, see [Living Development Dashboard](../06-tracking/LIVING_PLAN.md).
 
 ---
 

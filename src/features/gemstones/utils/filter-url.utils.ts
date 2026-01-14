@@ -7,6 +7,7 @@ import type {
   GemstoneSort,
   MutableAdvancedGemstoneFilters,
   PriceRange,
+  TreatmentStatus,
   WeightRange,
 } from "../types/filter.types";
 import {
@@ -32,6 +33,16 @@ export const FILTER_PARAM_KEYS = [
   "priceMax",
   "weightMin",
   "weightMax",
+  "treatmentStatus",
+  "miningCountries",
+  "qualityClassifications",
+  "hasColorChange",
+  "minLength",
+  "maxLength",
+  "minWidth",
+  "maxWidth",
+  "minPricePerCarat",
+  "maxPricePerCarat",
   "inStock",
   "certified",
   "hasImages",
@@ -78,6 +89,42 @@ export const filtersToUrlParams = (
   if (filters.weightRange) {
     params.weightMin = filters.weightRange.min.toString();
     params.weightMax = filters.weightRange.max.toString();
+  }
+
+  if (filters.treatmentStatus?.length) {
+    params.treatmentStatus = filters.treatmentStatus.join(",");
+  }
+
+  if (filters.miningCountries?.length) {
+    params.miningCountries = filters.miningCountries.join(",");
+  }
+
+  if (filters.qualityClassifications?.length) {
+    params.qualityClassifications = filters.qualityClassifications.join(",");
+  }
+
+  if (filters.hasColorChange !== undefined) {
+    params.hasColorChange = filters.hasColorChange.toString();
+  }
+
+  if (filters.dimensionRange) {
+    if (filters.dimensionRange.minLength !== undefined) {
+      params.minLength = filters.dimensionRange.minLength.toString();
+    }
+    if (filters.dimensionRange.maxLength !== undefined) {
+      params.maxLength = filters.dimensionRange.maxLength.toString();
+    }
+    if (filters.dimensionRange.minWidth !== undefined) {
+      params.minWidth = filters.dimensionRange.minWidth.toString();
+    }
+    if (filters.dimensionRange.maxWidth !== undefined) {
+      params.maxWidth = filters.dimensionRange.maxWidth.toString();
+    }
+  }
+
+  if (filters.pricePerCaratRange) {
+    params.minPricePerCarat = filters.pricePerCaratRange.min.toString();
+    params.maxPricePerCarat = filters.pricePerCaratRange.max.toString();
   }
 
   if (filters.inStockOnly !== undefined) {
@@ -170,6 +217,57 @@ export const urlParamsToFilters = (
     filters.weightRange = weightRange;
   }
 
+  if (params.treatmentStatus) {
+    const statuses = params.treatmentStatus
+      .split(",")
+      .map((value) => value.trim())
+      .filter(Boolean);
+    const validStatuses = statuses.filter(isTreatmentStatus);
+    if (validStatuses.length) {
+      filters.treatmentStatus = validStatuses;
+    }
+  }
+
+  if (params.miningCountries) {
+    filters.miningCountries = params.miningCountries.split(",").filter(Boolean);
+  }
+
+  if (params.qualityClassifications) {
+    filters.qualityClassifications = params.qualityClassifications
+      .split(",")
+      .filter(Boolean);
+  }
+
+  if (params.hasColorChange) {
+    filters.hasColorChange = params.hasColorChange === "true";
+  }
+
+  if (
+    params.minLength ||
+    params.maxLength ||
+    params.minWidth ||
+    params.maxWidth
+  ) {
+    filters.dimensionRange = {
+      minLength: params.minLength ? parseFloat(params.minLength) : undefined,
+      maxLength: params.maxLength ? parseFloat(params.maxLength) : undefined,
+      minWidth: params.minWidth ? parseFloat(params.minWidth) : undefined,
+      maxWidth: params.maxWidth ? parseFloat(params.maxWidth) : undefined,
+    };
+  }
+
+  if (params.minPricePerCarat || params.maxPricePerCarat) {
+    filters.pricePerCaratRange = {
+      min: params.minPricePerCarat
+        ? parseInt(params.minPricePerCarat, 10)
+        : DEFAULT_PRICE_RANGE.min,
+      max: params.maxPricePerCarat
+        ? parseInt(params.maxPricePerCarat, 10)
+        : DEFAULT_PRICE_RANGE.max,
+      currency: DEFAULT_PRICE_RANGE.currency,
+    };
+  }
+
   // Boolean filters
   if (params.inStock) {
     filters.inStockOnly = params.inStock === "true";
@@ -242,6 +340,22 @@ const isValidGemstoneSort = (sort: string): sort is GemstoneSort => {
   return validSorts.includes(sort as GemstoneSort);
 };
 
+const isTreatmentStatus = (value: string): value is TreatmentStatus => {
+  const validStatuses: TreatmentStatus[] = [
+    "natural",
+    "heated",
+    "oiled",
+    "diffused",
+    "irradiated",
+    "filled",
+    "coated",
+    "untreated",
+    "unknown",
+    "other",
+  ];
+  return validStatuses.includes(value as TreatmentStatus);
+};
+
 const isValidFilterParam = (param: string): boolean => {
   const validParams = [
     "search",
@@ -254,6 +368,16 @@ const isValidFilterParam = (param: string): boolean => {
     "priceMax",
     "weightMin",
     "weightMax",
+    "treatmentStatus",
+    "miningCountries",
+    "qualityClassifications",
+    "hasColorChange",
+    "minLength",
+    "maxLength",
+    "minWidth",
+    "maxWidth",
+    "minPricePerCarat",
+    "maxPricePerCarat",
     "inStock",
     "certified",
     "hasImages",

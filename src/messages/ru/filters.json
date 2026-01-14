@@ -16,12 +16,23 @@
     "selectClarities": "Выберите чистоту...",
     "origin": "Происхождение",
     "selectOrigins": "Выберите происхождение...",
+    "miningCountry": "Страна добычи",
+    "selectMiningCountries": "Выберите страны добычи...",
+    "qualityClassification": "Классификация качества",
+    "selectQualityClassifications": "Выберите классификации качества...",
+    "treatmentStatus": "Статус обработки",
+    "selectTreatmentStatus": "Выберите статус обработки...",
     "priceRange": "Диапазон цен",
+    "pricePerCaratRange": "Цена за карат",
     "weightRange": "Диапазон веса",
+    "dimensionRange": "Размеры (мм)",
+    "length": "Длина",
+    "width": "Ширина",
     "caratWeight": "Вес в каратах",
     "inStockOnly": "Только в наличии",
     "hasCertification": "Есть сертификация",
     "hasImages": "Есть изображения",
+    "hasColorChange": "Смена цвета",
     "gemstoneTypes": {
       "diamond": "Бриллиант",
       "emerald": "Изумруд",
@@ -99,6 +110,18 @@
       "SI2": "SI2 (Незначительные включения)",
       "I1": "I1 (Включения)"
     },
+    "treatmentStatusOptions": {
+      "natural": "Натуральный",
+      "heated": "Термообработка",
+      "oiled": "Промасливание",
+      "diffused": "Диффузия",
+      "irradiated": "Облучение",
+      "filled": "Заполнение",
+      "coated": "Покрытие",
+      "untreated": "Необработанный",
+      "unknown": "Неизвестно",
+      "other": "Другое"
+    },
     "sort": {
       "created_at": "Сначала новые",
       "price_amount": "Цена",
@@ -127,6 +150,11 @@
     "apply": "Применить"
   },
   "visual": {
+    "gemstoneType": "Тип камня",
+    "origin": "Происхождение",
+    "miningCountry": "Страна добычи",
+    "qualityClassification": "Классификация качества",
+    "treatmentStatus": "Статус обработки",
     "cutShape": "Форма огранки",
     "coloredGemstones": "Цветные камни",
     "diamondColorGrades": "Градации цвета бриллианта",
@@ -137,9 +165,11 @@
     "inStockOnly": "Только в наличии",
     "certified": "Сертифицирован",
     "withImages": "С изображениями",
+    "colorChange": "Смена цвета",
     "availableNow": "Доступно сейчас",
     "withCertificate": "С сертификатом",
-    "photosAvailable": "Фото доступны"
+    "photosAvailable": "Фото доступны",
+    "colorChangeHint": "Эффект смены цвета"
   },
   "priceRanges": {
     "under100": "До $100",

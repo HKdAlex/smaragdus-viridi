@@ -16,12 +16,23 @@
     "selectClarities": "Select clarities...",
     "origin": "Origin",
     "selectOrigins": "Select origins...",
+    "miningCountry": "Mining Country",
+    "selectMiningCountries": "Select mining countries...",
+    "qualityClassification": "Quality Classification",
+    "selectQualityClassifications": "Select quality classifications...",
+    "treatmentStatus": "Treatment Status",
+    "selectTreatmentStatus": "Select treatment status...",
     "priceRange": "Price Range",
+    "pricePerCaratRange": "Price / Carat",
     "weightRange": "Weight Range",
+    "dimensionRange": "Dimensions (mm)",
+    "length": "Length",
+    "width": "Width",
     "caratWeight": "Carat Weight",
     "inStockOnly": "In Stock Only",
     "hasCertification": "Has Certification",
     "hasImages": "Has Images",
+    "hasColorChange": "Color Change",
     "gemstoneTypes": {
       "diamond": "Diamond",
       "emerald": "Emerald",
@@ -99,6 +110,18 @@
       "SI2": "SI2 (Slightly Included)",
       "I1": "I1 (Included)"
     },
+    "treatmentStatusOptions": {
+      "natural": "Natural",
+      "heated": "Heated",
+      "oiled": "Oiled",
+      "diffused": "Diffused",
+      "irradiated": "Irradiated",
+      "filled": "Filled",
+      "coated": "Coated",
+      "untreated": "Untreated",
+      "unknown": "Unknown",
+      "other": "Other"
+    },
     "sort": {
       "created_at": "Newest First",
       "price_amount": "Price",
@@ -127,6 +150,11 @@
     "apply": "Apply"
   },
   "visual": {
+    "gemstoneType": "Gemstone Type",
+    "origin": "Origin",
+    "miningCountry": "Mining Country",
+    "qualityClassification": "Quality Classification",
+    "treatmentStatus": "Treatment Status",
     "cutShape": "Cut Shape",
     "coloredGemstones": "Colored Gemstones",
     "diamondColorGrades": "Diamond Color Grades",
@@ -137,9 +165,11 @@
     "inStockOnly": "In Stock Only",
     "certified": "Certified",
     "withImages": "With Images",
+    "colorChange": "Color Change",
     "availableNow": "Available now",
     "withCertificate": "With certificate",
-    "photosAvailable": "Photos available"
+    "photosAvailable": "Photos available",
+    "colorChangeHint": "Color change effect"
   },
   "priceRanges": {
     "under100": "Under $100",

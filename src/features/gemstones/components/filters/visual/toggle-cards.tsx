@@ -9,6 +9,8 @@ interface ToggleCardsProps {
   onCertificationChange: (value: boolean) => void;
   withImages: boolean;
   onImagesChange: (value: boolean) => void;
+  withColorChange: boolean;
+  onColorChange: (value: boolean) => void;
 }
 
 export function ToggleCards({
@@ -18,6 +20,8 @@ export function ToggleCards({
   onCertificationChange,
   withImages,
   onImagesChange,
+  withColorChange,
+  onColorChange,
 }: ToggleCardsProps) {
   const t = useTranslations("filters");
 
@@ -49,6 +53,15 @@ export function ToggleCards({
         "border-blue-500 bg-blue-500/10 text-blue-700 dark:text-blue-400",
       descriptionKey: "visual.photosAvailable",
     },
+    {
+      labelKey: "visual.colorChange",
+      icon: "🌈",
+      active: withColorChange,
+      onChange: onColorChange,
+      activeColor:
+        "border-purple-500 bg-purple-500/10 text-purple-700 dark:text-purple-400",
+      descriptionKey: "visual.colorChangeHint",
+    },
   ];
 
   return (
@@ -56,7 +69,7 @@ export function ToggleCards({
       <h3 className="text-sm font-semibold text-foreground">
         {t("visual.quickFilters")}
       </h3>
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 gap-2">
         {toggleOptions.map(
           ({
             labelKey,

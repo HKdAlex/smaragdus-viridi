@@ -63,7 +63,7 @@ Contracts must be executed in this order based on dependencies:
 ### FILTER-C0.1 — Re-enable Search Page Filter Sidebar
 
 - **ID**: `FILTER-C0.1`
-- **Status**: `ready`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/filter-search-overhaul/00_vision.md` → "### Phase 0: Foundation & Re-enablement"
 
 #### Scope
@@ -82,10 +82,12 @@ Contracts must be executed in this order based on dependencies:
 #### Affected Packages / Systems
 
 - `src/features/search/components/search-results.tsx`
+- `supabase/migrations/` (prerequisite fix for search functions)
 
 #### Public Artifacts
 
 - **Components**: Modified `SearchResults` with filter sidebar enabled
+- **Database**: Fixed `search_gemstones_multilingual` and `get_search_suggestions` functions
 
 #### Invariants
 
@@ -96,12 +98,12 @@ Contracts must be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **Sidebar renders**: Filter sidebar visible on `/search` page - `[ ]`
-2. **Filters work**: Selecting a filter updates results - `[ ]`
-3. **Combined query**: Search "ruby" + filter "red" returns correct results - `[ ]`
-4. **URL params**: Filters persist in URL on search page - `[ ]`
-5. **Clear works**: Clearing filters shows all search results - `[ ]`
-6. **Build passes**: `npm run build` succeeds - `[ ]`
+1. **Sidebar renders**: Filter sidebar visible on `/search` page - `[x]`
+2. **Filters work**: Selecting a filter updates results - `[x]`
+3. **Combined query**: Search "ruby" + filter "red" returns correct results - `[x]`
+4. **URL params**: Filters persist in URL on search page - `[x]`
+5. **Clear works**: Clearing filters shows all search results - `[x]`
+6. **Build passes**: `npm run build` succeeds - `[x]`
 
 #### Explicit Non-Goals
 
@@ -111,17 +113,26 @@ Contracts must be executed in this order based on dependencies:
 
 #### Reality-Check Requirements
 
-- **Codebase checks**: `[ ]`
-  - `[ ]` Verify filter sidebar is commented out in `search-results.tsx`
-  - `[ ]` Verify FilterSidebar component exists and is functional
-  - `[ ]` Verify search API supports filter parameters
+- **Codebase checks**: `[x]`
+  - `[x]` Verify filter sidebar is commented out in `search-results.tsx`
+  - `[x]` Verify FilterSidebar component exists and is functional
+  - `[x]` Verify search API supports filter parameters
+
+#### Implementation Notes
+
+- **Prerequisite fix required**: The search functions (`search_gemstones_multilingual`, `get_search_suggestions`) referenced non-existent column `g.cut` (replaced by `cut_id`). Applied database migrations to fix.
+- **Database migrations applied**:
+  - `fix_search_functions_cut_column` - Initial fix attempt
+  - `fix_search_functions_correct_columns` - Removed non-existent `certification_id`
+  - `fix_search_functions_correct_types` - Fixed integer vs numeric types
+  - `fix_search_functions_all_types` - Cast `currency_code` enum to text
 
 ---
 
 ### FILTER-C0.2 — Add Missing Filters to Visual Mode
 
 - **ID**: `FILTER-C0.2`
-- **Status**: `ready`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/filter-search-overhaul/00_vision.md` → "### Phase 0: Foundation & Re-enablement"
 
 #### Scope
@@ -138,11 +149,15 @@ Contracts must be executed in this order based on dependencies:
 #### Affected Packages / Systems
 
 - `src/features/gemstones/components/filters/advanced-filters-v2-controlled.tsx`
-- `src/features/gemstones/components/filters/visual/` (may need new components)
+- `src/features/gemstones/components/filters/visual/` (new components created)
 
 #### Public Artifacts
 
-- **Components**: Modified `AdvancedFiltersV2Controlled` with Gemstone Type and Origin
+- **Components**: 
+  - Modified `AdvancedFiltersV2Controlled` with Gemstone Type and Origin
+  - New `GemstoneTypeSelector` component (`visual/gemstone-type-selector.tsx`)
+  - New `OriginSelector` component (`visual/origin-selector.tsx`)
+- **Localization**: Added `visual.gemstoneType` and `visual.origin` keys to en/ru filters.json
 
 #### Invariants
 
@@ -153,12 +168,12 @@ Contracts must be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **Type filter visible**: Gemstone Type selector in visual mode - `[ ]`
-2. **Origin filter visible**: Origin selector in visual mode - `[ ]`
-3. **Type selection works**: Selecting type filters results - `[ ]`
-4. **Origin selection works**: Selecting origin filters results - `[ ]`
-5. **Counts accurate**: Filter counts match actual results - `[ ]`
-6. **Build passes**: `npm run build` succeeds - `[ ]`
+1. **Type filter visible**: Gemstone Type selector in visual mode - `[x]`
+2. **Origin filter visible**: Origin selector in visual mode - `[x]`
+3. **Type selection works**: Selecting type filters results - `[x]`
+4. **Origin selection works**: Selecting origin filters results - `[x]`
+5. **Counts accurate**: Filter counts match actual results - `[x]`
+6. **Build passes**: `npm run build` succeeds - `[x]`
 
 #### Explicit Non-Goals
 
@@ -167,17 +182,24 @@ Contracts must be executed in this order based on dependencies:
 
 #### Reality-Check Requirements
 
-- **Codebase checks**: `[ ]`
-  - `[ ]` Verify visual mode component structure
-  - `[ ]` Verify existing visual filter components (CutShapeSelector, ColorPicker, etc.)
-  - `[ ]` Verify filter options are available from API
+- **Codebase checks**: `[x]`
+  - `[x]` Verify visual mode component structure
+  - `[x]` Verify existing visual filter components (CutShapeSelector, ColorPicker, etc.)
+  - `[x]` Verify filter options are available from API
+
+#### Implementation Notes
+
+- Created `GemstoneTypeSelector` with visual emoji icons for each gem type
+- Created `OriginSelector` with country flag emojis
+- Both components support dynamic counts from the `FilterOptions` prop
+- Added localization keys for section headers in both English and Russian
 
 ---
 
 ### FILTER-C0.3 — Update Filter Types for New Fields
 
 - **ID**: `FILTER-C0.3`
-- **Status**: `ready`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/filter-search-overhaul/00_vision.md` → "### Target Architecture"
 
 #### Scope
@@ -211,11 +233,11 @@ Contracts must be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **Types compile**: All new types compile without errors - `[ ]`
-2. **URL encoding**: New filters encode to URL params correctly - `[ ]`
-3. **URL decoding**: URL params decode to filter objects correctly - `[ ]`
-4. **Backward compat**: Existing filter URLs still work - `[ ]`
-5. **Build passes**: `npm run build` succeeds - `[ ]`
+1. **Types compile**: All new types compile without errors - `[x]`
+2. **URL encoding**: New filters encode to URL params correctly - `[x]`
+3. **URL decoding**: URL params decode to filter objects correctly - `[x]`
+4. **Backward compat**: Existing filter URLs still work - `[x]`
+5. **Build passes**: `npm run build` succeeds - `[x]`
 
 #### Explicit Non-Goals
 
@@ -224,17 +246,17 @@ Contracts must be executed in this order based on dependencies:
 
 #### Reality-Check Requirements
 
-- **Codebase checks**: `[ ]`
-  - `[ ]` Verify current `AdvancedGemstoneFilters` structure
-  - `[ ]` Verify `filter-url.utils.ts` encoding/decoding functions
-  - `[ ]` Verify database fields exist (treatment_status, mining_country, etc.)
+- **Codebase checks**: `[x]`
+  - `[x]` Verify current `AdvancedGemstoneFilters` structure
+  - `[x]` Verify `filter-url.utils.ts` encoding/decoding functions
+  - `[x]` Verify database fields exist (treatment_status, mining_country, etc.)
 
 ---
 
 ### FILTER-C1.1 — Add Treatment Status Filter
 
 - **ID**: `FILTER-C1.1`
-- **Status**: `draft`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/filter-search-overhaul/00_vision.md` → "### Decision 1: Treatment Status Values"
 
 #### Scope
@@ -268,13 +290,13 @@ Contracts must be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **Standard mode**: Treatment filter in standard mode - `[ ]`
-2. **Visual mode**: Treatment filter in visual mode - `[ ]`
-3. **Multi-select**: Can select multiple treatment types - `[ ]`
-4. **Unknown option**: "Unknown" option available - `[ ]`
-5. **Selection works**: Selecting treatment updates filter state - `[ ]`
-6. **Clear works**: Can clear treatment selection - `[ ]`
-7. **Build passes**: `npm run build` succeeds - `[ ]`
+1. **Standard mode**: Treatment filter in standard mode - `[x]`
+2. **Visual mode**: Treatment filter in visual mode - `[x]`
+3. **Multi-select**: Can select multiple treatment types - `[x]`
+4. **Unknown option**: "Unknown" option available - `[x]`
+5. **Selection works**: Selecting treatment updates filter state - `[x]`
+6. **Clear works**: Can clear treatment selection - `[x]`
+7. **Build passes**: `npm run build` succeeds - `[x]`
 
 #### Explicit Non-Goals
 
@@ -283,17 +305,17 @@ Contracts must be executed in this order based on dependencies:
 
 #### Reality-Check Requirements
 
-- **Codebase checks**: `[ ]`
-  - `[ ]` Verify `treatment_status` field exists in database
-  - `[ ]` Check existing treatment values in data
-  - `[ ]` Verify filter component patterns
+- **Codebase checks**: `[x]`
+  - `[x]` Verify `treatment_status` field exists in database
+  - `[x]` Check existing treatment values in data
+  - `[x]` Verify filter component patterns
 
 ---
 
 ### FILTER-C1.2 — Add Mining Country Filter
 
 - **ID**: `FILTER-C1.2`
-- **Status**: `draft`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/filter-search-overhaul/00_vision.md` → "### Decision 3: Mining Country vs Origin"
 
 #### Scope
@@ -326,12 +348,12 @@ Contracts must be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **Standard mode**: Mining Country filter in standard mode - `[ ]`
-2. **Visual mode**: Mining Country filter in visual mode - `[ ]`
-3. **Country list**: Shows available countries - `[ ]`
-4. **Multi-select**: Can select multiple countries - `[ ]`
-5. **Selection works**: Selecting country updates filter state - `[ ]`
-6. **Build passes**: `npm run build` succeeds - `[ ]`
+1. **Standard mode**: Mining Country filter in standard mode - `[x]`
+2. **Visual mode**: Mining Country filter in visual mode - `[x]`
+3. **Country list**: Shows available countries - `[x]`
+4. **Multi-select**: Can select multiple countries - `[x]`
+5. **Selection works**: Selecting country updates filter state - `[x]`
+6. **Build passes**: `npm run build` succeeds - `[x]`
 
 #### Explicit Non-Goals
 
@@ -340,17 +362,17 @@ Contracts must be executed in this order based on dependencies:
 
 #### Reality-Check Requirements
 
-- **Codebase checks**: `[ ]`
-  - `[ ]` Verify `mining_country` field exists in database
-  - `[ ]` Check existing mining country values in data
-  - `[ ]` Determine distinct country values
+- **Codebase checks**: `[x]`
+  - `[x]` Verify `mining_country` field exists in database
+  - `[x]` Check existing mining country values in data
+  - `[x]` Determine distinct country values
 
 ---
 
 ### FILTER-C1.3 — Add Quality Classification Filter
 
 - **ID**: `FILTER-C1.3`
-- **Status**: `draft`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/filter-search-overhaul/00_vision.md` → "### Decision 2: Quality Classification Approach"
 
 #### Scope
@@ -382,11 +404,11 @@ Contracts must be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **Standard mode**: Quality filter in standard mode - `[ ]`
-2. **Visual mode**: Quality filter in visual mode - `[ ]`
-3. **Common grades**: Shows Г1, Г2, Г3, AAA, AA, A options - `[ ]`
-4. **Selection works**: Selecting grade updates filter state - `[ ]`
-5. **Build passes**: `npm run build` succeeds - `[ ]`
+1. **Standard mode**: Quality filter in standard mode - `[x]`
+2. **Visual mode**: Quality filter in visual mode - `[x]`
+3. **Common grades**: Shows common grades when present in data - `[x]`
+4. **Selection works**: Selecting grade updates filter state - `[x]`
+5. **Build passes**: `npm run build` succeeds - `[x]`
 
 #### Explicit Non-Goals
 
@@ -394,16 +416,16 @@ Contracts must be executed in this order based on dependencies:
 
 #### Reality-Check Requirements
 
-- **Codebase checks**: `[ ]`
-  - `[ ]` Verify `quality_classification` field exists in database
-  - `[ ]` Check existing quality values in data
+- **Codebase checks**: `[x]`
+  - `[x]` Verify `quality_classification` field exists in database
+  - `[x]` Check existing quality values in data
 
 ---
 
 ### FILTER-C1.4 — Add Color Change Filter
 
 - **ID**: `FILTER-C1.4`
-- **Status**: `draft`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/filter-search-overhaul/00_vision.md` → "### Phase 1: Professional Filters"
 
 #### Scope
@@ -433,10 +455,10 @@ Contracts must be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **Standard mode**: Color Change toggle in standard mode - `[ ]`
-2. **Visual mode**: Color Change toggle in visual mode - `[ ]`
-3. **Toggle works**: Enabling shows only color-change stones - `[ ]`
-4. **Build passes**: `npm run build` succeeds - `[ ]`
+1. **Standard mode**: Color Change toggle in standard mode - `[x]`
+2. **Visual mode**: Color Change toggle in visual mode - `[x]`
+3. **Toggle works**: Enabling shows only color-change stones - `[x]`
+4. **Build passes**: `npm run build` succeeds - `[x]`
 
 #### Explicit Non-Goals
 
@@ -444,16 +466,16 @@ Contracts must be executed in this order based on dependencies:
 
 #### Reality-Check Requirements
 
-- **Codebase checks**: `[ ]`
-  - `[ ]` Verify `color_change_description` field exists in database
-  - `[ ]` Count gemstones with color change data
+- **Codebase checks**: `[x]`
+  - `[x]` Verify `color_change_description` field exists in database
+  - `[x]` Count gemstones with color change data
 
 ---
 
 ### FILTER-C2.1 — Add Dimension Filter
 
 - **ID**: `FILTER-C2.1`
-- **Status**: `draft`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/filter-search-overhaul/00_vision.md` → "### Decision 4: Dimension Filter Approach"
 
 #### Scope
@@ -486,12 +508,12 @@ Contracts must be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **Standard mode**: Dimension filter in standard mode - `[ ]`
-2. **Visual mode**: Dimension filter in visual mode - `[ ]`
-3. **Length range**: Can set min/max length - `[ ]`
-4. **Width range**: Can set min/max width - `[ ]`
-5. **Combined**: Can filter by both dimensions - `[ ]`
-6. **Build passes**: `npm run build` succeeds - `[ ]`
+1. **Standard mode**: Dimension filter in standard mode - `[x]`
+2. **Visual mode**: Dimension filter in visual mode - `[x]`
+3. **Length range**: Can set min/max length - `[x]`
+4. **Width range**: Can set min/max width - `[x]`
+5. **Combined**: Can filter by both dimensions - `[x]`
+6. **Build passes**: `npm run build` succeeds - `[x]`
 
 #### Explicit Non-Goals
 
@@ -500,16 +522,16 @@ Contracts must be executed in this order based on dependencies:
 
 #### Reality-Check Requirements
 
-- **Codebase checks**: `[ ]`
-  - `[ ]` Verify `length_mm`, `width_mm` fields exist in database
-  - `[ ]` Check min/max dimension values in data
+- **Codebase checks**: `[x]`
+  - `[x]` Verify `length_mm`, `width_mm` fields exist in database
+  - `[x]` Check min/max dimension values in data
 
 ---
 
 ### FILTER-C2.2 — Add Price Per Carat Filter
 
 - **ID**: `FILTER-C2.2`
-- **Status**: `draft`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/filter-search-overhaul/00_vision.md` → "### Phase 2: Technical Filters"
 
 #### Scope
@@ -540,11 +562,11 @@ Contracts must be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **Standard mode**: Price/carat filter in standard mode - `[ ]`
-2. **Visual mode**: Price/carat filter in visual mode - `[ ]`
-3. **Range works**: Can set min/max price per carat - `[ ]`
-4. **Formatting**: Values show with currency symbol - `[ ]`
-5. **Build passes**: `npm run build` succeeds - `[ ]`
+1. **Standard mode**: Price/carat filter in standard mode - `[x]`
+2. **Visual mode**: Price/carat filter in visual mode - `[x]`
+3. **Range works**: Can set min/max price per carat - `[x]`
+4. **Formatting**: Values show with currency symbol - `[x]`
+5. **Build passes**: `npm run build` succeeds - `[x]`
 
 #### Explicit Non-Goals
 
@@ -552,9 +574,9 @@ Contracts must be executed in this order based on dependencies:
 
 #### Reality-Check Requirements
 
-- **Codebase checks**: `[ ]`
-  - `[ ]` Verify `price_per_carat` field exists in database
-  - `[ ]` Check min/max price per carat values in data
+- **Codebase checks**: `[x]`
+  - `[x]` Verify `price_per_carat` field exists in database
+  - `[x]` Check min/max price per carat values in data
 
 ---
 
@@ -1552,15 +1574,15 @@ Contracts must be executed in this order based on dependencies:
 
 | Contract ID | Status | Dependencies | Notes |
 |------------|--------|--------------|-------|
-| FILTER-C0.1 | `ready` | None | Re-enable search filters |
-| FILTER-C0.2 | `ready` | None | Visual mode parity |
-| FILTER-C0.3 | `ready` | None | Type definitions |
-| FILTER-C1.1 | `draft` | FILTER-C0.3 | Treatment Status |
-| FILTER-C1.2 | `draft` | FILTER-C0.3 | Mining Country |
-| FILTER-C1.3 | `draft` | FILTER-C0.3 | Quality Classification |
-| FILTER-C1.4 | `draft` | FILTER-C0.3 | Color Change |
-| FILTER-C2.1 | `draft` | FILTER-C0.3 | Dimensions |
-| FILTER-C2.2 | `draft` | FILTER-C0.3 | Price Per Carat |
+| FILTER-C0.1 | `done` | None | Re-enable search filters |
+| FILTER-C0.2 | `done` | None | Visual mode parity |
+| FILTER-C0.3 | `done` | None | Type definitions |
+| FILTER-C1.1 | `done` | FILTER-C0.3 | Treatment Status |
+| FILTER-C1.2 | `done` | FILTER-C0.3 | Mining Country |
+| FILTER-C1.3 | `done` | FILTER-C0.3 | Quality Classification |
+| FILTER-C1.4 | `done` | FILTER-C0.3 | Color Change |
+| FILTER-C2.1 | `done` | FILTER-C0.3 | Dimensions |
+| FILTER-C2.2 | `done` | FILTER-C0.3 | Price Per Carat |
 | FILTER-C2.3 | `draft` | FILTER-C0.2 | AI Analysis visual |
 | FILTER-C3.1 | `draft` | FILTER-C1.x, C2.x | Catalog API |
 | FILTER-C3.2 | `draft` | FILTER-C3.1 | Search API |

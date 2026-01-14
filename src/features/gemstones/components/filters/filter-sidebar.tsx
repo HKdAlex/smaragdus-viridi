@@ -97,9 +97,17 @@ export function FilterSidebar({
     if (filters.cuts?.length) count += filters.cuts.length;
     if (filters.clarities?.length) count += filters.clarities.length;
     if (filters.origins?.length) count += filters.origins.length;
+    if (filters.miningCountries?.length) count += filters.miningCountries.length;
+    if (filters.treatmentStatus?.length)
+      count += filters.treatmentStatus.length;
+    if (filters.qualityClassifications?.length)
+      count += filters.qualityClassifications.length;
     if (filters.priceRange) count++;
     if (filters.weightRange) count++;
+    if (filters.dimensionRange) count++;
+    if (filters.pricePerCaratRange) count++;
     if (filters.inStockOnly) count++;
+    if (filters.hasColorChange) count++;
     if (filters.hasCertification) count++;
     if (filters.hasImages) count++;
     return count;

@@ -18,16 +18,30 @@ import {
   ClaritySelector,
   ColorPicker,
   CutShapeSelector,
+  DimensionRangeSelector,
+  GemstoneTypeSelector,
+  MiningCountrySelector,
+  OriginSelector,
+  PricePerCaratRange,
   PriceRangeCards,
+  QualityClassificationSelector,
+  TreatmentStatusSelector,
   ToggleCards,
   WeightRangeCards,
 } from "./visual";
 import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
-import type { AdvancedGemstoneFilters } from "../../types/filter.types";
+import type {
+  AdvancedGemstoneFilters,
+  DimensionRange,
+  PriceRange,
+  TreatmentStatus,
+} from "../../types/filter.types";
 import type { FilterOptions } from "./advanced-filters-controlled";
 import { useCallback } from "react";
 import { useTranslations } from "next-intl";
+import { useMiningCountryOptions } from "../../hooks/use-mining-country-options";
+import { useQualityClassificationOptions } from "../../hooks/use-quality-classification-options";
 
 interface AdvancedFiltersV2ControlledProps {
   filters: AdvancedGemstoneFilters;
@@ -43,11 +57,77 @@ export function AdvancedFiltersV2Controlled({
   loading = false,
 }: AdvancedFiltersV2ControlledProps) {
   const t = useTranslations("filters");
+  const {
+    options: miningCountryOptions,
+    loading: miningCountryLoading,
+  } = useMiningCountryOptions();
+  const {
+    options: qualityClassificationOptions,
+    loading: qualityClassificationLoading,
+  } = useQualityClassificationOptions();
+  const lengthRange: [number, number] = [0, 20];
+  const widthRange: [number, number] = [0, 75];
+  const pricePerCaratRange: [number, number] = [0, 300000];
 
   // Handle search input
   const handleSearchChange = useCallback(
     (value: string) => {
       onChange({ ...filters, search: value || undefined });
+    },
+    [filters, onChange]
+  );
+
+  // Handle gemstone type changes (FILTER-C0.2)
+  const handleTypeChange = useCallback(
+    (types: string[]) => {
+      onChange({
+        ...filters,
+        gemstoneTypes: types.length > 0 ? (types as any[]) : undefined,
+      });
+    },
+    [filters, onChange]
+  );
+
+  // Handle origin changes (FILTER-C0.2)
+  const handleOriginChange = useCallback(
+    (origins: string[]) => {
+      onChange({
+        ...filters,
+        origins: origins.length > 0 ? origins : undefined,
+      });
+    },
+    [filters, onChange]
+  );
+
+  // Handle mining country changes (FILTER-C1.2)
+  const handleMiningCountryChange = useCallback(
+    (countries: string[]) => {
+      onChange({
+        ...filters,
+        miningCountries: countries.length > 0 ? countries : undefined,
+      });
+    },
+    [filters, onChange]
+  );
+
+  // Handle quality classification changes (FILTER-C1.3)
+  const handleQualityClassificationChange = useCallback(
+    (values: string[]) => {
+      onChange({
+        ...filters,
+        qualityClassifications: values.length > 0 ? values : undefined,
+      });
+    },
+    [filters, onChange]
+  );
+
+  // Handle treatment status changes (FILTER-C1.1)
+  const handleTreatmentStatusChange = useCallback(
+    (statuses: TreatmentStatus[]) => {
+      onChange({
+        ...filters,
+        treatmentStatus: statuses.length > 0 ? statuses : undefined,
+      });
     },
     [filters, onChange]
   );
@@ -122,6 +202,25 @@ export function AdvancedFiltersV2Controlled({
     onChange({ ...filters, hasImages: !filters.hasImages });
   }, [filters, onChange]);
 
+  // Handle color change filter
+  const handleColorChangeToggle = useCallback(() => {
+    onChange({ ...filters, hasColorChange: !filters.hasColorChange });
+  }, [filters, onChange]);
+
+  const handleDimensionChange = useCallback(
+    (dimensionRange?: DimensionRange) => {
+      onChange({ ...filters, dimensionRange });
+    },
+    [filters, onChange]
+  );
+
+  const handlePricePerCaratChange = useCallback(
+    (value?: PriceRange) => {
+      onChange({ ...filters, pricePerCaratRange: value });
+    },
+    [filters, onChange]
+  );
+
   // Handle reset all filters
   const handleResetFilters = useCallback(() => {
     onChange({});
@@ -136,11 +235,20 @@ export function AdvancedFiltersV2Controlled({
     if (filters.cuts?.length) count += filters.cuts.length;
     if (filters.clarities?.length) count += filters.clarities.length;
     if (filters.origins?.length) count += filters.origins.length;
+    if (filters.miningCountries?.length)
+      count += filters.miningCountries.length;
+    if (filters.treatmentStatus?.length)
+      count += filters.treatmentStatus.length;
+    if (filters.qualityClassifications?.length)
+      count += filters.qualityClassifications.length;
+    if (filters.dimensionRange) count++;
     if (filters.priceRange) count++;
     if (filters.weightRange) count++;
+    if (filters.pricePerCaratRange) count++;
     if (filters.inStockOnly) count++;
     if (filters.hasCertification) count++;
     if (filters.hasImages) count++;
+    if (filters.hasColorChange) count++;
     return count;
   };
 
@@ -181,6 +289,51 @@ export function AdvancedFiltersV2Controlled({
 
       {/* Visual Filters */}
       <div className="space-y-6">
+        {/* Gemstone Type Selector (FILTER-C0.2) */}
+        <GemstoneTypeSelector
+          selectedTypes={filters.gemstoneTypes || []}
+          onTypeChange={handleTypeChange}
+          options={options.gemstoneTypes}
+        />
+
+        {/* Origin Selector (FILTER-C0.2) */}
+        <OriginSelector
+          selectedOrigins={filters.origins || []}
+          onOriginChange={handleOriginChange}
+          options={options.origins}
+        />
+
+        {/* Mining Country Selector (FILTER-C1.2) */}
+        <MiningCountrySelector
+          selectedCountries={filters.miningCountries || []}
+          onCountryChange={handleMiningCountryChange}
+          options={miningCountryOptions}
+        />
+
+        {/* Quality Classification Selector (FILTER-C1.3) */}
+        <QualityClassificationSelector
+          selectedValues={filters.qualityClassifications || []}
+          onChange={handleQualityClassificationChange}
+          options={qualityClassificationOptions}
+        />
+
+        {/* Treatment Status Selector (FILTER-C1.1) */}
+        <TreatmentStatusSelector
+          selectedStatuses={filters.treatmentStatus || []}
+          onStatusChange={handleTreatmentStatusChange}
+        />
+
+        {/* Dimension Range Selector (FILTER-C2.1) */}
+        <DimensionRangeSelector
+          value={filters.dimensionRange}
+          onChange={handleDimensionChange}
+          minLength={lengthRange[0]}
+          maxLength={lengthRange[1]}
+          minWidth={widthRange[0]}
+          maxWidth={widthRange[1]}
+          disabled={loading}
+        />
+
         {/* Cut Shape Selector */}
         <CutShapeSelector
           selectedCuts={filters.cuts || []}
@@ -197,6 +350,15 @@ export function AdvancedFiltersV2Controlled({
         <ClaritySelector
           selectedClarities={filters.clarities || []}
           onClarityChange={handleClarityChange}
+        />
+
+        {/* Price Per Carat Range (FILTER-C2.2) */}
+        <PricePerCaratRange
+          value={filters.pricePerCaratRange}
+          onChange={handlePricePerCaratChange}
+          min={pricePerCaratRange[0]}
+          max={pricePerCaratRange[1]}
+          disabled={loading}
         />
 
         {/* Price Range Cards */}
@@ -227,6 +389,8 @@ export function AdvancedFiltersV2Controlled({
           onCertificationChange={handleCertificationToggle}
           withImages={filters.hasImages || false}
           onImagesChange={handleImagesToggle}
+          withColorChange={filters.hasColorChange || false}
+          onColorChange={handleColorChangeToggle}
         />
       </div>
 
@@ -253,6 +417,18 @@ export function AdvancedFiltersV2Controlled({
           <p className="mt-2 text-sm text-muted-foreground">
             Loading filters...
           </p>
+        </div>
+      )}
+
+      {miningCountryLoading && !loading && (
+        <div className="text-center py-4 text-sm text-muted-foreground">
+          Loading mining countries...
+        </div>
+      )}
+
+      {qualityClassificationLoading && !loading && (
+        <div className="text-center py-4 text-sm text-muted-foreground">
+          Loading quality classifications...
         </div>
       )}
     </div>

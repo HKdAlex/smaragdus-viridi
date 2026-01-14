@@ -33,11 +33,16 @@ import type {
 import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import type { AdvancedGemstoneFilters } from "../../types/filter.types";
+import type {
+  AdvancedGemstoneFilters,
+  TreatmentStatus,
+} from "../../types/filter.types";
 import { FilterDropdown } from "./filter-dropdown";
 import { RangeSlider } from "./range-slider";
 import { useFilterLabels } from "../../hooks/use-filter-labels";
 import { useTranslations } from "next-intl";
+import { useMiningCountryOptions } from "../../hooks/use-mining-country-options";
+import { useQualityClassificationOptions } from "../../hooks/use-quality-classification-options";
 
 // Filter option types
 export interface FilterOption<T = string> {
@@ -76,6 +81,17 @@ export function AdvancedFiltersControlled({
 }: AdvancedFiltersControlledProps) {
   const t = useTranslations("filters.advanced");
   const filterLabels = useFilterLabels();
+  const {
+    options: miningCountryOptions,
+    loading: miningCountryLoading,
+  } = useMiningCountryOptions();
+  const {
+    options: qualityClassificationOptions,
+    loading: qualityClassificationLoading,
+  } = useQualityClassificationOptions();
+  const lengthRange: [number, number] = [0, 20];
+  const widthRange: [number, number] = [0, 75];
+  const pricePerCaratRange: [number, number] = [0, 300000];
 
   // Calculate active filter count
   const activeFilterCount = useMemo(
@@ -171,6 +187,40 @@ export function AdvancedFiltersControlled({
     [filters, onChange]
   );
 
+  // Handle mining country filter
+  const handleMiningCountryChange = useCallback(
+    (countries: string[]) => {
+      onChange({
+        ...filters,
+        miningCountries: countries.length > 0 ? countries : undefined,
+      });
+    },
+    [filters, onChange]
+  );
+
+  // Handle quality classification filter
+  const handleQualityClassificationChange = useCallback(
+    (values: string[]) => {
+      onChange({
+        ...filters,
+        qualityClassifications: values.length > 0 ? values : undefined,
+      });
+    },
+    [filters, onChange]
+  );
+
+  // Handle treatment status filter
+  const handleTreatmentStatusChange = useCallback(
+    (statuses: string[]) => {
+      onChange({
+        ...filters,
+        treatmentStatus:
+          statuses.length > 0 ? (statuses as TreatmentStatus[]) : undefined,
+      });
+    },
+    [filters, onChange]
+  );
+
   // Handle price range
   const handlePriceRangeChange = useCallback(
     (min: number, max: number) => {
@@ -203,12 +253,63 @@ export function AdvancedFiltersControlled({
     [filters, onChange]
   );
 
+  // Handle price per carat range
+  const handlePricePerCaratRangeChange = useCallback(
+    (min: number, max: number) => {
+      if (min > pricePerCaratRange[0] || max < pricePerCaratRange[1]) {
+        onChange({
+          ...filters,
+          pricePerCaratRange: { min, max, currency: "USD" },
+        });
+      } else {
+        onChange({ ...filters, pricePerCaratRange: undefined });
+      }
+    },
+    [filters, onChange, pricePerCaratRange]
+  );
+
   // Handle stock filter
   const handleStockChange = useCallback(
     (inStockOnly: boolean) => {
       onChange({ ...filters, inStockOnly });
     },
     [filters, onChange]
+  );
+
+  // Handle color change filter
+  const handleColorChangeToggle = useCallback(
+    (hasColorChange: boolean) => {
+      onChange({ ...filters, hasColorChange });
+    },
+    [filters, onChange]
+  );
+
+  const handleDimensionChange = useCallback(
+    (
+      nextLength: [number, number],
+      nextWidth: [number, number]
+    ) => {
+      const isDefaultLength =
+        nextLength[0] === lengthRange[0] &&
+        nextLength[1] === lengthRange[1];
+      const isDefaultWidth =
+        nextWidth[0] === widthRange[0] &&
+        nextWidth[1] === widthRange[1];
+
+      onChange({
+        ...filters,
+        dimensionRange:
+          isDefaultLength && isDefaultWidth
+            ? undefined
+            : {
+                minLength: nextLength[0],
+                maxLength: nextLength[1],
+                minWidth: nextWidth[0],
+                maxWidth: nextWidth[1],
+              },
+      });
+    },
+    [filters, onChange, lengthRange, widthRange]
   );
 
   // Clear all filters
@@ -269,6 +370,54 @@ export function AdvancedFiltersControlled({
       disabled: opt.count === 0,
     }));
   }, [options.origins]);
+
+  const miningCountryDropdownOptions = useMemo(() => {
+    return miningCountryOptions.map((opt) => ({
+      value: opt.value,
+      label: opt.label,
+      count: opt.count,
+      disabled: opt.count === 0,
+    }));
+  }, [miningCountryOptions]);
+
+  const qualityClassificationDropdownOptions = useMemo(() => {
+    return qualityClassificationOptions.map((opt) => ({
+      value: opt.value,
+      label: opt.label,
+      count: opt.count,
+      disabled: opt.count === 0,
+    }));
+  }, [qualityClassificationOptions]);
+
+  const treatmentStatusOptions = useMemo(() => {
+    const statuses: TreatmentStatus[] = [
+      "natural",
+      "heated",
+      "oiled",
+      "diffused",
+      "irradiated",
+      "filled",
+      "coated",
+      "untreated",
+      "unknown",
+      "other",
+    ];
+
+    return statuses.map((value) => ({
+      value,
+      label: t(`treatmentStatusOptions.${value}`),
+    }));
+  }, [t]);
+
+  const currentLengthRange: [number, number] = [
+    filters.dimensionRange?.minLength ?? lengthRange[0],
+    filters.dimensionRange?.maxLength ?? lengthRange[1],
+  ];
+
+  const currentWidthRange: [number, number] = [
+    filters.dimensionRange?.minWidth ?? widthRange[0],
+    filters.dimensionRange?.maxWidth ?? widthRange[1],
+  ];
 
   return (
     <div className="space-y-6">
@@ -354,10 +503,83 @@ export function AdvancedFiltersControlled({
           onSelectionChange={handleOriginChange}
           disabled={loading}
         />
+
+        <FilterDropdown
+          label={t("miningCountry")}
+          options={miningCountryDropdownOptions}
+          selectedValues={filters.miningCountries || []}
+          onSelectionChange={handleMiningCountryChange}
+          placeholder={t("selectMiningCountries")}
+          disabled={loading || miningCountryLoading}
+        />
+
+        <FilterDropdown
+          label={t("qualityClassification")}
+          options={qualityClassificationDropdownOptions}
+          selectedValues={filters.qualityClassifications || []}
+          onSelectionChange={handleQualityClassificationChange}
+          placeholder={t("selectQualityClassifications")}
+          disabled={loading || qualityClassificationLoading}
+        />
+
+        <FilterDropdown
+          label={t("treatmentStatus")}
+          options={treatmentStatusOptions}
+          selectedValues={filters.treatmentStatus || []}
+          onSelectionChange={handleTreatmentStatusChange}
+          placeholder={t("selectTreatmentStatus")}
+          disabled={loading}
+        />
+
+        <div className="space-y-4">
+          <div className="text-sm font-medium text-foreground">
+            {t("dimensionRange")}
+          </div>
+          <RangeSlider
+            label={t("length")}
+            min={lengthRange[0]}
+            max={lengthRange[1]}
+            value={currentLengthRange}
+            onChange={(value) => handleDimensionChange(value, currentWidthRange)}
+            step={0.5}
+            formatValue={(val) => `${val} mm`}
+            disabled={loading}
+          />
+          <RangeSlider
+            label={t("width")}
+            min={widthRange[0]}
+            max={widthRange[1]}
+            value={currentWidthRange}
+            onChange={(value) => handleDimensionChange(currentLengthRange, value)}
+            step={0.5}
+            formatValue={(val) => `${val} mm`}
+            disabled={loading}
+          />
+        </div>
       </div>
 
       {/* Range Filters */}
       <div className="space-y-4">
+        <RangeSlider
+          label={t("pricePerCaratRange")}
+          min={pricePerCaratRange[0]}
+          max={pricePerCaratRange[1]}
+          step={1000}
+          value={[
+            filters.pricePerCaratRange?.min ?? pricePerCaratRange[0],
+            filters.pricePerCaratRange?.max ?? pricePerCaratRange[1],
+          ]}
+          onChange={([min, max]) => handlePricePerCaratRangeChange(min, max)}
+          formatValue={(value) =>
+            `${new Intl.NumberFormat("en-US", {
+              style: "currency",
+              currency: "USD",
+              minimumFractionDigits: 0,
+              maximumFractionDigits: 0,
+            }).format(value / 100)} / ct`
+          }
+          disabled={loading}
+        />
         <RangeSlider
           label={t("priceRange")}
           min={0}
@@ -404,6 +626,20 @@ export function AdvancedFiltersControlled({
           className="w-4 h-4 text-primary border-border rounded focus:ring-primary focus:ring-offset-0 disabled:opacity-50"
         />
         <span className="text-sm text-foreground">{t("inStockOnly")}</span>
+      </label>
+
+      {/* Color Change Filter */}
+      <label className="flex items-center space-x-2 cursor-pointer">
+        <input
+          type="checkbox"
+          checked={filters.hasColorChange || false}
+          onChange={(e) => handleColorChangeToggle(e.target.checked)}
+          disabled={loading}
+          className="w-4 h-4 text-primary border-border rounded focus:ring-primary focus:ring-offset-0 disabled:opacity-50"
+        />
+        <span className="text-sm text-foreground">
+          {t("hasColorChange")}
+        </span>
       </label>
     </div>
   );

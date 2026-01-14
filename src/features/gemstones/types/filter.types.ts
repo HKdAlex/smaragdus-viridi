@@ -22,6 +22,25 @@ export interface WeightRange {
   readonly max: number;
 }
 
+export type TreatmentStatus =
+  | "natural"
+  | "heated"
+  | "oiled"
+  | "diffused"
+  | "irradiated"
+  | "filled"
+  | "coated"
+  | "untreated"
+  | "unknown"
+  | "other";
+
+export interface DimensionRange {
+  readonly minLength?: number;
+  readonly maxLength?: number;
+  readonly minWidth?: number;
+  readonly maxWidth?: number;
+}
+
 export interface AdvancedGemstoneFilters {
   // Text search
   readonly search?: string;
@@ -42,6 +61,16 @@ export interface AdvancedGemstoneFilters {
   readonly hasCertification?: boolean;
   readonly hasImages?: boolean;
   readonly hasAIAnalysis?: boolean;
+
+  // Professional filters (multi-select + boolean)
+  readonly treatmentStatus?: TreatmentStatus[];
+  readonly miningCountries?: string[];
+  readonly qualityClassifications?: string[];
+  readonly hasColorChange?: boolean;
+
+  // Technical filters
+  readonly dimensionRange?: DimensionRange;
+  readonly pricePerCaratRange?: PriceRange;
 
   // Sorting
   readonly sortBy?: GemstoneSort;
@@ -69,6 +98,16 @@ export interface MutableAdvancedGemstoneFilters {
   hasCertification?: boolean;
   hasImages?: boolean;
   hasAIAnalysis?: boolean;
+
+  // Professional filters (multi-select + boolean)
+  treatmentStatus?: TreatmentStatus[];
+  miningCountries?: string[];
+  qualityClassifications?: string[];
+  hasColorChange?: boolean;
+
+  // Technical filters
+  dimensionRange?: DimensionRange;
+  pricePerCaratRange?: PriceRange;
 
   // Sorting
   sortBy?: GemstoneSort;
@@ -168,6 +207,16 @@ export interface FilterUrlParams {
   readonly priceMax?: string;
   readonly weightMin?: string;
   readonly weightMax?: string;
+  readonly treatmentStatus?: string; // comma-separated
+  readonly miningCountries?: string; // comma-separated
+  readonly qualityClassifications?: string; // comma-separated
+  readonly hasColorChange?: string; // 'true' | 'false'
+  readonly minLength?: string;
+  readonly maxLength?: string;
+  readonly minWidth?: string;
+  readonly maxWidth?: string;
+  readonly minPricePerCarat?: string;
+  readonly maxPricePerCarat?: string;
   readonly inStock?: string; // 'true' | 'false'
   readonly certified?: string; // 'true' | 'false'
   readonly hasImages?: string; // 'true' | 'false'
@@ -291,6 +340,12 @@ export const hasActiveFilters = (filters: AdvancedGemstoneFilters): boolean => {
     filters.origins?.length ||
     filters.priceRange ||
     filters.weightRange ||
+    filters.treatmentStatus?.length ||
+    filters.miningCountries?.length ||
+    filters.qualityClassifications?.length ||
+    filters.hasColorChange ||
+    filters.dimensionRange ||
+    filters.pricePerCaratRange ||
     filters.hasCertification ||
     filters.hasImages ||
     filters.hasAIAnalysis
@@ -309,6 +364,12 @@ export const getActiveFilterCount = (
   if (filters.origins?.length) count++;
   if (filters.priceRange) count++;
   if (filters.weightRange) count++;
+  if (filters.treatmentStatus?.length) count++;
+  if (filters.miningCountries?.length) count++;
+  if (filters.qualityClassifications?.length) count++;
+  if (filters.hasColorChange) count++;
+  if (filters.dimensionRange) count++;
+  if (filters.pricePerCaratRange) count++;
   if (filters.hasCertification) count++;
   if (filters.hasImages) count++;
   if (filters.hasAIAnalysis) count++;
