@@ -129,48 +129,47 @@ export async function GET(request: NextRequest) {
       pageSize: Math.min(parseInt(searchParams.get("pageSize") || "24"), 100), // Max 100 per page
     };
 
-    // If search is present, use database function (handles enum casting properly)
-    // Otherwise use PostgREST query builder
-    if (filters.search && filters.search.trim()) {
-      try {
-        const { data: rpcData, error: rpcError } = await supabase.rpc(
-          "catalog_search_gemstones" as any,
-          {
-            search_query: filters.search.trim(),
-            page_number: pagination.page,
-            page_size: pagination.pageSize,
-            filter_types: filters.gemstoneTypes || null,
-            filter_colors: filters.colors || null,
-            filter_cuts: filters.cuts || null,
-            filter_clarities: filters.clarities || null,
-            filter_origins: filters.origins || null,
-            filter_price_min: filters.priceMin ? filters.priceMin * 100 : null, // Convert to cents
-            filter_price_max: filters.priceMax ? filters.priceMax * 100 : null,
-            filter_weight_min: filters.weightMin || null,
-            filter_weight_max: filters.weightMax || null,
-            filter_in_stock_only: filters.inStockOnly || null,
-            filter_has_images: filters.hasImages || null,
-            filter_has_certification: filters.hasCertification || null,
-            filter_treatment_status: filters.treatmentStatus || null,
-            filter_mining_countries: filters.miningCountries || null,
-            filter_quality_classifications: filters.qualityClassifications || null,
-            filter_has_color_change: filters.hasColorChange || null,
-            filter_min_length: filters.minLength || null,
-            filter_max_length: filters.maxLength || null,
-            filter_min_width: filters.minWidth || null,
-            filter_max_width: filters.maxWidth || null,
-            filter_min_price_per_carat: filters.minPricePerCarat || null,
-            filter_max_price_per_carat: filters.maxPricePerCarat || null,
-            sort_by: filters.sortBy || "created_at",
-            sort_direction: filters.sortDirection || "desc",
-          }
-        );
+    // Always use database function for consistency and proper enum casting
+    // The function handles both search and filtering, with search_query being optional
+    try {
+      const { data: rpcData, error: rpcError } = await supabase.rpc(
+        "catalog_search_gemstones" as any,
+        {
+          search_query: filters.search?.trim() || null,
+          page_number: pagination.page,
+          page_size: pagination.pageSize,
+          filter_types: filters.gemstoneTypes || null,
+          filter_colors: filters.colors || null,
+          filter_cuts: filters.cuts || null,
+          filter_clarities: filters.clarities || null,
+          filter_origins: filters.origins || null,
+          filter_price_min: filters.priceMin ? filters.priceMin * 100 : null, // Convert to cents
+          filter_price_max: filters.priceMax ? filters.priceMax * 100 : null,
+          filter_weight_min: filters.weightMin || null,
+          filter_weight_max: filters.weightMax || null,
+          filter_in_stock_only: filters.inStockOnly || null,
+          filter_has_images: filters.hasImages || null,
+          filter_has_certification: filters.hasCertification || null,
+          filter_treatment_status: filters.treatmentStatus || null,
+          filter_mining_countries: filters.miningCountries || null,
+          filter_quality_classifications: filters.qualityClassifications || null,
+          filter_has_color_change: filters.hasColorChange || null,
+          filter_min_length: filters.minLength || null,
+          filter_max_length: filters.maxLength || null,
+          filter_min_width: filters.minWidth || null,
+          filter_max_width: filters.maxWidth || null,
+          filter_min_price_per_carat: filters.minPricePerCarat || null,
+          filter_max_price_per_carat: filters.maxPricePerCarat || null,
+          sort_by: filters.sortBy || "created_at",
+          sort_direction: filters.sortDirection || "desc",
+        }
+      );
 
-        if (rpcError) {
-          console.error("[CatalogAPI] RPC search error:", rpcError);
-          // Fall back to PostgREST query without search
-          // Continue to regular query below
-        } else if (rpcData) {
+      if (rpcError) {
+        console.error("[CatalogAPI] RPC function error:", rpcError);
+        // Fall back to PostgREST query if function doesn't exist or fails
+        // Continue to regular query below
+      } else if (rpcData) {
           // Transform RPC results to match expected format
           const totalCount = rpcData[0]?.total_count || 0;
           const transformedData = rpcData.map((gemstone: any) => {
@@ -253,12 +252,13 @@ export async function GET(request: NextRequest) {
           });
         }
       } catch (error) {
-        console.error("[CatalogAPI] RPC call failed, falling back:", error);
-        // Fall through to PostgREST query
+        console.error("[CatalogAPI] RPC call failed, falling back to PostgREST:", error);
+        // Fall through to PostgREST query (only if database function doesn't exist)
       }
-    }
 
-    // Build the query with filters using gemstones_enriched view
+    // Fallback: Build PostgREST query if database function isn't available
+    // This should only be used during development or if migration hasn't been applied
+    // TODO: Remove this fallback once catalog_search_gemstones function is confirmed deployed
     let query = supabase.from("gemstones_enriched").select(
       `
         id,

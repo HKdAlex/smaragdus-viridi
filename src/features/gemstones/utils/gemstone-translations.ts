@@ -58,9 +58,47 @@ export function useGemstoneTranslations() {
   };
 
   const translateCut = (cut: string) => {
+    if (!cut) return cut;
+
+    // If the cut contains Cyrillic characters, it's already translated (from database)
+    // Database functions like search_gemstones_multilingual return translated names
+    const hasCyrillic = /[А-Яа-яЁё]/.test(cut);
+    if (hasCyrillic) {
+      return cut;
+    }
+
+    // If the cut contains spaces, it's likely a translated name (e.g., "Round Brilliant")
+    // Cut codes don't have spaces (e.g., "round", "oval")
+    if (cut.includes(" ")) {
+      return cut;
+    }
+
+    // If the cut contains non-ASCII characters (other languages), it's likely already translated
+    const hasNonASCII = /[^\x00-\x7F]/.test(cut);
+    if (hasNonASCII && cut.length > 5) {
+      return cut;
+    }
+
+    // Cut codes are typically lowercase and short (round, oval, etc.)
+    // If it's capitalized and longer than 8 chars, it might be a translated name
+    if (cut.length > 8 && cut[0] === cut[0].toUpperCase() && cut[0] !== cut[0].toLowerCase()) {
+      return cut;
+    }
+
+    // Otherwise, translate the cut code (e.g., "round", "oval")
+    // Use a safe translation that won't throw if key doesn't exist
     try {
-      return t(`cuts.${cut}` as any) || cut;
-    } catch {
+      const translation = t(`cuts.${cut}` as any);
+      // If translation returns the same value (key not found), return as-is
+      if (translation === `cuts.${cut}`) {
+        return cut;
+      }
+      return translation || cut;
+    } catch (error: any) {
+      // Handle MissingMessageError or other translation errors
+      if (error?.code === "MISSING_MESSAGE" || error?.message?.includes("MISSING_MESSAGE")) {
+        return cut;
+      }
       return cut;
     }
   };
