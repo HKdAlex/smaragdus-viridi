@@ -196,38 +196,23 @@ export function SearchInput({
 
   return (
     <div className={`relative w-full ${className}`}>
-      {/* Search Input */}
-      <div className="relative">
-        <input
-          ref={inputRef}
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={handleKeyDown}
-          onFocus={() => {
-            setIsFocused(true);
-            if (suggestions.length > 0 && query.length >= 2) {
-              setShowDropdown(true);
-            }
-          }}
-          onBlur={() => {
-            setIsFocused(false);
-          }}
-          placeholder={placeholder || t("placeholder")}
-          autoFocus={autoFocus}
-          className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+      {/* Premium Search Input */}
+      <div className="relative group">
+        {/* Subtle glow effect on focus */}
+        <div
+          className={`absolute -inset-0.5 bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 rounded-2xl blur-sm transition-opacity duration-300 ${
+            isFocused ? "opacity-100" : "opacity-0"
+          }`}
         />
 
-        {/* Search Icon - Hidden when focused */}
-        {!isFocused && (
-          <button
-            onClick={() => handleSearch(query)}
-            className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-            aria-label={t("search")}
-          >
+        <div className="relative flex items-center">
+          {/* Search Icon - Always visible on left */}
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
+              className={`h-5 w-5 transition-colors duration-200 ${
+                isFocused ? "text-primary" : "text-muted-foreground"
+              }`}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -239,53 +224,87 @@ export function SearchInput({
                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
               />
             </svg>
-          </button>
-        )}
+          </div>
 
-        {/* Clear Button - Shown when focused and has text */}
-        {isFocused && query && (
-          <button
-            onClick={() => {
-              setQuery("");
-              inputRef.current?.focus();
+          <input
+            ref={inputRef}
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onFocus={() => {
+              setIsFocused(true);
+              if (suggestions.length > 0 && query.length >= 2) {
+                setShowDropdown(true);
+              }
             }}
-            className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-            aria-label="Clear search"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+            onBlur={() => {
+              setIsFocused(false);
+            }}
+            placeholder={placeholder || t("placeholder")}
+            autoFocus={autoFocus}
+            className="w-full pl-12 pr-12 py-4 text-base bg-background border-2 border-border/50 rounded-2xl focus:outline-none focus:border-primary/50 focus:ring-0 transition-all duration-200 placeholder:text-muted-foreground/60 shadow-sm hover:shadow-md focus:shadow-lg"
+          />
+
+          {/* Clear Button - Shown when has text */}
+          {query && (
+            <button
+              onClick={() => {
+                setQuery("");
+                inputRef.current?.focus();
+              }}
+              className="absolute right-4 top-1/2 -translate-y-1/2 p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-all duration-200"
+              aria-label="Clear search"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        )}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          )}
+
+          {/* Search Button - Shown when no text */}
+          {!query && (
+            <button
+              onClick={() => handleSearch(query)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 px-4 py-2 bg-primary text-primary-foreground text-sm font-medium rounded-xl hover:bg-primary/90 transition-all duration-200 shadow-sm hover:shadow-md"
+              aria-label={t("search")}
+            >
+              {t("search")}
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Autocomplete Dropdown */}
+      {/* Premium Autocomplete Dropdown */}
       {showDropdown && (
         <div
           ref={dropdownRef}
-          className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-96 overflow-y-auto"
+          className="absolute z-50 w-full mt-2 bg-background border border-border/50 rounded-2xl shadow-xl max-h-96 overflow-y-auto backdrop-blur-sm"
         >
           {isLoading ? (
-            <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
-              {t("loading")}
+            <div className="px-5 py-4 flex items-center gap-3">
+              <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+              <span className="text-sm text-muted-foreground">
+                {t("loading")}
+              </span>
             </div>
           ) : suggestions.length === 0 ? (
-            <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+            <div className="px-5 py-4 text-sm text-muted-foreground text-center">
               {t("noSuggestions")}
             </div>
           ) : (
-            <ul className="py-1">
+            <ul className="py-2">
               {suggestions.map((suggestion, index) => {
                 const badge = getCategoryBadge(suggestion.category);
                 const isSelected = index === selectedIndex;
@@ -296,15 +315,49 @@ export function SearchInput({
                       onClick={() =>
                         handleSelectSuggestion(suggestion.suggestion)
                       }
-                      className={`w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between ${
-                        isSelected ? "bg-gray-100 dark:bg-gray-700" : ""
+                      className={`w-full px-5 py-3 text-left flex items-center justify-between gap-3 transition-all duration-150 ${
+                        isSelected
+                          ? "bg-primary/5 border-l-2 border-primary"
+                          : "hover:bg-muted/50 border-l-2 border-transparent"
                       }`}
                     >
-                      <span className="text-sm text-gray-900 dark:text-gray-100">
-                        {suggestion.suggestion}
-                      </span>
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div
+                          className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                            isSelected ? "bg-primary/10" : "bg-muted/50"
+                          }`}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className={`h-4 w-4 ${
+                              isSelected
+                                ? "text-primary"
+                                : "text-muted-foreground"
+                            }`}
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                            />
+                          </svg>
+                        </div>
+                        <span
+                          className={`text-sm truncate ${
+                            isSelected
+                              ? "text-foreground font-medium"
+                              : "text-foreground/80"
+                          }`}
+                        >
+                          {suggestion.suggestion}
+                        </span>
+                      </div>
                       <span
-                        className={`text-xs px-2 py-1 rounded-full ${badge.color}`}
+                        className={`text-xs px-2.5 py-1 rounded-lg font-medium flex-shrink-0 ${badge.color}`}
                       >
                         {badge.label}
                       </span>
@@ -314,6 +367,30 @@ export function SearchInput({
               })}
             </ul>
           )}
+
+          {/* Keyboard hint */}
+          <div className="px-5 py-3 border-t border-border/50 flex items-center justify-between text-xs text-muted-foreground">
+            <div className="flex items-center gap-4">
+              <span className="flex items-center gap-1">
+                <kbd className="px-1.5 py-0.5 bg-muted rounded text-[10px] font-mono">
+                  ↑↓
+                </kbd>
+                navigate
+              </span>
+              <span className="flex items-center gap-1">
+                <kbd className="px-1.5 py-0.5 bg-muted rounded text-[10px] font-mono">
+                  ↵
+                </kbd>
+                select
+              </span>
+            </div>
+            <span className="flex items-center gap-1">
+              <kbd className="px-1.5 py-0.5 bg-muted rounded text-[10px] font-mono">
+                esc
+              </kbd>
+              close
+            </span>
+          </div>
         </div>
       )}
     </div>

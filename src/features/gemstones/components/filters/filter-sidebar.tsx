@@ -9,11 +9,15 @@ import {
   SheetBody,
   SheetContent,
   SheetHeader,
-  SheetTitle,
 } from "@/shared/components/ui/sheet";
 import { useEffect, useState } from "react";
 
-import { AdjustmentsHorizontalIcon } from "@heroicons/react/24/outline";
+import {
+  AdjustmentsHorizontalIcon,
+  SparklesIcon,
+  Squares2X2Icon,
+  ListBulletIcon,
+} from "@heroicons/react/24/outline";
 import { AdvancedFiltersControlled } from "./advanced-filters-controlled";
 import { AdvancedFiltersV2Controlled } from "./advanced-filters-v2-controlled";
 import { useTranslations } from "next-intl";
@@ -110,6 +114,7 @@ export function FilterSidebar({
     if (filters.hasColorChange) count++;
     if (filters.hasCertification) count++;
     if (filters.hasImages) count++;
+    if (filters.hasAIAnalysis) count++;
     return count;
   };
 
@@ -117,102 +122,126 @@ export function FilterSidebar({
 
   return (
     <>
-      {/* Filter Toggle Button (Mobile FAB or Desktop Corner Button) */}
+      {/* Premium Filter Toggle Button */}
       {!isOpen && (
-        <div className="fixed bottom-4 right-4 z-40">
+        <div className="fixed bottom-6 right-6 z-40">
           <button
             onClick={() => setIsOpen(true)}
-            className={`flex items-center space-x-2 px-4 py-3 bg-primary text-primary-foreground rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 ${
-              isMobile ? "" : "rounded-lg"
-            }`}
+            className="group flex items-center gap-3 px-5 py-3.5 bg-gradient-to-r from-primary to-primary/90 text-primary-foreground rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5"
             aria-label={t("sidebar.openFilters")}
           >
-            <AdjustmentsHorizontalIcon className="w-5 h-5" />
-            <span
-              className={`font-medium ${isMobile ? "" : "hidden sm:inline"}`}
-            >
+            <div className="relative">
+              <AdjustmentsHorizontalIcon className="w-5 h-5" />
+              {activeFilterCount > 0 && (
+                <span className="absolute -top-2 -right-2 w-5 h-5 bg-white text-primary rounded-full text-xs font-bold flex items-center justify-center shadow-sm">
+                  {activeFilterCount}
+                </span>
+              )}
+            </div>
+            <span className="font-semibold tracking-wide">
               {t("sidebar.filtersSidebar")}
             </span>
-            {activeFilterCount > 0 && (
-              <span className="ml-1 px-2 py-0.5 bg-primary-foreground text-primary rounded-full text-xs font-bold">
-                {activeFilterCount}
-              </span>
-            )}
+            <SparklesIcon className="w-4 h-4 opacity-60 group-hover:opacity-100 transition-opacity" />
           </button>
         </div>
       )}
 
-      {/* Desktop Sidebar or Mobile Bottom Sheet */}
+      {/* Premium Desktop Sidebar or Mobile Bottom Sheet */}
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetContent
           side={isMobile ? "bottom" : "right"}
-          className="p-0 w-full sm:w-[400px] pt-16 sm:pt-0"
+          className="p-0 w-full sm:w-[420px] pt-16 sm:pt-0 flex flex-col"
+          showClose={false}
         >
-          {/* Header */}
-          <SheetHeader className="sticky top-0 z-10 bg-background border-b border-border">
-            <div className="space-y-4">
+          {/* Premium Header */}
+          <SheetHeader className="sticky top-0 z-10 bg-gradient-to-b from-background via-background to-background/95 backdrop-blur-sm border-b border-border/50 !py-5 !px-6">
+            <div className="space-y-5">
+              {/* Title Row */}
               <div className="flex items-center justify-between">
-                <SheetTitle className="text-xl font-bold">
-                  {t("sidebar.filtersSidebar")}
-                  {activeFilterCount > 0 && (
-                    <span className="ml-2 text-sm font-normal text-muted-foreground">
-                      ({activeFilterCount})
-                    </span>
-                  )}
-                </SheetTitle>
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-xl bg-primary/10">
+                    <SparklesIcon className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-semibold tracking-tight">
+                      {t("advancedV2.title")}
+                    </h2>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {t("advancedV2.subtitle")}
+                    </p>
+                  </div>
+                </div>
 
-                {/* Mobile Close Button */}
-                {isMobile && (
-                  <button
-                    onClick={() => setIsOpen(false)}
-                    className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted"
-                    aria-label="Close filters"
+                {/* Close Button */}
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-xl hover:bg-muted/80"
+                  aria-label="Close filters"
+                >
+                  <svg
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="2"
+                    stroke="currentColor"
                   >
-                    <svg
-                      className="h-6 w-6"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth="1.5"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                  </button>
-                )}
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
               </div>
 
-              {/* Mode Toggle */}
-              <div className="inline-flex rounded-lg border border-border bg-muted p-1 w-full">
-                <button
-                  onClick={() => setMode("standard")}
-                  className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    mode === "standard"
-                      ? "bg-background text-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  {tCatalog("standardFilters")}
-                </button>
+              {/* Active Filters Badge */}
+              {activeFilterCount > 0 && (
+                <div className="flex items-center justify-between py-2 px-3 bg-primary/5 rounded-xl border border-primary/10">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                    <span className="text-sm font-medium text-primary">
+                      {activeFilterCount} {activeFilterCount === 1 ? 'filter' : 'filters'} active
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => onChange({})}
+                    className="text-xs font-medium text-muted-foreground hover:text-destructive transition-colors"
+                  >
+                    Clear all
+                  </button>
+                </div>
+              )}
+
+              {/* Premium Mode Toggle */}
+              <div className="flex rounded-xl bg-muted/50 p-1 gap-1">
                 <button
                   onClick={() => setMode("visual")}
-                  className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
                     mode === "visual"
-                      ? "bg-background text-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground"
+                      ? "bg-background text-foreground shadow-sm ring-1 ring-border/50"
+                      : "text-muted-foreground hover:text-foreground hover:bg-background/50"
                   }`}
                 >
-                  {tCatalog("visualFilters")}
+                  <Squares2X2Icon className="w-4 h-4" />
+                  <span>{tCatalog("visualFilters")}</span>
+                </button>
+                <button
+                  onClick={() => setMode("standard")}
+                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    mode === "standard"
+                      ? "bg-background text-foreground shadow-sm ring-1 ring-border/50"
+                      : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+                  }`}
+                >
+                  <ListBulletIcon className="w-4 h-4" />
+                  <span>{tCatalog("standardFilters")}</span>
                 </button>
               </div>
             </div>
           </SheetHeader>
 
-          {/* Filter Content */}
-          <SheetBody className="overflow-y-auto h-full pb-20">
+          {/* Filter Content with Premium Styling */}
+          <SheetBody className="flex-1 overflow-y-auto !px-5 !py-4 pb-24">
             {mode === "visual" ? (
               <AdvancedFiltersV2Controlled
                 filters={filters}
@@ -230,21 +259,26 @@ export function FilterSidebar({
             )}
           </SheetBody>
 
-          {/* Mobile Action Buttons */}
+          {/* Premium Mobile Action Buttons */}
           {isMobile && (
-            <div className="sticky bottom-0 bg-background border-t border-border p-4 space-y-3">
+            <div className="sticky bottom-0 bg-gradient-to-t from-background via-background to-background/95 backdrop-blur-sm border-t border-border/50 p-5">
               <div className="flex gap-3">
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="flex-1 px-4 py-3 bg-muted text-muted-foreground hover:text-foreground rounded-lg font-medium transition-colors"
+                  className="flex-1 px-5 py-3.5 bg-muted/80 text-muted-foreground hover:text-foreground rounded-xl font-medium transition-all duration-200 hover:bg-muted"
                 >
                   {t("sidebar.cancel")}
                 </button>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="flex-1 px-4 py-3 bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg font-medium transition-colors"
+                  className="flex-1 px-5 py-3.5 bg-gradient-to-r from-primary to-primary/90 text-primary-foreground rounded-xl font-medium transition-all duration-200 hover:shadow-lg hover:scale-[1.02]"
                 >
                   {t("sidebar.apply")}
+                  {activeFilterCount > 0 && (
+                    <span className="ml-2 px-2 py-0.5 bg-white/20 rounded-md text-xs">
+                      {activeFilterCount}
+                    </span>
+                  )}
                 </button>
               </div>
             </div>
