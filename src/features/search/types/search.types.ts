@@ -41,11 +41,27 @@ export interface SearchFilters {
   clarities?: string[];
   origins?: string[];
 
+  // Professional filters (FILTER-C3.2)
+  treatmentStatus?: string[];
+  miningCountries?: string[];
+  qualityClassifications?: string[];
+
   // Boolean filters
   inStockOnly?: boolean;
   hasImages?: boolean;
   hasCertification?: boolean;
   hasAIAnalysis?: boolean;
+  hasColorChange?: boolean;
+
+  // Dimension filters (FILTER-C3.2)
+  minLength?: number;
+  maxLength?: number;
+  minWidth?: number;
+  maxWidth?: number;
+
+  // Price per carat filter (FILTER-C3.2)
+  minPricePerCarat?: number;
+  maxPricePerCarat?: number;
 }
 
 /**

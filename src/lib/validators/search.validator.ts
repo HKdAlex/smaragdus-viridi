@@ -40,11 +40,27 @@ export const searchQuerySchema = z.object({
       clarities: z.array(z.string()).optional(),
       origins: z.array(z.string()).optional(),
 
+      // Professional filters (FILTER-C3.2)
+      treatmentStatus: z.array(z.string()).optional(),
+      miningCountries: z.array(z.string()).optional(),
+      qualityClassifications: z.array(z.string()).optional(),
+
       // Boolean filters
       inStockOnly: z.coerce.boolean().optional(),
       hasImages: z.coerce.boolean().optional(),
       hasCertification: z.coerce.boolean().optional(),
       hasAIAnalysis: z.coerce.boolean().optional(),
+      hasColorChange: z.coerce.boolean().optional(),
+
+      // Dimension filters (FILTER-C3.2)
+      minLength: z.coerce.number().min(0).optional(),
+      maxLength: z.coerce.number().min(0).optional(),
+      minWidth: z.coerce.number().min(0).optional(),
+      maxWidth: z.coerce.number().min(0).optional(),
+
+      // Price per carat filter (FILTER-C3.2)
+      minPricePerCarat: z.coerce.number().min(0).optional(),
+      maxPricePerCarat: z.coerce.number().min(0).optional(),
     })
     .optional()
     .default({}),
@@ -153,6 +169,17 @@ export function parseSearchQuery(searchParams: URLSearchParams): SearchQuery {
   const origins = searchParams.get("origins");
   if (origins) filters.origins = origins.split(",");
 
+  // Parse professional filters (FILTER-C3.2)
+  const treatmentStatus = searchParams.get("treatmentStatus");
+  if (treatmentStatus) filters.treatmentStatus = treatmentStatus.split(",");
+
+  const miningCountries = searchParams.get("miningCountries");
+  if (miningCountries) filters.miningCountries = miningCountries.split(",");
+
+  const qualityClassifications = searchParams.get("qualityClassifications");
+  if (qualityClassifications)
+    filters.qualityClassifications = qualityClassifications.split(",");
+
   // Parse boolean filters
   const inStockOnly = searchParams.get("inStockOnly");
   if (inStockOnly) filters.inStockOnly = inStockOnly === "true";
@@ -165,6 +192,26 @@ export function parseSearchQuery(searchParams: URLSearchParams): SearchQuery {
 
   const hasAIAnalysis = searchParams.get("hasAIAnalysis");
   if (hasAIAnalysis) filters.hasAIAnalysis = hasAIAnalysis === "true";
+
+  const hasColorChange = searchParams.get("hasColorChange");
+  if (hasColorChange) filters.hasColorChange = hasColorChange === "true";
+
+  // Parse dimension filters (FILTER-C3.2)
+  const minLength = searchParams.get("minLength");
+  const maxLength = searchParams.get("maxLength");
+  if (minLength) filters.minLength = Number(minLength);
+  if (maxLength) filters.maxLength = Number(maxLength);
+
+  const minWidth = searchParams.get("minWidth");
+  const maxWidth = searchParams.get("maxWidth");
+  if (minWidth) filters.minWidth = Number(minWidth);
+  if (maxWidth) filters.maxWidth = Number(maxWidth);
+
+  // Parse price per carat filter (FILTER-C3.2)
+  const minPricePerCarat = searchParams.get("minPricePerCarat");
+  const maxPricePerCarat = searchParams.get("maxPricePerCarat");
+  if (minPricePerCarat) filters.minPricePerCarat = Number(minPricePerCarat);
+  if (maxPricePerCarat) filters.maxPricePerCarat = Number(maxPricePerCarat);
 
   return {
     query: searchParams.get("query") || undefined,

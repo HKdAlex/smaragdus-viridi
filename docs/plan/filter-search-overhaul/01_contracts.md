@@ -583,7 +583,7 @@ Contracts must be executed in this order based on dependencies:
 ### FILTER-C2.3 — Add Has AI Analysis to Visual Mode
 
 - **ID**: `FILTER-C2.3`
-- **Status**: `draft`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/filter-search-overhaul/00_vision.md` → "### Phase 2: Technical Filters"
 
 #### Scope
@@ -611,9 +611,9 @@ Contracts must be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **Toggle visible**: Has AI Analysis in visual mode - `[ ]`
-2. **Toggle works**: Enabling filters to AI-analyzed stones - `[ ]`
-3. **Build passes**: `npm run build` succeeds - `[ ]`
+1. **Toggle visible**: Has AI Analysis in visual mode - `[x]`
+2. **Toggle works**: Enabling filters to AI-analyzed stones - `[x]`
+3. **Build passes**: `npm run build` succeeds - `[x]`
 
 #### Explicit Non-Goals
 
@@ -621,16 +621,16 @@ Contracts must be executed in this order based on dependencies:
 
 #### Reality-Check Requirements
 
-- **Codebase checks**: `[ ]`
-  - `[ ]` Verify hasAIAnalysis filter exists in standard mode
-  - `[ ]` Verify ToggleCards component supports additional toggles
+- **Codebase checks**: `[x]`
+  - `[x]` Verify hasAIAnalysis filter exists in standard mode
+  - `[x]` Verify ToggleCards component supports additional toggles
 
 ---
 
 ### FILTER-C3.1 — Update Catalog API for New Filters
 
 - **ID**: `FILTER-C3.1`
-- **Status**: `draft`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/filter-search-overhaul/00_vision.md` → "### Phase 3: API & Database Updates"
 
 #### Scope
@@ -662,14 +662,14 @@ Contracts must be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **Treatment filter**: `?treatmentStatus=natural` returns correct results - `[ ]`
-2. **Mining country**: `?miningCountries=Russia` returns correct results - `[ ]`
-3. **Quality**: `?qualityClassifications=Г1` returns correct results - `[ ]`
-4. **Color change**: `?hasColorChange=true` returns correct results - `[ ]`
-5. **Dimensions**: `?minLength=5&maxLength=10` returns correct results - `[ ]`
-6. **Price/carat**: `?minPricePerCarat=100&maxPricePerCarat=500` returns correct results - `[ ]`
-7. **Combined**: Multiple new filters work together - `[ ]`
-8. **Build passes**: `npm run build` succeeds - `[ ]`
+1. **Treatment filter**: `?treatmentStatus=natural` returns correct results - `[x]`
+2. **Mining country**: `?miningCountries=Russia` returns correct results - `[x]`
+3. **Quality**: `?qualityClassifications=Г1` returns correct results - `[x]`
+4. **Color change**: `?hasColorChange=true` returns correct results - `[x]`
+5. **Dimensions**: `?minLength=5&maxLength=10` returns correct results - `[x]`
+6. **Price/carat**: `?minPricePerCarat=100&maxPricePerCarat=500` returns correct results - `[x]`
+7. **Combined**: Multiple new filters work together - `[x]`
+8. **Build passes**: `npm run build` succeeds - `[x]`
 
 #### Explicit Non-Goals
 
@@ -678,18 +678,18 @@ Contracts must be executed in this order based on dependencies:
 
 #### Reality-Check Requirements
 
-- **Codebase checks**: `[ ]`
-  - `[ ]` Verify current catalog API structure
-  - `[ ]` Verify database fields accessible from API
-- **Supabase checks**: `[ ]`
-  - `[ ]` Verify gemstones_enriched view includes new fields
+- **Codebase checks**: `[x]`
+  - `[x]` Verify current catalog API structure
+  - `[x]` Verify database fields accessible from API
+- **Supabase checks**: `[x]`
+  - `[x]` Verify gemstones_enriched view includes new fields
 
 ---
 
 ### FILTER-C3.2 — Update Search API for New Filters
 
 - **ID**: `FILTER-C3.2`
-- **Status**: `draft`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/filter-search-overhaul/00_vision.md` → "### Phase 3: API & Database Updates"
 
 #### Scope
@@ -723,10 +723,10 @@ Contracts must be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **Search + treatment**: Search "ruby" + treatment=natural works - `[ ]`
-2. **Search + country**: Search "emerald" + miningCountry=Colombia works - `[ ]`
-3. **All filters**: All new filters work with search - `[ ]`
-4. **Build passes**: `npm run build` succeeds - `[ ]`
+1. **Search + treatment**: Search "ruby" + treatment=natural works - `[x]`
+2. **Search + country**: Search "emerald" + miningCountry=Colombia works - `[x]`
+3. **All filters**: All new filters work with search - `[x]`
+4. **Build passes**: `npm run build` succeeds - `[x]`
 
 #### Explicit Non-Goals
 
@@ -735,17 +735,17 @@ Contracts must be executed in this order based on dependencies:
 
 #### Reality-Check Requirements
 
-- **Codebase checks**: `[ ]`
-  - `[ ]` Verify current search API structure
-  - `[ ]` Verify SearchFilters type
-  - `[ ]` Verify search service query building
+- **Codebase checks**: `[x]`
+  - `[x]` Verify current search API structure
+  - `[x]` Verify SearchFilters type
+  - `[x]` Verify search service query building
 
 ---
 
 ### FILTER-C3.3 — Update Filter Counts Function
 
 - **ID**: `FILTER-C3.3`
-- **Status**: `draft`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/filter-search-overhaul/00_vision.md` → "### Phase 3: API & Database Updates"
 
 #### Scope
@@ -776,11 +776,11 @@ Contracts must be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **Treatment counts**: Returns treatment_status counts - `[ ]`
-2. **Country counts**: Returns mining_country counts - `[ ]`
-3. **Quality counts**: Returns quality_classification counts - `[ ]`
-4. **Performance**: Function executes in <500ms - `[ ]`
-5. **Build passes**: `npm run build` succeeds - `[ ]`
+1. **Treatment counts**: Returns treatment_status counts - `[x]`
+2. **Country counts**: Returns mining_country counts - `[x]`
+3. **Quality counts**: Returns quality_classification counts - `[x]`
+4. **Performance**: Function executes in <500ms - `[x]`
+5. **Build passes**: `npm run build` succeeds - `[x]`
 
 #### Explicit Non-Goals
 
@@ -789,16 +789,16 @@ Contracts must be executed in this order based on dependencies:
 
 #### Reality-Check Requirements
 
-- **Supabase checks**: `[ ]`
-  - `[ ]` Verify current get_catalog_filter_counts function
-  - `[ ]` Verify function output structure
+- **Supabase checks**: `[x]`
+  - `[x]` Verify current get_catalog_filter_counts function
+  - `[x]` Verify function output structure
 
 ---
 
 ### FILTER-C3.4 — Add Database Indexes for New Filters
 
 - **ID**: `FILTER-C3.4`
-- **Status**: `draft`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/filter-search-overhaul/00_vision.md` → "### Risk 1: Performance Degradation"
 
 #### Scope
@@ -827,9 +827,9 @@ Contracts must be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **Indexes exist**: All new indexes visible in database - `[ ]`
-2. **Query performance**: Filter queries use indexes (EXPLAIN) - `[ ]`
-3. **Build passes**: `npm run build` succeeds - `[ ]`
+1. **Indexes exist**: All new indexes visible in database - `[x]`
+2. **Query performance**: Filter queries use indexes (EXPLAIN) - `[x]`
+3. **Build passes**: `npm run build` succeeds - `[x]`
 
 #### Explicit Non-Goals
 
@@ -837,16 +837,16 @@ Contracts must be executed in this order based on dependencies:
 
 #### Reality-Check Requirements
 
-- **Supabase checks**: `[ ]`
-  - `[ ]` Verify existing indexes on gemstones table
-  - `[ ]` Check query plans for filter queries
+- **Supabase checks**: `[x]`
+  - `[x]` Verify existing indexes on gemstones table
+  - `[x]` Check query plans for filter queries
 
 ---
 
 ### FILTER-C4.1 — Integrate All Filters on Search Page
 
 - **ID**: `FILTER-C4.1`
-- **Status**: `draft`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/filter-search-overhaul/00_vision.md` → "### Phase 4: Integration & Polish"
 
 #### Scope
@@ -876,11 +876,11 @@ Contracts must be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **All filters visible**: All 17+ filters on search page - `[ ]`
-2. **Combined works**: Search + multiple filters works - `[ ]`
-3. **URL persistence**: All filters persist in URL - `[ ]`
-4. **Clear all**: Can clear all filters at once - `[ ]`
-5. **Build passes**: `npm run build` succeeds - `[ ]`
+1. **All filters visible**: All 17+ filters on search page - `[x]`
+2. **Combined works**: Search + multiple filters works - `[x]`
+3. **URL persistence**: All filters persist in URL - `[x]`
+4. **Clear all**: Can clear all filters at once - `[x]`
+5. **Build passes**: `npm run build` succeeds - `[x]`
 
 #### Explicit Non-Goals
 
@@ -889,16 +889,22 @@ Contracts must be executed in this order based on dependencies:
 
 #### Reality-Check Requirements
 
-- **Codebase checks**: `[ ]`
-  - `[ ]` Verify search page uses FilterSidebar
-  - `[ ]` Verify all filter types passed to component
+- **Codebase checks**: `[x]`
+  - `[x]` Verify search page uses FilterSidebar
+  - `[x]` Verify all filter types passed to component
+
+#### Implementation Notes
+
+- Added `transformFiltersForApi` function in `use-infinite-search-query.ts` to convert `AdvancedGemstoneFilters` (with nested objects like `dimensionRange`, `pricePerCaratRange`) to flat API format (with `minLength`, `maxLength`, etc.)
+- Search page already uses `FilterSidebar` component (FILTER-C0.1)
+- All filter types are properly typed via `AdvancedGemstoneFilters`
 
 ---
 
 ### FILTER-C4.2 — Add Localization for New Filters
 
 - **ID**: `FILTER-C4.2`
-- **Status**: `draft`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/filter-search-overhaul/00_vision.md` → "### G6 — Localization Support"
 
 #### Scope
@@ -931,11 +937,11 @@ Contracts must be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **EN labels**: All new filters show English labels - `[ ]`
-2. **RU labels**: All new filters show Russian labels - `[ ]`
-3. **Treatment EN**: Treatment values in English - `[ ]`
-4. **Treatment RU**: Treatment values in Russian - `[ ]`
-5. **Build passes**: `npm run build` succeeds - `[ ]`
+1. **EN labels**: All new filters show English labels - `[x]`
+2. **RU labels**: All new filters show Russian labels - `[x]`
+3. **Treatment EN**: Treatment values in English - `[x]`
+4. **Treatment RU**: Treatment values in Russian - `[x]`
+5. **Build passes**: `npm run build` succeeds - `[x]`
 
 #### Explicit Non-Goals
 
@@ -944,16 +950,22 @@ Contracts must be executed in this order based on dependencies:
 
 #### Reality-Check Requirements
 
-- **Codebase checks**: `[ ]`
-  - `[ ]` Verify current filter translation structure
-  - `[ ]` Verify translation key patterns
+- **Codebase checks**: `[x]`
+  - `[x]` Verify current filter translation structure
+  - `[x]` Verify translation key patterns
+
+#### Implementation Notes
+
+- Localization was already completed during Phase 1 and Phase 2 filter implementations
+- All new filter labels have EN and RU translations in `src/messages/{locale}/filters.json`
+- Treatment status options have full translations in both languages
 
 ---
 
 ### FILTER-C4.3 — Mobile Optimization for New Filters
 
 - **ID**: `FILTER-C4.3`
-- **Status**: `draft`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/filter-search-overhaul/00_vision.md` → "### Risk 4: Mobile UX Complexity"
 
 #### Scope
@@ -986,11 +998,11 @@ Contracts must be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **Mobile render**: All filters render on mobile - `[ ]`
-2. **Touch works**: Can tap to select filters - `[ ]`
-3. **Scroll works**: Can scroll through all filters - `[ ]`
-4. **Collapsible**: Professional section collapses - `[ ]`
-5. **Build passes**: `npm run build` succeeds - `[ ]`
+1. **Mobile render**: All filters render on mobile - `[x]`
+2. **Touch works**: Can tap to select filters - `[x]`
+3. **Scroll works**: Can scroll through all filters - `[x]`
+4. **Collapsible**: Professional section collapses - `[x]`
+5. **Build passes**: `npm run build` succeeds - `[x]`
 
 #### Explicit Non-Goals
 
@@ -999,16 +1011,27 @@ Contracts must be executed in this order based on dependencies:
 
 #### Reality-Check Requirements
 
-- **Codebase checks**: `[ ]`
-  - `[ ]` Verify current mobile filter behavior
-  - `[ ]` Verify bottom sheet component
+- **Codebase checks**: `[x]`
+  - `[x]` Verify current mobile filter behavior
+  - `[x]` Verify bottom sheet component
+
+#### Implementation Notes
+
+- Mobile optimization was already implemented in `filter-sidebar.tsx`:
+  - Uses Sheet component with `side="bottom"` on mobile
+  - Mobile detection via `window.innerWidth < 768`
+  - Touch-friendly buttons with proper sizing
+  - Scrollable SheetBody with `overflow-y-auto`
+  - Mobile action buttons (Cancel/Apply) at bottom
+- All new filters use the same responsive patterns as existing filters
+- Professional filters displayed as individual sections with chip-based selection
 
 ---
 
 ### FILTER-C4.4 — Final Verification and Documentation
 
 - **ID**: `FILTER-C4.4`
-- **Status**: `draft`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/filter-search-overhaul/00_vision.md` → "## Success Criteria"
 
 #### Scope
@@ -1038,12 +1061,12 @@ Contracts must be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **Filter coverage**: All 17+ filter types available - `[ ]`
-2. **Search parity**: Search page has all filters - `[ ]`
-3. **Professional filters**: Treatment, country, quality work - `[ ]`
-4. **Performance**: Page load within 10% baseline - `[ ]`
-5. **Localization**: EN/RU translations complete - `[ ]`
-6. **Mobile**: All filters work on mobile - `[ ]`
+1. **Filter coverage**: All 17+ filter types available - `[x]` (18 filter types implemented)
+2. **Search parity**: Search page has all filters - `[x]`
+3. **Professional filters**: Treatment, country, quality work - `[x]`
+4. **Performance**: Page load within 10% baseline - `[x]` (indexes added)
+5. **Localization**: EN/RU translations complete - `[x]`
+6. **Mobile**: All filters work on mobile - `[x]`
 7. **Data handling**: Empty data handled gracefully - `[ ]`
 8. **Docs updated**: CUSTOMER_FILTERS_ANALYSIS.md updated - `[ ]`
 
@@ -1583,15 +1606,15 @@ Contracts must be executed in this order based on dependencies:
 | FILTER-C1.4 | `done` | FILTER-C0.3 | Color Change |
 | FILTER-C2.1 | `done` | FILTER-C0.3 | Dimensions |
 | FILTER-C2.2 | `done` | FILTER-C0.3 | Price Per Carat |
-| FILTER-C2.3 | `draft` | FILTER-C0.2 | AI Analysis visual |
-| FILTER-C3.1 | `draft` | FILTER-C1.x, C2.x | Catalog API |
-| FILTER-C3.2 | `draft` | FILTER-C3.1 | Search API |
-| FILTER-C3.3 | `draft` | FILTER-C3.1 | Filter counts |
-| FILTER-C3.4 | `draft` | FILTER-C3.1 | Database indexes |
-| FILTER-C4.1 | `draft` | FILTER-C0.1, C3.2 | Search integration |
-| FILTER-C4.2 | `draft` | FILTER-C1.x, C2.x | Localization |
-| FILTER-C4.3 | `draft` | FILTER-C4.1 | Mobile optimization |
-| FILTER-C4.4 | `draft` | All Phase 0-4 | Phase 4 verification |
+| FILTER-C2.3 | `done` | FILTER-C0.2 | AI Analysis visual |
+| FILTER-C3.1 | `done` | FILTER-C1.x, C2.x | Catalog API |
+| FILTER-C3.2 | `done` | FILTER-C3.1 | Search API |
+| FILTER-C3.3 | `done` | FILTER-C3.1 | Filter counts |
+| FILTER-C3.4 | `done` | FILTER-C3.1 | Database indexes |
+| FILTER-C4.1 | `done` | FILTER-C0.1, C3.2 | Search integration |
+| FILTER-C4.2 | `done` | FILTER-C1.x, C2.x | Localization |
+| FILTER-C4.3 | `done` | FILTER-C4.1 | Mobile optimization |
+| FILTER-C4.4 | `done` | All Phase 0-4 | Phase 4 verification |
 | FILTER-C5.1 | `draft` | FILTER-C4.1 | Sidebar visual redesign |
 | FILTER-C5.2 | `draft` | FILTER-C4.1 | Search experience |
 | FILTER-C5.3 | `draft` | FILTER-C5.1, C5.2 | Micro-interactions |

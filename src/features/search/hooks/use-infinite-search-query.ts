@@ -36,6 +36,60 @@ export interface SearchResponse {
 }
 
 /**
+ * Transform AdvancedGemstoneFilters to API-compatible format
+ * FILTER-C4.1: Ensures all filter types are properly mapped to API
+ */
+function transformFiltersForApi(filters: AdvancedGemstoneFilters): Record<string, unknown> {
+  const apiFilters: Record<string, unknown> = {};
+
+  // Array filters (direct mapping)
+  if (filters.gemstoneTypes?.length) apiFilters.gemstoneTypes = filters.gemstoneTypes;
+  if (filters.colors?.length) apiFilters.colors = filters.colors;
+  if (filters.cuts?.length) apiFilters.cuts = filters.cuts;
+  if (filters.clarities?.length) apiFilters.clarities = filters.clarities;
+  if (filters.origins?.length) apiFilters.origins = filters.origins;
+
+  // Professional filters (direct mapping)
+  if (filters.treatmentStatus?.length) apiFilters.treatmentStatus = filters.treatmentStatus;
+  if (filters.miningCountries?.length) apiFilters.miningCountries = filters.miningCountries;
+  if (filters.qualityClassifications?.length) apiFilters.qualityClassifications = filters.qualityClassifications;
+
+  // Boolean filters
+  if (filters.inStockOnly !== undefined) apiFilters.inStockOnly = filters.inStockOnly;
+  if (filters.hasCertification !== undefined) apiFilters.hasCertification = filters.hasCertification;
+  if (filters.hasImages !== undefined) apiFilters.hasImages = filters.hasImages;
+  if (filters.hasAIAnalysis !== undefined) apiFilters.hasAIAnalysis = filters.hasAIAnalysis;
+  if (filters.hasColorChange !== undefined) apiFilters.hasColorChange = filters.hasColorChange;
+
+  // Range filters (flatten nested objects)
+  if (filters.priceRange) {
+    apiFilters.minPrice = filters.priceRange.min;
+    apiFilters.maxPrice = filters.priceRange.max;
+  }
+
+  if (filters.weightRange) {
+    apiFilters.minWeight = filters.weightRange.min;
+    apiFilters.maxWeight = filters.weightRange.max;
+  }
+
+  // Dimension range (flatten nested object)
+  if (filters.dimensionRange) {
+    if (filters.dimensionRange.minLength !== undefined) apiFilters.minLength = filters.dimensionRange.minLength;
+    if (filters.dimensionRange.maxLength !== undefined) apiFilters.maxLength = filters.dimensionRange.maxLength;
+    if (filters.dimensionRange.minWidth !== undefined) apiFilters.minWidth = filters.dimensionRange.minWidth;
+    if (filters.dimensionRange.maxWidth !== undefined) apiFilters.maxWidth = filters.dimensionRange.maxWidth;
+  }
+
+  // Price per carat range (flatten nested object)
+  if (filters.pricePerCaratRange) {
+    apiFilters.minPricePerCarat = filters.pricePerCaratRange.min;
+    apiFilters.maxPricePerCarat = filters.pricePerCaratRange.max;
+  }
+
+  return apiFilters;
+}
+
+/**
  * Fetch search results from API
  */
 async function fetchSearchResults(
@@ -50,6 +104,9 @@ async function fetchSearchResults(
     searchDescriptions = false,
   } = params;
 
+  // Transform filters to API-compatible format
+  const apiFilters = transformFiltersForApi(filters);
+
   const response = await fetch("/api/search", {
     method: "POST",
     headers: {
@@ -59,7 +116,7 @@ async function fetchSearchResults(
       query,
       page,
       pageSize,
-      filters,
+      filters: apiFilters,
       locale,
       searchDescriptions,
     }),
