@@ -1225,7 +1225,7 @@ Contracts must be executed in this order based on dependencies:
 ### FILTER-C5.3 — Micro-interactions and Animations
 
 - **ID**: `FILTER-C5.3`
-- **Status**: `draft`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/filter-search-overhaul/00_vision.md` → "### Micro-interactions & Animations"
 
 #### Scope
@@ -1265,15 +1265,15 @@ Contracts must be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **Hover effects**: Filter options respond to hover - `[ ]`
-2. **Selection animation**: Smooth check/uncheck - `[ ]`
-3. **Count animation**: Badge numbers animate on change - `[ ]`
-4. **Panel transitions**: Smooth open/close - `[ ]`
-5. **Card entrance**: Staggered animation on load - `[ ]`
-6. **Results fade**: Smooth transition on filter change - `[ ]`
-7. **Reduced motion**: Animations disabled when preferred - `[ ]`
-8. **Performance**: No jank or frame drops - `[ ]`
-9. **Build passes**: `npm run build` succeeds - `[ ]`
+1. **Hover effects**: Filter options respond to hover - `[x]`
+2. **Selection animation**: Smooth check/uncheck - `[x]`
+3. **Count animation**: Badge numbers animate on change - `[x]` (pulse animation in sidebar)
+4. **Panel transitions**: Smooth open/close - `[x]` (Sheet component)
+5. **Card entrance**: Staggered animation on load - `[x]`
+6. **Results fade**: Smooth transition on filter change - `[x]`
+7. **Reduced motion**: Animations disabled when preferred - `[x]`
+8. **Performance**: No jank or frame drops - `[x]` (GPU-accelerated transforms)
+9. **Build passes**: `npm run build` succeeds - `[x]`
 
 #### Explicit Non-Goals
 
@@ -1292,7 +1292,7 @@ Contracts must be executed in this order based on dependencies:
 ### FILTER-C5.4 — Active Filters Chips and Feedback
 
 - **ID**: `FILTER-C5.4`
-- **Status**: `draft`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/filter-search-overhaul/00_vision.md` → "## UX/UI Design Vision"
 
 #### Scope
@@ -1330,13 +1330,13 @@ Contracts must be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **Chips display**: Active filters shown as pills - `[ ]`
-2. **Remove works**: Clicking X removes filter - `[ ]`
-3. **Animation**: Smooth remove animation - `[ ]`
-4. **Color coding**: Different colors per category - `[ ]`
-5. **Clear all**: Button clears all filters - `[ ]`
-6. **Sync**: Chips sync with sidebar state - `[ ]`
-7. **Build passes**: `npm run build` succeeds - `[ ]`
+1. **Chips display**: Active filters shown as pills - `[x]`
+2. **Remove works**: Clicking X removes filter - `[x]`
+3. **Animation**: Smooth remove animation - `[x]`
+4. **Color coding**: Different colors per category - `[x]`
+5. **Clear all**: Button clears all filters - `[x]`
+6. **Sync**: Chips sync with sidebar state - `[x]`
+7. **Build passes**: `npm run build` succeeds - `[x]`
 
 #### Explicit Non-Goals
 
@@ -1629,8 +1629,8 @@ Contracts must be executed in this order based on dependencies:
 | FILTER-C4.4 | `done` | All Phase 0-4 | Phase 4 verification |
 | FILTER-C5.1 | `done` | FILTER-C4.1 | Sidebar visual redesign |
 | FILTER-C5.2 | `done` | FILTER-C4.1 | Search experience |
-| FILTER-C5.3 | `draft` | FILTER-C5.1, C5.2 | Micro-interactions |
-| FILTER-C5.4 | `draft` | FILTER-C5.1 | Active filter chips |
+| FILTER-C5.3 | `done` | FILTER-C5.1, C5.2 | Micro-interactions |
+| FILTER-C5.4 | `done` | FILTER-C5.1 | Active filter chips |
 | FILTER-C5.5 | `draft` | FILTER-C5.1 | Loading/empty states |
 | FILTER-C5.6 | `draft` | FILTER-C5.2 | Results display |
 | FILTER-C5.7 | `draft` | FILTER-C5.1-C5.6 | Accessibility |

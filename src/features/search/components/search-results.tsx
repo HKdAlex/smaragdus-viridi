@@ -11,6 +11,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
 import type { CatalogGemstone } from "@/features/gemstones/services/gemstone-fetch.service";
+import type { AdvancedGemstoneFilters } from "@/features/gemstones/types/filter.types";
+import { ActiveFilterChips } from "@/features/gemstones/components/filters/active-filter-chips";
 import { DescriptionSearchToggle } from "./description-search-toggle";
 import { EmptyState } from "@/features/gemstones/components/empty-state";
 import { FilterSidebar } from "@/features/gemstones/components/filters/filter-sidebar";
@@ -152,6 +154,43 @@ export function SearchResults() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  // Handle removing a single filter (FILTER-C5.4)
+  const handleRemoveFilter = (
+    filterKey: keyof AdvancedGemstoneFilters,
+    value?: string
+  ) => {
+    const newFilters = { ...filters };
+
+    // Handle array filters (remove specific value)
+    if (value !== undefined) {
+      const arrayKey = filterKey as keyof Pick<
+        AdvancedGemstoneFilters,
+        | "gemstoneTypes"
+        | "colors"
+        | "cuts"
+        | "clarities"
+        | "origins"
+        | "treatmentStatus"
+        | "miningCountries"
+        | "qualityClassifications"
+      >;
+      const currentArray = newFilters[arrayKey] as string[] | undefined;
+      if (currentArray) {
+        const filteredArray = currentArray.filter((v) => v !== value);
+        if (filteredArray.length === 0) {
+          delete newFilters[arrayKey];
+        } else {
+          (newFilters[arrayKey] as string[]) = filteredArray;
+        }
+      }
+    } else {
+      // Handle non-array filters (remove entirely)
+      delete newFilters[filterKey];
+    }
+
+    updateFilters(newFilters);
+  };
+
   // Handle load more (with ref-based lock to prevent rapid calls)
   const handleLoadMore = useCallback(() => {
     // Use ref to prevent multiple simultaneous fetches
@@ -258,6 +297,14 @@ export function SearchResults() {
           onChange={handleDescriptionToggle}
         />
       </div>
+
+      {/* Active Filter Chips - FILTER-C5.4 */}
+      <ActiveFilterChips
+        filters={filters}
+        onRemoveFilter={handleRemoveFilter}
+        onClearAll={resetFilters}
+        className="mb-6"
+      />
 
       {/* Filter Sidebar - FILTER-C0.1: Re-enabled for search page */}
       {filterCountsData && (
