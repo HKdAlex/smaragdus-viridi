@@ -154,19 +154,19 @@ export function FilterSidebar({
           showClose={false}
         >
           {/* Premium Header */}
-          <SheetHeader className="sticky top-0 z-10 bg-gradient-to-b from-background via-background to-background/95 backdrop-blur-sm border-b border-border/50 !py-5 !px-6">
-            <div className="space-y-5">
+          <SheetHeader className="sticky top-0 z-10 bg-gradient-to-b from-background via-background to-background/95 backdrop-blur-sm border-b border-border/50 !py-4 !px-5">
+            <div className="space-y-4">
               {/* Title Row */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-xl bg-primary/10">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <div className="p-2 rounded-xl bg-primary/10 flex-shrink-0">
                     <SparklesIcon className="w-5 h-5 text-primary" />
                   </div>
-                  <div>
-                    <h2 className="text-lg font-semibold tracking-tight">
+                  <div className="min-w-0">
+                    <h2 className="text-base font-semibold tracking-tight">
                       {t("advancedV2.title")}
                     </h2>
-                    <p className="text-xs text-muted-foreground mt-0.5">
+                    <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
                       {t("advancedV2.subtitle")}
                     </p>
                   </div>
@@ -175,7 +175,7 @@ export function FilterSidebar({
                 {/* Close Button */}
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-xl hover:bg-muted/80"
+                  className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted/80 flex-shrink-0"
                   aria-label="Close filters"
                 >
                   <svg
@@ -196,7 +196,7 @@ export function FilterSidebar({
 
               {/* Active Filters Badge */}
               {activeFilterCount > 0 && (
-                <div className="flex items-center justify-between py-2 px-3 bg-primary/5 rounded-xl border border-primary/10">
+                <div className="flex items-center justify-between py-2.5 px-3.5 bg-primary/5 rounded-lg border border-primary/10">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
                     <span className="text-sm font-medium text-primary">
@@ -205,7 +205,7 @@ export function FilterSidebar({
                   </div>
                   <button
                     onClick={() => onChange({})}
-                    className="text-xs font-medium text-muted-foreground hover:text-destructive transition-colors"
+                    className="text-xs font-medium text-muted-foreground hover:text-destructive transition-colors px-2 py-1 rounded hover:bg-destructive/10"
                   >
                     Clear all
                   </button>
@@ -213,10 +213,10 @@ export function FilterSidebar({
               )}
 
               {/* Premium Mode Toggle */}
-              <div className="flex rounded-xl bg-muted/50 p-1 gap-1">
+              <div className="flex rounded-lg bg-muted/50 p-1 gap-1">
                 <button
                   onClick={() => setMode("visual")}
-                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
                     mode === "visual"
                       ? "bg-background text-foreground shadow-sm ring-1 ring-border/50"
                       : "text-muted-foreground hover:text-foreground hover:bg-background/50"
@@ -227,7 +227,7 @@ export function FilterSidebar({
                 </button>
                 <button
                   onClick={() => setMode("standard")}
-                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
                     mode === "standard"
                       ? "bg-background text-foreground shadow-sm ring-1 ring-border/50"
                       : "text-muted-foreground hover:text-foreground hover:bg-background/50"
@@ -241,7 +241,7 @@ export function FilterSidebar({
           </SheetHeader>
 
           {/* Filter Content with Premium Styling */}
-          <SheetBody className="flex-1 overflow-y-auto !px-5 !py-4 pb-24">
+          <SheetBody className="flex-1 overflow-y-auto !px-4 !py-4 pb-24">
             {mode === "visual" ? (
               <AdvancedFiltersV2Controlled
                 filters={filters}
