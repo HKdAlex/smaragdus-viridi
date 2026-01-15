@@ -134,16 +134,6 @@ export function GemstoneCatalogOptimized() {
     return <LoadingState showHeader={true} />;
   }
 
-  // Show error state
-  if (gemstonesError) {
-    return (
-      <EmptyState
-        title="Error Loading Gemstones"
-        message="Please try refreshing the page or adjusting your filters."
-      />
-    );
-  }
-
   const aggregatedOptions = filterCountsData?.aggregated;
 
   // Convert AggregatedFilterOptions to FilterOptions for FilterSidebar
@@ -218,11 +208,32 @@ export function GemstoneCatalogOptimized() {
           </p>
         </div>
 
-        {/* Gemstones Grid or Empty State */}
-        {allGemstones.length === 0 ? (
+        {/* Error State */}
+        {gemstonesError ? (
+          <EmptyState
+            title="Error Loading Gemstones"
+            message="Please try refreshing the page or adjusting your filters."
+            suggestions={filters.search ? ["Clear search", "Try different filters"] : undefined}
+            onSuggestionClick={(suggestion) => {
+              if (suggestion === "Clear search") {
+                handleFiltersChange({ ...filters, search: undefined });
+              } else {
+                handleFiltersChange({});
+              }
+            }}
+          />
+        ) : allGemstones.length === 0 ? (
           <EmptyState
             title={t("noGemstonesFound")}
             message={t("adjustFiltersMessage")}
+            suggestions={filters.search ? ["Clear search", "Try different filters"] : undefined}
+            onSuggestionClick={(suggestion) => {
+              if (suggestion === "Clear search") {
+                handleFiltersChange({ ...filters, search: undefined });
+              } else {
+                handleFiltersChange({});
+              }
+            }}
           />
         ) : (
           <>
