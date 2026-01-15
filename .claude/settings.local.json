@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(tree:*)",
+      "Bash(ls:*)",
+      "Bash(supabase db dump:*)",
+      "Bash(npx supabase:*)",
+      "Bash(for file in supabase/migrations/20260116*.sql)",
+      "Bash(do)",
+      "Bash(PGPASSWORD=\"$SUPABASE_SERVICE_ROLE_KEY\" psql:*)",
+      "Bash(done)",
+      "Bash(supabase --version:*)",
+      "Bash(supabase db push:*)",
+      "Bash(SUPABASE_DB_PASSWORD=skAdfyY3NWGcRbq supabase db push:*)",
+      "Bash(npm run build)",
+      "Bash(lsof:*)",
+      "Bash(curl:*)",
+      "Bash(pkill:*)",
+      "Bash(python3:*)",
+      "WebSearch",
+      "Bash(PGPASSWORD=\"skAdfyY3NWGcRbq\" psql:*)",
+      "Bash(xargs kill -9)",
+      "Bash(npm install:*)",
+      "Bash(npx playwright install:*)",
+      "Bash(npm run test:e2e:*)",
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(npx tsc:*)",
+      "Bash(head:*)",
+      "Bash(npm run types:generate:*)",
+      "Bash(xargs:*)",
+      "Bash(xargs -I {} sh -c 'echo \"\"=== {} ===\"\" && ls -la {}')",
+      "Bash(npx playwright test:*)",
+      "Bash(tee:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}

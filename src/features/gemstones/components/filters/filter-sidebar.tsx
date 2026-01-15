@@ -53,6 +53,11 @@ export function FilterSidebar({
       return stored === "true";
     }
 
+    // Use defaultOpen prop if provided, otherwise check viewport
+    if (defaultOpen !== undefined) {
+      return defaultOpen;
+    }
+
     // Default: open on desktop, closed on mobile
     return window.innerWidth >= 768;
   });

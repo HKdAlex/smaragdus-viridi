@@ -143,8 +143,8 @@ export async function GET(request: NextRequest) {
           filter_cuts: filters.cuts || null,
           filter_clarities: filters.clarities || null,
           filter_origins: filters.origins || null,
-          filter_price_min: filters.priceMin ? filters.priceMin * 100 : null, // Convert to cents
-          filter_price_max: filters.priceMax ? filters.priceMax * 100 : null,
+          filter_price_min: filters.priceMin || null, // Already in cents from frontend
+          filter_price_max: filters.priceMax || null,
           filter_weight_min: filters.weightMin || null,
           filter_weight_max: filters.weightMax || null,
           filter_in_stock_only: filters.inStockOnly || null,
@@ -187,6 +187,11 @@ export async function GET(request: NextRequest) {
               name: gemstone.name,
               color: gemstone.color,
               cut: gemstone.cut,
+              // DISPLAY FIELDS (Contract: DISPLAY-C6.0)
+              display_name: gemstone.display_name,
+              display_color: gemstone.display_color,
+              display_cut: gemstone.display_cut,
+              display_clarity: gemstone.display_clarity,
               weight_carats: gemstone.weight_carats,
               clarity: gemstone.clarity,
               price_amount: gemstone.price_amount,

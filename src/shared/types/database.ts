@@ -1966,6 +1966,10 @@ export type Database = {
           detected_color: string | null
           detected_color_description: string | null
           detected_cut: string | null
+          display_clarity: string | null
+          display_color: string | null
+          display_cut: string | null
+          display_name: string | null
           emotional_description_en: string | null
           emotional_description_ru: string | null
           enhancement_notes: string | null
@@ -2205,6 +2209,69 @@ export type Database = {
           total_items: number
         }[]
       }
+      catalog_search_gemstones: {
+        Args: {
+          filter_clarities?: string[]
+          filter_colors?: string[]
+          filter_cuts?: string[]
+          filter_has_certification?: boolean
+          filter_has_color_change?: boolean
+          filter_has_images?: boolean
+          filter_in_stock_only?: boolean
+          filter_max_length?: number
+          filter_max_price_per_carat?: number
+          filter_max_width?: number
+          filter_min_length?: number
+          filter_min_price_per_carat?: number
+          filter_min_width?: number
+          filter_mining_countries?: string[]
+          filter_origins?: string[]
+          filter_price_max?: number
+          filter_price_min?: number
+          filter_quality_classifications?: string[]
+          filter_treatment_status?: string[]
+          filter_types?: string[]
+          filter_weight_max?: number
+          filter_weight_min?: number
+          page_number?: number
+          page_size?: number
+          search_query?: string
+          sort_by?: string
+          sort_direction?: string
+        }
+        Returns: {
+          ai_color: string
+          clarity: string
+          color: string
+          created_at: string
+          cut: string
+          detected_cut: string
+          display_clarity: string
+          display_color: string
+          display_cut: string
+          display_name: string
+          emotional_description_en: string
+          emotional_description_ru: string
+          id: string
+          in_stock: boolean
+          marketing_highlights_en: string[]
+          marketing_highlights_ru: string[]
+          name: string
+          origin_country: string
+          origin_id: string
+          origin_name: string
+          price_amount: number
+          price_currency: Database["public"]["Enums"]["currency_code"]
+          primary_image_url: string
+          primary_video_url: string
+          recommended_primary_image_index: number
+          selected_image_uuid: string
+          serial_number: string
+          total_count: number
+          updated_at: string
+          weight_carats: number
+        }[]
+      }
       cleanup_audit_data: { Args: { days_old?: number }; Returns: number }
       cleanup_expired_cart_items: { Args: never; Returns: number }
       create_admin_profile_for_user: {
@@ -2311,26 +2378,31 @@ export type Database = {
           filters?: Json
           page_number?: number
           page_size?: number
-          search_query: string
+          search_query?: string
         }
         Returns: {
           clarity: string
           color: string
+          color_code: string
           created_at: string
           cut: string
+          cut_code: string
+          cut_id: string
           description: string
-          has_ai_analysis: boolean
-          has_certification: boolean
           id: string
           in_stock: boolean
-          metadata_status: string
+          internal_code: string
           name: string
           origin_id: string
+          origin_name: string
           price_amount: number
           price_currency: string
-          relevance_score: number
+          price_per_carat: number
+          quantity: number
+          rank: number
           serial_number: string
           total_count: number
+          type_code: string
           updated_at: string
           weight_carats: number
         }[]

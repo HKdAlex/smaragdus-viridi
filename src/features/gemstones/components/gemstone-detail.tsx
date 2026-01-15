@@ -69,6 +69,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
     translateClarity,
     translateGemstoneType,
     translateGemstoneTypePlural,
+    translateIfEnumCode,
   } = useGemstoneTranslations();
 
   const isAlreadyInCart = isInCart(gemstone.id);
@@ -76,6 +77,34 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
 
   // Use currency context for price formatting
   const { formatPrice } = useCurrency();
+
+  // Contract: DISPLAY-C8.0
+  // Use display_* fields from database (precedence already resolved: Admin Custom > AI > Enum)
+  // Only translate if value is an enum code (lowercase, no spaces)
+  // Custom values with spaces/Unicode are already in display form
+  const typeLabel = translateIfEnumCode(
+    (gemstone as any).display_name || gemstone.name,
+    translateGemstoneType
+  );
+
+  const colorLabel = translateIfEnumCode(
+    (gemstone as any).display_color || gemstone.ai_color || gemstone.color,
+    translateColor
+  );
+
+  const cutLabel = translateIfEnumCode(
+    (gemstone as any).display_cut || gemstone.v6Text?.detected_cut || gemstone.cut,
+    translateCut
+  );
+
+  const clarityLabel = translateIfEnumCode(
+    (gemstone as any).display_clarity || gemstone.clarity,
+    translateClarity
+  );
+
+  // For icons/visual indicators, use the same resolved values
+  const effectiveColor = (gemstone as any).display_color || gemstone.ai_color || gemstone.color;
+  const effectiveCut = (gemstone as any).display_cut || gemstone.v6Text?.detected_cut || gemstone.cut;
 
   // Format weight with proper decimals
   const formatWeight = (weight: number) => {
@@ -348,8 +377,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                 <div className="space-y-3">
                   {/* Main Title - First, with gradient shadow */}
                   <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight capitalize bg-gradient-to-br from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent drop-shadow-sm">
-                    {translateColor(gemstone.ai_color || gemstone.color)}{" "}
-                    {translateGemstoneType(gemstone.name)}
+                    {colorLabel} {typeLabel}
                   </h1>
 
                   {/* Weight + Icon - Below title */}
@@ -672,7 +700,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                     {/* Color */}
                     <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
                       <ColorIndicator
-                        color={gemstone.ai_color || gemstone.color}
+                        color={effectiveColor}
                         className="w-5 h-5"
                       />
                       <div className="flex items-center justify-between">
@@ -680,7 +708,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                           {t("color")}
                         </span>
                         <span className="font-medium text-foreground capitalize">
-                          {translateColor(gemstone.ai_color || gemstone.color)}
+                          {colorLabel}
                         </span>
                       </div>
                     </div>
@@ -688,7 +716,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                     {/* Cut */}
                     <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
                       <CutIcon
-                        cut={gemstone.v6Text?.detected_cut || gemstone.cut}
+                        cut={effectiveCut}
                         className="w-5 h-5"
                       />
                       <div className="flex items-center justify-between">
@@ -696,9 +724,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                           {t("cut")}
                         </span>
                         <span className="font-medium text-foreground capitalize">
-                          {translateCut(
-                            gemstone.v6Text?.detected_cut || gemstone.cut
-                          )}
+                          {cutLabel}
                         </span>
                       </div>
                     </div>
@@ -713,7 +739,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                           {t("clarity")}
                         </span>
                         <span className="font-medium text-foreground">
-                          {translateClarity(gemstone.clarity)}
+                          {clarityLabel}
                         </span>
                       </div>
                     </div>

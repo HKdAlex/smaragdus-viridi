@@ -88,28 +88,36 @@ export function GemstoneCard({
     translateCut,
     translateClarity,
     translateGemstoneType,
+    translateIfEnumCode,
   } = useGemstoneTranslations();
 
-  // Prioritization logic:
-  // 1. Use pre-translated displayX values if available (from search/catalog decorators)
-  // 2. Otherwise, prioritize AI-detected values and translate them
-  // 3. Finally fall back to manual values and translate them
+  // Contract: DISPLAY-C8.0
+  // Use display_* fields from database (precedence already resolved: Admin Custom > AI > Enum)
+  // Only translate if value is an enum code (lowercase, no spaces)
+  // Custom values with spaces/Unicode are already in display form
+  const typeLabel = translateIfEnumCode(
+    (gemstone as any).display_name || gemstone.name,
+    translateGemstoneType
+  );
 
-  const typeLabel =
-    gemstone.displayName ?? translateGemstoneType(gemstone.name);
+  const colorLabel = translateIfEnumCode(
+    (gemstone as any).display_color || (gemstone as any).ai_color || gemstone.color,
+    translateColor
+  );
 
-  // For color and cut, prioritize AI-detected values for the actual data
-  // but respect pre-translated displayColor/displayCut for the label
-  // CUT-C3.1: use cut_code or cut (from view) instead of cut enum
-  const effectiveColor = (gemstone as any).ai_color || gemstone.color;
-  const effectiveCut = (gemstone as any).v6_text?.detected_cut || gemstone.cut || gemstone.cut_code;
+  const cutLabel = translateIfEnumCode(
+    (gemstone as any).display_cut || (gemstone as any).v6_text?.detected_cut || gemstone.cut || gemstone.cut_code,
+    translateCut
+  );
 
-  const colorLabel = gemstone.displayColor ?? translateColor(effectiveColor);
-  const cutLabel =
-    gemstone.displayCut ?? (effectiveCut ? translateCut(effectiveCut) : null);
-  const clarityLabel =
-    gemstone.displayClarity ??
-    (gemstone.clarity ? translateClarity(gemstone.clarity) : null);
+  const clarityLabel = translateIfEnumCode(
+    (gemstone as any).display_clarity || gemstone.clarity,
+    translateClarity
+  );
+
+  // For icon components, use the raw resolved values (not translated)
+  const effectiveColor = (gemstone as any).display_color || (gemstone as any).ai_color || gemstone.color;
+  const effectiveCut = (gemstone as any).display_cut || (gemstone as any).v6_text?.detected_cut || gemstone.cut || gemstone.cut_code;
 
   const primaryImageSelection = selectPrimaryImage({
     images: gemstone.images,

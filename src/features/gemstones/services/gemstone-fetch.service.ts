@@ -24,6 +24,7 @@ import type { AdvancedGemstoneFilters } from "../types/filter.types";
 export interface CatalogGemstone extends DatabaseGemstone {
   // CUT-C3.1: cut field is derived from cuts table via cut_id (provided by views)
   cut?: string;
+  cut_code?: string; // From cuts table
   images?: DatabaseGemstoneImage[];
   origin?: DatabaseOrigin | null;
   certifications?: DatabaseCertification[];
@@ -45,6 +46,13 @@ export interface CatalogGemstone extends DatabaseGemstone {
     selected_image_uuid?: string | null;
     detected_cut?: string | null;
   } | null;
+  // DISPLAY FIELDS (Contract: DISPLAY-C8.0)
+  // Resolved values with precedence: Admin Custom > AI > Enum
+  display_name?: string;
+  display_color?: string;
+  display_cut?: string;
+  display_clarity?: string;
+  // Legacy camelCase versions (for backward compatibility)
   displayName?: string;
   displayColor?: string;
   displayCut?: string;
@@ -52,6 +60,7 @@ export interface CatalogGemstone extends DatabaseGemstone {
   relevance_score?: number;
   selected_image_uuid?: string | null;
   recommended_primary_image_index?: number | null;
+  ai_color?: string | null; // AI-detected color
 }
 
 export interface PaginationMeta {

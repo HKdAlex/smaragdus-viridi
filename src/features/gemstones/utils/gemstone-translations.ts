@@ -127,6 +127,40 @@ export function useGemstoneTranslations() {
     return t("labels.clarity");
   };
 
+  /**
+   * Translates a value only if it's an enum code.
+   * Custom values (with spaces, Unicode, proper capitalization) are returned as-is.
+   *
+   * Contract: DISPLAY-C8.0
+   * This helper works with display_* fields from the database which may contain:
+   * - Enum codes (e.g., "ruby", "red") - need translation
+   * - Custom text (e.g., "Pigeon Blood Ruby", "Кроваво-красный") - already translated
+   *
+   * @param value - The value to potentially translate (from display_* field)
+   * @param translator - The translation function to use for enum codes
+   * @returns Translated enum code or original custom value
+   */
+  const translateIfEnumCode = (
+    value: string | null | undefined,
+    translator: (code: string) => string
+  ): string => {
+    if (!value) return '';
+
+    // Detect already-translated custom values:
+    const hasSpaces = value.includes(' ');            // "Pigeon Blood Ruby"
+    const hasCyrillic = /[А-Яа-яЁё]/.test(value);    // "Кроваво-красный"
+    const hasNonASCII = /[^\x00-\x7F]/.test(value);
+    const isProperName = value.length > 8 && value[0] === value[0].toUpperCase() && value[0] !== value[0].toLowerCase();
+
+    // If it looks like custom text, return as-is
+    if (hasSpaces || hasCyrillic || (hasNonASCII && value.length > 5) || isProperName) {
+      return value;
+    }
+
+    // Otherwise, it's an enum code - translate it
+    return translator(value);
+  };
+
   return {
     translateGemstoneType,
     translateGemstoneTypePlural,
@@ -136,5 +170,6 @@ export function useGemstoneTranslations() {
     translateOrigin,
     translateCutLabel,
     translateClarityLabel,
+    translateIfEnumCode, // NEW: General helper for display_* fields
   };
 }

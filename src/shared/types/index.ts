@@ -90,6 +90,12 @@ export interface Gemstone extends DatabaseGemstone {
   // CUT-C3.1: cut field is now derived from cuts table via cut_id
   // Views provide this field, but the base table doesn't have it
   readonly cut?: string;
+  // DISPLAY FIELDS (Contract: DISPLAY-C5.0)
+  // Resolved values with precedence: Admin Custom > AI > Enum
+  readonly display_name?: string;
+  readonly display_color?: string;
+  readonly display_cut?: string;
+  readonly display_clarity?: string;
   readonly origin?: DatabaseOrigin;
   readonly images?: DatabaseGemstoneImage[];
   readonly videos?: DatabaseGemstoneVideo[];
@@ -144,6 +150,13 @@ export interface DetailGemstone {
   cut_id: string; // FK to cuts table (required)
   cut_code: string; // Cut code for filtering/display (same as cut)
   clarity: GemClarity;
+  // DISPLAY FIELDS (Contract: DISPLAY-C5.0)
+  // Resolved values with precedence: Admin Custom > AI > Enum
+  // Use these fields for display instead of raw enum values
+  display_name: string; // Resolved name (custom > enum)
+  display_color: string; // Resolved color (custom > AI > enum)
+  display_cut: string; // Resolved cut (custom > AI > cut code)
+  display_clarity: string; // Resolved clarity (custom > enum)
   price_amount: number;
   price_currency: CurrencyCode;
   premium_price_amount: number | null;
