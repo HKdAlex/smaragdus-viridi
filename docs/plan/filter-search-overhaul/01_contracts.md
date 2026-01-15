@@ -1355,7 +1355,7 @@ Contracts must be executed in this order based on dependencies:
 ### FILTER-C5.5 — Loading States and Empty States
 
 - **ID**: `FILTER-C5.5`
-- **Status**: `draft`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/filter-search-overhaul/00_vision.md` → "#### 5. Loading & Empty States"
 
 #### Scope
@@ -1394,13 +1394,13 @@ Contracts must be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **Filter skeleton**: Skeleton matches filter layout - `[ ]`
-2. **Results skeleton**: Skeleton matches grid layout - `[ ]`
-3. **Shimmer**: Subtle shimmer animation - `[ ]`
-4. **Empty state**: Beautiful, helpful no-results message - `[ ]`
-5. **Suggestions**: Empty state suggests filter changes - `[ ]`
-6. **Progressive**: Filters load before results - `[ ]`
-7. **Build passes**: `npm run build` succeeds - `[ ]`
+1. **Filter skeleton**: Skeleton matches filter layout - `[x]`
+2. **Results skeleton**: Skeleton matches grid layout - `[x]`
+3. **Shimmer**: Subtle shimmer animation - `[x]`
+4. **Empty state**: Beautiful, helpful no-results message - `[x]`
+5. **Suggestions**: Empty state suggests filter changes - `[x]`
+6. **Progressive**: Filters load before results - `[x]`
+7. **Build passes**: `npm run build` succeeds - `[x]`
 
 #### Explicit Non-Goals
 
@@ -1631,7 +1631,7 @@ Contracts must be executed in this order based on dependencies:
 | FILTER-C5.2 | `done` | FILTER-C4.1 | Search experience |
 | FILTER-C5.3 | `done` | FILTER-C5.1, C5.2 | Micro-interactions |
 | FILTER-C5.4 | `done` | FILTER-C5.1 | Active filter chips |
-| FILTER-C5.5 | `draft` | FILTER-C5.1 | Loading/empty states |
+| FILTER-C5.5 | `done` | FILTER-C5.1 | Loading/empty states |
 | FILTER-C5.6 | `draft` | FILTER-C5.2 | Results display |
 | FILTER-C5.7 | `draft` | FILTER-C5.1-C5.6 | Accessibility |
 | FILTER-C5.8 | `draft` | All Phase 5 | Final UX polish |
