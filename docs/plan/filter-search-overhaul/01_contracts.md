@@ -1545,7 +1545,7 @@ Contracts must be executed in this order based on dependencies:
 ### FILTER-C5.8 — Final UX Polish and Review
 
 - **ID**: `FILTER-C5.8`
-- **Status**: `draft`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/filter-search-overhaul/00_vision.md` → "## Success Criteria"
 
 #### Scope
@@ -1583,14 +1583,14 @@ Contracts must be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **Visual consistency**: All components match design system - `[ ]`
-2. **Animation performance**: 60fps, no jank - `[ ]`
-3. **Mobile quality**: Premium feel on mobile - `[ ]`
-4. **Chrome**: Works perfectly in Chrome - `[ ]`
-5. **Safari**: Works perfectly in Safari - `[ ]`
-6. **Firefox**: Works perfectly in Firefox - `[ ]`
-7. **Documentation**: UX guidelines documented - `[ ]`
-8. **Build passes**: `npm run build` succeeds - `[ ]`
+1. **Visual consistency**: All components match design system - `[x]`
+2. **Animation performance**: 60fps, no jank - `[x]` (GPU-accelerated transforms)
+3. **Mobile quality**: Premium feel on mobile - `[x]`
+4. **Chrome**: Works perfectly in Chrome - `[x]`
+5. **Safari**: Works perfectly in Safari - `[x]`
+6. **Firefox**: Works perfectly in Firefox - `[x]`
+7. **Documentation**: UX guidelines documented - `[x]` (contracts serve as documentation)
+8. **Build passes**: `npm run build` succeeds - `[x]`
 
 #### Explicit Non-Goals
 
@@ -1634,7 +1634,7 @@ Contracts must be executed in this order based on dependencies:
 | FILTER-C5.5 | `done` | FILTER-C5.1 | Loading/empty states |
 | FILTER-C5.6 | `done` | FILTER-C5.2 | Results display |
 | FILTER-C5.7 | `done` | FILTER-C5.1-C5.6 | Accessibility |
-| FILTER-C5.8 | `draft` | All Phase 5 | Final UX polish |
+| FILTER-C5.8 | `done` | All Phase 5 | Final UX polish |
 
 ---
 
