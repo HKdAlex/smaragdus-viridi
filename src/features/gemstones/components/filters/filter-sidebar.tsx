@@ -200,14 +200,14 @@ export function FilterSidebar({
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
                     <span className="text-sm font-medium text-primary">
-                      {activeFilterCount} {activeFilterCount === 1 ? 'filter' : 'filters'} active
+                      {t("sidebar.filtersActive", { count: activeFilterCount })}
                     </span>
                   </div>
                   <button
                     onClick={() => onChange({})}
                     className="text-xs font-medium text-muted-foreground hover:text-destructive transition-colors px-2 py-1 rounded hover:bg-destructive/10"
                   >
-                    Clear all
+                    {t("sidebar.clearAll")}
                   </button>
                 </div>
               )}

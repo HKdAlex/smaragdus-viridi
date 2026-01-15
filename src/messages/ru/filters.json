@@ -33,6 +33,7 @@
     "hasCertification": "Есть сертификация",
     "hasImages": "Есть изображения",
     "hasColorChange": "Смена цвета",
+    "hasAIAnalysis": "Есть AI анализ",
     "gemstoneTypes": {
       "diamond": "Бриллиант",
       "emerald": "Изумруд",
@@ -147,7 +148,9 @@
     "standardMode": "Стандартный режим",
     "modeToggleLabel": "Режим фильтров",
     "cancel": "Отмена",
-    "apply": "Применить"
+    "apply": "Применить",
+    "filtersActive": "{count} фильтр{count, plural, one {} few {а} other {ов}} активн{count, plural, one {ый} few {ых} other {ых}}",
+    "clearAll": "Очистить все"
   },
   "visual": {
     "gemstoneType": "Тип камня",
@@ -169,7 +172,9 @@
     "availableNow": "Доступно сейчас",
     "withCertificate": "С сертификатом",
     "photosAvailable": "Фото доступны",
-    "colorChangeHint": "Эффект смены цвета"
+    "colorChangeHint": "Эффект смены цвета",
+    "aiAnalysis": "AI анализ",
+    "aiAnalysisHint": "AI аналитика доступна"
   },
   "priceRanges": {
     "under100": "До $100",

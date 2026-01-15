@@ -33,6 +33,7 @@
     "hasCertification": "Has Certification",
     "hasImages": "Has Images",
     "hasColorChange": "Color Change",
+    "hasAIAnalysis": "Has AI Analysis",
     "gemstoneTypes": {
       "diamond": "Diamond",
       "emerald": "Emerald",
@@ -147,7 +148,9 @@
     "standardMode": "Standard Mode",
     "modeToggleLabel": "Filter Mode",
     "cancel": "Cancel",
-    "apply": "Apply"
+    "apply": "Apply",
+    "filtersActive": "{count} filter{count, plural, one {} other {s}} active",
+    "clearAll": "Clear all"
   },
   "visual": {
     "gemstoneType": "Gemstone Type",
@@ -169,7 +172,9 @@
     "availableNow": "Available now",
     "withCertificate": "With certificate",
     "photosAvailable": "Photos available",
-    "colorChangeHint": "Color change effect"
+    "colorChangeHint": "Color change effect",
+    "aiAnalysis": "AI Analysis",
+    "aiAnalysisHint": "AI insights available"
   },
   "priceRanges": {
     "under100": "Under $100",
