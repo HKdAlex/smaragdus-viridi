@@ -3,6 +3,7 @@
  *
  * Detects when user scrolls near bottom of page and triggers loading more items.
  * Shows loading state and "no more items" message.
+ * FILTER-C5.6: Enhanced with premium styling and reduced motion support.
  */
 
 "use client";
@@ -10,6 +11,7 @@
 import { useEffect, useRef } from "react";
 
 import { useIntersectionObserver } from "../hooks/use-intersection-observer";
+import { useReducedMotion } from "@/shared/hooks/use-reduced-motion";
 import { useTranslations } from "next-intl";
 
 export interface InfiniteScrollTriggerProps {
@@ -40,6 +42,7 @@ export function InfiniteScrollTrigger({
   endMessage,
 }: InfiniteScrollTriggerProps) {
   const t = useTranslations("catalog");
+  const prefersReducedMotion = useReducedMotion();
 
   // Track if we've already triggered for the current intersection
   const hasTriggeredRef = useRef(false);
@@ -93,55 +96,70 @@ export function InfiniteScrollTrigger({
           role="status"
           aria-live="polite"
         >
-          {/* Modern animated spinner */}
+          {/* Premium animated spinner */}
           <div className="relative">
-            <div className="h-12 w-12 rounded-full border-4 border-gray-200 dark:border-gray-700" />
-            <div className="absolute top-0 left-0 h-12 w-12 animate-spin rounded-full border-4 border-transparent border-t-emerald-500 dark:border-t-emerald-400" />
+            <div className="h-12 w-12 rounded-full border-4 border-muted" />
+            <div
+              className={`absolute top-0 left-0 h-12 w-12 rounded-full border-4 border-transparent border-t-primary ${
+                !prefersReducedMotion ? "animate-spin" : ""
+              }`}
+            />
           </div>
 
           {/* Loading text with subtle animation */}
-          <div className="space-y-1">
-            <p className="text-base font-medium text-gray-900 dark:text-gray-100 animate-pulse">
+          <div className="space-y-2">
+            <p
+              className={`text-base font-medium text-foreground ${
+                !prefersReducedMotion ? "animate-pulse" : ""
+              }`}
+            >
               {loadingMessage || t("loadingMore")}
             </p>
-            <div className="flex justify-center gap-1">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-bounce [animation-delay:-0.3s]" />
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-bounce [animation-delay:-0.15s]" />
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-bounce" />
-            </div>
+            {!prefersReducedMotion && (
+              <div className="flex justify-center gap-1.5">
+                <span className="h-2 w-2 rounded-full bg-primary animate-bounce [animation-delay:-0.3s]" />
+                <span className="h-2 w-2 rounded-full bg-primary animate-bounce [animation-delay:-0.15s]" />
+                <span className="h-2 w-2 rounded-full bg-primary animate-bounce" />
+              </div>
+            )}
           </div>
         </div>
       )}
 
       {!hasMore && !isFetching && (
         <div
-          className="flex flex-col items-center gap-3"
+          className={`flex flex-col items-center gap-4 ${
+            !prefersReducedMotion ? "animate-fade-in" : ""
+          }`}
           role="status"
           aria-live="polite"
         >
-          {/* Checkmark icon */}
-          <div className="rounded-full bg-emerald-100 dark:bg-emerald-900/30 p-3">
-            <svg
-              className="h-6 w-6 text-emerald-600 dark:text-emerald-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
+          {/* Premium checkmark icon */}
+          <div className="relative">
+            <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl" />
+            <div className="relative rounded-full bg-primary/10 p-4">
+              <svg
+                className="h-8 w-8 text-primary"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2.5}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            </div>
           </div>
 
           {/* End message */}
           <div className="space-y-1">
-            <p className="text-base font-medium text-gray-900 dark:text-gray-100">
+            <p className="text-base font-semibold text-foreground">
               {endMessage || t("allItemsLoaded")}
             </p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-sm text-muted-foreground">
               {t("thankYouForBrowsing")}
             </p>
           </div>

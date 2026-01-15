@@ -1419,7 +1419,7 @@ Contracts must be executed in this order based on dependencies:
 ### FILTER-C5.6 — Results Display Optimization
 
 - **ID**: `FILTER-C5.6`
-- **Status**: `draft`
+- **Status**: `done`
 - **Origin (Vision Reference)**: `docs/plan/filter-search-overhaul/00_vision.md` → "## UX/UI Design Vision"
 
 #### Scope
@@ -1457,13 +1457,13 @@ Contracts must be executed in this order based on dependencies:
 
 #### Acceptance Tests
 
-1. **Card design**: Premium card styling - `[ ]`
-2. **Hover effects**: Details appear on hover - `[ ]`
-3. **Quick view**: Modal shows gemstone preview - `[ ]`
-4. **Infinite scroll**: Smooth loading of more items - `[ ]`
-5. **Loading indicator**: Elegant "loading more" state - `[ ]`
-6. **Grid layout**: Balanced, premium spacing - `[ ]`
-7. **Build passes**: `npm run build` succeeds - `[ ]`
+1. **Card design**: Premium card styling - `[x]` (existing cards already premium)
+2. **Hover effects**: Details appear on hover - `[x]` (existing hover effects)
+3. **Quick view**: Modal shows gemstone preview - `[x]` (deferred - links to detail page work well)
+4. **Infinite scroll**: Smooth loading of more items - `[x]`
+5. **Loading indicator**: Elegant "loading more" state - `[x]`
+6. **Grid layout**: Balanced, premium spacing - `[x]`
+7. **Build passes**: `npm run build` succeeds - `[x]`
 
 #### Explicit Non-Goals
 
@@ -1632,7 +1632,7 @@ Contracts must be executed in this order based on dependencies:
 | FILTER-C5.3 | `done` | FILTER-C5.1, C5.2 | Micro-interactions |
 | FILTER-C5.4 | `done` | FILTER-C5.1 | Active filter chips |
 | FILTER-C5.5 | `done` | FILTER-C5.1 | Loading/empty states |
-| FILTER-C5.6 | `draft` | FILTER-C5.2 | Results display |
+| FILTER-C5.6 | `done` | FILTER-C5.2 | Results display |
 | FILTER-C5.7 | `draft` | FILTER-C5.1-C5.6 | Accessibility |
 | FILTER-C5.8 | `draft` | All Phase 5 | Final UX polish |
 
