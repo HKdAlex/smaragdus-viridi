@@ -91,11 +91,11 @@ export function ToggleCards({
     : "transition-all duration-200 hover:scale-[1.03] active:scale-[0.98]";
 
   return (
-    <div className="space-y-3">
-      <h3 className="text-sm font-semibold text-foreground">
+    <div className="space-y-3" role="group" aria-labelledby="quick-filters-heading">
+      <h3 id="quick-filters-heading" className="text-sm font-semibold text-foreground">
         {t("visual.quickFilters")}
       </h3>
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 gap-2" role="list">
         {toggleOptions.map(
           ({
             labelKey,
@@ -108,12 +108,14 @@ export function ToggleCards({
             <button
               key={labelKey}
               onClick={() => onChange(!active)}
-              className={`relative p-3 rounded-xl border-2 ${transitionClasses} ${
+              className={`relative p-3 rounded-xl border-2 ${transitionClasses} focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
                 active
                   ? `${activeColor} shadow-lg`
                   : "border-border bg-card hover:border-muted-foreground/50 text-muted-foreground hover:shadow-md"
               }`}
-              title={t(descriptionKey)}
+              aria-pressed={active}
+              aria-label={`${t(labelKey)}: ${t(descriptionKey)}`}
+              role="listitem"
             >
               <div className="flex flex-col items-center space-y-1">
                 <span
@@ -122,6 +124,7 @@ export function ToggleCards({
                       ? "animate-bounce-in"
                       : ""
                   }`}
+                  aria-hidden="true"
                 >
                   {icon}
                 </span>

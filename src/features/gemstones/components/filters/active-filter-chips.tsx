@@ -257,36 +257,49 @@ export function ActiveFilterChips({
     : "transition-all duration-200";
 
   return (
-    <div className={`flex flex-wrap items-center gap-2 ${className}`}>
-      {/* Filter count summary */}
-      <span className="text-sm text-muted-foreground font-medium mr-1">
-        {chips.length} {chips.length === 1 ? "filter" : "filters"}:
+    <div
+      className={`flex flex-wrap items-center gap-2 ${className}`}
+      role="region"
+      aria-label="Active filters"
+    >
+      {/* Filter count summary - live region for screen readers */}
+      <span
+        className="text-sm text-muted-foreground font-medium mr-1"
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        {chips.length} {chips.length === 1 ? "filter" : "filters"} active
       </span>
 
       {/* Filter chips */}
-      {chips.map((chip, index) => (
-        <button
-          key={`${chip.key}-${chip.value || index}`}
-          onClick={() => onRemoveFilter(chip.key, chip.value)}
-          className={`group inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-full border ${transitionClasses} hover:shadow-md ${categoryColors[chip.category]}`}
-          title={`Remove ${chip.label}: ${chip.displayValue}`}
-        >
-          <span className="max-w-[150px] truncate">{chip.displayValue}</span>
-          <XMarkIcon
-            className={`w-4 h-4 opacity-60 group-hover:opacity-100 ${
-              !prefersReducedMotion ? "transition-opacity" : ""
-            }`}
-          />
-        </button>
-      ))}
+      <div role="list" className="flex flex-wrap items-center gap-2">
+        {chips.map((chip, index) => (
+          <button
+            key={`${chip.key}-${chip.value || index}`}
+            onClick={() => onRemoveFilter(chip.key, chip.value)}
+            className={`group inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-full border ${transitionClasses} hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${categoryColors[chip.category]}`}
+            aria-label={`Remove filter: ${chip.displayValue}`}
+            role="listitem"
+          >
+            <span className="max-w-[150px] truncate">{chip.displayValue}</span>
+            <XMarkIcon
+              className={`w-4 h-4 opacity-60 group-hover:opacity-100 ${
+                !prefersReducedMotion ? "transition-opacity" : ""
+              }`}
+              aria-hidden="true"
+            />
+          </button>
+        ))}
+      </div>
 
       {/* Clear all button */}
       {chips.length > 1 && (
         <button
           onClick={onClearAll}
-          className={`inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-destructive rounded-full border border-transparent hover:border-destructive/30 hover:bg-destructive/5 ${transitionClasses}`}
+          className={`inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-destructive rounded-full border border-transparent hover:border-destructive/30 hover:bg-destructive/5 focus:outline-none focus:ring-2 focus:ring-destructive focus:ring-offset-2 ${transitionClasses}`}
+          aria-label={`Clear all ${chips.length} filters`}
         >
-          <XMarkIcon className="w-4 h-4" />
+          <XMarkIcon className="w-4 h-4" aria-hidden="true" />
           <span>Clear all</span>
         </button>
       )}
