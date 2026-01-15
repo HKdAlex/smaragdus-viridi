@@ -38,7 +38,7 @@ import type {
   TreatmentStatus,
 } from "../../types/filter.types";
 import type { FilterOptions } from "./advanced-filters-controlled";
-import { useCallback } from "react";
+import { useCallback, useState, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { useMiningCountryOptions } from "../../hooks/use-mining-country-options";
 import { useQualityClassificationOptions } from "../../hooks/use-quality-classification-options";
@@ -69,13 +69,42 @@ export function AdvancedFiltersV2Controlled({
   const widthRange: [number, number] = [0, 75];
   const pricePerCaratRange: [number, number] = [0, 300000];
 
-  // Handle search input
+  // Local search state with debouncing to prevent rapid API calls
+  const [localSearch, setLocalSearch] = useState(filters.search || "");
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const DEBOUNCE_DELAY = 500; // 500ms delay
+
+  // Sync local search with external filter changes
+  useEffect(() => {
+    setLocalSearch(filters.search || "");
+  }, [filters.search]);
+
+  // Handle search input with debouncing
   const handleSearchChange = useCallback(
     (value: string) => {
-      onChange({ ...filters, search: value || undefined });
+      setLocalSearch(value);
+      
+      // Clear existing timer
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+      
+      // Set new timer for debounced update
+      debounceTimerRef.current = setTimeout(() => {
+        onChange({ ...filters, search: value || undefined });
+      }, DEBOUNCE_DELAY);
     },
     [filters, onChange]
   );
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
 
   // Handle gemstone type changes (FILTER-C0.2)
   const handleTypeChange = useCallback(
@@ -207,6 +236,11 @@ export function AdvancedFiltersV2Controlled({
     onChange({ ...filters, hasColorChange: !filters.hasColorChange });
   }, [filters, onChange]);
 
+  // Handle AI analysis filter
+  const handleAIAnalysisToggle = useCallback(() => {
+    onChange({ ...filters, hasAIAnalysis: !filters.hasAIAnalysis });
+  }, [filters, onChange]);
+
   const handleDimensionChange = useCallback(
     (dimensionRange?: DimensionRange) => {
       onChange({ ...filters, dimensionRange });
@@ -249,6 +283,7 @@ export function AdvancedFiltersV2Controlled({
     if (filters.hasCertification) count++;
     if (filters.hasImages) count++;
     if (filters.hasColorChange) count++;
+    if (filters.hasAIAnalysis) count++;
     return count;
   };
 
@@ -274,17 +309,28 @@ export function AdvancedFiltersV2Controlled({
         </div>
       )}
 
-      {/* Search */}
+      {/* Search with debouncing */}
       <div className="relative">
         <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
         <input
           type="text"
           placeholder={t("advancedV2.searchPlaceholder")}
-          value={filters.search || ""}
+          value={localSearch}
           onChange={(e) => handleSearchChange(e.target.value)}
           disabled={loading}
-          className="w-full pl-10 pr-4 py-2.5 border border-border bg-background text-foreground rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors placeholder:text-muted-foreground disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full pl-10 pr-10 py-2.5 border border-border bg-background text-foreground rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors placeholder:text-muted-foreground disabled:opacity-50 disabled:cursor-not-allowed"
         />
+        {/* Clear button */}
+        {localSearch && (
+          <button
+            type="button"
+            onClick={() => handleSearchChange("")}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Clear search"
+          >
+            <XMarkIcon className="w-4 h-4" />
+          </button>
+        )}
       </div>
 
       {/* Visual Filters */}
@@ -391,6 +437,8 @@ export function AdvancedFiltersV2Controlled({
           onImagesChange={handleImagesToggle}
           withColorChange={filters.hasColorChange || false}
           onColorChange={handleColorChangeToggle}
+          withAIAnalysis={filters.hasAIAnalysis || false}
+          onAIAnalysisChange={handleAIAnalysisToggle}
         />
       </div>
 

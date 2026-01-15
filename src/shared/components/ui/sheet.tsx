@@ -96,7 +96,7 @@ const SheetContent = React.forwardRef<HTMLDivElement, SheetContentProps>(
       <>
         {/* Backdrop */}
         <div
-          className="fixed inset-0 z-50 bg-black/30 dark:bg-black/60 animate-in fade-in-0"
+          className="fixed inset-0 z-[70] bg-black/30 dark:bg-black/60 animate-in fade-in-0"
           onClick={() => onOpenChange(false)}
           aria-hidden="true"
         />
@@ -105,9 +105,9 @@ const SheetContent = React.forwardRef<HTMLDivElement, SheetContentProps>(
         <div
           ref={contentRef}
           className={cn(
-            "fixed z-50 bg-background shadow-2xl transition-transform duration-300 ease-out",
+            "fixed z-[70] bg-background shadow-2xl transition-transform duration-300 ease-out",
             isRight &&
-              "right-0 top-0 h-full w-full sm:w-[400px] animate-in slide-in-from-right",
+              "right-0 top-16 h-[calc(100%-4rem)] w-full sm:w-[400px] animate-in slide-in-from-right",
             isBottom &&
               "bottom-0 left-0 right-0 h-[90vh] rounded-t-2xl animate-in slide-in-from-bottom",
             className
