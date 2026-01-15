@@ -25,6 +25,16 @@ type GemstoneFilters = {
   cuts?: string[];
   clarities?: string[];
   origins?: string[];
+  treatmentStatus?: string[];
+  miningCountries?: string[];
+  qualityClassifications?: string[];
+  hasColorChange?: boolean;
+  minLength?: number;
+  maxLength?: number;
+  minWidth?: number;
+  maxWidth?: number;
+  minPricePerCarat?: number;
+  maxPricePerCarat?: number;
   priceMin?: number;
   priceMax?: number;
   weightMin?: number;
@@ -63,6 +73,31 @@ export async function GET(request: NextRequest) {
       cuts: searchParams.get("cuts")?.split(",") || undefined,
       clarities: searchParams.get("clarities")?.split(",") || undefined,
       origins: searchParams.get("origins")?.split(",") || undefined,
+      treatmentStatus:
+        searchParams.get("treatmentStatus")?.split(",") || undefined,
+      miningCountries:
+        searchParams.get("miningCountries")?.split(",") || undefined,
+      qualityClassifications:
+        searchParams.get("qualityClassifications")?.split(",") || undefined,
+      hasColorChange: searchParams.get("hasColorChange") === "true",
+      minLength: searchParams.get("minLength")
+        ? parseFloat(searchParams.get("minLength")!)
+        : undefined,
+      maxLength: searchParams.get("maxLength")
+        ? parseFloat(searchParams.get("maxLength")!)
+        : undefined,
+      minWidth: searchParams.get("minWidth")
+        ? parseFloat(searchParams.get("minWidth")!)
+        : undefined,
+      maxWidth: searchParams.get("maxWidth")
+        ? parseFloat(searchParams.get("maxWidth")!)
+        : undefined,
+      minPricePerCarat: searchParams.get("minPricePerCarat")
+        ? parseFloat(searchParams.get("minPricePerCarat")!)
+        : undefined,
+      maxPricePerCarat: searchParams.get("maxPricePerCarat")
+        ? parseFloat(searchParams.get("maxPricePerCarat")!)
+        : undefined,
       priceMin: searchParams.get("priceMin")
         ? parseFloat(searchParams.get("priceMin")!)
         : undefined,
@@ -130,10 +165,24 @@ export async function GET(request: NextRequest) {
     query = query.gt("price_amount", 0).not("primary_image_url", "is", null);
 
     if (filters.search) {
-      const searchTerm = `%${filters.search}%`;
-      query = query.or(
-        `serial_number.ilike.${searchTerm},internal_code.ilike.${searchTerm},name::text.ilike.${searchTerm},color::text.ilike.${searchTerm},cut::text.ilike.${searchTerm}`
-      );
+      const searchTerm = filters.search.trim();
+      
+      if (searchTerm) {
+        // Escape special characters for PostgREST ilike pattern
+        // PostgREST uses % and _ as wildcards, so we need to escape them
+        const escapedSearch = searchTerm
+          .replace(/\\/g, "\\\\") // Escape backslashes first
+          .replace(/%/g, "\\%")   // Escape %
+          .replace(/_/g, "\\_");  // Escape _
+        const pattern = `%${escapedSearch}%`;
+        
+        // PostgREST doesn't support ::text casting in query strings
+        // Use ilike directly on columns - PostgREST should handle enum columns automatically
+        // Format: column.operator.value for each condition, comma-separated
+        query = query.or(
+          `serial_number.ilike.${pattern},name.ilike.${pattern},color.ilike.${pattern},cut.ilike.${pattern}`
+        );
+      }
     }
 
     if (filters.gemstoneTypes?.length) {
@@ -262,6 +311,48 @@ export async function GET(request: NextRequest) {
         // If no origins found, return empty result
         query = query.eq("id", "00000000-0000-0000-0000-000000000000"); // Impossible UUID
       }
+    }
+
+    if (filters.treatmentStatus?.length) {
+      query = query.in("treatment_status", filters.treatmentStatus);
+    }
+
+    if (filters.miningCountries?.length) {
+      query = query.in("mining_country", filters.miningCountries);
+    }
+
+    if (filters.qualityClassifications?.length) {
+      query = query.in("quality_classification", filters.qualityClassifications);
+    }
+
+    if (filters.hasColorChange) {
+      query = query
+        .not("color_change_description", "is", null)
+        .neq("color_change_description", "");
+    }
+
+    if (filters.minLength !== undefined) {
+      query = query.gte("length_mm", filters.minLength);
+    }
+
+    if (filters.maxLength !== undefined) {
+      query = query.lte("length_mm", filters.maxLength);
+    }
+
+    if (filters.minWidth !== undefined) {
+      query = query.gte("width_mm", filters.minWidth);
+    }
+
+    if (filters.maxWidth !== undefined) {
+      query = query.lte("width_mm", filters.maxWidth);
+    }
+
+    if (filters.minPricePerCarat !== undefined) {
+      query = query.gte("price_per_carat", filters.minPricePerCarat);
+    }
+
+    if (filters.maxPricePerCarat !== undefined) {
+      query = query.lte("price_per_carat", filters.maxPricePerCarat);
     }
 
     if (filters.priceMin !== undefined) {
