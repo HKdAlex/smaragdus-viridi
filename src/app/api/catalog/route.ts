@@ -129,6 +129,135 @@ export async function GET(request: NextRequest) {
       pageSize: Math.min(parseInt(searchParams.get("pageSize") || "24"), 100), // Max 100 per page
     };
 
+    // If search is present, use database function (handles enum casting properly)
+    // Otherwise use PostgREST query builder
+    if (filters.search && filters.search.trim()) {
+      try {
+        const { data: rpcData, error: rpcError } = await supabase.rpc(
+          "catalog_search_gemstones" as any,
+          {
+            search_query: filters.search.trim(),
+            page_number: pagination.page,
+            page_size: pagination.pageSize,
+            filter_types: filters.gemstoneTypes || null,
+            filter_colors: filters.colors || null,
+            filter_cuts: filters.cuts || null,
+            filter_clarities: filters.clarities || null,
+            filter_origins: filters.origins || null,
+            filter_price_min: filters.priceMin ? filters.priceMin * 100 : null, // Convert to cents
+            filter_price_max: filters.priceMax ? filters.priceMax * 100 : null,
+            filter_weight_min: filters.weightMin || null,
+            filter_weight_max: filters.weightMax || null,
+            filter_in_stock_only: filters.inStockOnly || null,
+            filter_has_images: filters.hasImages || null,
+            filter_has_certification: filters.hasCertification || null,
+            filter_treatment_status: filters.treatmentStatus || null,
+            filter_mining_countries: filters.miningCountries || null,
+            filter_quality_classifications: filters.qualityClassifications || null,
+            filter_has_color_change: filters.hasColorChange || null,
+            filter_min_length: filters.minLength || null,
+            filter_max_length: filters.maxLength || null,
+            filter_min_width: filters.minWidth || null,
+            filter_max_width: filters.maxWidth || null,
+            filter_min_price_per_carat: filters.minPricePerCarat || null,
+            filter_max_price_per_carat: filters.maxPricePerCarat || null,
+            sort_by: filters.sortBy || "created_at",
+            sort_direction: filters.sortDirection || "desc",
+          }
+        );
+
+        if (rpcError) {
+          console.error("[CatalogAPI] RPC search error:", rpcError);
+          // Fall back to PostgREST query without search
+          // Continue to regular query below
+        } else if (rpcData) {
+          // Transform RPC results to match expected format
+          const totalCount = rpcData[0]?.total_count || 0;
+          const transformedData = rpcData.map((gemstone: any) => {
+            // Get origin and certifications
+            const origin = gemstone.origin_id
+              ? {
+                  id: gemstone.origin_id,
+                  name: gemstone.origin_name,
+                  country: gemstone.origin_country,
+                }
+              : null;
+
+            return {
+              id: gemstone.id,
+              name: gemstone.name,
+              color: gemstone.color,
+              cut: gemstone.cut,
+              weight_carats: gemstone.weight_carats,
+              clarity: gemstone.clarity,
+              price_amount: gemstone.price_amount,
+              price_currency: gemstone.price_currency,
+              in_stock: gemstone.in_stock,
+              serial_number: gemstone.serial_number,
+              ai_color: gemstone.ai_color,
+              created_at: gemstone.created_at,
+              updated_at: gemstone.updated_at,
+              emotional_description_en: gemstone.emotional_description_en,
+              emotional_description_ru: gemstone.emotional_description_ru,
+              marketing_highlights_en: gemstone.marketing_highlights_en,
+              marketing_highlights_ru: gemstone.marketing_highlights_ru,
+              recommended_primary_image_index:
+                gemstone.recommended_primary_image_index,
+              selected_image_uuid: gemstone.selected_image_uuid,
+              detected_cut: gemstone.detected_cut,
+              primary_image_url: gemstone.primary_image_url,
+              primary_video_url: gemstone.primary_video_url,
+              origin: origin,
+              certifications: [], // Would need separate query
+              images: gemstone.primary_image_url
+                ? [
+                    {
+                      id: "primary",
+                      gemstone_id: gemstone.id,
+                      image_url: gemstone.primary_image_url,
+                      is_primary: true,
+                      image_order: 0,
+                    },
+                  ]
+                : [],
+              v6_text: gemstone.emotional_description_en
+                ? {
+                    emotional_description_en:
+                      gemstone.emotional_description_en,
+                    emotional_description_ru: gemstone.emotional_description_ru,
+                    marketing_highlights_en:
+                      gemstone.marketing_highlights_en,
+                    marketing_highlights_ru: gemstone.marketing_highlights_ru,
+                    recommended_primary_image_index:
+                      gemstone.recommended_primary_image_index,
+                    selected_image_uuid: gemstone.selected_image_uuid,
+                    detected_cut: gemstone.detected_cut,
+                  }
+                : null,
+            };
+          });
+
+          const totalPages = Math.ceil(totalCount / pagination.pageSize);
+
+          return NextResponse.json({
+            data: transformedData,
+            pagination: {
+              page: pagination.page,
+              pageSize: pagination.pageSize,
+              totalItems: totalCount,
+              totalPages,
+              hasNextPage: pagination.page < totalPages,
+              hasPrevPage: pagination.page > 1,
+            },
+            filters: filters,
+          });
+        }
+      } catch (error) {
+        console.error("[CatalogAPI] RPC call failed, falling back:", error);
+        // Fall through to PostgREST query
+      }
+    }
+
     // Build the query with filters using gemstones_enriched view
     let query = supabase.from("gemstones_enriched").select(
       `
@@ -164,25 +293,19 @@ export async function GET(request: NextRequest) {
     // Always filter out items with price <= 0 and no images
     query = query.gt("price_amount", 0).not("primary_image_url", "is", null);
 
-    if (filters.search) {
+    // If search is present but RPC function wasn't used (or failed), use ilike on view columns
+    // The gemstones_enriched view casts enum columns to text, so ilike should work
+    if (filters.search && filters.search.trim()) {
       const searchTerm = filters.search.trim();
-      
-      if (searchTerm) {
-        // Escape special characters for PostgREST ilike pattern
-        // PostgREST uses % and _ as wildcards, so we need to escape them
-        const escapedSearch = searchTerm
-          .replace(/\\/g, "\\\\") // Escape backslashes first
-          .replace(/%/g, "\\%")   // Escape %
-          .replace(/_/g, "\\_");  // Escape _
-        const pattern = `%${escapedSearch}%`;
-        
-        // PostgREST doesn't support ::text casting in query strings
-        // Use ilike directly on columns - PostgREST should handle enum columns automatically
-        // Format: column.operator.value for each condition, comma-separated
-        query = query.or(
-          `serial_number.ilike.${pattern},name.ilike.${pattern},color.ilike.${pattern},cut.ilike.${pattern}`
-        );
-      }
+      const escapedSearch = searchTerm
+        .replace(/\\/g, "\\\\")
+        .replace(/%/g, "\\%")
+        .replace(/_/g, "\\_");
+      const pattern = `%${escapedSearch}%`;
+      // Search in serial_number, name, color, and cut (all are text in the view)
+      query = query.or(
+        `serial_number.ilike.${pattern},name.ilike.${pattern},color.ilike.${pattern},cut.ilike.${pattern}`
+      );
     }
 
     if (filters.gemstoneTypes?.length) {

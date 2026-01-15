@@ -59,5 +59,125 @@
     "subtitle": "Need specific sizes, cuts, or origins? We handle sourcing and wholesale with full documentation.",
     "requestSourcing": "Request Sourcing",
     "browseCatalog": "Browse Catalog"
+  },
+  "premium": {
+    "hero": {
+      "eyebrow": "Crystallique",
+      "title": "Exceptional gemstones",
+      "titleHighlight": "for discerning jewelers",
+      "subtitle": "Curated, graded, and sourced with full provenance. Build signature collections with confidence and clarity.",
+      "primaryLabel": "Explore the catalog",
+      "secondaryLabel": "Request sourcing",
+      "imageAlt": "Emerald gemstone on velvet with soft light"
+    },
+    "trust": {
+      "label": "Trusted by ateliers worldwide",
+      "items": [
+        "GIA & IGI certified",
+        "Worldwide insured delivery",
+        "Ethically sourced origins"
+      ],
+      "stats": [
+        { "label": "Years of sourcing", "value": "20+" },
+        { "label": "Curated stones", "value": "10k+" },
+        { "label": "Avg. sourcing time", "value": "48h" }
+      ]
+    },
+    "collections": {
+      "title": "Signature collections",
+      "subtitle": "Curated highlights",
+      "items": [
+        {
+          "title": "Emerald legacy",
+          "subtitle": "Colombian & Zambian provenance",
+          "imageAlt": "Premium emerald gemstones",
+          "ctaLabel": "Explore emeralds"
+        },
+        {
+          "title": "Diamond atelier",
+          "subtitle": "GIA certified, D-J color grades",
+          "imageAlt": "Premium diamonds set on velvet",
+          "ctaLabel": "Explore diamonds"
+        },
+        {
+          "title": "Sapphire reserve",
+          "subtitle": "Kashmir & Ceylon varieties",
+          "imageAlt": "Premium sapphire gemstones",
+          "ctaLabel": "Explore sapphires"
+        }
+      ]
+    },
+    "pillars": {
+      "eyebrow": "Signature standards",
+      "title": "Why premium buyers choose us",
+      "items": [
+        {
+          "title": "Verified provenance",
+          "description": "Every stone is accompanied by lab documentation and sourcing transparency."
+        },
+        {
+          "title": "Precision grading",
+          "description": "Cut, color, and clarity aligned with professional standards."
+        },
+        {
+          "title": "Private sourcing",
+          "description": "Concierge-led discovery for bespoke sizes, cuts, and origins."
+        },
+        {
+          "title": "White-glove support",
+          "description": "Dedicated specialists for logistics, shipping, and aftercare."
+        }
+      ]
+    },
+    "editorial": {
+      "title": "Crafted with provenance at every step",
+      "subtitle": "The difference is in the details",
+      "body": "From origin selection to certification review, we focus on what matters: integrity, rarity, and the story behind every gem.",
+      "ctaLabel": "Discover our process",
+      "imageAlt": "Jeweler inspecting a gemstone under a loupe"
+    },
+    "expertise": {
+      "title": "Concierge sourcing, made simple",
+      "subtitle": "A refined journey from brief to delivery",
+      "steps": [
+        {
+          "title": "Consult",
+          "description": "Share size, origin, and certification requirements."
+        },
+        {
+          "title": "Curate",
+          "description": "Receive a shortlist aligned to your standards."
+        },
+        {
+          "title": "Confirm",
+          "description": "Approve with documentation and final pricing."
+        },
+        {
+          "title": "Deliver",
+          "description": "Insured shipping with white-glove handling."
+        }
+      ]
+    },
+    "personalization": {
+      "eyebrow": "Personalized discovery",
+      "cardLabel": "Curated entry points",
+      "title": "Find your next stone",
+      "subtitle": "Use curated paths or request a bespoke shortlist tailored to your atelier.",
+      "note": "Prefer bespoke sourcing? Our team responds within 24 hours.",
+      "actions": {
+        "emeralds": "Emeralds",
+        "diamonds": "Diamonds",
+        "sapphires": "Sapphires",
+        "bespoke": "Bespoke sourcing"
+      }
+    },
+    "finalCta": {
+      "eyebrow": "Private selection",
+      "title": "Begin your private selection",
+      "subtitle": "Explore premium inventory or connect with a sourcing specialist to craft your next collection.",
+      "primaryLabel": "Browse premium catalog",
+      "secondaryLabel": "Book a sourcing call",
+      "imageAlt": "Premium gem collection on a dark surface"
+    }
   }
 }
