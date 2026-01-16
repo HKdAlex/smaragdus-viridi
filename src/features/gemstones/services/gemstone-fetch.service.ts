@@ -24,7 +24,7 @@ import type { AdvancedGemstoneFilters } from "../types/filter.types";
 export interface CatalogGemstone extends DatabaseGemstone {
   // CUT-C3.1: cut field is derived from cuts table via cut_id (provided by views)
   cut?: string;
-  cut_code?: string; // From cuts table
+  // cut_code is already in DatabaseGemstone (string)
   images?: DatabaseGemstoneImage[];
   origin?: DatabaseOrigin | null;
   certifications?: DatabaseCertification[];
@@ -60,7 +60,7 @@ export interface CatalogGemstone extends DatabaseGemstone {
   relevance_score?: number;
   selected_image_uuid?: string | null;
   recommended_primary_image_index?: number | null;
-  ai_color?: string | null; // AI-detected color
+  // ai_color is already in DatabaseGemstone (string | null)
 }
 
 export interface PaginationMeta {
