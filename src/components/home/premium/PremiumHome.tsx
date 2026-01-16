@@ -133,7 +133,7 @@ function PremiumHero({ content }: { content: PremiumContent }) {
         }}
         aria-hidden
       />
-      <Container className="relative grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr] py-16 sm:py-20 lg:py-28">
+      <Container className="relative grid items-center gap-6 sm:gap-10 lg:grid-cols-[1.1fr_0.9fr] py-8 sm:py-16 lg:py-28">
         <div className="text-center lg:text-left">
           <PremiumReveal>
             <Badge
@@ -144,18 +144,18 @@ function PremiumHero({ content }: { content: PremiumContent }) {
             </Badge>
           </PremiumReveal>
           <PremiumReveal delayMs={80}>
-            <h1 className="mt-6 font-serif tracking-tight text-4xl sm:text-5xl lg:text-6xl leading-tight">
+            <h1 className="mt-3 sm:mt-6 font-serif tracking-tight text-4xl sm:text-5xl lg:text-6xl leading-tight">
               {hero.title}{" "}
               <span className="text-amber-200">{hero.titleHighlight}</span>
             </h1>
           </PremiumReveal>
           <PremiumReveal delayMs={140}>
-            <p className="mt-5 text-base sm:text-lg text-white/75 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+            <p className="mt-3 sm:mt-5 text-base sm:text-lg text-white/75 max-w-xl mx-auto lg:mx-0 leading-relaxed">
               {hero.subtitle}
             </p>
           </PremiumReveal>
           <PremiumReveal delayMs={200}>
-            <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+            <div className="mt-5 sm:mt-8 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
               <Button asChild size="lg" className={cn(duration, ease)}>
                 <Link href={hero.primaryHref} aria-label={hero.primaryLabel}>
                   {hero.primaryLabel}
@@ -175,7 +175,7 @@ function PremiumHero({ content }: { content: PremiumContent }) {
             </div>
           </PremiumReveal>
           <PremiumReveal delayMs={260}>
-            <div className="mt-10 flex flex-wrap gap-3 justify-center lg:justify-start">
+            <div className="mt-6 sm:mt-10 flex flex-wrap gap-3 justify-center lg:justify-start">
               {trust.items.map((item) => (
                 <div
                   key={item}
@@ -218,7 +218,7 @@ function PremiumTrust({ content }: { content: PremiumContent }) {
   const { trust } = content;
   return (
     <section className="bg-background">
-      <Container className={cn("grid items-stretch gap-8 lg:grid-cols-[1.1fr_0.9fr]", sectionY)}>
+      <Container className={cn("grid items-stretch gap-4 sm:gap-8 lg:grid-cols-[1.1fr_0.9fr]", sectionY)}>
         <PremiumReveal className="h-full">
           <div className="grid h-full gap-4 sm:grid-cols-3">
             {trust.stats.map((stat) => (
@@ -275,7 +275,7 @@ function PremiumCollections({ content }: { content: PremiumContent }) {
             tone="inverse"
           />
         </PremiumReveal>
-        <div className="mt-10 grid gap-6 lg:grid-cols-3">
+        <div className="mt-6 sm:mt-10 grid gap-6 lg:grid-cols-3">
           {collections.items.map((item, index) => (
             <PremiumReveal key={item.title} delayMs={100 + index * 80}>
               <Link
@@ -331,7 +331,7 @@ function PremiumPillars({ content }: { content: PremiumContent }) {
             align="left"
           />
         </PremiumReveal>
-        <div className="mt-10 grid grid-rows-subgrid gap-6 md:grid-cols-2 lg:grid-cols-4 [&>*]:h-full">
+        <div className="mt-6 sm:mt-10 grid grid-rows-subgrid gap-6 md:grid-cols-2 lg:grid-cols-4 [&>*]:h-full">
           {pillars.items.map((item, index) => {
             const Icon = pillarIcons[index % pillarIcons.length];
             return (
@@ -365,7 +365,7 @@ function PremiumEditorial({ content }: { content: PremiumContent }) {
   const { editorial } = content;
   return (
     <section className="bg-muted/30">
-      <Container className={cn("grid gap-10 lg:grid-cols-[1fr_1.1fr]", sectionY)}>
+      <Container className={cn("grid gap-6 sm:gap-10 lg:grid-cols-[1fr_1.1fr]", sectionY)}>
         <PremiumReveal>
           <div className="flex flex-col justify-center">
             <SectionHeading
@@ -423,7 +423,7 @@ function PremiumExpertise({ content }: { content: PremiumContent }) {
             align="center"
           />
         </PremiumReveal>
-        <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4 [&>*]:h-full">
+        <div className="mt-6 sm:mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4 [&>*]:h-full">
           {expertise.steps.map((step, index) => (
             <PremiumReveal key={step.title} delayMs={100 + index * 80} className="h-full">
               <div className="flex h-full flex-col rounded-2xl border border-border/60 bg-card/60 p-6">
@@ -448,7 +448,7 @@ function PremiumPersonalization({ content }: { content: PremiumContent }) {
   const { personalization } = content;
   return (
     <section className="bg-neutral-950 text-white">
-      <Container className={cn("grid gap-8 lg:grid-cols-[1.1fr_0.9fr]", sectionY)}>
+      <Container className={cn("grid gap-4 sm:gap-8 lg:grid-cols-[1.1fr_0.9fr]", sectionY)}>
         <PremiumReveal>
           <div>
             <SectionHeading
