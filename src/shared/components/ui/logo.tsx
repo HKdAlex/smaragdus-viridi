@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { useThemeContext } from "@/shared/context/theme-context";
 import { useTranslations } from "next-intl";
+import Image from "next/image";
 
 interface LogoProps {
   variant?: "inline" | "block";
@@ -16,7 +16,10 @@ interface LogoProps {
 
 /** Intrinsic pixel ratios of the files returned by `getLogoSrc` (width / height). */
 const LOGO_ASPECT = {
-  block: 1041 / 645,
+  /** `crystallique-logo-block-white-bg-ai-v2.webp` (1041×581, light theme) */
+  blockLight: 1041 / 581,
+  /** `crystallique-logo-block-2.webp` (dark theme) */
+  blockDark: 1536 / 1024,
   /** `crystallique-logo-inline-4_white.webp` (942×364, same width as inline-3) */
   inlineLight: 942 / 364,
   /** `crystallique-logo-inline-3.webp` */
@@ -38,7 +41,9 @@ function getLogoAspectRatio(
   resolvedTheme: "light" | "dark",
 ): number {
   if (variant === "block") {
-    return LOGO_ASPECT.block;
+    return resolvedTheme === "light"
+      ? LOGO_ASPECT.blockLight
+      : LOGO_ASPECT.blockDark;
   }
   return resolvedTheme === "light"
     ? LOGO_ASPECT.inlineLight
@@ -51,11 +56,6 @@ function getLogoDimensions(
   resolvedTheme: "light" | "dark",
 ): { width: number; height: number } {
   const { targetHeight } = sizeMap[size];
-
-  // Footer / hero block mark: keep historical footprint (matches ~block intrinsic ratio).
-  if (variant === "block" && size === "xxxxl") {
-    return { width: 280, height: 172 };
-  }
 
   const aspect = getLogoAspectRatio(variant, resolvedTheme);
   return {
@@ -78,10 +78,12 @@ export function Logo({
   const { textSize } = sizeMap[size];
   const { width, height } = getLogoDimensions(variant, size, resolvedTheme);
 
-  // Block: transparent lossless WebP. Inline: light = white-matte v4 WebP; dark = inline-3 WebP on dark UI.
+  // Block: light = white-plate AI v2 WebP; dark = block-2 WebP. Inline: light = inline-4 white; dark = inline-3.
   const getLogoSrc = () => {
     if (variant === "block") {
-      return "/crystallique-logo-block-2_transparent.webp";
+      return resolvedTheme === "light"
+        ? "/crystallique-logo-block-white-bg-ai-v2.webp"
+        : "/crystallique-logo-block-2.webp";
     }
     if (resolvedTheme === "light") {
       return "/crystallique-logo-inline-4_white.webp";

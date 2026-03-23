@@ -1,6 +1,6 @@
+import Link from "next/link";
 import { Logo } from "@/shared/components/ui/logo";
 import { useTranslations } from "next-intl";
-import Link from "next/link";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -34,7 +34,7 @@ export function Footer() {
   ];
 
   return (
-    <footer className="border-t border-zinc-200 bg-zinc-50 transition-colors duration-300 dark:border-border dark:bg-card">
+    <footer className="border-t border-zinc-200 bg-white transition-colors duration-300 dark:border-border dark:bg-card">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Main Footer Content */}
         <div className="py-12 sm:py-16">

@@ -2,9 +2,10 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 
+import { useAuth } from "@/features/auth/context/auth-context";
+import { auth } from "@/lib/auth";
 import type { DatabaseUserProfile } from "@/shared/types";
 import { User } from "@supabase/supabase-js";
-import { auth } from "@/lib/auth";
 import { useTranslations } from "next-intl";
 
 // Simple logger for now - will be replaced with proper logger later
@@ -51,51 +52,30 @@ const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
 export function AdminProvider({ children }: { children: React.ReactNode }) {
   const t = useTranslations("errors.admin");
+  const {
+    user: authUser,
+    profile: authProfile,
+    loading: authLoading,
+  } = useAuth();
+
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<DatabaseUserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  // Initialize admin context
+  // Mirror global auth (getSession + profile) instead of a parallel getUser() chain,
+  // which could hang or race and leave the admin shell stuck on loading.
   useEffect(() => {
-    const initializeAdmin = async () => {
-      try {
-        const currentUser = await auth.getCurrentUser();
-        if (currentUser) {
-          setUser(currentUser);
-          const userProfile = await auth.getUserProfile(currentUser.id);
+    if (authLoading) {
+      setIsLoading(true);
+      return;
+    }
 
-          if (userProfile) {
-            setProfile(userProfile);
-            // Pass profile to isAdmin to avoid redundant database call
-            const adminStatus = await auth.isAdmin(currentUser.id, userProfile);
-            setIsAdmin(adminStatus);
-
-            if (adminStatus) {
-              adminLogger.info("Admin user authenticated", {
-                userId: currentUser.id,
-                email: currentUser.email,
-              });
-            } else {
-              adminLogger.warn(
-                "Non-admin user attempted to access admin context",
-                {
-                  userId: currentUser.id,
-                  role: userProfile.role,
-                }
-              );
-            }
-          }
-        }
-      } catch (error) {
-        adminLogger.error("Failed to initialize admin context", error as Error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    initializeAdmin();
-  }, []);
+    setUser(authUser ?? null);
+    setProfile(authProfile ?? null);
+    setIsAdmin(authProfile?.role === "admin");
+    setIsLoading(false);
+  }, [authLoading, authUser, authProfile]);
 
   // Admin authentication methods
   const signIn = async (email: string, password: string) => {
@@ -294,28 +274,12 @@ export function useAdmin(): AdminContextType {
   return context;
 }
 
-// Hook for checking admin status without full context
+// Hook for checking admin status without full AdminProvider (e.g. main nav).
+// Mirrors AuthProvider so we avoid a parallel getUser() chain.
 export function useAdminStatus(): { isAdmin: boolean; isLoading: boolean } {
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const checkAdminStatus = async () => {
-      try {
-        const user = await auth.getCurrentUser();
-        if (user) {
-          const adminStatus = await auth.isAdmin(user.id);
-          setIsAdmin(adminStatus);
-        }
-      } catch (error) {
-        adminLogger.error("Failed to check admin status", error as Error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkAdminStatus();
-  }, []);
-
-  return { isAdmin, isLoading };
+  const { profile, loading } = useAuth();
+  return {
+    isAdmin: profile?.role === "admin",
+    isLoading: loading,
+  };
 }

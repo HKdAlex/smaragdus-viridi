@@ -1,12 +1,11 @@
 "use client";
 
 import type {
-  BulkImportResult,
-  GemstoneWithRelations,
+    BulkImportResult,
+    GemstoneWithRelations,
 } from "../services/gemstone-admin-service";
 import { Plus, Upload } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 
 import { BulkImportModal } from "./bulk-import-modal";
 import { Button } from "@/shared/components/ui/button";
@@ -17,6 +16,8 @@ import { queryKeys } from "@/lib/react-query/query-keys";
 import { useAdminGemstone } from "../hooks/use-admin-gemstone-query";
 import { useDeleteGemstone } from "../hooks/use-admin-gemstone-mutations";
 import { useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "@/i18n/navigation";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 
 type ViewMode = "list" | "create" | "edit" | "view";
@@ -215,13 +216,15 @@ export function AdminGemstoneManager({
 
   const handleFormCancel = useCallback(() => {
     setOptimisticGemstone(null);
-    // Only update URL - the useEffect will sync viewMode from URL
+    setViewMode("list");
+    // Create mode is not represented in URL (same query as list), so we must
+    // set viewMode here; otherwise replace is a no-op and we stay on create.
     updateUrl("list");
   }, [updateUrl]);
 
   const handleBackToList = useCallback(() => {
     setOptimisticGemstone(null);
-    // Only update URL - the useEffect will sync viewMode from URL
+    setViewMode("list");
     updateUrl("list");
   }, [updateUrl]);
 

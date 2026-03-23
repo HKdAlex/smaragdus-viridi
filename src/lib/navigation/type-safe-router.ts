@@ -7,7 +7,7 @@
  * Eliminates the need for `as any` when using router with dynamic URLs.
  */
 
-import { useRouter as useNextRouter, usePathname } from "next/navigation";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { useMemo } from "react";
 
 export interface TypeSafeRouter {
@@ -48,25 +48,29 @@ export interface TypeSafeRouter {
  * Custom hook that wraps Next.js router with type-safe dynamic navigation
  */
 export function useTypeSafeRouter(): TypeSafeRouter {
-  const router = useNextRouter();
+  const router = useRouter();
 
-  return useMemo(() => ({
-    pushDynamic: (url: string, options?: { scroll?: boolean }) => {
-      router.push(url, options);
-    },
-    replaceDynamic: (url: string, options?: { scroll?: boolean }) => {
-      router.replace(url, options);
-    },
-    back: () => router.back(),
-    forward: () => router.forward(),
-    refresh: () => router.refresh(),
-    prefetch: (href: string) => router.prefetch(href),
-  }), [router]);
+  return useMemo(
+    () => ({
+      pushDynamic: (url: string, options?: { scroll?: boolean }) => {
+        router.push(url as Parameters<typeof router.push>[0], options);
+      },
+      replaceDynamic: (url: string, options?: { scroll?: boolean }) => {
+        router.replace(url as Parameters<typeof router.replace>[0], options);
+      },
+      back: () => router.back(),
+      forward: () => router.forward(),
+      refresh: () => router.refresh(),
+      prefetch: (href: string) =>
+        router.prefetch(href as Parameters<typeof router.prefetch>[0]),
+    }),
+    [router]
+  );
 }
 
 /**
  * Hook to get current pathname in a type-safe way
  */
 export function useCurrentPathname(): string {
-  return usePathname();
+  return usePathname() as string;
 }

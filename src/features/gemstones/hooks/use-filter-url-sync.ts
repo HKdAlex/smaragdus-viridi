@@ -9,15 +9,15 @@
 
 "use client";
 
-import {
-  FILTER_PARAM_KEYS,
-  filtersToQueryString,
-} from "../utils/filter-url.utils";
 import { useEffect, useRef } from "react";
+import {
+    FILTER_PARAM_KEYS,
+    filtersToQueryString,
+} from "../utils/filter-url.utils";
 
-import type { AdvancedGemstoneFilters } from "../types/filter.types";
 import { usePathname } from "@/i18n/navigation";
 import { useTypeSafeRouter } from "@/lib/navigation/type-safe-router";
+import type { AdvancedGemstoneFilters } from "../types/filter.types";
 
 export interface UseFilterUrlSyncOptions {
   enabled?: boolean;
@@ -98,5 +98,5 @@ export function useFilterUrlSync(
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [filters, enabled, debounceMs]);
+  }, [filters, enabled, debounceMs, pathname, router]);
 }

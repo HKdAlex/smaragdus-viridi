@@ -6,9 +6,10 @@
 
 "use client";
 
+import { useRouter } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { useCallback, useMemo } from "react";
-import { useLocale, useTranslations } from "next-intl";
-import { useRouter, useSearchParams } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 
@@ -31,7 +32,6 @@ export function CategoryTabs({
   className,
 }: CategoryTabsProps) {
   const t = useTranslations("catalog");
-  const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -50,13 +50,11 @@ export function CategoryTabs({
       params.delete("page");
 
       const queryString = params.toString();
-      const newUrl = queryString
-        ? `/${locale}/catalog?${queryString}`
-        : `/${locale}/catalog`;
+      const newUrl = queryString ? `/catalog?${queryString}` : `/catalog`;
 
-      router.push(newUrl);
+      router.push(newUrl as Parameters<typeof router.push>[0]);
     },
-    [locale, router, searchParams]
+    [router, searchParams]
   );
 
   // Calculate total count
@@ -72,11 +70,11 @@ export function CategoryTabs({
         id: "all",
         name: t("allCategories"),
         count: totalCount,
-        href: `/${locale}/catalog`,
+        href: "/catalog",
       },
       ...categories,
     ],
-    [categories, totalCount, t, locale]
+    [categories, totalCount, t]
   );
 
   return (
