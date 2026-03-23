@@ -148,6 +148,8 @@
       "signInToAdd": "Войдите",
       "requestInfo": "Запросить информацию",
       "price": "Цена",
+      "pricePerCarat": "{price} за карат",
+      "caratSuffix": "кт",
       "quantity": "Количество",
       "quantityAvailable": "{count, plural, =0 {Нет в наличии} one {Доступна # штука} few {Доступно # штуки} many {Доступно # штук} other {Доступно # штук}}",
       "quantityUnknown": "Наличие по запросу",

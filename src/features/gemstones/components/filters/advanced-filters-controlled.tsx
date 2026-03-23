@@ -576,6 +576,7 @@ export function AdvancedFiltersControlled({
               currency: "USD",
               minimumFractionDigits: 0,
               maximumFractionDigits: 0,
+              useGrouping: false,
             }).format(value / 100)} / ct`
           }
           disabled={loading}
@@ -596,6 +597,7 @@ export function AdvancedFiltersControlled({
               currency: "USD",
               minimumFractionDigits: 0,
               maximumFractionDigits: 0,
+              useGrouping: false,
             }).format(value / 100)
           }
           disabled={loading}

@@ -2,28 +2,28 @@
 
 import { Button } from "@/shared/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
 } from "@/shared/components/ui/card";
 import {
-  AlertCircle,
-  CheckCircle,
-  Download,
-  FileText,
-  Upload,
-  X,
+    AlertCircle,
+    CheckCircle,
+    Download,
+    FileText,
+    Upload,
+    X,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRef, useState } from "react";
 import {
-  CSVParserService,
-  type CSVParseResult,
+    CSVParserService,
+    type CSVParseResult,
 } from "../services/csv-parser-service";
 import {
-  GemstoneAdminService,
-  type BulkImportResult,
+    GemstoneAdminService,
+    type BulkImportResult,
 } from "../services/gemstone-admin-service";
 
 interface BulkImportModalProps {
@@ -334,6 +334,7 @@ export function BulkImportModal({
                                 currency: "USD",
                                 minimumFractionDigits: 0,
                                 maximumFractionDigits: 0,
+                                useGrouping: false,
                               }).format(gemstone.price_amount / 100)}
                             </td>
                             <td className="p-2">

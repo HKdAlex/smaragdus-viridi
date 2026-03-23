@@ -5,7 +5,7 @@ import { MessageCircle, X } from "lucide-react";
 import { useAuth } from "@/features/auth/context/auth-context";
 import { Button } from "@/shared/components/ui/button";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useUnreadCount } from "../hooks/use-chat";
 import { ChatInterface } from "./chat-interface";
 
@@ -15,6 +15,15 @@ export function ChatWidget() {
   const { user } = useAuth();
   const t = useTranslations("chat");
   const unreadCount = useUnreadCount(user?.id);
+
+  useEffect(() => {
+    const handler = () => {
+      setIsOpen(true);
+      setIsMinimized(false);
+    };
+    window.addEventListener("open-chat-widget", handler);
+    return () => window.removeEventListener("open-chat-widget", handler);
+  }, []);
 
   // Don't show widget if user is not logged in
   if (!user) return null;

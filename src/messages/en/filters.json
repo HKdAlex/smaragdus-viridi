@@ -159,6 +159,8 @@
     "qualityClassification": "Quality Classification",
     "treatmentStatus": "Treatment Status",
     "cutShape": "Cut Shape",
+    "cutSearchPlaceholder": "Search cuts...",
+    "cutNoResults": "No cuts match your search",
     "coloredGemstones": "Colored Gemstones",
     "diamondColorGrades": "Diamond Color Grades",
     "clarityGrade": "Clarity Grade",

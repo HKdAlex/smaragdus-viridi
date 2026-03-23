@@ -1,10 +1,10 @@
-import type {
-  DatabaseGemstoneImage,
-  DatabaseGemstoneVideo,
-  DetailGemstone,
-} from "@/shared/types";
+import {
+    normalizeStorefrontGemstoneImages,
+    normalizeStorefrontGemstoneVideos,
+} from "@/features/gemstones/utils/storefront-gemstone-media";
 
 import type { Database } from "@/shared/types/database";
+import type { DetailGemstone } from "@/shared/types";
 import { GemstoneDetail } from "@/features/gemstones/components/gemstone-detail";
 import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
@@ -18,6 +18,9 @@ interface PageProps {
     id: string;
   }>;
 }
+
+// Force dynamic rendering — never serve a stale cached page for gemstone details
+export const dynamic = "force-dynamic";
 
 // Export params to satisfy Next.js requirements for dynamic routes
 export async function generateStaticParams() {
@@ -68,8 +71,16 @@ async function fetchGemstoneById(
     // Fetch additional related data separately (not in the view)
     const [imagesResult, videosResult, certificationsResult, individualStonesResult, originResult] =
       await Promise.all([
-        supabaseAdmin.from("gemstone_images").select("*").eq("gemstone_id", id),
-        supabaseAdmin.from("gemstone_videos").select("*").eq("gemstone_id", id),
+        supabaseAdmin
+          .from("gemstone_images")
+          .select("*")
+          .eq("gemstone_id", id)
+          .order("image_order", { ascending: true }),
+        supabaseAdmin
+          .from("gemstone_videos")
+          .select("*")
+          .eq("gemstone_id", id)
+          .order("video_order", { ascending: true }),
         supabaseAdmin.from("certifications").select("*").eq("gemstone_id", id),
         supabaseAdmin.from("gemstone_individual_stones").select("*").eq("gemstone_id", id).order("stone_number"),
         // Fetch origin if origin_id exists
@@ -78,8 +89,16 @@ async function fetchGemstoneById(
           : Promise.resolve({ data: null, error: null }),
       ]);
 
-    const images = imagesResult.data || [];
-    const videos = videosResult.data || [];
+    const images = normalizeStorefrontGemstoneImages(
+      id,
+      imagesResult.data ?? [],
+      gemstone.primary_image_url
+    );
+    const videos = normalizeStorefrontGemstoneVideos(
+      id,
+      videosResult.data ?? [],
+      gemstone.primary_video_url
+    );
     const certifications = certificationsResult.data || [];
     const origin = originResult.data || null;
     
@@ -125,22 +144,6 @@ async function fetchGemstoneById(
       console.warn(
         `⚠️ [GemstoneDetail] Failed to fetch origin:`,
         originResult.error
-      );
-    }
-
-    // Sort images by order
-    if (images && Array.isArray(images)) {
-      images.sort(
-        (a: DatabaseGemstoneImage, b: DatabaseGemstoneImage) =>
-          a.image_order - b.image_order
-      );
-    }
-
-    // Sort videos by order
-    if (videos && Array.isArray(videos)) {
-      videos.sort(
-        (a: DatabaseGemstoneVideo, b: DatabaseGemstoneVideo) =>
-          a.video_order - b.video_order
       );
     }
 
@@ -294,6 +297,9 @@ export async function generateMetadata({ params }: PageProps) {
   const priceFormatted = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: gemstone.price_currency,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+    useGrouping: false,
   }).format(gemstone.price_amount / 100);
 
   const title = t("gemstone.title", {

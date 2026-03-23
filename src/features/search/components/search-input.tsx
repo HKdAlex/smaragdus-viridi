@@ -130,6 +130,7 @@ export function SearchInput({
 
         case "Escape":
           e.preventDefault();
+          e.stopPropagation();
           setShowDropdown(false);
           setSelectedIndex(-1);
           inputRef.current?.blur();

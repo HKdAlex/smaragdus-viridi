@@ -189,9 +189,17 @@ export function AdminGemstoneManager({
 
   const handleFormSuccess = useCallback(
     async (gemstone: GemstoneWithRelations) => {
-      // Invalidate caches to refresh data
+      // Invalidate admin caches
       queryClient.invalidateQueries({
         queryKey: queryKeys.admin.gemstones.lists(),
+      });
+
+      // Invalidate public catalog caches so updated prices/data appear immediately
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.gemstones.all,
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.filters.all,
       });
 
       // If we were creating a new gemstone, switch to edit mode

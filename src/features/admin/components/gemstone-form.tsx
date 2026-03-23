@@ -17,8 +17,7 @@ import {
     Select,
     SelectContent,
     SelectItem,
-    SelectTrigger,
-    SelectValue,
+    SelectTrigger
 } from "@/shared/components/ui/select";
 import {
     Tabs,
@@ -27,6 +26,7 @@ import {
     TabsTrigger,
 } from "@/shared/components/ui/tabs";
 import { Textarea } from "@/shared/components/ui/textarea";
+import { CutsService } from "@/shared/services/cuts-service";
 import {
     CURRENCY_CODES,
     DEFAULT_GEMSTONE_VALUES,
@@ -36,7 +36,6 @@ import {
     // CUT-C3.1: GEM_CUTS removed - using CutsService instead
     METADATA_STATUSES,
 } from "@/shared/services/database-enums";
-import { CutsService } from "@/shared/services/cuts-service";
 import type { Cut, DatabaseGemstone, DatabaseOrigin } from "@/shared/types";
 import {
     AlertCircle,
@@ -1850,6 +1849,7 @@ export function GemstoneForm({
                       ? new Intl.NumberFormat("en-US", {
                           style: "currency",
                           currency: formData.price_currency,
+                          useGrouping: false,
                         }).format(formData.price_amount / 100)
                       : "$0.00"}
                   </div>

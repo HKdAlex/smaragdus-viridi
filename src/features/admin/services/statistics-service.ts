@@ -276,6 +276,7 @@ export class StatisticsService {
       currency: currency,
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
+      useGrouping: false,
     }).format(amount / 100);
   }
 

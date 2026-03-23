@@ -111,6 +111,14 @@ export async function PUT(
       if (error) {
         return NextResponse.json({ error: error.message }, { status: 400 });
       }
+
+      // Also update selected_image_uuid in gemstones_ai_v6 so the highest-priority
+      // signal in MediaGallery always reflects the admin's explicit choice.
+      // This is a best-effort update — if no v6 row exists yet, we skip silently.
+      await adminClient
+        .from("gemstones_ai_v6")
+        .update({ selected_image_uuid: mediaId })
+        .eq("gemstone_id", id);
     } else if (mediaType === "video") {
       // Set all videos to order 1
       await adminClient

@@ -1,9 +1,10 @@
+import { AdminAuthError, requireAdmin } from "@/app/api/admin/_utils/require-admin";
 import { NextRequest, NextResponse } from "next/server";
 
 import { Database } from "@/shared/types/database";
 import { createClient } from "@supabase/supabase-js";
 import { mergeAdminGemstoneRecords } from "@/features/admin/utils/gemstone-record-merge";
-import { AdminAuthError, requireAdmin } from "@/app/api/admin/_utils/require-admin";
+import { revalidatePath } from "next/cache";
 
 // Server-side admin client
 const getAdminClient = () => {
@@ -433,6 +434,10 @@ export async function PUT(
     if (fetchError) {
       return NextResponse.json({ error: fetchError.message }, { status: 400 });
     }
+
+    // Bust Next.js server-side cache for catalog and detail pages
+    revalidatePath("/[locale]/catalog", "page");
+    revalidatePath(`/[locale]/catalog/${id}`, "page");
 
     // Log what was actually saved
     if (hasPricePerCarat && data) {

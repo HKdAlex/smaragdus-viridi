@@ -1,9 +1,8 @@
 "use client";
 
-import { useTranslations } from "next-intl";
-
 import type { PriceRange } from "../../../types/filter.types";
 import { RangeSlider } from "../range-slider";
+import { useTranslations } from "next-intl";
 
 interface PricePerCaratRangeProps {
   value?: PriceRange;
@@ -58,6 +57,7 @@ export function PricePerCaratRange({
             currency: "USD",
             minimumFractionDigits: 0,
             maximumFractionDigits: 0,
+            useGrouping: false,
           }).format(value / 100)} / ct`
         }
         disabled={disabled}

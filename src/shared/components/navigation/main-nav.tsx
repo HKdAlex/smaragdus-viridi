@@ -1,7 +1,7 @@
 "use client";
 
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/shared/components/ui/button";
 import { CurrencySwitcher } from "@/components/CurrencySwitcher";
@@ -115,6 +115,18 @@ export function MainNav() {
     },
     [pathname]
   );
+
+  useEffect(() => {
+    if (!searchOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setSearchOpen(false);
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [searchOpen]);
 
   // Memoize sign-out handler to prevent unnecessary re-renders
   const handleSignOut = useMemo(
@@ -234,44 +246,46 @@ export function MainNav() {
                 <div
                   className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
                   onClick={() => setSearchOpen(false)}
+                  role="presentation"
                 >
                   <div
-                    className="fixed left-1/2 top-1/4 -translate-x-1/2 w-full max-w-2xl px-4"
+                    className="fixed left-1/2 top-1/4 -translate-x-1/2 flex w-full max-w-2xl items-center gap-3 px-4"
                     onClick={(e) => e.stopPropagation()}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label={tAccessibility("search")}
                   >
-                    <div className="relative">
-                      <SearchInput
-                        autoFocus
-                        className="w-full shadow-2xl"
-                        onSearch={(query) => {
-                          setSearchOpen(false);
-                          router.push(
-                            `/search?q=${encodeURIComponent(query)}` as any
-                          );
-                        }}
-                      />
-                      {/* Close button for mobile */}
-                      <button
-                        type="button"
-                        className="absolute right-3 top-1/2 -translate-y-1/2 md:hidden p-1 text-muted-foreground hover:text-primary transition-colors"
-                        onClick={() => setSearchOpen(false)}
-                        aria-label={tAccessibility("close")}
+                    <SearchInput
+                      autoFocus
+                      className="min-w-0 flex-1 shadow-2xl"
+                      onSearch={(query) => {
+                        setSearchOpen(false);
+                        router.push(
+                          `/search?q=${encodeURIComponent(query)}` as any
+                        );
+                      }}
+                    />
+                    <button
+                      type="button"
+                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border-2 border-border/50 bg-background text-muted-foreground shadow-md transition-colors hover:bg-muted hover:text-primary"
+                      onClick={() => setSearchOpen(false)}
+                      aria-label={tAccessibility("close")}
+                    >
+                      <svg
+                        className="h-5 w-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth="1.5"
+                        stroke="currentColor"
+                        aria-hidden
                       >
-                        <svg
-                          className="h-5 w-5"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          strokeWidth="1.5"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M6 18L18 6M6 6l12 12"
-                          />
-                        </svg>
-                      </button>
-                    </div>
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                    </button>
                   </div>
                 </div>
               )}

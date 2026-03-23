@@ -1,4 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import {
+    normalizeStorefrontGemstoneImages,
+    normalizeStorefrontGemstoneVideos,
+} from "@/features/gemstones/utils/storefront-gemstone-media";
 
 import { supabaseAdmin } from "@/lib/supabase";
 
@@ -53,14 +57,30 @@ export async function GET(
 
     // Fetch additional related data separately (not in the view)
     const [imagesResult, videosResult, certificationsResult, individualStonesResult] = await Promise.all([
-      supabase.from("gemstone_images").select("*").eq("gemstone_id", id),
-      supabase.from("gemstone_videos").select("*").eq("gemstone_id", id),
+      supabase
+        .from("gemstone_images")
+        .select("*")
+        .eq("gemstone_id", id)
+        .order("image_order", { ascending: true }),
+      supabase
+        .from("gemstone_videos")
+        .select("*")
+        .eq("gemstone_id", id)
+        .order("video_order", { ascending: true }),
       supabase.from("certifications").select("*").eq("gemstone_id", id),
       supabase.from("gemstone_individual_stones").select("*").eq("gemstone_id", id).order("stone_number")
     ]);
 
-    const images = imagesResult.data || [];
-    const videos = videosResult.data || [];
+    const images = normalizeStorefrontGemstoneImages(
+      id,
+      imagesResult.data ?? [],
+      gemstone.primary_image_url
+    );
+    const videos = normalizeStorefrontGemstoneVideos(
+      id,
+      videosResult.data ?? [],
+      gemstone.primary_video_url
+    );
     const certifications = certificationsResult.data || [];
     // Transform individual_stones from database format to application format
     const individual_stones = (individualStonesResult.data || []).map((stone) => ({

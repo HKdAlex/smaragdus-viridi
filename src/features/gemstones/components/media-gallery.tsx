@@ -1,18 +1,18 @@
 "use client";
 
 import {
-  ChevronLeft,
-  ChevronRight,
-  Expand,
-  Pause,
-  Play,
-  Volume2,
-  VolumeX,
-  X,
+    ChevronLeft,
+    ChevronRight,
+    Expand,
+    Pause,
+    Play,
+    Volume2,
+    VolumeX,
+    X,
 } from "lucide-react";
 import type {
-  DatabaseGemstoneImage,
-  DatabaseGemstoneVideo,
+    DatabaseGemstoneImage,
+    DatabaseGemstoneVideo,
 } from "@/shared/types";
 import { Dialog, DialogContent } from "@/shared/components/ui/dialog";
 import { useEffect, useRef, useState } from "react";
@@ -48,23 +48,33 @@ export function MediaGallery({
   const t = useTranslations("gemstones.media");
   const tErrors = useTranslations("errors.media");
 
-  // Combine and sort media items
+  // Combine and sort media items (skip rows with empty URLs — they break the gallery)
   const mediaItems: MediaItem[] = [
-    ...images.map((img) => ({
-      id: img.id,
-      type: "image" as const,
-      url: img.image_url,
-      order: img.image_order,
-      isPrimary: img.is_primary ?? undefined,
-    })),
-    ...videos.map((vid) => ({
-      id: vid.id,
-      type: "video" as const,
-      url: vid.video_url,
-      order: vid.video_order,
-      thumbnailUrl: vid.thumbnail_url ?? undefined,
-      duration: vid.duration_seconds ?? undefined,
-    })),
+    ...images
+      .filter(
+        (img) =>
+          typeof img.image_url === "string" && img.image_url.trim().length > 0
+      )
+      .map((img) => ({
+        id: img.id,
+        type: "image" as const,
+        url: img.image_url.trim(),
+        order: img.image_order,
+        isPrimary: img.is_primary ?? undefined,
+      })),
+    ...videos
+      .filter(
+        (vid) =>
+          typeof vid.video_url === "string" && vid.video_url.trim().length > 0
+      )
+      .map((vid) => ({
+        id: vid.id,
+        type: "video" as const,
+        url: vid.video_url.trim(),
+        order: vid.video_order,
+        thumbnailUrl: vid.thumbnail_url ?? undefined,
+        duration: vid.duration_seconds ?? undefined,
+      })),
   ].sort((a, b) => a.order - b.order);
 
   // Find the primary image index to start with

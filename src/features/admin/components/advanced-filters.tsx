@@ -1,27 +1,27 @@
 "use client";
 
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
 } from "@/shared/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from "@/shared/components/ui/select";
 import { ChevronDown, ChevronUp, Filter, RotateCcw, X } from "lucide-react";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+} from "@/shared/components/ui/select";
 import { useEffect, useState } from "react";
 
-import { useGemstoneTranslations } from "@/features/gemstones/utils/gemstone-translations";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Checkbox } from "@/shared/components/ui/checkbox";
-import { Input } from "@/shared/components/ui/input";
-import { CutsService } from "@/shared/services/cuts-service";
 import type { Cut } from "@/shared/types";
+import { CutsService } from "@/shared/services/cuts-service";
+import { Input } from "@/shared/components/ui/input";
+import { useGemstoneTranslations } from "@/features/gemstones/utils/gemstone-translations";
 import { useTranslations } from "next-intl";
 
 export interface AdvancedFiltersState {
@@ -223,6 +223,7 @@ export function AdvancedFilters({
       currency: "USD",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
+      useGrouping: false,
     }).format(amount / 100);
   };
 

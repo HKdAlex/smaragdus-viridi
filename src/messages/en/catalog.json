@@ -148,6 +148,8 @@
       "signInToAdd": "Sign In to Add",
       "requestInfo": "Request Info",
       "price": "Price",
+      "pricePerCarat": "{price} per carat",
+      "caratSuffix": "ct",
       "quantity": "Quantity",
       "quantityAvailable": "{count, plural, =0 {Out of stock} one {# piece available} other {# pieces available}}",
       "quantityUnknown": "Availability on request",

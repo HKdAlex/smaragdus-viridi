@@ -21,6 +21,7 @@ export function formatPrice(amount: number, currency: string): string {
     currency: currency,
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
+    useGrouping: false,
   }).format(amount / 100); // Convert from cents to dollars
 }
 

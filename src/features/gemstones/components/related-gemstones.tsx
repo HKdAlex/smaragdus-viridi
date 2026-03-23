@@ -1,28 +1,28 @@
 "use client";
 
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
 } from "@/shared/components/ui/card";
-import { ChevronLeft, ChevronRight, Heart, Star } from "lucide-react";
 import type {
-  DatabaseGemstone,
-  DatabaseGemstoneImage,
-  DatabaseOrigin,
+    DatabaseGemstone,
+    DatabaseGemstoneImage,
+    DatabaseOrigin,
 } from "@/shared/types";
+import { ChevronLeft, ChevronRight, Heart, Star } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
+import { useCurrency } from "@/features/currency/hooks/use-currency";
+import { Link } from "@/i18n/navigation";
+import { supabase } from "@/lib/supabase";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import Image from "next/image";
-import { Link } from "@/i18n/navigation";
-import { selectPrimaryImage } from "../utils/select-primary-image";
-import { supabase } from "@/lib/supabase";
-import { useGemstoneTranslations } from "../utils/gemstone-translations";
 import { useTranslations } from "next-intl";
-import { useCurrency } from "@/features/currency/hooks/use-currency";
+import Image from "next/image";
+import { useGemstoneTranslations } from "../utils/gemstone-translations";
+import { selectPrimaryImage } from "../utils/select-primary-image";
 
 interface RelatedGemstonesProps {
   currentGemstone: {
@@ -82,7 +82,8 @@ export function RelatedGemstones({
             `
             *,
             origin:origins(*),
-            images:gemstone_images(*)
+            images:gemstone_images(*),
+            ai_v6:gemstones_ai_v6(selected_image_uuid, recommended_primary_image_index)
           `
           )
           .neq("id", currentGemstone.id) // Exclude current gemstone
@@ -304,11 +305,17 @@ export function RelatedGemstones({
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {relatedGemstones.map((gemstone) => {
+            const aiV6 = (gemstone as any).ai_v6 ?? null;
             const primaryImageSelection = selectPrimaryImage({
               images: gemstone.images,
-              selectedImageUuid: (gemstone as any).selected_image_uuid ?? null,
+              selectedImageUuid:
+                aiV6?.selected_image_uuid ??
+                (gemstone as any).selected_image_uuid ??
+                null,
               recommendedPrimaryImageIndex:
-                (gemstone as any).recommended_primary_image_index ?? null,
+                aiV6?.recommended_primary_image_index ??
+                (gemstone as any).recommended_primary_image_index ??
+                null,
               primaryImageUrl: (gemstone as any).primary_image_url ?? null,
             });
             const primaryImageUrl = primaryImageSelection?.imageUrl ?? null;

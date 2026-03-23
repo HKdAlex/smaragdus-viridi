@@ -1,17 +1,18 @@
 "use client";
 
-import type { CurrencyCode } from "@/shared/types";
 import {
-  ReactNode,
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
+    ReactNode,
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useMemo,
+    useState,
 } from "react";
-import { PreferencesService } from "@/features/cart/services/preferences-service";
+
+import type { CurrencyCode } from "@/shared/types";
 import { Logger } from "@/shared/utils/logger";
+import { PreferencesService } from "@/features/cart/services/preferences-service";
 
 const logger = new Logger("CurrencyContext");
 
@@ -211,6 +212,7 @@ export function CurrencyProvider({
         currency: selectedCurrency,
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
+        useGrouping: false, // Removes thousands separators (e.g., 1,600 -> 1600)
       }).format(amountInBaseUnit);
     },
     [selectedCurrency, convertPrice]

@@ -159,6 +159,8 @@
     "qualityClassification": "Классификация качества",
     "treatmentStatus": "Статус обработки",
     "cutShape": "Форма огранки",
+    "cutSearchPlaceholder": "Поиск огранки...",
+    "cutNoResults": "Огранки не найдены",
     "coloredGemstones": "Цветные камни",
     "diamondColorGrades": "Градации цвета бриллианта",
     "clarityGrade": "Градация чистоты",

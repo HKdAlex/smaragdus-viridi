@@ -1,44 +1,45 @@
 "use client";
 
-import { Link, useRouter } from "@/i18n/navigation";
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
 } from "@/shared/components/ui/card";
-import { ColorIndicator, CutIcon } from "@/shared/components/ui/gemstone-icons";
 import {
-  CheckCircle,
-  Edit,
-  Heart,
-  Info,
-  Package,
-  Ruler,
-  Scale,
-  Share2,
-  Shield,
-  ShoppingCart,
-  Sparkles,
-  Truck,
+    CheckCircle,
+    Edit,
+    Heart,
+    Info,
+    Package,
+    Ruler,
+    Scale,
+    Share2,
+    Shield,
+    ShoppingCart,
+    Sparkles,
+    Truck,
 } from "lucide-react";
+import { ColorIndicator, CutIcon } from "@/shared/components/ui/gemstone-icons";
+import { Link, useRouter } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
 
-import { useAuth } from "@/features/auth/context/auth-context";
-import { useCartContext } from "@/features/cart/context/cart-context";
-import { useCurrency } from "@/features/currency/hooks/use-currency";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import type { DetailGemstone } from "@/shared/types";
-import type { Database } from "@/shared/types/database";
-import { useState } from "react";
-import { useGemstoneTranslations } from "../utils/gemstone-translations";
 import { CertificationDisplay } from "./certification-display";
+import type { Database } from "@/shared/types/database";
+import type { DetailGemstone } from "@/shared/types";
 import { GemstoneDetailV6Tabs } from "./gemstone-detail-v6-tabs";
 import { MediaGallery } from "./media-gallery";
 import { ProfessionalSpecifications } from "./professional-specifications";
 import { RelatedGemstones } from "./related-gemstones";
+import { Separator } from "@/shared/components/ui/separator";
 import { TreatmentDisclosure } from "./treatment-disclosure";
+import { useAuth } from "@/features/auth/context/auth-context";
+import { useCartContext } from "@/features/cart/context/cart-context";
+import { useCurrency } from "@/features/currency/hooks/use-currency";
+import { useGemstoneTranslations } from "../utils/gemstone-translations";
+import { useState } from "react";
 
 // DetailGemstone interface is now imported from shared types
 
@@ -110,6 +111,14 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
   const formatWeight = (weight: number) => {
     return parseFloat(weight.toString()).toFixed(2);
   };
+
+  const weightCaratsNum = Number(gemstone.weight_carats);
+  const pricePerCaratMinorUnits =
+    weightCaratsNum > 0 &&
+    Number.isFinite(weightCaratsNum) &&
+    gemstone.price_amount > 0
+      ? Math.round(gemstone.price_amount / weightCaratsNum)
+      : null;
 
   const normalizeDimensionValue = (value: unknown): number | null => {
     if (value === null || value === undefined) {
@@ -307,6 +316,11 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
     console.log("Toggled favorite:", gemstone.id);
   };
 
+  // Open the floating chat widget so the user can ask about this gemstone
+  const handleRequestInfo = () => {
+    window.dispatchEvent(new CustomEvent("open-chat-widget"));
+  };
+
   // Handle share functionality
   const handleShare = async () => {
     const url = window.location.href;
@@ -368,119 +382,82 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
             />
           </div>
 
-          {/* Gemstone Details - Sophisticated Multi-Section Layout */}
-          <div className="xl:col-span-2 space-y-4">
-            {/* Luxury Header Card - Redesigned */}
-            <Card className="border-0 shadow-2xl bg-gradient-to-br from-card via-card/95 to-muted/40 backdrop-blur-xl overflow-hidden">
-              <CardContent className="p-3 sm:p-4 space-y-4 sm:space-y-6">
-                {/* Title Section */}
-                <div className="space-y-3">
-                  {/* Main Title - First, with gradient shadow */}
-                  <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight capitalize bg-gradient-to-br from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent drop-shadow-sm">
+          {/* Gemstone Details — identity → purchase panel → highlights */}
+          <div className="xl:col-span-2">
+            <Card className="border border-border/60 shadow-xl bg-card overflow-hidden">
+              <CardContent className="p-4 sm:p-6 space-y-0">
+                {/* 1. Identity: title + weight chip + lot codes */}
+                <header className="space-y-5">
+                  <h1 className="text-3xl sm:text-4xl font-bold leading-[1.15] tracking-tight capitalize text-foreground">
                     {colorLabel} {typeLabel}
                   </h1>
 
-                  {/* Weight + Icon - Below title */}
-                  <div className="flex items-center gap-3">
-                    <div className="p-2.5 bg-white/5 backdrop-blur-xl rounded-xl flex-shrink-0">
-                      <Scale className="w-5 h-5 text-primary" />
-                    </div>
-                    <div className="text-xl font-semibold text-muted-foreground">
-                      {formatWeight(gemstone.weight_carats)}
-                    </div>
+                  {/* Weight chip — prominently sized */}
+                  <div className="inline-flex items-center gap-2.5 rounded-xl bg-primary/8 dark:bg-primary/12 border border-primary/20 px-4 py-2.5">
+                    <Scale className="w-5 h-5 text-primary shrink-0" aria-hidden />
+                    <span className="text-lg font-bold text-foreground tabular-nums tracking-tight">
+                      {formatWeight(gemstone.weight_carats)}{" "}
+                      <span className="font-semibold text-primary">{t("caratSuffix")}</span>
+                    </span>
                   </div>
-                </div>
 
-                {/* Metadata - Single Line, No Wrap */}
-                <div className="flex items-center gap-3 text-sm bg-muted/30 rounded-lg px-4 py-3 overflow-x-auto">
-                  <div className="flex items-center gap-2 text-muted-foreground whitespace-nowrap">
-                    <span className="font-medium">{t("serial")}:</span>
-                    <code className="px-2 py-1 bg-background rounded font-mono text-xs">
-                      {gemstone.serial_number}
-                    </code>
-                  </div>
-                  {gemstone.internal_code && (
-                    <>
-                      <span className="text-muted-foreground/40">•</span>
-                      <div className="flex items-center gap-2 text-muted-foreground whitespace-nowrap">
-                        <span className="font-medium">{t("code")}:</span>
-                        <code className="px-2 py-1 bg-background rounded font-mono text-xs">
+                  {/* Lot codes row */}
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+                    <div className="flex items-center gap-2 text-muted-foreground min-w-0">
+                      <span className="shrink-0 font-medium text-foreground/70 text-xs uppercase tracking-wide">
+                        {t("serial")}
+                      </span>
+                      <code className="px-2.5 py-1 rounded-md bg-muted font-mono text-sm text-foreground truncate max-w-[12rem] sm:max-w-none">
+                        {gemstone.serial_number}
+                      </code>
+                    </div>
+                    {gemstone.internal_code && (
+                      <div className="flex items-center gap-2 text-muted-foreground min-w-0">
+                        <span className="shrink-0 font-medium text-foreground/70 text-xs uppercase tracking-wide">
+                          {t("code")}
+                        </span>
+                        <code className="px-2.5 py-1 rounded-md bg-muted font-mono text-sm text-foreground truncate max-w-[10rem] sm:max-w-none">
                           {gemstone.internal_code}
                         </code>
                       </div>
-                    </>
-                  )}
-                </div>
+                    )}
+                  </div>
+                </header>
 
-                {/* Key Highlights - Above Price */}
-                {(() => {
-                  const highlights =
-                    locale === "ru"
-                      ? gemstone.v6Text?.marketing_highlights_ru ||
-                        gemstone.v6Text?.marketing_highlights
-                      : gemstone.v6Text?.marketing_highlights;
-                  return (
-                    highlights &&
-                    highlights.length > 0 && (
-                      <div className="relative bg-white/5 dark:bg-black/20 backdrop-blur-xl rounded-2xl p-6 border border-white/10 overflow-hidden">
-                        {/* Elegant corner accent */}
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/10 to-transparent rounded-bl-full blur-2xl" />
+                <Separator className="my-6" />
 
-                        <div className="relative">
-                          <div className="flex items-center gap-2.5 mb-4">
-                            <div className="p-1.5 bg-gradient-to-br from-primary/20 to-primary/10 rounded-lg">
-                              <Sparkles className="w-4 h-4 text-primary" />
-                            </div>
-                            <h3 className="font-semibold text-xs uppercase tracking-widest text-primary/80">
-                              {t("distinguishedFeatures")}
-                            </h3>
-                          </div>
+                {/* 2. Commerce panel: price, availability, primary actions */}
+                <section
+                  className="rounded-2xl border border-border/80 bg-gradient-to-b from-muted/40 to-muted/10 dark:from-muted/25 dark:to-muted/5 p-5 sm:p-6 space-y-5"
+                  aria-labelledby="gemstone-price-heading"
+                >
+                  {/* Price block */}
+                  <div className="space-y-3">
+                    <h2
+                      id="gemstone-price-heading"
+                      className="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold"
+                    >
+                      {t("price")}
+                    </h2>
 
-                          <ul className="space-y-3">
-                            {highlights.slice(0, 3).map((highlight, index) => (
-                              <li
-                                key={index}
-                                className="flex items-start gap-3 group"
-                              >
-                                <div className="relative mt-1.5">
-                                  <div className="w-1 h-1 bg-gradient-to-br from-primary to-primary/60 rounded-full" />
-                                  <div className="absolute inset-0 w-1 h-1 bg-primary rounded-full animate-pulse opacity-0 group-hover:opacity-40" />
-                                </div>
-                                <span className="text-sm text-foreground/85 leading-relaxed font-light">
-                                  {highlight}
-                                </span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
-                    )
-                  );
-                })()}
-
-                {/* Price Section - More Spacing */}
-                <div className="pt-6 border-t border-border">
-                  <div className="space-y-5">
-                    <div className="pb-2">
-                      <div className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-3">
-                        {t("price")}
-                      </div>
-                      <div className="flex items-baseline gap-3 pb-1">
-                        <span className="text-4xl sm:text-5xl font-bold text-foreground">
-                          {formatPrice(gemstone.price_amount, gemstone.price_currency)}
-                        </span>
-                        {gemstone.premium_price_amount && (
-                          <span className="text-xl text-muted-foreground/60 line-through font-medium">
-                            {formatPrice(gemstone.premium_price_amount, gemstone.premium_price_currency || gemstone.price_currency)}
-                          </span>
+                    {/* Main price + strikethrough */}
+                    <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                      <span className="text-4xl sm:text-5xl font-bold text-foreground tabular-nums tracking-tight">
+                        {formatPrice(
+                          gemstone.price_amount,
+                          gemstone.price_currency
                         )}
-                      </div>
+                      </span>
                       {gemstone.premium_price_amount && (
-                        <div className="mt-2">
-                          <Badge
-                            variant="destructive"
-                            className="text-xs font-semibold"
-                          >
+                        <>
+                          <span className="text-xl text-muted-foreground line-through font-medium tabular-nums">
+                            {formatPrice(
+                              gemstone.premium_price_amount,
+                              gemstone.premium_price_currency ||
+                                gemstone.price_currency
+                            )}
+                          </span>
+                          <Badge variant="destructive" className="text-xs px-2 py-0.5 self-center">
                             SAVE{" "}
                             {Math.round(
                               ((gemstone.premium_price_amount -
@@ -490,137 +467,125 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                             )}
                             %
                           </Badge>
-                        </div>
+                        </>
                       )}
                     </div>
 
-                    {/* Status Indicators - Glassmorphic High-Tech */}
-                    <div className="flex items-center gap-3 flex-wrap pt-4">
-                      {/* In Stock Badge */}
-                      <div
-                        className={`group relative flex items-center gap-2 px-2 py-1 rounded-lg font-medium text-sm backdrop-blur-xl overflow-hidden transition-all duration-300 hover:scale-[1.02] ${
-                          gemstone.in_stock
-                            ? "bg-white/5 text-emerald-400 border border-emerald-400/30 shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30"
-                            : "bg-white/5 text-red-400 border border-red-400/30 shadow-lg shadow-red-500/20 hover:shadow-red-500/30"
-                        }`}
-                      >
-                        {/* Animated glass reflection */}
-                        <div
-                          className={`absolute inset-0 bg-gradient-to-br ${
-                            gemstone.in_stock
-                              ? "from-emerald-400/10 via-transparent to-transparent"
-                              : "from-red-400/10 via-transparent to-transparent"
-                          } opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
-                        />
-
-                        {/* Status indicator */}
-                        <div className="relative flex items-center gap-3">
-                          <div className="relative">
-                            <div
-                              className={`w-2.5 h-2.5 rounded-full ${
-                                gemstone.in_stock
-                                  ? "bg-emerald-400 shadow-lg shadow-emerald-400/60"
-                                  : "bg-red-400 shadow-lg shadow-red-400/60"
-                              } ${gemstone.in_stock ? "animate-pulse" : ""}`}
-                            />
-                            {gemstone.in_stock && (
-                              <div className="absolute inset-0 w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping opacity-30" />
-                            )}
-                          </div>
-                          <span className="relative tracking-wide">
-                            {gemstone.in_stock ? t("inStock") : t("outOfStock")}
-                          </span>
-                        </div>
+                    {/* Per-carat price chip — enlarged */}
+                    {pricePerCaratMinorUnits !== null && (
+                      <div className="inline-flex items-center gap-2 rounded-lg bg-muted/70 dark:bg-muted/40 px-3 py-1.5">
+                        <span className="text-base font-semibold text-foreground tabular-nums">
+                          {formatPrice(pricePerCaratMinorUnits, gemstone.price_currency)}
+                        </span>
+                        <span className="text-sm text-muted-foreground font-medium">
+                          / {t("caratSuffix")}
+                        </span>
                       </div>
+                    )}
 
-                      {/* Delivery Badge */}
-                      {gemstone.delivery_days && (
-                        <div className="group relative flex items-center gap-2 px-2 py-1 rounded-lg font-medium text-sm backdrop-blur-xl bg-white/5 text-foreground/90 border border-white/20 shadow-lg hover:shadow-xl overflow-hidden transition-all duration-300 hover:scale-[1.02]">
-                          {/* Animated glass reflection */}
-                          <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-                          <div className="relative flex items-center gap-3">
-                            <Truck className="w-4 h-4 drop-shadow-sm" />
-                            <span className="relative tracking-wide">
-                              {t("daysDelivery", {
-                                days: gemstone.delivery_days,
-                              })}
-                            </span>
-                          </div>
-                        </div>
-                      )}
+                    {/* Availability badges */}
+                    <div className="flex flex-wrap items-center gap-2 pt-1">
+                      <Badge
+                        variant="outline"
+                        className={
+                          gemstone.in_stock
+                            ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 font-medium gap-1.5 pl-2.5 pr-3 py-1.5 text-sm"
+                            : "border-destructive/40 bg-destructive/10 text-destructive font-medium gap-1.5 pl-2.5 pr-3 py-1.5 text-sm"
+                        }
+                      >
+                        <span
+                          className={`h-2 w-2 rounded-full shrink-0 ${
+                            gemstone.in_stock
+                              ? "bg-emerald-500"
+                              : "bg-destructive"
+                          }`}
+                          aria-hidden
+                        />
+                        {gemstone.in_stock ? t("inStock") : t("outOfStock")}
+                      </Badge>
+                      {gemstone.delivery_days ? (
+                        <Badge
+                          variant="secondary"
+                          className="font-normal gap-1.5 pl-2.5 pr-3 py-1.5 text-sm text-foreground/90"
+                        >
+                          <Truck className="w-3.5 h-3.5" aria-hidden />
+                          {t("daysDelivery", {
+                            days: gemstone.delivery_days,
+                          })}
+                        </Badge>
+                      ) : null}
                     </div>
                   </div>
-                </div>
 
-                {/* Cart Message */}
-                {cartMessage && (
-                  <div
-                    className={`p-3 rounded-lg text-center text-sm font-medium ${
-                      cartMessage.includes("✅")
-                        ? "bg-green-50 text-green-800 border border-green-200 dark:bg-green-950 dark:text-green-200 dark:border-green-800"
-                        : cartMessage.includes("❌")
-                        ? "bg-destructive/10 text-destructive border border-destructive/20 dark:bg-destructive/20 dark:text-destructive/80 dark:border-destructive/40"
-                        : "bg-blue-50 text-blue-800 border border-blue-200 dark:bg-blue-950 dark:text-blue-200 dark:border-blue-800"
-                    }`}
-                  >
-                    {cartMessage}
-                  </div>
-                )}
+                  {cartMessage && (
+                    <div
+                      className={`p-3 rounded-lg text-center text-sm font-medium ${
+                        cartMessage.includes("✅")
+                          ? "bg-green-50 text-green-800 border border-green-200 dark:bg-green-950 dark:text-green-200 dark:border-green-800"
+                          : cartMessage.includes("❌")
+                          ? "bg-destructive/10 text-destructive border border-destructive/20 dark:bg-destructive/20 dark:text-destructive/80 dark:border-destructive/40"
+                          : "bg-blue-50 text-blue-800 border border-blue-200 dark:bg-blue-950 dark:text-blue-200 dark:border-blue-800"
+                      }`}
+                    >
+                      {cartMessage}
+                    </div>
+                  )}
 
-                {/* Action Buttons */}
-                <div className="space-y-3">
-                  <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3">
+                  {/* Primary action buttons */}
+                  <div className="flex flex-col gap-3">
                     <Button
                       size="lg"
                       onClick={handleAddToCart}
-                      disabled={!gemstone.in_stock || isAddingToCart || !user}
-                      className="flex-1 h-12 sm:h-12 text-base font-medium shadow-lg hover:shadow-xl transition-all duration-200 min-h-[48px]"
+                      disabled={
+                        !gemstone.in_stock || isAddingToCart || !user
+                      }
+                      className="w-full h-12 text-base font-semibold shadow-md hover:shadow-lg transition-shadow"
                     >
-                      <ShoppingCart className="w-5 h-5 mr-2" />
+                      <ShoppingCart className="w-5 h-5 mr-2 shrink-0" />
                       {isAddingToCart
                         ? t("adding")
                         : isAlreadyInCart
-                        ? t("inCart")
-                        : user
-                        ? t("addToCart")
-                        : t("signInToAdd")}
+                          ? t("inCart")
+                          : user
+                            ? t("addToCart")
+                            : t("signInToAdd")}
                     </Button>
                     <Button
                       variant="outline"
                       size="lg"
-                      className="flex-1 h-12 sm:h-12 text-base font-medium border-2 hover:border-primary/50 transition-all duration-200 min-h-[48px] text-foreground"
+                      onClick={handleRequestInfo}
+                      className="w-full h-12 text-base font-medium border-2"
                     >
-                      <Info className="w-5 h-5 mr-2" />
+                      <Info className="w-5 h-5 mr-2 shrink-0" />
                       {t("requestInfo")}
                     </Button>
-                    {isAdmin && (
-                      <Button
-                        variant="outline"
-                        size="lg"
-                        onClick={handleEditGemstone}
-                        className="flex-1 h-12 sm:h-12 text-base font-medium border-2 border-primary/40 hover:border-primary transition-all duration-200 min-h-[48px] text-primary"
-                      >
-                        <Edit className="w-5 h-5 mr-2" />
-                        {t("editGemstone")}
-                      </Button>
-                    )}
                   </div>
 
-                  {/* Favorite & Share Buttons */}
-                  <div className="flex items-center gap-2 justify-center pt-2">
+                  {isAdmin && (
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      onClick={handleEditGemstone}
+                      className="w-full h-11 text-sm font-medium border-primary/35 text-primary hover:bg-primary/5 min-h-[44px]"
+                    >
+                      <Edit className="w-4 h-4 mr-2 shrink-0" />
+                      {t("editGemstone")}
+                    </Button>
+                  )}
+
+                  <div className="flex items-center justify-center gap-1 pt-3 border-t border-border/50">
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={handleToggleFavorite}
-                      className={`rounded-lg transition-all duration-300 ${
+                      className={`text-muted-foreground hover:text-foreground ${
                         isFavorite
-                          ? "text-destructive bg-destructive/15 hover:bg-destructive/25"
-                          : "hover:bg-muted"
+                          ? "!text-destructive hover:!text-destructive"
+                          : ""
                       }`}
                     >
                       <Heart
-                        className={`w-4 h-4 mr-2 ${
+                        className={`w-4 h-4 mr-1.5 ${
                           isFavorite ? "fill-current" : ""
                         }`}
                       />
@@ -630,13 +595,59 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                       variant="ghost"
                       size="sm"
                       onClick={handleShare}
-                      className="rounded-lg hover:bg-muted transition-all duration-300"
+                      className="text-muted-foreground hover:text-foreground"
                     >
-                      <Share2 className="w-4 h-4 mr-2" />
+                      <Share2 className="w-4 h-4 mr-1.5" />
                       {t("share")}
                     </Button>
                   </div>
-                </div>
+                </section>
+
+                {/* 3. Marketing highlights — after purchase context, tighter */}
+                {(() => {
+                  const highlights =
+                    locale === "ru"
+                      ? gemstone.v6Text?.marketing_highlights_ru ||
+                        gemstone.v6Text?.marketing_highlights
+                      : gemstone.v6Text?.marketing_highlights;
+                  if (!highlights?.length) return null;
+                  return (
+                    <>
+                      <Separator className="my-5 sm:my-6" />
+                      <section
+                        className="rounded-xl border border-border/50 bg-muted/20 dark:bg-muted/10 p-4 sm:p-5"
+                        aria-labelledby="gemstone-highlights-heading"
+                      >
+                        <div className="flex items-center gap-2 mb-3">
+                          <Sparkles
+                            className="w-4 h-4 text-primary shrink-0"
+                            aria-hidden
+                          />
+                          <h3
+                            id="gemstone-highlights-heading"
+                            className="text-xs font-semibold uppercase tracking-widest text-primary"
+                          >
+                            {t("distinguishedFeatures")}
+                          </h3>
+                        </div>
+                        <ul className="space-y-2.5">
+                          {highlights.slice(0, 3).map((highlight, index) => (
+                            <li
+                              key={index}
+                              className="flex gap-3 text-sm text-foreground/90 leading-relaxed"
+                            >
+                              <span
+                                className="mt-2 h-1 w-1 shrink-0 rounded-full bg-primary/70"
+                                aria-hidden
+                              />
+                              <span>{highlight}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </section>
+                    </>
+                  );
+                })()}
               </CardContent>
             </Card>
           </div>
