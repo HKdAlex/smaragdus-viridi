@@ -4,8 +4,8 @@ import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { useMemo, useRef, useState } from "react";
 
 import { Button } from "@/shared/components/ui/button";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { CurrencySwitcher } from "@/components/CurrencySwitcher";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { Logo } from "@/shared/components/ui/logo";
 import { SearchInput } from "@/features/search/components/search-input";
 import { ThemeToggle } from "@/shared/components/ui/theme-toggle";
@@ -151,7 +151,7 @@ export function MainNav() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <div className="flex items-center">
-            <Logo variant="block" size="lg" href="/" showText={false} />
+            <Logo variant="inline" size="lg" href="/" showText={false} />
           </div>
 
           {/* Desktop Navigation */}

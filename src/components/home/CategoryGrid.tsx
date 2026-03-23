@@ -1,7 +1,8 @@
-import { duration, ease, radius, shadowHover } from "@/lib/ux/tokens";
+import { Container } from "@/components/ui/Container";
+import { cn } from "@/lib/utils";
+import { duration, ease, radius } from "@/lib/ux/tokens";
 
 import { Card } from "@/shared/components/ui/card";
-import { Container } from "@/components/ui/Container";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -39,7 +40,13 @@ export function CategoryGrid({ items }: { items: CategoryItem[] }) {
               className="group focus:outline-none"
             >
               <Card
-                className={`relative overflow-hidden ${radius} bg-white/10 dark:bg-white/5 border border-white/20 dark:border-white/10 backdrop-blur-md shadow-lg transition-transform ${duration} ${ease} will-change-transform group-hover:-translate-y-1 hover:${shadowHover}`}
+                className={cn(
+                  "relative overflow-hidden border border-zinc-200 bg-white shadow-md transition-transform will-change-transform group-hover:-translate-y-1 hover:shadow-lg",
+                  radius,
+                  duration,
+                  ease,
+                  "dark:border-white/10 dark:bg-white/5 dark:backdrop-blur-md"
+                )}
               >
                 <div className="relative aspect-[4/3]">
                   <Image
@@ -59,7 +66,7 @@ export function CategoryGrid({ items }: { items: CategoryItem[] }) {
                         {item.title}
                       </h3>
                       {item.subtitle ? (
-                        <p className="text-xs sm:text-sm text-muted-foreground mt-1 leading-relaxed">
+                        <p className="mt-1 text-sm text-zinc-600 leading-relaxed sm:text-base dark:text-muted-foreground">
                           {item.subtitle}
                         </p>
                       ) : null}

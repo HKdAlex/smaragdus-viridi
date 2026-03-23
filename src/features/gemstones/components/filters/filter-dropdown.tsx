@@ -128,15 +128,16 @@ export function FilterDropdown<T extends string = string>({
         onClick={() => !disabled && setIsOpen(!isOpen)}
         disabled={disabled}
         className={`
-          w-full px-3 py-2 text-left bg-input border border-border rounded-lg
-          text-foreground placeholder:text-muted-foreground
+          w-full px-3 py-2 text-left rounded-lg border
+          bg-white border-zinc-300 text-foreground
+          dark:bg-input dark:border-border
           focus:ring-2 focus:ring-ring focus:border-ring 
           transition-colors duration-200
           flex items-center justify-between
           ${
             disabled
               ? "opacity-50 cursor-not-allowed"
-              : "hover:border-ring/50 cursor-pointer"
+              : "hover:border-zinc-400 dark:hover:border-ring/50 cursor-pointer"
           }
           ${isOpen ? "ring-2 ring-ring border-ring" : ""}
         `}
@@ -146,13 +147,15 @@ export function FilterDropdown<T extends string = string>({
       >
         <span
           className={`truncate ${
-            hasSelection ? "text-foreground" : "text-muted-foreground"
+            hasSelection
+              ? "text-foreground"
+              : "text-zinc-800 dark:text-muted-foreground"
           }`}
         >
           {getDisplayText()}
         </span>
         <ChevronDownIcon
-          className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${
+          className={`w-4 h-4 text-zinc-600 transition-transform duration-200 dark:text-muted-foreground ${
             isOpen ? "transform rotate-180" : ""
           }`}
         />

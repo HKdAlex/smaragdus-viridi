@@ -133,11 +133,42 @@ export async function GET(request: NextRequest) {
 
     // Apply search filter
     if (search) {
-      // Search only text columns to avoid enum casting issues
-      // PostgREST doesn't support ::text casting in filters
-      query = query.or(
-        `serial_number.ilike.%${search}%,internal_code.ilike.%${search}%,description.ilike.%${search}%`
-      );
+      const escaped = search
+        .replace(/\\/g, "\\\\")
+        .replace(/%/g, "\\%")
+        .replace(/_/g, "\\_");
+      const pattern = `%${escaped}%`;
+
+      const conditions = [
+        `serial_number.ilike.${pattern}`,
+        `internal_code.ilike.${pattern}`,
+        `description.ilike.${pattern}`,
+      ];
+
+      // Space-normalized variants for alphanumeric code matching (V17 ↔ V 17)
+      const stripped = search.replace(/\s+/g, "");
+      if (stripped !== search) {
+        const escapedStripped = stripped
+          .replace(/\\/g, "\\\\")
+          .replace(/%/g, "\\%")
+          .replace(/_/g, "\\_");
+        conditions.push(`serial_number.ilike.%${escapedStripped}%`);
+        conditions.push(`internal_code.ilike.%${escapedStripped}%`);
+      }
+
+      const spaced = stripped
+        .replace(/([a-zA-Z])(\d)/g, "$1 $2")
+        .replace(/(\d)([a-zA-Z])/g, "$1 $2");
+      if (spaced !== search && spaced !== stripped) {
+        const escapedSpaced = spaced
+          .replace(/\\/g, "\\\\")
+          .replace(/%/g, "\\%")
+          .replace(/_/g, "\\_");
+        conditions.push(`serial_number.ilike.%${escapedSpaced}%`);
+        conditions.push(`internal_code.ilike.%${escapedSpaced}%`);
+      }
+
+      query = query.or(conditions.join(","));
     }
 
     // Apply categorical filters

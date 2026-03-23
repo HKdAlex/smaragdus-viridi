@@ -18,8 +18,7 @@ import {
     radius,
     radiusSm,
     sectionY,
-    shadowHover,
-    shadowSoft,
+    shadowSoft
 } from "@/lib/ux/tokens";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
@@ -235,17 +234,14 @@ function PremiumHero({ content }: { content: PremiumContent }) {
 function PremiumTrust({ content }: { content: PremiumContent }) {
   const { trust } = content;
   return (
-    <section className="bg-background">
+    <section className="bg-zinc-50 dark:bg-background">
       <Container className={cn("grid items-stretch gap-4 sm:gap-8 lg:grid-cols-[1.1fr_0.9fr]", sectionY)}>
         <PremiumReveal className="h-full">
           <div className="grid h-full gap-4 sm:grid-cols-3">
             {trust.stats.map((stat) => (
               <div
                 key={stat.label}
-                className={cn(
-                  "flex flex-col justify-center rounded-2xl border border-border/60 bg-card/60 px-5 py-6",
-                  shadowSoft
-                )}
+                className="flex flex-col justify-center rounded-2xl border border-zinc-300 bg-white px-5 py-6 shadow-md dark:border-border/60 dark:bg-card/60 dark:shadow-none"
               >
                 <p className="text-2xl font-semibold text-foreground">
                   {stat.value}
@@ -258,7 +254,7 @@ function PremiumTrust({ content }: { content: PremiumContent }) {
           </div>
         </PremiumReveal>
         <PremiumReveal delayMs={120} className="h-full">
-          <div className="flex h-full flex-col justify-center rounded-2xl border border-border/60 bg-muted/40 p-6">
+          <div className="flex h-full flex-col justify-center rounded-2xl border border-zinc-300 bg-white p-6 shadow-md dark:border-border/60 dark:bg-muted/40 dark:shadow-none">
             <p className="text-sm uppercase tracking-[0.2em] text-zinc-600 dark:text-muted-foreground">
               {trust.label}
             </p>
@@ -298,10 +294,9 @@ function PremiumCollections({ content }: { content: PremiumContent }) {
               <Link
                 href={item.href}
                 className={cn(
-                  "group flex h-full flex-col rounded-2xl border border-zinc-200/90 bg-white p-4 transition-all hover:-translate-y-1 dark:border-white/10 dark:bg-white/5",
+                  "group flex h-full flex-col rounded-2xl border border-zinc-300 bg-white p-4 shadow-md transition-all hover:-translate-y-1 hover:shadow-lg dark:border-white/10 dark:bg-white/5 dark:shadow-none",
                   duration,
-                  ease,
-                  shadowHover
+                  ease
                 )}
               >
                 <div
@@ -343,7 +338,7 @@ function PremiumCollections({ content }: { content: PremiumContent }) {
 function PremiumPillars({ content }: { content: PremiumContent }) {
   const { pillars } = content;
   return (
-    <section className="bg-background">
+    <section className="bg-white dark:bg-background">
       <Container className={sectionY}>
         <PremiumReveal>
           <SectionHeading
@@ -357,12 +352,7 @@ function PremiumPillars({ content }: { content: PremiumContent }) {
             const Icon = pillarIcons[index % pillarIcons.length];
             return (
               <PremiumReveal key={item.title} delayMs={80 + index * 80} className="h-full">
-                <div
-                  className={cn(
-                    "flex h-full flex-col rounded-2xl border border-border/60 bg-card/60 px-6 py-7",
-                    shadowSoft
-                  )}
-                >
+                <div className="flex h-full flex-col rounded-2xl border border-zinc-300 bg-white px-6 py-7 shadow-md dark:border-border/60 dark:bg-card/60 dark:shadow-none">
                   <div className="flex items-center gap-3 text-amber-700 dark:text-amber-500">
                     <Icon className="h-5 w-5 shrink-0" />
                     <p className="text-sm uppercase tracking-[0.2em] text-zinc-700 dark:text-muted-foreground">
@@ -385,7 +375,7 @@ function PremiumPillars({ content }: { content: PremiumContent }) {
 function PremiumEditorial({ content }: { content: PremiumContent }) {
   const { editorial } = content;
   return (
-    <section className="bg-muted/30">
+    <section className="bg-zinc-100 dark:bg-muted/30">
       <Container className={cn("grid gap-6 sm:gap-10 lg:grid-cols-[1fr_1.1fr]", sectionY)}>
         <PremiumReveal>
           <div className="flex flex-col justify-center">
@@ -435,7 +425,7 @@ function PremiumEditorial({ content }: { content: PremiumContent }) {
 function PremiumExpertise({ content }: { content: PremiumContent }) {
   const { expertise } = content;
   return (
-    <section className="bg-background">
+    <section className="bg-white dark:bg-background">
       <Container className={sectionY}>
         <PremiumReveal>
           <SectionHeading
@@ -447,7 +437,7 @@ function PremiumExpertise({ content }: { content: PremiumContent }) {
         <div className="mt-6 sm:mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4 [&>*]:h-full">
           {expertise.steps.map((step, index) => (
             <PremiumReveal key={step.title} delayMs={100 + index * 80} className="h-full">
-              <div className="flex h-full flex-col rounded-2xl border border-border/60 bg-card/60 p-6">
+              <div className="flex h-full flex-col rounded-2xl border border-zinc-300 bg-white p-6 shadow-md dark:border-border/60 dark:bg-card/60 dark:shadow-none">
                 <div className="flex items-center justify-between text-sm text-zinc-500 dark:text-muted-foreground">
                   <span>0{index + 1}</span>
                   <Sparkles className="h-4 w-4 text-amber-700 dark:text-amber-500" />
@@ -485,8 +475,8 @@ function PremiumPersonalization({ content }: { content: PremiumContent }) {
           </div>
         </PremiumReveal>
         <PremiumReveal delayMs={120}>
-          <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-white/5 dark:shadow-none">
-            <p className="text-sm uppercase tracking-[0.2em] text-zinc-500 dark:text-white/60">
+          <div className="rounded-2xl border border-zinc-300 bg-white p-6 shadow-md dark:border-white/10 dark:bg-white/5 dark:shadow-none">
+            <p className="text-sm uppercase tracking-[0.2em] text-zinc-600 dark:text-white/60">
               {personalization.cardLabel}
             </p>
             <div className="mt-4 flex flex-wrap gap-3">
@@ -549,7 +539,14 @@ function PremiumFinalCta({ content }: { content: PremiumContent }) {
                   asChild
                   size="lg"
                   variant="outline"
-                  className="border-white/30 text-white hover:bg-white/10"
+                  className={cn(
+                    duration,
+                    ease,
+                    // Outline variant uses bg-background (white in light theme); force glass-on-image so label stays visible
+                    "border-white/50 bg-transparent text-white shadow-none",
+                    "hover:bg-white/15 hover:text-white",
+                    "focus-visible:ring-white/50"
+                  )}
                 >
                   <Link href={finalCta.secondaryHref}>
                     {finalCta.secondaryLabel}
@@ -584,7 +581,7 @@ function SectionHeading({
       <p
         className={cn(
           "text-xs uppercase tracking-[0.3em]",
-          isInverse ? "text-white/60" : "text-muted-foreground"
+          isInverse ? "text-white/60" : "text-zinc-600 dark:text-muted-foreground"
         )}
       >
         {eyebrow}

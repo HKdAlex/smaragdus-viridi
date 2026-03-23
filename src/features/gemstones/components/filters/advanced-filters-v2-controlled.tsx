@@ -14,34 +14,34 @@
 
 "use client";
 
-import {
-  ClaritySelector,
-  ColorPicker,
-  CutShapeSelector,
-  DimensionRangeSelector,
-  GemstoneTypeSelector,
-  MiningCountrySelector,
-  OriginSelector,
-  PricePerCaratRange,
-  PriceRangeCards,
-  QualityClassificationSelector,
-  TreatmentStatusSelector,
-  ToggleCards,
-  WeightRangeCards,
-} from "./visual";
 import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import {
+    ClaritySelector,
+    ColorPicker,
+    CutShapeSelector,
+    DimensionRangeSelector,
+    GemstoneTypeSelector,
+    MiningCountrySelector,
+    OriginSelector,
+    PricePerCaratRange,
+    PriceRangeCards,
+    QualityClassificationSelector,
+    ToggleCards,
+    TreatmentStatusSelector,
+    WeightRangeCards,
+} from "./visual";
 
-import type {
-  AdvancedGemstoneFilters,
-  DimensionRange,
-  PriceRange,
-  TreatmentStatus,
-} from "../../types/filter.types";
-import type { FilterOptions } from "./advanced-filters-controlled";
-import { useCallback, useState, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useMiningCountryOptions } from "../../hooks/use-mining-country-options";
 import { useQualityClassificationOptions } from "../../hooks/use-quality-classification-options";
+import type {
+    AdvancedGemstoneFilters,
+    DimensionRange,
+    PriceRange,
+    TreatmentStatus,
+} from "../../types/filter.types";
+import type { FilterOptions } from "./advanced-filters-controlled";
 
 interface AdvancedFiltersV2ControlledProps {
   filters: AdvancedGemstoneFilters;
@@ -72,7 +72,7 @@ export function AdvancedFiltersV2Controlled({
   // Local search state with debouncing to prevent rapid API calls
   const [localSearch, setLocalSearch] = useState(filters.search || "");
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const DEBOUNCE_DELAY = 500; // 500ms delay
+  const DEBOUNCE_DELAY = 300;
 
   // Sync local search with external filter changes
   useEffect(() => {

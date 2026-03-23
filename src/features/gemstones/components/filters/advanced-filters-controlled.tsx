@@ -19,30 +19,30 @@
 
 "use client";
 
-import {
-  CLARITY_ORDER,
-  categorizeColor,
-  getActiveFilterCount,
-} from "../../types/filter.types";
 import type {
-  GemClarity,
-  GemColor,
-  // CUT-C3.1: GemCut enum removed
-  GemstoneType,
+    GemClarity,
+    GemColor,
+    // CUT-C3.1: GemCut enum removed
+    GemstoneType,
 } from "@/shared/types";
 import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+    CLARITY_ORDER,
+    categorizeColor,
+    getActiveFilterCount,
+} from "../../types/filter.types";
 
+import { useTranslations } from "next-intl";
+import { useFilterLabels } from "../../hooks/use-filter-labels";
+import { useMiningCountryOptions } from "../../hooks/use-mining-country-options";
+import { useQualityClassificationOptions } from "../../hooks/use-quality-classification-options";
 import type {
-  AdvancedGemstoneFilters,
-  TreatmentStatus,
+    AdvancedGemstoneFilters,
+    TreatmentStatus,
 } from "../../types/filter.types";
 import { FilterDropdown } from "./filter-dropdown";
 import { RangeSlider } from "./range-slider";
-import { useFilterLabels } from "../../hooks/use-filter-labels";
-import { useTranslations } from "next-intl";
-import { useMiningCountryOptions } from "../../hooks/use-mining-country-options";
-import { useQualityClassificationOptions } from "../../hooks/use-quality-classification-options";
 
 // Filter option types
 export interface FilterOption<T = string> {
@@ -110,11 +110,11 @@ export function AdvancedFiltersControlled({
     setDebouncedSearch(currentSearch);
   }, [filters.search]);
 
-  // Debounce search updates to URL (500ms)
+  // Debounce search updates to URL (300ms)
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchValue);
-    }, 500);
+    }, 300);
 
     return () => clearTimeout(timer);
   }, [searchValue]);

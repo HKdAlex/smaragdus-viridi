@@ -198,6 +198,7 @@ export async function GET(request: NextRequest) {
               price_currency: gemstone.price_currency,
               in_stock: gemstone.in_stock,
               serial_number: gemstone.serial_number,
+              internal_code: gemstone.internal_code,
               ai_color: gemstone.ai_color,
               created_at: gemstone.created_at,
               updated_at: gemstone.updated_at,
@@ -276,6 +277,7 @@ export async function GET(request: NextRequest) {
         price_currency,
         in_stock,
         serial_number,
+        internal_code,
         ai_color,
         created_at,
         updated_at,
@@ -307,10 +309,36 @@ export async function GET(request: NextRequest) {
         .replace(/%/g, "\\%")
         .replace(/_/g, "\\_");
       const pattern = `%${escapedSearch}%`;
-      // Search in serial_number, name, color, and cut (all are text in the view)
-      query = query.or(
-        `serial_number.ilike.${pattern},name.ilike.${pattern},color.ilike.${pattern},cut.ilike.${pattern}`
-      );
+
+      const conditions = [
+        `serial_number.ilike.${pattern}`,
+        `name.ilike.${pattern}`,
+        `color.ilike.${pattern}`,
+        `cut.ilike.${pattern}`,
+      ];
+
+      // Space-normalized variants for serial_number (V17 ↔ V 17)
+      const stripped = searchTerm.replace(/\s+/g, "");
+      if (stripped !== searchTerm) {
+        const escapedStripped = stripped
+          .replace(/\\/g, "\\\\")
+          .replace(/%/g, "\\%")
+          .replace(/_/g, "\\_");
+        conditions.push(`serial_number.ilike.%${escapedStripped}%`);
+      }
+
+      const spaced = stripped
+        .replace(/([a-zA-Z])(\d)/g, "$1 $2")
+        .replace(/(\d)([a-zA-Z])/g, "$1 $2");
+      if (spaced !== searchTerm && spaced !== stripped) {
+        const escapedSpaced = spaced
+          .replace(/\\/g, "\\\\")
+          .replace(/%/g, "\\%")
+          .replace(/_/g, "\\_");
+        conditions.push(`serial_number.ilike.%${escapedSpaced}%`);
+      }
+
+      query = query.or(conditions.join(","));
     }
 
     if (filters.gemstoneTypes?.length) {

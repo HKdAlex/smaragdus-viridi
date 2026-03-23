@@ -53,7 +53,7 @@ const SelectTrigger = React.forwardRef<HTMLButtonElement, SelectTriggerProps>(
     return (
       <button
         type="button"
-        className={`flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
+        className={`flex h-10 w-full items-center justify-between rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-foreground ring-offset-background dark:border-input dark:bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
           className || ""
         }`}
         onClick={() => !disabled && setOpen(!open)}
@@ -119,7 +119,11 @@ const SelectValue = ({ placeholder }: SelectValueProps) => {
 
   return (
     <span className="text-sm">
-      {value || <span className="text-muted-foreground">{placeholder}</span>}
+      {value || (
+        <span className="text-zinc-800 dark:text-muted-foreground">
+          {placeholder}
+        </span>
+      )}
     </span>
   );
 };

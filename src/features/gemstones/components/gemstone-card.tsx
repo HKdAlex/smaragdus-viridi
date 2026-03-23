@@ -14,20 +14,20 @@
 
 "use client";
 
-import { CheckCircle, Package, Scale } from "lucide-react";
 import {
-  ColorIndicator,
-  CutIcon,
-  GemstoneTypeIcon,
+    ColorIndicator,
+    CutIcon,
+    GemstoneTypeIcon,
 } from "@/shared/components/ui/gemstone-icons";
+import { CheckCircle, Package, Scale } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
-import type { CatalogGemstone } from "../services/gemstone-fetch.service";
+import { useCurrency } from "@/features/currency/hooks/use-currency";
 import Image from "next/image";
 import Link from "next/link";
-import { selectPrimaryImage } from "../utils/select-primary-image";
+import type { CatalogGemstone } from "../services/gemstone-fetch.service";
 import { useGemstoneTranslations } from "../utils/gemstone-translations";
-import { useCurrency } from "@/features/currency/hooks/use-currency";
+import { selectPrimaryImage } from "../utils/select-primary-image";
 
 // ===== TYPES =====
 
@@ -171,10 +171,6 @@ export function GemstoneCard({
           </div>
         )}
 
-        {/* Serial Number Overlay - Hidden */}
-        {/* <div className="absolute bottom-2 right-2 bg-black/75 dark:bg-black/90 text-white text-xs px-2 py-1 rounded backdrop-blur-sm">
-          {gemstone.serial_number}
-        </div> */}
 
         {/* Stock Status Badge - REMOVED as per user request */}
 
@@ -214,6 +210,23 @@ export function GemstoneCard({
         {!isCompact && (
           <div className="mb-3 text-base leading-relaxed">
             <div className="space-y-3">
+              {/* Internal Code */}
+              {gemstone.internal_code && (
+                <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
+                  <div className="w-5 h-5 flex items-center justify-center">
+                    <span className="text-xs font-bold text-muted-foreground">#</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">
+                      {t("gemstone.detail.code")}
+                    </span>
+                    <span className="font-medium text-foreground font-mono text-sm">
+                      {gemstone.internal_code}
+                    </span>
+                  </div>
+                </div>
+              )}
+
               {/* Weight */}
               <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
                 <Scale className="w-5 h-5 text-muted-foreground" />

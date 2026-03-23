@@ -11,10 +11,10 @@
  */
 
 import type {
-  DatabaseCertification,
-  DatabaseGemstone,
-  DatabaseGemstoneImage,
-  DatabaseOrigin,
+    DatabaseCertification,
+    DatabaseGemstone,
+    DatabaseGemstoneImage,
+    DatabaseOrigin,
 } from "@/shared/types";
 
 import type { AdvancedGemstoneFilters } from "../types/filter.types";
@@ -146,6 +146,44 @@ export class GemstoneFetchService {
     if (filters.sortBy) queryParams.set("sortBy", filters.sortBy);
     if (filters.sortDirection)
       queryParams.set("sortDirection", filters.sortDirection);
+
+    // Advanced filters previously dropped — now forwarded to API
+    if (filters.treatmentStatus?.length)
+      queryParams.set("treatmentStatus", filters.treatmentStatus.join(","));
+    if (filters.miningCountries?.length)
+      queryParams.set("miningCountries", filters.miningCountries.join(","));
+    if (filters.qualityClassifications?.length)
+      queryParams.set(
+        "qualityClassifications",
+        filters.qualityClassifications.join(",")
+      );
+    if (filters.hasColorChange) queryParams.set("hasColorChange", "true");
+    if (filters.dimensionRange) {
+      if (filters.dimensionRange.minLength !== undefined)
+        queryParams.set(
+          "minLength",
+          filters.dimensionRange.minLength.toString()
+        );
+      if (filters.dimensionRange.maxLength !== undefined)
+        queryParams.set(
+          "maxLength",
+          filters.dimensionRange.maxLength.toString()
+        );
+      if (filters.dimensionRange.minWidth !== undefined)
+        queryParams.set("minWidth", filters.dimensionRange.minWidth.toString());
+      if (filters.dimensionRange.maxWidth !== undefined)
+        queryParams.set("maxWidth", filters.dimensionRange.maxWidth.toString());
+    }
+    if (filters.pricePerCaratRange) {
+      queryParams.set(
+        "minPricePerCarat",
+        filters.pricePerCaratRange.min.toString()
+      );
+      queryParams.set(
+        "maxPricePerCarat",
+        filters.pricePerCaratRange.max.toString()
+      );
+    }
 
     const response = await fetch(`/api/catalog?${queryParams.toString()}`);
 

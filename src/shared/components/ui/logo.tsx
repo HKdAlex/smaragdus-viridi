@@ -1,9 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { useThemeContext } from "@/shared/context/theme-context";
 import { useTranslations } from "next-intl";
-import Image from "next/image";
 
 interface LogoProps {
   variant?: "inline" | "block";
@@ -14,15 +14,55 @@ interface LogoProps {
   enhancedContrast?: boolean; // New prop to enable enhanced contrast
 }
 
+/** Intrinsic pixel ratios of the files returned by `getLogoSrc` (width / height). */
+const LOGO_ASPECT = {
+  block: 1041 / 645,
+  /** `crystallique-logo-inline-4_white.webp` (942×364, same width as inline-3) */
+  inlineLight: 942 / 364,
+  /** `crystallique-logo-inline-3.webp` */
+  inlineDark: 942 / 371,
+} as const;
+
 const sizeMap = {
-  sm: { width: 32, height: 32, textSize: "text-sm", heightClass: "h-8" },
-  md: { width: 48, height: 48, textSize: "text-lg", heightClass: "h-10" },
-  lg: { width: 80, height: 64, textSize: "text-xl", heightClass: "h-16" },
-  xl: { width: 120, height: 120, textSize: "text-2xl", heightClass: "h-24" },
-  xxl: { width: 160, height: 160, textSize: "text-3xl", heightClass: "h-32" },
-  xxxl: { width: 200, height: 200, textSize: "text-4xl", heightClass: "h-40" },
-  xxxxl: { width: 280, height: 172, textSize: "text-5xl", heightClass: "h-43" },
-};
+  sm: { targetHeight: 32, textSize: "text-sm" },
+  md: { targetHeight: 48, textSize: "text-lg" },
+  lg: { targetHeight: 64, textSize: "text-xl" },
+  xl: { targetHeight: 120, textSize: "text-2xl" },
+  xxl: { targetHeight: 160, textSize: "text-3xl" },
+  xxxl: { targetHeight: 200, textSize: "text-4xl" },
+  xxxxl: { targetHeight: 172, textSize: "text-5xl" },
+} as const;
+
+function getLogoAspectRatio(
+  variant: "inline" | "block",
+  resolvedTheme: "light" | "dark",
+): number {
+  if (variant === "block") {
+    return LOGO_ASPECT.block;
+  }
+  return resolvedTheme === "light"
+    ? LOGO_ASPECT.inlineLight
+    : LOGO_ASPECT.inlineDark;
+}
+
+function getLogoDimensions(
+  variant: "inline" | "block",
+  size: keyof typeof sizeMap,
+  resolvedTheme: "light" | "dark",
+): { width: number; height: number } {
+  const { targetHeight } = sizeMap[size];
+
+  // Footer / hero block mark: keep historical footprint (matches ~block intrinsic ratio).
+  if (variant === "block" && size === "xxxxl") {
+    return { width: 280, height: 172 };
+  }
+
+  const aspect = getLogoAspectRatio(variant, resolvedTheme);
+  return {
+    width: Math.max(1, Math.round(targetHeight * aspect)),
+    height: targetHeight,
+  };
+}
 
 export function Logo({
   variant = "inline",
@@ -35,27 +75,18 @@ export function Logo({
 }: LogoProps) {
   const { resolvedTheme } = useThemeContext();
   const t = useTranslations("common");
-  const { width, height, textSize, heightClass } = sizeMap[size];
+  const { textSize } = sizeMap[size];
+  const { width, height } = getLogoDimensions(variant, size, resolvedTheme);
 
-  // Choose logo source based on variant and size for optimization
+  // Block: transparent lossless WebP. Inline: light = white-matte v4 WebP; dark = inline-3 WebP on dark UI.
   const getLogoSrc = () => {
-    const baseName =
-      variant === "inline"
-        ? "crystallique-logo-inline"
-        : "crystallique-logo-block-2";
-
-    // Prefer WebP for block logo on light backgrounds (typically better alpha / no dark matte)
-    if (variant === "block" && resolvedTheme === "light") {
-      return "/crystallique-logo-block-2.webp";
+    if (variant === "block") {
+      return "/crystallique-logo-block-2_transparent.webp";
     }
-
-    // Use smaller files for smaller sizes to optimize loading
-    if (size === "sm" || size === "md") {
-      return `/${baseName}.png`;
+    if (resolvedTheme === "light") {
+      return "/crystallique-logo-inline-4_white.webp";
     }
-
-    // Use optimized 512px version for larger sizes
-    return `/${baseName}.png`;
+    return "/crystallique-logo-inline-3.webp";
   };
 
   const logoSrc = getLogoSrc();
