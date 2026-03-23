@@ -547,10 +547,11 @@ async function processGemstoneOptimized(
     const detectedColor = detectGemstoneColor(gemstoneType);
     const serialNumber = generateSerialNumber(folderName);
 
+    // CUT-C3.1: cut column removed, use cut_id and cut_code instead
     const gemstoneData = {
       name: gemstoneType,
       color: detectedColor,
-      cut: "round",
+      cut_code: "round", // Default cut code - cut_id should be looked up from cuts table
       clarity: "VS1",
       weight_carats: 0,
       length_mm: 0,

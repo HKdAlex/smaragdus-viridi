@@ -1,4 +1,4 @@
- "use client"
+"use client"
 
 import { useCallback, useEffect, useState } from 'react'
 
@@ -13,7 +13,7 @@ interface UseThemeReturn {
 
 export function useTheme(): UseThemeReturn {
   // Always start with same state on server and client to prevent hydration mismatch
-  const [theme, setThemeState] = useState<Theme>('system')
+  const [theme, setThemeState] = useState<Theme>('light')
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('light')
   const [mounted, setMounted] = useState(false)
 
@@ -80,9 +80,16 @@ export function useTheme(): UseThemeReturn {
     
     setMounted(true)
     
-    // Load saved preference and apply it
-    const savedTheme = localStorage.getItem('theme-preference') as Theme | null
-    const initialTheme = savedTheme || 'system'
+    // Load saved preference and apply it (migrate legacy `theme` key from cart prefs)
+    let savedTheme = localStorage.getItem('theme-preference') as Theme | null
+    if (!savedTheme) {
+      const legacy = localStorage.getItem('theme') as Theme | null
+      if (legacy === 'light' || legacy === 'dark' || legacy === 'system') {
+        savedTheme = legacy
+        localStorage.setItem('theme-preference', legacy)
+      }
+    }
+    const initialTheme = savedTheme || 'light'
     
     setThemeState(initialTheme)
     const resolved = resolveTheme(initialTheme)

@@ -565,12 +565,13 @@ async function updateGemstone(existingGemstone, csvData) {
  * Creates new gemstone in database
  */
 async function createGemstone(csvData) {
+  // CUT-C3.1: cut column removed, use cut_id and cut_code instead
   const insertData = {
     name: csvData.name,
     serial_number: generateSerialNumber(csvData.internal_code),
     internal_code: csvData.internal_code,
     description: csvData.description,
-    cut: csvData.cut,
+    cut_code: csvData.cut, // Map cut to cut_code - cut_id should be looked up from cuts table
     weight_carats: csvData.weight_carats,
     length_mm: csvData.length_mm,
     width_mm: csvData.width_mm,

@@ -471,6 +471,7 @@ class EnhancedGemstoneImporter {
     return { type: "emerald", source: "fallback_default" };
   }
 
+  // CUT-C3.1: cut column removed, use cut_id and cut_code instead
   getEnhancedDefaultProperties() {
     return {
       weight_carats: 1.0,
@@ -478,7 +479,7 @@ class EnhancedGemstoneImporter {
       width_mm: 10.0,
       depth_mm: 6.0,
       color: "green", // Default for emerald
-      cut: "emerald",
+      cut_code: "emerald", // cut_id should be looked up from cuts table
       clarity: "VS1",
       price_amount: 150000, // $1500 in cents for emerald
       price_currency: "USD",

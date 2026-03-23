@@ -33,7 +33,15 @@ export const metadata: Metadata = {
 const themeScript = `
   (function() {
     try {
-      const savedTheme = localStorage.getItem('theme-preference') || 'system';
+      var stored = localStorage.getItem('theme-preference');
+      if (!stored) {
+        var legacyTheme = localStorage.getItem('theme');
+        if (legacyTheme === 'light' || legacyTheme === 'dark' || legacyTheme === 'system') {
+          stored = legacyTheme;
+          localStorage.setItem('theme-preference', legacyTheme);
+        }
+      }
+      const savedTheme = stored || 'light';
       const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
       const resolvedTheme = savedTheme === 'system' ? systemTheme : savedTheme;
       

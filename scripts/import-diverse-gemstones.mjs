@@ -85,6 +85,7 @@ async function importGemstone(folderName, batchId) {
     const gemstoneType = gemstoneTypeMap[firstChar] || "unknown";
 
     // Insert gemstone record
+    // CUT-C3.1: cut column removed, use cut_id and cut_code instead
     const { data: gemstone, error } = await supabase
       .from("gemstones")
       .insert({
@@ -94,7 +95,7 @@ async function importGemstone(folderName, batchId) {
         width_mm: Math.random() * 10 + 5,
         depth_mm: Math.random() * 5 + 2,
         color: "green", // Will be updated by AI
-        cut: "round", // Will be updated by AI
+        cut_code: "round", // Will be updated by AI - cut_id should be looked up from cuts table
         clarity: "VS1", // Will be updated by AI
         price_amount: Math.floor(Math.random() * 10000 + 1000) * 100, // In cents
         price_currency: "USD",

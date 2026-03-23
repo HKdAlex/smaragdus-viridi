@@ -206,12 +206,8 @@ export async function PUT(
       updates.color_code = gemstoneFields.color;
     }
 
-    if (
-      typeof gemstoneFields.cut !== "undefined" &&
-      typeof gemstoneFields.cut_code === "undefined"
-    ) {
-      updates.cut_code = gemstoneFields.cut;
-    }
+    // CUT-C3.1: cut column removed - cut_code is now required directly
+    // No fallback from cut to cut_code needed
 
     if (
       typeof gemstoneFields.clarity !== "undefined" &&

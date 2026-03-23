@@ -559,10 +559,13 @@ async function processGemstoneFolder(
 
     // Create gemstone record with intelligent type and color detection
     const detectedColor = detectGemstoneColor(gemstoneType);
+    // CUT-C3.1: cut column removed, use cut_id and cut_code instead
+    // Default cut_id for "round" - this should be looked up from cuts table in production
     const gemstoneData = {
       name: gemstoneType,
       color: detectedColor, // Intelligent color based on gemstone type
-      cut: "round", // Default valid enum value
+      cut_code: "round", // Default cut code
+      // Note: cut_id should be set by looking up from cuts table
       clarity: "VS1", // Default valid enum value
       weight_carats: 0,
       length_mm: 0,

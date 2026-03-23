@@ -368,6 +368,23 @@ export function GemstoneForm({
       try {
         const cutsData = await CutsService.getAllCuts();
         setCuts(cutsData);
+        
+        // CUT-C3.1: Set default cut_id for new gemstones
+        // If we have a cut_code but no cut_id, look up the cut_id from the loaded cuts
+        setFormData((prev) => {
+          if (!prev.cut_id && prev.cut_code) {
+            const defaultCut = cutsData.find(
+              (c) => c.code.toLowerCase() === prev.cut_code.toLowerCase()
+            );
+            if (defaultCut) {
+              return {
+                ...prev,
+                cut_id: defaultCut.id,
+              };
+            }
+          }
+          return prev;
+        });
       } catch (error) {
         console.error("Failed to load cuts:", error);
       }

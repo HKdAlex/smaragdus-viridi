@@ -35,8 +35,14 @@ export async function getGemstoneForTextGeneration(gemstoneId) {
       color_code,
       clarity,
       clarity_code,
-      cut,
+      cut_id,
       cut_code,
+      cuts!gemstones_cut_id_fkey (
+        id,
+        code,
+        name_en,
+        name_ru
+      ),
       quantity,
       price_amount,
       price_currency,
@@ -291,15 +297,52 @@ export async function updateGemstoneAIColor(gemstoneId, colorData) {
 
 /**
  * Update gemstones table with AI-detected cut data
+ * CUT-C3.1: cut column removed, use cut_id and cut_code instead
  * @param {string} gemstoneId - UUID of the gemstone
  * @param {Object} cutData - Cut detection results
  * @returns {Promise<void>}
  */
 export async function updateGemstoneAICut(gemstoneId, cutData) {
+  // Look up the cut_id from the cuts table based on detected cut code
+  const { data: cutRecord, error: cutLookupError } = await supabase
+    .from("cuts")
+    .select("id, code")
+    .eq("code", cutData.detected_cut)
+    .single();
+
+  if (cutLookupError || !cutRecord) {
+    // Try case-insensitive match
+    const { data: cutRecordFallback, error: fallbackError } = await supabase
+      .from("cuts")
+      .select("id, code")
+      .ilike("code", cutData.detected_cut)
+      .single();
+
+    if (fallbackError || !cutRecordFallback) {
+      console.warn(`Could not find cut record for "${cutData.detected_cut}", skipping cut update`);
+      return;
+    }
+
+    // Use the fallback match
+    const { error } = await supabase
+      .from("gemstones")
+      .update({
+        cut_id: cutRecordFallback.id,
+        cut_code: cutRecordFallback.code,
+      })
+      .eq("id", gemstoneId);
+
+    if (error) {
+      throw new Error(`Failed to update AI cut: ${error.message}`);
+    }
+    return;
+  }
+
   const { error } = await supabase
     .from("gemstones")
     .update({
-      cut: cutData.detected_cut, // Update the main cut field with AI-detected value
+      cut_id: cutRecord.id,
+      cut_code: cutRecord.code,
     })
     .eq("id", gemstoneId);
 

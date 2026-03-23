@@ -422,11 +422,13 @@ export async function POST(request: NextRequest) {
     const adminClient = ensureAdminClient();
     const body = await request.json();
 
+    // CUT-C3.1: cut column removed, use cut_id and cut_code instead
     const requiredFields = [
       "serial_number",
       "name",
       "color",
-      "cut",
+      "cut_id",
+      "cut_code",
       "clarity",
       "weight_carats",
       "length_mm",
@@ -456,7 +458,7 @@ export async function POST(request: NextRequest) {
       color: body.color,
       color_code: body.color_code ?? body.color,
       cut_id: body.cut_id, // FK to cuts table (required)
-      cut_code: body.cut_code ?? body.cut ?? "", // Use cut as fallback for cut_code
+      cut_code: body.cut_code, // Cut code for display/filtering (required)
       clarity: body.clarity,
       clarity_code: body.clarity_code ?? body.clarity,
       weight_carats: Number(body.weight_carats),

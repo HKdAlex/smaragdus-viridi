@@ -1,7 +1,7 @@
 import type { CurrencyCode, UserPreferences } from "@/shared/types";
 
-import { Logger } from "@/shared/utils/logger";
 import { supabase } from "@/lib/supabase";
+import { Logger } from "@/shared/utils/logger";
 
 export class PreferencesService {
   private supabase = supabase;
@@ -224,7 +224,7 @@ export class PreferencesService {
    */
   private getDefaultPreferences(): UserPreferences {
     return {
-      theme: "system",
+      theme: "light",
       preferred_currency: "USD",
       email_notifications: true,
       cart_updates: true,
@@ -255,29 +255,34 @@ export class PreferencesService {
       root.classList.add(theme);
     }
 
-    // Store in localStorage for immediate access
-    localStorage.setItem("theme", theme);
+    // Keep in sync with site-wide theme hook (`use-theme.ts`, root layout script)
+    localStorage.setItem("theme-preference", theme);
   }
 
   /**
    * Initialize theme from localStorage or system preference
    */
   initializeTheme(): void {
-    const savedTheme = localStorage.getItem("theme") as
+    const fromPrimary = localStorage.getItem("theme-preference") as
       | "light"
       | "dark"
       | "system"
       | null;
+    const legacy = localStorage.getItem("theme") as
+      | "light"
+      | "dark"
+      | "system"
+      | null;
+    const savedTheme = fromPrimary ?? legacy;
 
-    if (savedTheme) {
+    if (
+      savedTheme === "light" ||
+      savedTheme === "dark" ||
+      savedTheme === "system"
+    ) {
       this.applyTheme(savedTheme);
     } else {
-      // Use system preference
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
-        .matches
-        ? "dark"
-        : "light";
-      this.applyTheme("system");
+      this.applyTheme("light");
     }
   }
 }

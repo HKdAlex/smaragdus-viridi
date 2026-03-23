@@ -32,7 +32,11 @@
       "Bash(xargs -I {} sh -c 'echo \"\"=== {} ===\"\" && ls -la {}')",
       "Bash(npx playwright test:*)",
       "Bash(tee:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git remote add:*)",
+      "Bash(npx vercel:*)",
+      "Bash(vercel ls:*)",
+      "Bash(vercel:*)"
     ]
   }
 }
