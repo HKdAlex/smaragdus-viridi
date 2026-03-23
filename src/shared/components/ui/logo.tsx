@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { useThemeContext } from "@/shared/context/theme-context";
 import { useTranslations } from "next-intl";
+import Image from "next/image";
 
 interface LogoProps {
   variant?: "inline" | "block";
@@ -30,7 +30,8 @@ export function Logo({
   showText = true,
   href,
   className = "",
-  enhancedContrast = true, // Default to enhanced contrast
+  /** When true, applies a mild filter in light mode for gold-on-transparent marks. Never use aggressive brightness — it turns the mark into a solid black box. */
+  enhancedContrast = false,
 }: LogoProps) {
   const { resolvedTheme } = useThemeContext();
   const t = useTranslations("common");
@@ -43,6 +44,11 @@ export function Logo({
         ? "crystallique-logo-inline"
         : "crystallique-logo-block-2";
 
+    // Prefer WebP for block logo on light backgrounds (typically better alpha / no dark matte)
+    if (variant === "block" && resolvedTheme === "light") {
+      return "/crystallique-logo-block-2.webp";
+    }
+
     // Use smaller files for smaller sizes to optimize loading
     if (size === "sm" || size === "md") {
       return `/${baseName}.png`;
@@ -54,18 +60,16 @@ export function Logo({
 
   const logoSrc = getLogoSrc();
 
-  // Enhanced contrast styles for light mode
   const getLogoStyles = () => {
     const baseStyles = {
       objectFit: "contain" as const,
       objectPosition: "center" as const,
     };
 
-    // Apply filters only in light mode and when enhanced contrast is enabled
     if (enhancedContrast && resolvedTheme === "light") {
       return {
         ...baseStyles,
-        filter: "contrast(1.5) brightness(0.1) saturate(1.5)",
+        filter: "contrast(1.15) brightness(0.92) saturate(1.2)",
       };
     }
 
@@ -75,6 +79,7 @@ export function Logo({
   const logoElement = (
     <div className={`flex items-center space-x-3 ${className}`}>
       <Image
+        key={logoSrc}
         src={logoSrc}
         alt={t("brandName")}
         width={width}

@@ -6,7 +6,7 @@
   --background: #ffffff;
   --foreground: #0f172a; /* Darker text for better contrast */
   --muted: #f8fafc; /* Lighter muted background */
-  --muted-foreground: #475569; /* Darker muted text */
+  --muted-foreground: #3d4e5f; /* Body secondary: stronger contrast on white */
   --popover: #ffffff;
   --popover-foreground: #0f172a;
   --card: #ffffff;
@@ -122,7 +122,7 @@
   --background: #ffffff;
   --foreground: #0f172a;
   --muted: #f8fafc;
-  --muted-foreground: #475569;
+  --muted-foreground: #3d4e5f;
   --popover: #ffffff;
   --popover-foreground: #0f172a;
   --card: #ffffff;
@@ -219,15 +219,14 @@ body {
   image-rendering: crisp-edges;
 }
 
-/* Enhanced contrast for logos in light mode */
+/* Optional mild logo tweak in light mode (see Logo component; avoid heavy brightness) */
 .logo-enhanced-contrast {
-  filter: contrast(1.5) brightness(0.5) saturate(1.5);
+  filter: contrast(1.15) brightness(0.92) saturate(1.2);
   transition: filter 0.3s ease;
 }
 
-/* Alternative enhanced contrast for better visibility */
 .logo-enhanced-contrast-strong {
-  filter: contrast(1.5) brightness(0.7) saturate(1.4);
+  filter: contrast(1.2) brightness(0.88) saturate(1.25);
   transition: filter 0.3s ease;
 }
 

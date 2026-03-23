@@ -1,11 +1,11 @@
 import {
-  ArrowRight,
-  BadgeCheck,
-  Crown,
-  Gem,
-  HandHeart,
-  ShieldCheck,
-  Sparkles,
+    ArrowRight,
+    BadgeCheck,
+    Crown,
+    Gem,
+    HandHeart,
+    ShieldCheck,
+    Sparkles,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -13,13 +13,13 @@ import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { cn } from "@/lib/utils";
 import {
-  duration,
-  ease,
-  radius,
-  radiusSm,
-  sectionY,
-  shadowHover,
-  shadowSoft,
+    duration,
+    ease,
+    radius,
+    radiusSm,
+    sectionY,
+    shadowHover,
+    shadowSoft,
 } from "@/lib/ux/tokens";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
@@ -116,9 +116,17 @@ export function PremiumHome({ content }: { content: PremiumContent }) {
 function PremiumHero({ content }: { content: PremiumContent }) {
   const { hero, trust } = content;
   return (
-    <section className="relative overflow-hidden bg-neutral-950 text-white">
+    <section className="relative overflow-hidden bg-zinc-50 text-zinc-950 dark:bg-neutral-950 dark:text-white">
       <div
-        className="absolute inset-0 opacity-70"
+        className="absolute inset-0 opacity-100 dark:hidden"
+        style={{
+          background:
+            "radial-gradient(80% 60% at 70% 20%, rgba(182,140,58,0.14) 0%, transparent 60%)",
+        }}
+        aria-hidden
+      />
+      <div
+        className="absolute inset-0 hidden opacity-70 dark:block"
         style={{
           background:
             "radial-gradient(80% 60% at 70% 20%, rgba(182,140,58,0.25) 0%, transparent 60%)",
@@ -126,7 +134,15 @@ function PremiumHero({ content }: { content: PremiumContent }) {
         aria-hidden
       />
       <div
-        className="absolute inset-0"
+        className="absolute inset-0 dark:hidden"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(244,244,245,0.96) 55%, rgb(244,244,245) 100%)",
+        }}
+        aria-hidden
+      />
+      <div
+        className="absolute inset-0 hidden dark:block"
         style={{
           background:
             "linear-gradient(180deg, rgba(9,9,11,0.95) 0%, rgba(9,9,11,0.88) 60%, rgba(9,9,11,1) 100%)",
@@ -138,7 +154,7 @@ function PremiumHero({ content }: { content: PremiumContent }) {
           <PremiumReveal>
             <Badge
               variant="outline"
-              className="border-white/20 text-white/80 uppercase tracking-[0.3em] text-[11px] px-4 py-2"
+              className="border-zinc-300/90 text-zinc-600 uppercase tracking-[0.3em] text-[11px] px-4 py-2 dark:border-white/20 dark:text-white/80"
             >
               {hero.eyebrow}
             </Badge>
@@ -146,11 +162,13 @@ function PremiumHero({ content }: { content: PremiumContent }) {
           <PremiumReveal delayMs={80}>
             <h1 className="mt-3 sm:mt-6 font-serif tracking-tight text-4xl sm:text-5xl lg:text-6xl leading-tight">
               {hero.title}{" "}
-              <span className="text-amber-200">{hero.titleHighlight}</span>
+              <span className="text-amber-800 dark:text-amber-200">
+                {hero.titleHighlight}
+              </span>
             </h1>
           </PremiumReveal>
           <PremiumReveal delayMs={140}>
-            <p className="mt-3 sm:mt-5 text-base sm:text-lg text-white/75 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+            <p className="mt-3 sm:mt-5 text-base sm:text-lg text-zinc-600 max-w-xl mx-auto lg:mx-0 leading-relaxed dark:text-white/75">
               {hero.subtitle}
             </p>
           </PremiumReveal>
@@ -166,7 +184,7 @@ function PremiumHero({ content }: { content: PremiumContent }) {
                 asChild
                 size="lg"
                 variant="outline"
-                className="border-white/30 text-white hover:bg-white/10 hover:text-white"
+                className="border-zinc-300 text-zinc-900 hover:bg-zinc-100 hover:text-zinc-950 dark:border-white/30 dark:text-white dark:hover:bg-white/10 dark:hover:text-white"
               >
                 <Link href={hero.secondaryHref} aria-label={hero.secondaryLabel}>
                   {hero.secondaryLabel}
@@ -179,9 +197,9 @@ function PremiumHero({ content }: { content: PremiumContent }) {
               {trust.items.map((item) => (
                 <div
                   key={item}
-                  className="flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-xs tracking-wide text-white/80"
+                  className="flex items-center gap-2 rounded-full border border-zinc-200 bg-white/90 px-4 py-2 text-xs tracking-wide text-zinc-700 shadow-sm dark:border-white/15 dark:bg-white/5 dark:text-white/80 dark:shadow-none"
                 >
-                  <BadgeCheck className="h-3.5 w-3.5 text-amber-200" />
+                  <BadgeCheck className="h-3.5 w-3.5 shrink-0 text-amber-700 dark:text-amber-200" />
                   {item}
                 </div>
               ))}
@@ -191,12 +209,12 @@ function PremiumHero({ content }: { content: PremiumContent }) {
         <PremiumReveal delayMs={160} className="relative">
           <div
             className={cn(
-              "relative overflow-hidden bg-black/70",
+              "relative overflow-hidden bg-zinc-200/90 dark:bg-black/70",
               radius,
               shadowSoft
             )}
           >
-            <div className="absolute inset-0 bg-gradient-to-tr from-black/70 via-transparent to-black/10" />
+            <div className="absolute inset-0 bg-gradient-to-tr from-zinc-300/40 via-transparent to-transparent dark:from-black/70 dark:via-transparent dark:to-black/10" />
             <div className="relative aspect-[4/5] sm:aspect-[5/6]">
               <Image
                 src={hero.imageSrc}
@@ -232,7 +250,7 @@ function PremiumTrust({ content }: { content: PremiumContent }) {
                 <p className="text-2xl font-semibold text-foreground">
                   {stat.value}
                 </p>
-                <p className="mt-1 text-sm text-muted-foreground">
+                <p className="mt-1 text-sm text-zinc-600 dark:text-muted-foreground">
                   {stat.label}
                 </p>
               </div>
@@ -241,7 +259,7 @@ function PremiumTrust({ content }: { content: PremiumContent }) {
         </PremiumReveal>
         <PremiumReveal delayMs={120} className="h-full">
           <div className="flex h-full flex-col justify-center rounded-2xl border border-border/60 bg-muted/40 p-6">
-            <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground">
+            <p className="text-sm uppercase tracking-[0.2em] text-zinc-600 dark:text-muted-foreground">
               {trust.label}
             </p>
             <div className="mt-4 flex flex-wrap gap-3">
@@ -265,14 +283,13 @@ function PremiumTrust({ content }: { content: PremiumContent }) {
 function PremiumCollections({ content }: { content: PremiumContent }) {
   const { collections } = content;
   return (
-    <section className="bg-neutral-950 text-white">
+    <section className="bg-zinc-100 text-zinc-950 dark:bg-neutral-950 dark:text-white">
       <Container className={sectionY}>
         <PremiumReveal>
           <SectionHeading
             eyebrow={collections.subtitle}
             title={collections.title}
             align="center"
-            tone="inverse"
           />
         </PremiumReveal>
         <div className="mt-6 sm:mt-10 grid gap-6 lg:grid-cols-3">
@@ -281,7 +298,7 @@ function PremiumCollections({ content }: { content: PremiumContent }) {
               <Link
                 href={item.href}
                 className={cn(
-                  "group flex h-full flex-col rounded-2xl border border-white/10 bg-white/5 p-4 transition-all hover:-translate-y-1",
+                  "group flex h-full flex-col rounded-2xl border border-zinc-200/90 bg-white p-4 transition-all hover:-translate-y-1 dark:border-white/10 dark:bg-white/5",
                   duration,
                   ease,
                   shadowHover
@@ -291,7 +308,7 @@ function PremiumCollections({ content }: { content: PremiumContent }) {
                   className={cn(
                     "relative overflow-hidden",
                     radiusSm,
-                    "aspect-[4/3] bg-black/60"
+                    "aspect-[4/3] bg-zinc-200 dark:bg-black/60"
                   )}
                 >
                   <Image
@@ -303,9 +320,13 @@ function PremiumCollections({ content }: { content: PremiumContent }) {
                   />
                 </div>
                 <div className="mt-5 flex flex-1 flex-col">
-                  <p className="text-xl font-semibold">{item.title}</p>
-                  <p className="mt-2 text-sm text-white/70">{item.subtitle}</p>
-                  <span className="mt-auto inline-flex items-center pt-4 text-sm text-amber-200">
+                  <p className="text-xl font-semibold text-zinc-900 dark:text-white">
+                    {item.title}
+                  </p>
+                  <p className="mt-2 text-sm text-zinc-600 dark:text-white/70">
+                    {item.subtitle}
+                  </p>
+                  <span className="mt-auto inline-flex items-center pt-4 text-sm font-medium text-amber-800 dark:text-amber-200">
                     {item.ctaLabel}
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </span>
@@ -342,13 +363,13 @@ function PremiumPillars({ content }: { content: PremiumContent }) {
                     shadowSoft
                   )}
                 >
-                  <div className="flex items-center gap-3 text-amber-500">
+                  <div className="flex items-center gap-3 text-amber-700 dark:text-amber-500">
                     <Icon className="h-5 w-5 shrink-0" />
-                    <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground">
+                    <p className="text-sm uppercase tracking-[0.2em] text-zinc-700 dark:text-muted-foreground">
                       {item.title}
                     </p>
                   </div>
-                  <p className="mt-4 flex-1 text-sm text-muted-foreground">
+                  <p className="mt-4 flex-1 text-sm text-zinc-600 leading-relaxed dark:text-muted-foreground">
                     {item.description}
                   </p>
                 </div>
@@ -373,7 +394,7 @@ function PremiumEditorial({ content }: { content: PremiumContent }) {
               title={editorial.title}
               align="left"
             />
-            <p className="mt-6 text-sm sm:text-base text-muted-foreground leading-relaxed">
+            <p className="mt-6 text-sm sm:text-base text-zinc-600 leading-relaxed dark:text-muted-foreground">
               {editorial.body}
             </p>
             <div className="mt-6">
@@ -427,12 +448,14 @@ function PremiumExpertise({ content }: { content: PremiumContent }) {
           {expertise.steps.map((step, index) => (
             <PremiumReveal key={step.title} delayMs={100 + index * 80} className="h-full">
               <div className="flex h-full flex-col rounded-2xl border border-border/60 bg-card/60 p-6">
-                <div className="flex items-center justify-between text-sm text-muted-foreground">
+                <div className="flex items-center justify-between text-sm text-zinc-500 dark:text-muted-foreground">
                   <span>0{index + 1}</span>
-                  <Sparkles className="h-4 w-4 text-amber-500" />
+                  <Sparkles className="h-4 w-4 text-amber-700 dark:text-amber-500" />
                 </div>
-                <p className="mt-3 text-lg font-semibold">{step.title}</p>
-                <p className="mt-2 flex-1 text-sm text-muted-foreground">
+                <p className="mt-3 text-lg font-semibold text-foreground">
+                  {step.title}
+                </p>
+                <p className="mt-2 flex-1 text-sm text-zinc-600 leading-relaxed dark:text-muted-foreground">
                   {step.description}
                 </p>
               </div>
@@ -447,7 +470,7 @@ function PremiumExpertise({ content }: { content: PremiumContent }) {
 function PremiumPersonalization({ content }: { content: PremiumContent }) {
   const { personalization } = content;
   return (
-    <section className="bg-neutral-950 text-white">
+    <section className="bg-zinc-100 text-zinc-950 dark:bg-neutral-950 dark:text-white">
       <Container className={cn("grid gap-4 sm:gap-8 lg:grid-cols-[1.1fr_0.9fr]", sectionY)}>
         <PremiumReveal>
           <div>
@@ -455,16 +478,15 @@ function PremiumPersonalization({ content }: { content: PremiumContent }) {
               eyebrow={personalization.eyebrow}
               title={personalization.title}
               align="left"
-              tone="inverse"
             />
-            <p className="mt-4 text-sm text-white/70 leading-relaxed">
+            <p className="mt-4 text-sm text-zinc-600 leading-relaxed dark:text-white/70">
               {personalization.subtitle}
             </p>
           </div>
         </PremiumReveal>
         <PremiumReveal delayMs={120}>
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-            <p className="text-sm uppercase tracking-[0.2em] text-white/60">
+          <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-white/5 dark:shadow-none">
+            <p className="text-sm uppercase tracking-[0.2em] text-zinc-500 dark:text-white/60">
               {personalization.cardLabel}
             </p>
             <div className="mt-4 flex flex-wrap gap-3">
@@ -474,13 +496,15 @@ function PremiumPersonalization({ content }: { content: PremiumContent }) {
                   asChild
                   size="sm"
                   variant="outline"
-                  className="border-white/30 text-white hover:bg-white/10"
+                  className="border-zinc-300 text-zinc-900 hover:bg-zinc-50 dark:border-white/30 dark:text-white dark:hover:bg-white/10"
                 >
                   <Link href={action.href}>{action.label}</Link>
                 </Button>
               ))}
             </div>
-            <p className="mt-6 text-sm text-white/70">{personalization.note}</p>
+            <p className="mt-6 text-sm text-zinc-600 dark:text-white/70">
+              {personalization.note}
+            </p>
           </div>
         </PremiumReveal>
       </Container>

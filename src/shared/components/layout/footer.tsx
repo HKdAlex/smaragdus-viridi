@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { Logo } from "@/shared/components/ui/logo";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -47,13 +47,13 @@ export function Footer() {
                   {t("company.name")}
                 </span> */}
               </div>
-              <p className="text-muted-foreground mb-6 max-w-md">
+              <p className="mb-6 max-w-md text-foreground/75">
                 {t("company.description")}
               </p>
 
               {/* Contact Info */}
               <div className="space-y-2">
-                <div className="flex items-center space-x-2 text-muted-foreground">
+                <div className="flex items-center space-x-2 text-foreground/75">
                   <svg
                     className="h-4 w-4 flex-shrink-0"
                     fill="none"
@@ -69,7 +69,7 @@ export function Footer() {
                   </svg>
                   <span className="text-sm">{t("company.contact.email")}</span>
                 </div>
-                <div className="flex items-center space-x-2 text-muted-foreground">
+                <div className="flex items-center space-x-2 text-foreground/75">
                   <svg
                     className="h-4 w-4 flex-shrink-0"
                     fill="none"
@@ -98,7 +98,7 @@ export function Footer() {
                   <li key={link.name}>
                     <Link
                       href={link.href}
-                      className="text-muted-foreground hover:text-primary transition-colors duration-200 text-sm"
+                      className="text-foreground/75 hover:text-primary transition-colors duration-200 text-sm"
                     >
                       {link.name}
                     </Link>
@@ -117,7 +117,7 @@ export function Footer() {
                   <li key={link.name}>
                     <Link
                       href={link.href}
-                      className="text-muted-foreground hover:text-primary transition-colors duration-200 text-sm"
+                      className="text-foreground/75 hover:text-primary transition-colors duration-200 text-sm"
                     >
                       {link.name}
                     </Link>
@@ -136,7 +136,7 @@ export function Footer() {
                   <li key={link.name}>
                     <Link
                       href={link.href}
-                      className="text-muted-foreground hover:text-primary transition-colors duration-200 text-sm"
+                      className="text-foreground/75 hover:text-primary transition-colors duration-200 text-sm"
                     >
                       {link.name}
                     </Link>
@@ -151,7 +151,7 @@ export function Footer() {
         <div className="border-t border-border py-6 sm:py-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             {/* Copyright */}
-            <div className="text-muted-foreground text-sm text-center md:text-left">
+            <div className="text-foreground/75 text-sm text-center md:text-left">
               {t("copyright", { year: currentYear })}
             </div>
 
@@ -161,7 +161,7 @@ export function Footer() {
                 <Link
                   key={link.name}
                   href={link.href}
-                  className="text-muted-foreground hover:text-primary text-sm transition-colors duration-200"
+                  className="text-foreground/75 hover:text-primary text-sm transition-colors duration-200"
                 >
                   {link.name}
                 </Link>
@@ -172,7 +172,7 @@ export function Footer() {
             <div className="flex space-x-4">
               <a
                 href="#"
-                className="text-muted-foreground hover:text-primary transition-colors duration-200 p-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                className="text-foreground/75 hover:text-primary transition-colors duration-200 p-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
                 aria-label="Twitter"
               >
                 <svg
@@ -185,7 +185,7 @@ export function Footer() {
               </a>
               <a
                 href="#"
-                className="text-muted-foreground hover:text-primary transition-colors duration-200 p-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                className="text-foreground/75 hover:text-primary transition-colors duration-200 p-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
                 aria-label="LinkedIn"
               >
                 <svg
@@ -202,7 +202,7 @@ export function Footer() {
               </a>
               <a
                 href="#"
-                className="text-muted-foreground hover:text-primary transition-colors duration-200 p-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                className="text-foreground/75 hover:text-primary transition-colors duration-200 p-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
                 aria-label="Instagram"
               >
                 <svg
