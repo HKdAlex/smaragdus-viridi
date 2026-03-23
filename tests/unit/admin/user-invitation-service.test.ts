@@ -73,7 +73,9 @@ describe("UserInvitationService", () => {
       });
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("Email already invited");
+      if (!result.success) {
+        expect(result.error).toContain("Email already invited");
+      }
     });
   });
 

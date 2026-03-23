@@ -4,35 +4,36 @@
  * Tests for full-text search business logic
  */
 
-import {} from "module";
-
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { SearchService } from "../search.service";
 
-const mockOrder = vi.fn().mockResolvedValue({ data: [], error: null });
-const mockIn = vi.fn().mockReturnValue({ order: mockOrder });
-const mockSelect = vi.fn().mockReturnValue({ in: mockIn });
-const mockFrom = vi.fn().mockReturnValue({ select: mockSelect });
+const mocks = vi.hoisted(() => {
+  const mockOrder = vi.fn().mockResolvedValue({ data: [], error: null });
+  const mockIn = vi.fn().mockReturnValue({ order: mockOrder });
+  const mockSelect = vi.fn().mockReturnValue({ in: mockIn });
+  const mockFrom = vi.fn().mockReturnValue({ select: mockSelect });
+  return { mockFrom, mockIn, mockOrder, mockSelect };
+});
 
 // Mock Supabase
 vi.mock("@/lib/supabase", () => ({
   supabaseAdmin: {
     rpc: vi.fn(),
-    from: mockFrom,
+    from: mocks.mockFrom,
   },
 }));
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mockOrder.mockReset();
-  mockOrder.mockResolvedValue({ data: [], error: null });
-  mockIn.mockReset();
-  mockIn.mockReturnValue({ order: mockOrder });
-  mockSelect.mockReset();
-  mockSelect.mockReturnValue({ in: mockIn });
-  mockFrom.mockReset();
-  mockFrom.mockReturnValue({ select: mockSelect });
+  mocks.mockOrder.mockReset();
+  mocks.mockOrder.mockResolvedValue({ data: [], error: null });
+  mocks.mockIn.mockReset();
+  mocks.mockIn.mockReturnValue({ order: mocks.mockOrder });
+  mocks.mockSelect.mockReset();
+  mocks.mockSelect.mockReturnValue({ in: mocks.mockIn });
+  mocks.mockFrom.mockReset();
+  mocks.mockFrom.mockReturnValue({ select: mocks.mockSelect });
 });
 
 describe("SearchService", () => {
@@ -139,10 +140,11 @@ describe("SearchService", () => {
 
       expect(mockRpc).toHaveBeenCalledWith("search_gemstones_multilingual", {
         search_query: "ruby",
-        search_locale: "en",
-        filters: { searchDescriptions: false },
-        page_num: 1,
+        page_number: 1,
         page_size: 24,
+        effective_locale: "en",
+        description_enabled: false,
+        filters: {},
       });
 
       expect(result.results).toHaveLength(1);
@@ -245,10 +247,11 @@ describe("SearchService", () => {
 
       expect(mockRpc).toHaveBeenCalledWith("search_gemstones_multilingual", {
         search_query: "",
-        search_locale: "en",
-        filters: { searchDescriptions: false },
-        page_num: 1,
+        page_number: 1,
         page_size: 24,
+        effective_locale: "en",
+        description_enabled: false,
+        filters: {},
       });
     });
   });
@@ -272,6 +275,7 @@ describe("SearchService", () => {
       expect(mockRpc).toHaveBeenCalledWith("get_search_suggestions", {
         query: "rub",
         limit_count: 10,
+        search_locale: "en",
       });
 
       expect(result.suggestions).toHaveLength(2);
@@ -324,6 +328,7 @@ describe("SearchService", () => {
       expect(mockRpc).toHaveBeenCalledWith("get_search_suggestions", {
         query: "ruby",
         limit_count: 10,
+        search_locale: "en",
       });
     });
   });

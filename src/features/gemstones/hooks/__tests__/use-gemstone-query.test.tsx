@@ -30,10 +30,16 @@ const baseGemstone: CatalogGemstone = {
   type_code: "ruby",
   color: "red",
   color_code: "red",
+  color_change_description: null,
+  color_custom: null,
   cut: "round",
   cut_code: "round",
+  cut_custom: null,
+  cut_id: "00000000-0000-0000-0000-000000000001",
+  cutting_country: null,
   clarity: "VS1",
   clarity_code: "VS1",
+  clarity_custom: null,
   weight_carats: 1,
   length_mm: 1,
   width_mm: 1,
@@ -46,7 +52,11 @@ const baseGemstone: CatalogGemstone = {
   quantity: 1,
   in_stock: true,
   delivery_days: null,
+  enhancement_notes: null,
   internal_code: null,
+  mining_country: null,
+  name_custom: null,
+  quality_classification: null,
   serial_number: "SER-1",
   origin_id: null,
   ai_text_generated_v6: false,
@@ -89,6 +99,7 @@ const baseGemstone: CatalogGemstone = {
   ai_weight_carats: null,
   primary_image_url: null,
   primary_video_url: null,
+  treatment_status: null,
 };
 
 const createMockGemstone = (
@@ -103,16 +114,20 @@ const createMockGemstone = (
     ...gemstone,
     type_code: overrides.type_code ?? gemstone.name,
     color_code: overrides.color_code ?? gemstone.color,
-    cut_code: overrides.cut_code ?? gemstone.cut,
+    cut_code: overrides.cut_code ?? gemstone.cut_code,
     clarity_code: overrides.clarity_code ?? gemstone.clarity,
   };
 };
 
-const createWrapper = () => {
+/** One shared client per test so React Query cache behaves as in production. */
+const createTestEnv = () => {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
         retry: false,
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
       },
     },
   });
@@ -121,7 +136,7 @@ const createWrapper = () => {
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
 
-  return TestWrapper;
+  return { queryClient, TestWrapper };
 };
 
 describe("useGemstoneQuery", () => {
@@ -164,8 +179,9 @@ describe("useGemstoneQuery", () => {
       gemstoneTypes: ["ruby"],
     };
 
+    const { TestWrapper } = createTestEnv();
     const { result } = renderHook(() => useGemstoneQuery(filters, 1, 24), {
-      wrapper: createWrapper(),
+      wrapper: TestWrapper,
     });
 
     expect(result.current.isLoading).toBe(true);
@@ -176,7 +192,7 @@ describe("useGemstoneQuery", () => {
 
     expect(result.current.data).toEqual(mockData);
     expect(GemstoneFetchService.fetchGemstones).toHaveBeenCalledWith({
-      ...filters,
+      filters,
       page: 1,
       pageSize: 24,
     });
@@ -187,8 +203,9 @@ describe("useGemstoneQuery", () => {
       new Error("API Error")
     );
 
+    const { TestWrapper } = createTestEnv();
     const { result } = renderHook(() => useGemstoneQuery({}, 1, 24), {
-      wrapper: createWrapper(),
+      wrapper: TestWrapper,
     });
 
     await waitFor(() => {
@@ -218,10 +235,11 @@ describe("useGemstoneQuery", () => {
       search: "ruby",
     };
 
+    const { TestWrapper } = createTestEnv();
     const { result, rerender } = renderHook(
       ({ f, p }) => useGemstoneQuery(f, p, 24),
       {
-        wrapper: createWrapper(),
+        wrapper: TestWrapper,
         initialProps: { f: filters, p: 1 },
       }
     );
@@ -230,14 +248,15 @@ describe("useGemstoneQuery", () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    // Service should be called once
-    expect(GemstoneFetchService.fetchGemstones).toHaveBeenCalledTimes(1);
+    const fetchCountAfterLoad =
+      vi.mocked(GemstoneFetchService.fetchGemstones).mock.calls.length;
 
-    // Re-render with same filters should use cache
+    // Re-render with same filters should use cache (Strict Mode may run mount effects more than once)
     rerender({ f: filters, p: 1 });
 
-    // Should still only have been called once (using cache)
-    expect(GemstoneFetchService.fetchGemstones).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(GemstoneFetchService.fetchGemstones).mock.calls.length).toBe(
+      fetchCountAfterLoad
+    );
   });
 
   it("should refetch when filters change", async () => {
@@ -256,10 +275,11 @@ describe("useGemstoneQuery", () => {
 
     vi.mocked(GemstoneFetchService.fetchGemstones).mockResolvedValue(mockData);
 
+    const { TestWrapper } = createTestEnv();
     const { result, rerender } = renderHook(
       ({ f, p }) => useGemstoneQuery(f, p, 24),
       {
-        wrapper: createWrapper(),
+        wrapper: TestWrapper,
         initialProps: { f: { search: "ruby" }, p: 1 },
       }
     );
@@ -268,12 +288,24 @@ describe("useGemstoneQuery", () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
+    const fetchCountForRuby =
+      vi.mocked(GemstoneFetchService.fetchGemstones).mock.calls.length;
+
     // Change filters
     rerender({ f: { search: "sapphire" }, p: 1 });
 
-    // Should fetch again with new filters
     await waitFor(() => {
-      expect(GemstoneFetchService.fetchGemstones).toHaveBeenCalledTimes(2);
+      expect(
+        vi.mocked(GemstoneFetchService.fetchGemstones).mock.calls.length
+      ).toBeGreaterThan(fetchCountForRuby);
     });
+
+    expect(GemstoneFetchService.fetchGemstones).toHaveBeenCalledWith(
+      expect.objectContaining({
+        filters: expect.objectContaining({ search: "sapphire" }),
+        page: 1,
+        pageSize: 24,
+      })
+    );
   });
 });

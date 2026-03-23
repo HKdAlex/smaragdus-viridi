@@ -114,7 +114,9 @@ describe("UserAuditService", () => {
       const result = await UserAuditService.getAuditLogs({});
 
       expect(result.success).toBe(false);
-      expect(result.error).toBeDefined();
+      if (!result.success) {
+        expect(result.error).toBeDefined();
+      }
     });
   });
 

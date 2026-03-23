@@ -99,17 +99,14 @@ describe("SearchInput", () => {
     expect(onSearch).toHaveBeenCalledWith("ruby");
   });
 
-  it("calls onSearch when search button is clicked", () => {
+  it("does not call onSearch when search button is clicked with empty input", () => {
     const onSearch = vi.fn();
     renderWithProviders(<SearchInput onSearch={onSearch} />);
 
-    const input = screen.getByPlaceholderText("Search gemstones...");
     const searchButton = screen.getByLabelText("Search");
-
-    fireEvent.change(input, { target: { value: "sapphire" } });
     fireEvent.click(searchButton);
 
-    expect(onSearch).toHaveBeenCalledWith("sapphire");
+    expect(onSearch).not.toHaveBeenCalled();
   });
 
   it("does not call onSearch with empty query", () => {

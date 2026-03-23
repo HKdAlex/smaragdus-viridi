@@ -91,7 +91,9 @@ describe("UserManagementService", () => {
       const result = await UserManagementService.getUsers({});
 
       expect(result.success).toBe(false);
-      expect(result.error).toBeDefined();
+      if (!result.success) {
+        expect(result.error).toBeDefined();
+      }
     });
 
     it("should handle network errors", async () => {
@@ -100,7 +102,9 @@ describe("UserManagementService", () => {
       const result = await UserManagementService.getUsers({});
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("Network error");
+      if (!result.success) {
+        expect(result.error).toContain("Network error");
+      }
     });
   });
 
