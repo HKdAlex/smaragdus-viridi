@@ -4,7 +4,10 @@ import { CategoryGrid } from "@/components/home/CategoryGrid";
 import { Hero } from "@/components/home/Hero";
 import { ProCTA } from "@/components/home/ProCTA";
 import { ValueProps } from "@/components/home/ValueProps";
-import { PremiumHome } from "@/components/home/premium";
+import {
+    PremiumHome,
+    type PremiumContent,
+} from "@/components/home/premium";
 import { getTranslations } from "next-intl/server";
 
 interface HomePageProps {
@@ -19,12 +22,6 @@ export default async function HomePage({
   const { locale } = await params;
   const { premium } = searchParams ? await searchParams : {};
   const t = await getTranslations({ locale, namespace: "home" });
-
-  const withLocale = (path: string) => {
-    if (path.startsWith("http")) return path;
-    const normalized = path.startsWith("/") ? path : `/${path}`;
-    return `/${locale}${normalized}`;
-  };
 
   const premiumFlag = premium?.toLowerCase();
   const envFlag = process.env.NEXT_PUBLIC_PREMIUM_HOME;
@@ -50,7 +47,7 @@ export default async function HomePage({
       ctaLabel: string;
     }>;
 
-    const premiumContent = {
+    const premiumContent: PremiumContent = {
       hero: {
         eyebrow: t("premium.hero.eyebrow"),
         title: t("premium.hero.title"),
@@ -58,8 +55,8 @@ export default async function HomePage({
         subtitle: t("premium.hero.subtitle"),
         primaryLabel: t("premium.hero.primaryLabel"),
         secondaryLabel: t("premium.hero.secondaryLabel"),
-        primaryHref: withLocale("/catalog"),
-        secondaryHref: withLocale("/contact"),
+        primaryHref: "/catalog",
+        secondaryHref: "/contact",
         imageSrc: "/images/hero/hero-2.webp",
         imageAlt: t("premium.hero.imageAlt"),
       },
@@ -79,14 +76,14 @@ export default async function HomePage({
             "/images/hero/hero-0.webp",
           ];
           const hrefMap = [
-            "/catalog?types=emerald",
-            "/catalog?types=diamond",
-            "/catalog?types=sapphire",
-          ];
+            { pathname: "/catalog" as const, query: { types: "emerald" } },
+            { pathname: "/catalog" as const, query: { types: "diamond" } },
+            { pathname: "/catalog" as const, query: { types: "sapphire" } },
+          ] as const;
           return {
             ...item,
             imageSrc: imageMap[index] ?? fallbackImage,
-            href: withLocale(hrefMap[index] ?? "/catalog"),
+            href: hrefMap[index] ?? ({ pathname: "/catalog" } as const),
           };
         }),
       },
@@ -105,7 +102,7 @@ export default async function HomePage({
         imageSrc: "/images/hero/hero-4.webp",
         imageAlt: t("premium.editorial.imageAlt"),
         ctaLabel: t("premium.editorial.ctaLabel"),
-        ctaHref: withLocale("/about"),
+        ctaHref: "/about",
       },
       expertise: {
         title: t("premium.expertise.title"),
@@ -124,19 +121,19 @@ export default async function HomePage({
         actions: [
           {
             label: t("premium.personalization.actions.emeralds"),
-            href: withLocale("/catalog?types=emerald"),
+            href: { pathname: "/catalog", query: { types: "emerald" } },
           },
           {
             label: t("premium.personalization.actions.diamonds"),
-            href: withLocale("/catalog?types=diamond"),
+            href: { pathname: "/catalog", query: { types: "diamond" } },
           },
           {
             label: t("premium.personalization.actions.sapphires"),
-            href: withLocale("/catalog?types=sapphire"),
+            href: { pathname: "/catalog", query: { types: "sapphire" } },
           },
           {
             label: t("premium.personalization.actions.bespoke"),
-            href: withLocale("/contact"),
+            href: "/contact",
           },
         ],
       },
@@ -146,8 +143,8 @@ export default async function HomePage({
         subtitle: t("premium.finalCta.subtitle"),
         primaryLabel: t("premium.finalCta.primaryLabel"),
         secondaryLabel: t("premium.finalCta.secondaryLabel"),
-        primaryHref: withLocale("/catalog"),
-        secondaryHref: withLocale("/contact"),
+        primaryHref: "/catalog",
+        secondaryHref: "/contact",
         imageSrc: "/images/hero/hero-3.webp",
         imageAlt: t("premium.finalCta.imageAlt"),
       },
@@ -161,8 +158,8 @@ export default async function HomePage({
       <Hero
         title={`${t("hero.title")} ${t("hero.titleHighlight")}`}
         subtitle={t("hero.subtitle")}
-        primaryHref={withLocale("/catalog")}
-        secondaryHref={withLocale("/contact")}
+        primaryHref="/catalog"
+        secondaryHref="/contact"
         primaryLabel={t("hero.browseCatalog")}
         secondaryLabel={t("hero.contactSales")}
         imageSrc="/images/hero/hero-0.webp"
@@ -179,7 +176,7 @@ export default async function HomePage({
           {
             title: t("featured.emeralds.title"),
             subtitle: t("featured.emeralds.subtitle"),
-            href: withLocale("/catalog?types=emerald"),
+            href: { pathname: "/catalog", query: { types: "emerald" } },
             imageSrc:
               "https://ik.imagekit.io/gemsonline/wp-content/uploads/2025/01/Emrald_gemstone-1.jpg",
             imageAlt: t("featured.emeralds.alt"),
@@ -187,7 +184,7 @@ export default async function HomePage({
           {
             title: t("featured.diamonds.title"),
             subtitle: t("featured.diamonds.subtitle"),
-            href: withLocale("/catalog?types=diamond"),
+            href: { pathname: "/catalog", query: { types: "diamond" } },
             imageSrc:
               "https://labgrowndiamondscalgary.com/sitefiles/wp-content/uploads/2024/02/lab-grown-diamonds.png",
             imageAlt: t("featured.diamonds.alt"),
@@ -195,7 +192,7 @@ export default async function HomePage({
           {
             title: t("featured.sapphires.title"),
             subtitle: t("featured.sapphires.subtitle"),
-            href: withLocale("/catalog?types=sapphire"),
+            href: { pathname: "/catalog", query: { types: "sapphire" } },
             imageSrc: "/images/misc/sapphires.webp",
             imageAlt: t("featured.sapphires.alt"),
           },
@@ -230,8 +227,8 @@ export default async function HomePage({
       <ProCTA
         title={t("proCta.title")}
         subtitle={t("proCta.subtitle")}
-        primaryHref={withLocale("/contact")}
-        secondaryHref={withLocale("/catalog")}
+        primaryHref="/contact"
+        secondaryHref="/catalog"
         primaryLabel={t("proCta.requestSourcing")}
         secondaryLabel={t("proCta.browseCatalog")}
         backgroundImageSrc="/images/hero/hero-4.webp"

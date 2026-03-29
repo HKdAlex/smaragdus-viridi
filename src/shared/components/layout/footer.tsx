@@ -1,4 +1,5 @@
-import Link from "next/link";
+import type { AppIntlHref } from "@/i18n/app-href";
+import { Link } from "@/i18n/navigation";
 import { Logo } from "@/shared/components/ui/logo";
 import { useTranslations } from "next-intl";
 
@@ -6,28 +7,28 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
   const t = useTranslations("footer");
 
-  const companyLinks = [
+  const companyLinks: Array<{ name: string; href: AppIntlHref }> = [
     { name: t("links.company.about"), href: "/about" },
     { name: t("links.company.contact"), href: "/contact" },
     { name: t("links.company.careers"), href: "/careers" },
     { name: t("links.company.press"), href: "/press" },
   ];
 
-  const productLinks = [
+  const productLinks: Array<{ name: string; href: AppIntlHref }> = [
     { name: t("links.products.catalog"), href: "/catalog" },
     { name: t("links.products.certification"), href: "/certification" },
     { name: t("links.products.customOrders"), href: "/custom" },
     { name: t("links.products.bulkPricing"), href: "/bulk" },
   ];
 
-  const supportLinks = [
+  const supportLinks: Array<{ name: string; href: AppIntlHref }> = [
     { name: t("links.support.help"), href: "/help" },
     { name: t("links.support.shipping"), href: "/shipping" },
     { name: t("links.support.returns"), href: "/returns" },
     { name: t("links.support.sizeGuide"), href: "/size-guide" },
   ];
 
-  const legalLinks = [
+  const legalLinks: Array<{ name: string; href: AppIntlHref }> = [
     { name: t("links.legal.privacy"), href: "/privacy" },
     { name: t("links.legal.terms"), href: "/terms" },
     { name: t("links.legal.cookies"), href: "/cookies" },

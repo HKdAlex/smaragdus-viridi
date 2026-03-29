@@ -1,41 +1,41 @@
 "use client";
 
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
 } from "@/shared/components/ui/card";
-import type {
-  ChangePasswordRequest,
-  CurrencyCode,
-  UpdateProfileRequest,
-  UserProfile,
-} from "../types/user-profile.types";
-import { Eye, EyeOff, Lock, Save, User } from "lucide-react";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
 } from "@/shared/components/ui/select";
+import { Eye, EyeOff, Lock, Save, User } from "lucide-react";
+import type {
+    ChangePasswordRequest,
+    CurrencyCode,
+    UpdateProfileRequest,
+    UserProfile,
+} from "../types/user-profile.types";
 
+import { useRouter } from "@/i18n/navigation";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import { Separator } from "@/shared/components/ui/separator";
-import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
-import { UserPreferencesService } from "../services/user-preferences-service";
+import { useEffect, useState } from "react";
 import type { UserPreferences } from "../services/user-preferences-service";
+import { UserPreferencesService } from "../services/user-preferences-service";
 import {
-  updateProfileSchema,
-  simplePasswordSchema,
-  formatZodErrors,
+    formatZodErrors,
+    simplePasswordSchema,
+    updateProfileSchema,
 } from "../validation/profile-schemas";
 
 interface ProfileSettingsProps {

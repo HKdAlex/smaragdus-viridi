@@ -330,7 +330,10 @@ export function RelatedGemstones({
             return (
               <Link
                 key={(gemstone as DatabaseGemstone).id}
-                href={`/catalog/${(gemstone as DatabaseGemstone).id}` as any}
+                href={{
+                  pathname: "/catalog/[id]",
+                  params: { id: (gemstone as DatabaseGemstone).id },
+                }}
                 className="flex-shrink-0 w-64 group"
               >
                 <div className="space-y-3">
@@ -435,7 +438,12 @@ export function RelatedGemstones({
 
         {/* View All Link */}
         <div className="mt-6 text-center">
-          <Link href={`/catalog?types=${gemstoneType}&colors=${color}` as any}>
+          <Link
+            href={{
+              pathname: "/catalog",
+              query: { types: gemstoneType, colors: color },
+            }}
+          >
             <Button variant="outline" className="w-full sm:w-auto">
               {t("viewAllSimilar")}
             </Button>

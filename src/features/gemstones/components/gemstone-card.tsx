@@ -21,10 +21,11 @@ import {
 } from "@/shared/components/ui/gemstone-icons";
 import { CheckCircle, Package, Scale } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
+import type { ComponentProps } from "react";
 
 import { useCurrency } from "@/features/currency/hooks/use-currency";
+import { Link } from "@/i18n/navigation";
 import Image from "next/image";
-import Link from "next/link";
 import type { CatalogGemstone } from "../services/gemstone-fetch.service";
 import { useGemstoneTranslations } from "../utils/gemstone-translations";
 import { resolveGemstoneTypeLabelSource } from "../utils/gemstone-type-display";
@@ -37,7 +38,8 @@ export interface GemstoneCardProps {
   variant?: "catalog" | "admin" | "compact";
   showActions?: boolean;
   onSelect?: (id: string) => void;
-  href?: string; // Custom link override
+  /** Locale-aware link target (defaults to this gemstone’s catalog detail page) */
+  href?: NonNullable<ComponentProps<typeof Link>["href"]>;
   className?: string;
 }
 
@@ -133,8 +135,11 @@ export function GemstoneCard({
         ? Math.round(gemstone.price_amount / weightCaratsNum)
         : null;
 
-  const defaultHref = `/catalog/${gemstone.id}`;
-  const linkHref = href || defaultHref;
+  const defaultHref = {
+    pathname: "/catalog/[id]" as const,
+    params: { id: gemstone.id },
+  };
+  const linkHref = href ?? defaultHref;
 
   const isCompact = variant === "compact";
 

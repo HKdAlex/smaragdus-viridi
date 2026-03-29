@@ -8,9 +8,10 @@ import {
     Sparkles,
 } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 
 import { Container } from "@/components/ui/Container";
+import type { AppIntlHref } from "@/i18n/app-href";
+import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import {
     duration,
@@ -33,8 +34,8 @@ export type PremiumContent = {
     subtitle: string;
     primaryLabel: string;
     secondaryLabel: string;
-    primaryHref: string;
-    secondaryHref: string;
+    primaryHref: AppIntlHref;
+    secondaryHref: AppIntlHref;
     imageSrc: string;
     imageAlt: string;
   };
@@ -51,7 +52,7 @@ export type PremiumContent = {
       subtitle: string;
       imageSrc: string;
       imageAlt: string;
-      href: string;
+      href: AppIntlHref;
       ctaLabel: string;
     }>;
   };
@@ -67,7 +68,7 @@ export type PremiumContent = {
     imageSrc: string;
     imageAlt: string;
     ctaLabel: string;
-    ctaHref: string;
+    ctaHref: AppIntlHref;
   };
   expertise: {
     title: string;
@@ -80,7 +81,7 @@ export type PremiumContent = {
     title: string;
     subtitle: string;
     note: string;
-    actions: Array<{ label: string; href: string }>;
+    actions: Array<{ label: string; href: AppIntlHref }>;
   };
   finalCta: {
     eyebrow: string;
@@ -88,8 +89,8 @@ export type PremiumContent = {
     subtitle: string;
     primaryLabel: string;
     secondaryLabel: string;
-    primaryHref: string;
-    secondaryHref: string;
+    primaryHref: AppIntlHref;
+    secondaryHref: AppIntlHref;
     imageSrc: string;
     imageAlt: string;
   };

@@ -1,15 +1,16 @@
 import { duration, ease, radius, shadowSoft } from "@/lib/ux/tokens";
 
-import { Button } from "@/shared/components/ui/button";
 import { Container } from "@/components/ui/Container";
+import type { AppIntlHref } from "@/i18n/app-href";
+import { Link } from "@/i18n/navigation";
+import { Button } from "@/shared/components/ui/button";
 import Image from "next/image";
-import Link from "next/link";
 
 export type HeroProps = {
   title: string;
   subtitle: string;
-  primaryHref: string;
-  secondaryHref: string;
+  primaryHref: AppIntlHref;
+  secondaryHref: AppIntlHref;
   primaryLabel?: string;
   secondaryLabel?: string;
   imageSrc: string;

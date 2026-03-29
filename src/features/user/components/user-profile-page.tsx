@@ -1,47 +1,46 @@
 "use client";
 
 import {
-  Calendar,
-  CreditCard,
-  Heart,
-  Mail,
-  Package,
-  Phone,
-  ShoppingCart,
-  User,
-} from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
 } from "@/shared/components/ui/card";
-import type { ProfileStats, UserProfile } from "../types/user-profile.types";
 import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
+    Tabs,
+    TabsContent,
+    TabsList,
+    TabsTrigger,
 } from "@/shared/components/ui/tabs";
+import {
+    Calendar,
+    CreditCard,
+    Heart,
+    Mail,
+    Package,
+    Phone,
+    ShoppingCart,
+    User,
+} from "lucide-react";
+import type { ProfileStats, UserProfile } from "../types/user-profile.types";
 
-import { ActivityFeed } from "./activity-feed";
+import { useCurrency } from "@/features/currency/hooks/use-currency";
+import { Link, useRouter } from "@/i18n/navigation";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
+import { Separator } from "@/shared/components/ui/separator";
+import { format } from "date-fns";
+import { useTranslations } from "next-intl";
+import { useState } from "react";
+import { useActivityHistory } from "../hooks/use-activity-history";
+import { useOrderHistory } from "../hooks/use-order-history";
+import { ActivityFeed } from "./activity-feed";
 import { OrderHistory } from "./order-history";
 import { ProfileSettings } from "./profile-settings";
-import { Separator } from "@/shared/components/ui/separator";
-import { useTranslations } from "next-intl";
-import { useOrderHistory } from "../hooks/use-order-history";
-import { useActivityHistory } from "../hooks/use-activity-history";
-import { useRouter } from "next/navigation";
-import { Link } from "@/i18n/navigation";
-import { format } from "date-fns";
-import { useCurrency } from "@/features/currency/hooks/use-currency";
-import { useState } from "react";
 
-import type { UpdateProfileRequest, ChangePasswordRequest } from "../types/user-profile.types";
 import type { UserPreferences } from "../services/user-preferences-service";
+import type { ChangePasswordRequest, UpdateProfileRequest } from "../types/user-profile.types";
 
 interface UserProfilePageProps {
   user: UserProfile;

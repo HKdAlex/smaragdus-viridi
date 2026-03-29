@@ -1,15 +1,16 @@
 import { duration, ease, gold, radius, shadowSoft } from "@/lib/ux/tokens";
 
-import { Button } from "@/shared/components/ui/button";
 import { Container } from "@/components/ui/Container";
-import Link from "next/link";
+import type { AppIntlHref } from "@/i18n/app-href";
+import { Link } from "@/i18n/navigation";
+import { Button } from "@/shared/components/ui/button";
 import Image from "next/image";
 
 export type ProCTAProps = {
   title: string;
   subtitle: string;
-  primaryHref: string;
-  secondaryHref: string;
+  primaryHref: AppIntlHref;
+  secondaryHref: AppIntlHref;
   primaryLabel?: string;
   secondaryLabel?: string;
   backgroundImageSrc?: string;

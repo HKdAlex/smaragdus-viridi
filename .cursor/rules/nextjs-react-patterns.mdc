@@ -6,6 +6,10 @@ alwaysApply: false
 
 # Next.js & React Patterns - Smaragdus Viridi
 
+## Locale and navigation (next-intl)
+
+All **in-app** links and client navigation must preserve `[locale]`. Follow **`.cursor/rules/next-intl-locale-navigation.mdc`** (always applied): use **`@/i18n/navigation`** for `Link`, `useRouter`, and `usePathname`; use **`AppIntlHref`** for typed hrefs; register new paths in **`src/i18n/routing.ts`**. Do not combine manual `/${locale}` prefixes with i18n `Link`.
+
 ## Project Architecture
 
 This is a gemstone e-commerce platform built with Next.js 15, featuring SSR for product pages and static generation for marketing content.

@@ -1,4 +1,5 @@
-import Link from "next/link";
+import type { AppIntlHref } from "@/i18n/app-href";
+import { Link } from "@/i18n/navigation";
 import { Suspense } from "react";
 
 interface UnauthorizedPageProps {
@@ -19,7 +20,11 @@ export default async function UnauthorizedPage({
   const { locale } = await params;
   const { reason } = await searchParams;
 
-  const getMessageAndActions = (reason?: string) => {
+  const getMessageAndActions = (reason?: string): {
+    title: string;
+    message: string;
+    actions: Array<{ href: AppIntlHref; label: string; primary: boolean }>;
+  } => {
     switch (reason) {
       case "insufficient_permissions":
         return {
@@ -27,9 +32,9 @@ export default async function UnauthorizedPage({
           message:
             "You don't have permission to access this area. Admin privileges are required.",
           actions: [
-            { href: `/${locale}/`, label: "Go to Home", primary: true },
+            { href: "/", label: "Go to Home", primary: true },
             {
-              href: `/${locale}/profile`,
+              href: "/profile",
               label: "View Profile",
               primary: false,
             },
@@ -43,11 +48,11 @@ export default async function UnauthorizedPage({
             "There's an issue with your account role. Please contact support for assistance.",
           actions: [
             {
-              href: `/${locale}/contact`,
+              href: "/contact",
               label: "Contact Support",
               primary: true,
             },
-            { href: `/${locale}/`, label: "Go to Home", primary: false },
+            { href: "/", label: "Go to Home", primary: false },
           ],
         };
 
@@ -56,8 +61,8 @@ export default async function UnauthorizedPage({
           title: "Unauthorized",
           message: "You are not authorized to access this resource.",
           actions: [
-            { href: `/${locale}/`, label: "Go to Home", primary: true },
-            { href: `/${locale}/login`, label: "Sign In", primary: false },
+            { href: "/", label: "Go to Home", primary: true },
+            { href: "/login", label: "Sign In", primary: false },
           ],
         };
     }
@@ -128,7 +133,7 @@ export default async function UnauthorizedPage({
             <p className="text-xs text-gray-500">
               If you believe this is an error, please{" "}
               <Link
-                href={`/${locale}/contact`}
+                href="/contact"
                 className="text-blue-600 hover:text-blue-500 underline"
               >
                 contact our support team

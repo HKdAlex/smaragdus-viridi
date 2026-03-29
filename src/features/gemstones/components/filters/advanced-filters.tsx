@@ -3,35 +3,34 @@
 
 "use client";
 
-import {
-  AdjustmentsHorizontalIcon,
-  MagnifyingGlassIcon,
-  XMarkIcon,
-} from "@heroicons/react/24/outline";
-import {
-  CLARITY_ORDER,
-  DEFAULT_PRICE_RANGE,
-  DEFAULT_WEIGHT_RANGE,
-  categorizeColor,
-  getActiveFilterCount,
-  hasActiveFilters,
-} from "../../types/filter.types";
 import type {
-  GemClarity,
-  GemColor,
-  // CUT-C3.1: GemCut enum removed
-  GemstoneType,
+    GemClarity,
+    GemColor,
+    // CUT-C3.1: GemCut enum removed
+    GemstoneType,
 } from "@/shared/types";
+import {
+    AdjustmentsHorizontalIcon,
+    MagnifyingGlassIcon,
+    XMarkIcon,
+} from "@heroicons/react/24/outline";
 import { useEffect, useMemo, useRef } from "react";
+import {
+    CLARITY_ORDER,
+    DEFAULT_PRICE_RANGE,
+    DEFAULT_WEIGHT_RANGE,
+    categorizeColor,
+    getActiveFilterCount,
+    hasActiveFilters,
+} from "../../types/filter.types";
 
+import { useCurrency } from "@/features/currency/hooks/use-currency";
+import { useTranslations } from "next-intl";
+import { useAdvancedFilters } from "../../hooks/use-advanced-filters";
+import { useFilterLabels } from "../../hooks/use-filter-labels";
 import type { AdvancedGemstoneFilters } from "../../types/filter.types";
 import { FilterDropdown } from "./filter-dropdown";
 import { RangeSlider } from "./range-slider";
-import { useAdvancedFilters } from "../../hooks/use-advanced-filters";
-import { useFilterLabels } from "../../hooks/use-filter-labels";
-import { usePathname } from "next/navigation";
-import { useTranslations } from "next-intl";
-import { useCurrency } from "@/features/currency/hooks/use-currency";
 
 // Import constants and utilities
 
@@ -54,12 +53,10 @@ export function AdvancedFilters({
 }: AdvancedFiltersProps) {
   const t = useTranslations("filters.advanced");
   const filterLabels = useFilterLabels();
-  const pathname = usePathname();
-  const { filters, ...filterActions } = useAdvancedFilters(
-    undefined,
-    true,
-    pathname
-  );
+  // Let `useAdvancedFilters` use `usePathname()` from `@/i18n/navigation` so the
+  // base path has no locale segment (passing `next/navigation` pathname here
+  // broke locale-aware filter URL updates).
+  const { filters, ...filterActions } = useAdvancedFilters(undefined, true);
 
   // Track previous filters to prevent unnecessary callbacks
   const prevFiltersRef = useRef<AdvancedGemstoneFilters>(filters);

@@ -1,15 +1,16 @@
 import { Container } from "@/components/ui/Container";
+import type { AppIntlHref } from "@/i18n/app-href";
 import { cn } from "@/lib/utils";
 import { duration, ease, radius } from "@/lib/ux/tokens";
 
+import { Link } from "@/i18n/navigation";
 import { Card } from "@/shared/components/ui/card";
 import Image from "next/image";
-import Link from "next/link";
 
 export type CategoryItem = {
   title: string;
   subtitle?: string;
-  href: string;
+  href: AppIntlHref;
   imageSrc: string;
   imageAlt: string;
 };

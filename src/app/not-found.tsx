@@ -1,6 +1,15 @@
+import { routing } from "@/i18n/routing";
 import Link from "next/link";
 
+/**
+ * Root `not-found` (outside `[locale]`). Links use the configured default locale
+ * so we never hardcode a single language segment.
+ */
 export default function NotFound() {
+  const { defaultLocale } = routing;
+  const home = `/${defaultLocale}`;
+  const catalog = `/${defaultLocale}/catalog`;
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-8 text-center">
@@ -16,13 +25,13 @@ export default function NotFound() {
 
         <div className="space-y-4">
           <Link
-            href="/en"
+            href={home}
             className="inline-block w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors"
           >
             Go Home
           </Link>
           <Link
-            href="/en/catalog"
+            href={catalog}
             className="inline-block w-full border border-gray-300 text-gray-700 py-2 px-4 rounded hover:bg-gray-50 transition-colors"
           >
             Browse Catalog

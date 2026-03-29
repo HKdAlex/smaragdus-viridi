@@ -60,6 +60,8 @@ const baseGemstone: CatalogGemstone = {
   internal_code: null,
   mining_country: null,
   name_custom: null,
+  name_custom_en: null,
+  name_custom_ru: null,
   quality_classification: null,
   serial_number: "SER-1",
   origin_id: null,

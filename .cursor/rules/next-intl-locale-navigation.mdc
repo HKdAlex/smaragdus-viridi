@@ -1,0 +1,45 @@
+---
+description: >-
+  Locale-aware navigation with next-intl — use @/i18n/navigation for Link, router,
+  and pathname; forbid next/link and next/navigation patterns that drop or double
+  the locale prefix; align new routes with routing.ts and AppIntlHref.
+alwaysApply: true
+---
+
+# next-intl — locale-aware navigation (no drift)
+
+This app uses **next-intl** with `[locale]` in the URL. Wrong imports cause **silent locale switches** (usually to `defaultLocale` in `src/i18n/routing.ts`) or **double prefixes** (`/ru/ru/...`).
+
+## Required (in-app routes under `src/app/[locale]` and any client code that navigates there)
+
+- Import **`Link`**, **`useRouter`**, **`usePathname`**, and **`redirect`** (when used for same-site navigation) from **`@/i18n/navigation`**, not from `next/link` or `next/navigation`.
+- Pass **locale-agnostic paths** only: `"/catalog"`, `"/profile"`, `"/catalog/[id]"` objects — never build `href={\`/${locale}/catalog\`}` for these APIs; the wrapper adds the segment.
+- For **`Link` `href` props** and shared types, use **`AppIntlHref`** from **`@/i18n/app-href`** instead of plain `string` so TypeScript matches `routing.pathnames`.
+- **Dynamic segments:** prefer  
+  `{ pathname: "/catalog/[id]", params: { id } }`  
+  not `` `/catalog/${id}` `` with `next/link`.
+- **Query strings:** prefer  
+  `{ pathname: "/catalog", query: { types: "emerald" } }`  
+  (see next-intl `query` on href objects).
+- **`useAdvancedFilters` / filter URL sync:** do not pass **`usePathname()` from `next/navigation`** as a base path; the hook must use the pathname from **`@/i18n/navigation`** (locale-stripped) or omit the override.
+
+## New routes
+
+- Add every new **internal** pathname to **`src/i18n/routing.ts`** `pathnames` (same path for `en`/`ru` unless you localize slugs). Otherwise typed `Link` will reject or behavior will be inconsistent.
+
+## Exceptions (explicit only)
+
+- **`src/app/not-found.tsx`** (root, outside `[locale]`): may use **`next/link`** with explicit `/${routing.defaultLocale}/...` or equivalent; there is no locale-aware layout there.
+- **`next/navigation`**: still allowed for **`useSearchParams`**, **`useParams`**, **`notFound`**, and **server `redirect`** to external URLs or non-i18n handlers — but not for **client `useRouter` / `usePathname`** that should preserve locale.
+
+## Anti-patterns (reject in review)
+
+- `import Link from "next/link"` in feature or shared UI that links to catalog, auth, profile, cart, etc.
+- `import { useRouter, usePathname } from "next/navigation"` in client components that push/replace internal routes or read path for i18n-aware behavior.
+- Helpers like **`withLocale(path)`** combined with **`Link` from `@/i18n/navigation`** (double prefix).
+- Internal **`href` strings** typed as **`string`** on components that render **`Link`** from `@/i18n/navigation`** without **`AppIntlHref`**.
+
+## Quick audit
+
+- Grep: `from "next/link"` and `from 'next/link'` under `src/` — should be **empty** except root `not-found` (and rare external-only cases).
+- Grep: `useRouter` / `usePathname` from `next/navigation` in `src/**/*.tsx` — only where exception applies.
