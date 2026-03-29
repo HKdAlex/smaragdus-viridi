@@ -1,6 +1,9 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import Image from "next/image";
+
+import type { GemstoneType } from "@/shared/types";
 
 interface GemstoneTypeSelectorProps {
   selectedTypes: string[];
@@ -9,9 +12,45 @@ interface GemstoneTypeSelectorProps {
 }
 
 /**
+ * Thumbnail URL for each enum value. Files live under `public/gem-types/*.webp`
+ * (lossy WebP derived from OpenAI `source-png`; regenerate via
+ * `npm run generate-gem-type-thumbnails:openai -- --all --webp`).
+ */
+function gemstoneTypeThumbnailSrc(value: GemstoneType): string {
+  return `/gem-types/${value}.webp`;
+}
+
+/** Canonical order matches `public/gem-types/*.webp` basenames (lowercase). */
+const VISUAL_GEMSTONE_TYPE_ORDER = [
+  "agate",
+  "alexandrite",
+  "amethyst",
+  "apatite",
+  "aquamarine",
+  "citrine",
+  "diamond",
+  "emerald",
+  "garnet",
+  "morganite",
+  "paraiba",
+  "peridot",
+  "quartz",
+  "ruby",
+  "sapphire",
+  "spinel",
+  "tanzanite",
+  "topaz",
+  "tourmaline",
+  "zircon",
+] as const satisfies readonly GemstoneType[];
+
+const defaultGemstoneTypes: { value: GemstoneType }[] =
+  VISUAL_GEMSTONE_TYPE_ORDER.map((value) => ({ value }));
+
+/**
  * Visual Gemstone Type Selector
  *
- * Displays gemstone types as visual cards with icons.
+ * Displays gemstone types as visual cards with thumbnails.
  * Part of FILTER-C0.2: Add missing filters to Visual mode.
  */
 export function GemstoneTypeSelector({
@@ -21,27 +60,6 @@ export function GemstoneTypeSelector({
 }: GemstoneTypeSelectorProps) {
   const t = useTranslations("filters");
 
-  // Default gemstone types with icons (emoji representations)
-  const defaultGemstoneTypes = [
-    { value: "diamond", icon: "💎", color: "#E8E8E8" },
-    { value: "emerald", icon: "💚", color: "#50C878" },
-    { value: "ruby", icon: "❤️", color: "#E0115F" },
-    { value: "sapphire", icon: "💙", color: "#0F52BA" },
-    { value: "amethyst", icon: "💜", color: "#9966CC" },
-    { value: "topaz", icon: "🧡", color: "#FFC87C" },
-    { value: "garnet", icon: "🔴", color: "#733635" },
-    { value: "peridot", icon: "💚", color: "#AAFF00" },
-    { value: "citrine", icon: "🟡", color: "#E4D00A" },
-    { value: "tanzanite", icon: "🔵", color: "#4169E1" },
-    { value: "aquamarine", icon: "🩵", color: "#7FFFD4" },
-    { value: "morganite", icon: "🩷", color: "#FFB7C5" },
-    { value: "tourmaline", icon: "🌈", color: "#86C67C" },
-    { value: "spinel", icon: "✨", color: "#FF0080" },
-    { value: "alexandrite", icon: "🔮", color: "#008080" },
-    { value: "paraiba", icon: "💠", color: "#00CED1" },
-  ];
-
-  // Use options if provided (for dynamic counts), otherwise use defaults
   const displayTypes = options
     ? defaultGemstoneTypes.filter((gt) =>
         options.some((opt) => opt.value === gt.value)
@@ -68,7 +86,7 @@ export function GemstoneTypeSelector({
         {t("visual.gemstoneType")}
       </h3>
       <div className="grid grid-cols-3 gap-2">
-        {displayTypes.map(({ value, icon, color }) => {
+        {displayTypes.map(({ value }) => {
           const count = getCount(value);
           const isDisabled = count === 0;
           const isSelected = selectedTypes.includes(value);
@@ -76,9 +94,10 @@ export function GemstoneTypeSelector({
           return (
             <button
               key={value}
+              type="button"
               onClick={() => !isDisabled && toggleType(value)}
               disabled={isDisabled}
-              className={`relative p-3 rounded-xl border-2 transition-all duration-200 ${
+              className={`relative px-2 pt-3 pb-2 rounded-xl border-2 transition-all duration-200 ${
                 isDisabled
                   ? "opacity-40 cursor-not-allowed border-border bg-muted"
                   : isSelected
@@ -86,15 +105,20 @@ export function GemstoneTypeSelector({
                     : "border-border bg-card hover:border-primary/50 hover:scale-105"
               }`}
             >
-              <div className="flex flex-col items-center space-y-1">
-                <span
-                  className="text-2xl"
-                  style={{
-                    filter: isSelected ? "none" : "grayscale(30%)",
-                  }}
+              <div className="flex flex-col items-center gap-1.5">
+                <div
+                  className="relative mx-auto flex h-[5rem] w-full max-w-[5.5rem] items-center justify-center"
+                  aria-hidden
                 >
-                  {icon}
-                </span>
+                  <Image
+                    src={gemstoneTypeThumbnailSrc(value)}
+                    alt=""
+                    width={160}
+                    height={160}
+                    className="h-full w-full object-contain object-center"
+                    sizes="(max-width: 640px) 32vw, 96px"
+                  />
+                </div>
                 <span
                   className={`text-xs font-medium truncate w-full text-center ${
                     isSelected ? "text-primary" : "text-muted-foreground"
