@@ -2,11 +2,11 @@
 // Following Type Governance: Import from shared types ONLY
 
 import type {
-  CurrencyCode,
-  GemClarity,
-  GemColor,
-  // CUT-C3.1: GemCut enum removed
-  GemstoneType,
+    CurrencyCode,
+    GemClarity,
+    GemColor,
+    // CUT-C3.1: GemCut enum removed
+    GemstoneType,
 } from "@/shared/types";
 
 // ===== CORE FILTER INTERFACES =====
@@ -296,6 +296,7 @@ export const CUT_LABELS: Record<string, string> = {
   cushion: "Cushion",
   radiant: "Radiant",
   fantasy: "Fantasy",
+  code: "Designer",
   baguette: "Baguette",
   asscher: "Asscher",
   rhombus: "Rhombus",

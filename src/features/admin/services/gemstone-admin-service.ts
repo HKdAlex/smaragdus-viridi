@@ -1,16 +1,16 @@
 import type {
-  DatabaseCertification,
-  DatabaseGemstone,
-  DatabaseGemstoneImage,
-  DatabaseGemstoneVideo,
-  DatabaseOrigin,
-  IndividualStone,
+    DatabaseCertification,
+    DatabaseGemstone,
+    DatabaseGemstoneImage,
+    DatabaseGemstoneVideo,
+    DatabaseOrigin,
+    IndividualStone,
 } from "@/shared/types";
-import type { TablesInsert, TablesUpdate } from "@/shared/types/database";
+import type { TablesInsert } from "@/shared/types/database";
 
-import { DatabaseEnums } from "@/shared/services/database-enums";
-import { CutsService } from "@/shared/services/cuts-service";
 import { supabase } from "@/lib/supabase";
+import { CutsService } from "@/shared/services/cuts-service";
+import { DatabaseEnums } from "@/shared/services/database-enums";
 
 // Simple logger for now
 const logger = {
@@ -31,6 +31,8 @@ export interface GemstoneFormData {
   clarity: DatabaseGemstone["clarity"];
   // Custom text fields for flexible admin entry (FLEX-C1.x)
   name_custom?: string | null;
+  name_custom_en?: string | null;
+  name_custom_ru?: string | null;
   color_custom?: string | null;
   cut_custom?: string | null;
   clarity_custom?: string | null;
@@ -163,10 +165,17 @@ export class GemstoneAdminService {
         weight: formData.weight_carats,
       });
 
+      const legacyNameCustom =
+        [formData.name_custom_en, formData.name_custom_ru, formData.name_custom]
+          .map((s) => (typeof s === "string" ? s.trim() : ""))
+          .find((s) => s.length > 0) || null;
+
       const payload: TablesInsert<"gemstones"> & {
         metadata_status?: string | null;
         quantity?: number | null;
         name_custom?: string | null;
+        name_custom_en?: string | null;
+        name_custom_ru?: string | null;
         color_custom?: string | null;
         cut_custom?: string | null;
         clarity_custom?: string | null;
@@ -188,7 +197,15 @@ export class GemstoneAdminService {
         clarity: formData.clarity,
         clarity_code: formData.clarity_code ?? formData.clarity,
         // Custom text fields for flexible admin entry (FLEX-C1.x)
-        name_custom: formData.name_custom ?? null,
+        name_custom_en:
+          formData.name_custom_en === undefined || formData.name_custom_en === null
+            ? null
+            : formData.name_custom_en.trim() || null,
+        name_custom_ru:
+          formData.name_custom_ru === undefined || formData.name_custom_ru === null
+            ? null
+            : formData.name_custom_ru.trim() || null,
+        name_custom: legacyNameCustom,
         color_custom: formData.color_custom ?? null,
         cut_custom: formData.cut_custom ?? null,
         clarity_custom: formData.clarity_custom ?? null,

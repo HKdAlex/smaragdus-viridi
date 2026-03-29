@@ -173,7 +173,7 @@ export function GemstoneForm({
     }
   };
 
-  const handleWeightChange = (value: number) => {
+  const applyWeightCaratsNumber = (value: number) => {
     setFormData((prev) => {
       const next = { ...prev, weight_carats: value };
       if (
@@ -190,6 +190,22 @@ export function GemstoneForm({
     if (errors.weight_carats) {
       setErrors((prev) => ({ ...prev, weight_carats: "" }));
     }
+  };
+
+  const handleWeightInputChange = (raw: string) => {
+    setWeightInput(raw);
+    const trimmed = raw.replace(",", ".").trim();
+    if (
+      trimmed === "" ||
+      trimmed === "-" ||
+      trimmed === "." ||
+      trimmed === "-."
+    ) {
+      applyWeightCaratsNumber(0);
+      return;
+    }
+    const n = parseFloat(trimmed);
+    applyWeightCaratsNumber(Number.isFinite(n) && n >= 0 ? n : 0);
   };
 
   const handleAutoCalculatePricePerCarat = () => {
@@ -266,6 +282,7 @@ export function GemstoneForm({
     },
     [cuts, translateCut]
   );
+
   const [marketingHighlights, setMarketingHighlights] = useState<string[]>([]);
   const [marketingHighlightsEn, setMarketingHighlightsEn] = useState<string[]>(
     []
@@ -295,6 +312,8 @@ export function GemstoneForm({
       clarity: gemstone?.clarity || DEFAULT_GEMSTONE_VALUES.clarity,
       // Custom text fields for flexible admin entry (FLEX-C1.x)
       name_custom: (gemstone as any)?.name_custom || undefined,
+      name_custom_en: (gemstone as any)?.name_custom_en || undefined,
+      name_custom_ru: (gemstone as any)?.name_custom_ru || undefined,
       color_custom: (gemstone as any)?.color_custom || undefined,
       cut_custom: (gemstone as any)?.cut_custom || undefined,
       clarity_custom: (gemstone as any)?.clarity_custom || undefined,
@@ -348,6 +367,40 @@ export function GemstoneForm({
     };
   });
 
+  /** Matches dropdown labels: DB name for catalog cuts; cut_custom only for true free-text. */
+  const cutSelectDisplayValue = useMemo(() => {
+    const isRussian = translateCut("round") !== "Round Brilliant";
+    const dbCut = cuts.find(
+      (c) =>
+        c.code.toLowerCase() === (formData.cut_code || "").toLowerCase()
+    );
+    const custom = formData.cut_custom?.trim();
+    if (custom) {
+      const customIsRedundantCode =
+        dbCut !== undefined &&
+        custom.toLowerCase() === dbCut.code.toLowerCase();
+      if (customIsRedundantCode) {
+        return isRussian ? dbCut.name_ru : dbCut.name_en;
+      }
+      return formData.cut_custom!;
+    }
+    if (dbCut) {
+      return isRussian ? dbCut.name_ru : dbCut.name_en;
+    }
+    return translateCut(formData.cut_code);
+  }, [
+    cuts,
+    formData.cut_code,
+    formData.cut_custom,
+    translateCut,
+  ]);
+
+  /** Text inputs for weight/dimensions so new stones show blank fields instead of 0 */
+  const [weightInput, setWeightInput] = useState("");
+  const [lengthInput, setLengthInput] = useState("");
+  const [widthInput, setWidthInput] = useState("");
+  const [depthInput, setDepthInput] = useState("");
+
   // Load origins and cuts for dropdowns
   useEffect(() => {
     const loadOrigins = async () => {
@@ -371,18 +424,27 @@ export function GemstoneForm({
         // CUT-C3.1: Set default cut_id for new gemstones
         // If we have a cut_code but no cut_id, look up the cut_id from the loaded cuts
         setFormData((prev) => {
+          let next = prev;
           if (!prev.cut_id && prev.cut_code) {
             const defaultCut = cutsData.find(
               (c) => c.code.toLowerCase() === prev.cut_code.toLowerCase()
             );
             if (defaultCut) {
-              return {
-                ...prev,
-                cut_id: defaultCut.id,
-              };
+              next = { ...next, cut_id: defaultCut.id };
             }
           }
-          return prev;
+          const dc = cutsData.find(
+            (c) =>
+              c.code.toLowerCase() === (next.cut_code || "").toLowerCase()
+          );
+          if (
+            dc &&
+            next.cut_custom &&
+            next.cut_custom.trim().toLowerCase() === dc.code.toLowerCase()
+          ) {
+            next = { ...next, cut_custom: undefined };
+          }
+          return next;
         });
       } catch (error) {
         console.error("Failed to load cuts:", error);
@@ -404,6 +466,8 @@ export function GemstoneForm({
         clarity: gemstone.clarity || DEFAULT_GEMSTONE_VALUES.clarity,
         // Custom text fields for flexible admin entry (FLEX-C1.x)
         name_custom: (gemstone as any)?.name_custom || undefined,
+      name_custom_en: (gemstone as any)?.name_custom_en || undefined,
+      name_custom_ru: (gemstone as any)?.name_custom_ru || undefined,
         color_custom: (gemstone as any)?.color_custom || undefined,
         cut_custom: (gemstone as any)?.cut_custom || undefined,
         clarity_custom: (gemstone as any)?.clarity_custom || undefined,
@@ -469,6 +533,16 @@ export function GemstoneForm({
         setMarketingHighlightsRu(gemstone.ai_v6.marketing_highlights_ru);
       }
       setHasManualPricePerCarat(false);
+
+      setWeightInput(String(gemstone.weight_carats ?? 0));
+      setLengthInput(String(parseDimensionValue(gemstone.length_mm)));
+      setWidthInput(String(parseDimensionValue(gemstone.width_mm)));
+      setDepthInput(String(parseDimensionValue(gemstone.depth_mm)));
+    } else {
+      setWeightInput("");
+      setLengthInput("");
+      setWidthInput("");
+      setDepthInput("");
     }
   }, [gemstone]);
 
@@ -508,6 +582,21 @@ export function GemstoneForm({
     }
   };
 
+  const handleMmDimensionInputChange = (
+    field: "length_mm" | "width_mm" | "depth_mm",
+    setStr: (s: string) => void,
+    raw: string
+  ) => {
+    setStr(raw);
+    const trimmed = raw.replace(",", ".").trim();
+    if (trimmed === "" || trimmed === "." || trimmed === "-") {
+      handleInputChange(field, 0);
+      return;
+    }
+    const n = parseDimensionValue(trimmed);
+    handleInputChange(field, n);
+  };
+
   /**
    * Handle flexible name field change (FLEX-C1.1)
    * - If value matches a known enum, set both `name` (enum) and `name_custom` (text)
@@ -526,7 +615,9 @@ export function GemstoneForm({
           return {
             ...prev,
             name: enumValue || prev.name,
-            name_custom: value, // Store the display value
+            name_custom: undefined,
+            name_custom_en: undefined,
+            name_custom_ru: undefined,
           };
         } else {
           // Custom value - keep the enum at a default but store the custom text
@@ -535,6 +626,8 @@ export function GemstoneForm({
             // Keep existing enum value for filtering compatibility
             name: prev.name || DEFAULT_GEMSTONE_VALUES.type,
             name_custom: value,
+            name_custom_en: value,
+            name_custom_ru: value,
           };
         }
       });
@@ -593,28 +686,28 @@ export function GemstoneForm({
               cut.name_en.toLowerCase() === value.toLowerCase() ||
               cut.name_ru.toLowerCase() === value.toLowerCase()
           );
-          // CUT-C3.1: Use cut_code from database cuts
+          // FlexibleSelect passes option.value (cut code), not the label — do not store
+          // that code in cut_custom or the input shows English code while options are localized.
           return {
             ...prev,
             cut_code: dbCut?.code ?? prev.cut_code,
             cut_id: dbCut?.id ?? prev.cut_id,
-            cut_custom: value,
-          };
-        } else {
-          // Custom cut - keep existing cut_id (required field)
-          return {
-            ...prev,
-            cut_code: prev.cut_code || DEFAULT_GEMSTONE_VALUES.cut_code,
-            cut_id: prev.cut_id,
-            cut_custom: value,
+            cut_custom: undefined,
           };
         }
+        // Custom cut text — keep existing cut_id (required field)
+        return {
+          ...prev,
+          cut_code: prev.cut_code || DEFAULT_GEMSTONE_VALUES.cut_code,
+          cut_id: prev.cut_id,
+          cut_custom: value.trim() ? value : undefined,
+        };
       });
       if (errors.cut) {
         setErrors((prev) => ({ ...prev, cut: "" }));
       }
     },
-    [cuts, translateCut, errors.cut]
+    [cuts, errors.cut]
   );
 
   /**
@@ -1009,7 +1102,12 @@ export function GemstoneForm({
                   </label>
                   {/* FlexibleSelect for gemstone type (FLEX-C1.1) */}
                   <FlexibleSelect
-                    value={formData.name_custom || translateGemstoneType(formData.name)}
+                    value={
+                      formData.name_custom_en ||
+                      formData.name_custom_ru ||
+                      formData.name_custom ||
+                      translateGemstoneType(formData.name)
+                    }
                     onChange={handleFlexibleNameChange}
                     options={gemstoneTypeOptions}
                     placeholder={t("selectTypePlaceholder")}
@@ -1018,6 +1116,9 @@ export function GemstoneForm({
                   {errors.name && (
                     <p className="text-sm text-red-600">{errors.name}</p>
                   )}
+                  <p className="text-xs text-muted-foreground">
+                    {t("labels.displayNameHint")}
+                  </p>
                 </div>
 
                 <div className="space-y-2">
@@ -1043,7 +1144,7 @@ export function GemstoneForm({
                   </label>
                   {/* FlexibleSelect for cut (CUT-C3.1) */}
                   <FlexibleSelect
-                    value={formData.cut_custom || translateCut(formData.cut_code)}
+                    value={cutSelectDisplayValue}
                     onChange={handleFlexibleCutChange}
                     options={cutOptions}
                     placeholder={t("selectCutPlaceholder")}
@@ -1069,6 +1170,41 @@ export function GemstoneForm({
                   {errors.clarity && (
                     <p className="text-sm text-red-600">{errors.clarity}</p>
                   )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label
+                    htmlFor="name_custom_en"
+                    className="text-sm font-medium text-foreground"
+                  >
+                    {t("labels.displayNameEn")}
+                  </label>
+                  <Input
+                    id="name_custom_en"
+                    value={formData.name_custom_en || ""}
+                    onChange={(e) =>
+                      handleInputChange("name_custom_en", e.target.value)
+                    }
+                    placeholder={t("optionalPlaceholder")}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label
+                    htmlFor="name_custom_ru"
+                    className="text-sm font-medium text-foreground"
+                  >
+                    {t("labels.displayNameRu")}
+                  </label>
+                  <Input
+                    id="name_custom_ru"
+                    value={formData.name_custom_ru || ""}
+                    onChange={(e) =>
+                      handleInputChange("name_custom_ru", e.target.value)
+                    }
+                    placeholder={t("optionalPlaceholder")}
+                  />
                 </div>
               </div>
             
@@ -1200,13 +1336,11 @@ export function GemstoneForm({
                   <label htmlFor="weight">{t("labels.weight")}</label>
                   <Input
                     id="weight"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={formData.weight_carats}
-                    onChange={(e) =>
-                      handleWeightChange(parseFloat(e.target.value) || 0)
-                    }
+                    type="text"
+                    inputMode="decimal"
+                    autoComplete="off"
+                    value={weightInput}
+                    onChange={(e) => handleWeightInputChange(e.target.value)}
                     className={errors.weight_carats ? "border-red-500" : ""}
                   />
                   {errors.weight_carats && (
@@ -1220,16 +1354,15 @@ export function GemstoneForm({
                   <label htmlFor="length">{t("labels.length")}</label>
                   <Input
                     id="length"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={formData.length_mm}
+                    type="text"
+                    inputMode="decimal"
+                    autoComplete="off"
+                    value={lengthInput}
                     onChange={(e) =>
-                      handleInputChange(
+                      handleMmDimensionInputChange(
                         "length_mm",
-                        e.target.value === ""
-                          ? 0
-                          : parseDimensionValue(e.target.value)
+                        setLengthInput,
+                        e.target.value
                       )
                     }
                   />
@@ -1239,16 +1372,15 @@ export function GemstoneForm({
                   <label htmlFor="width">{t("labels.width")}</label>
                   <Input
                     id="width"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={formData.width_mm}
+                    type="text"
+                    inputMode="decimal"
+                    autoComplete="off"
+                    value={widthInput}
                     onChange={(e) =>
-                      handleInputChange(
+                      handleMmDimensionInputChange(
                         "width_mm",
-                        e.target.value === ""
-                          ? 0
-                          : parseDimensionValue(e.target.value)
+                        setWidthInput,
+                        e.target.value
                       )
                     }
                   />
@@ -1258,16 +1390,15 @@ export function GemstoneForm({
                   <label htmlFor="depth">{t("labels.depth")}</label>
                   <Input
                     id="depth"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={formData.depth_mm}
+                    type="text"
+                    inputMode="decimal"
+                    autoComplete="off"
+                    value={depthInput}
                     onChange={(e) =>
-                      handleInputChange(
+                      handleMmDimensionInputChange(
                         "depth_mm",
-                        e.target.value === ""
-                          ? 0
-                          : parseDimensionValue(e.target.value)
+                        setDepthInput,
+                        e.target.value
                       )
                     }
                   />

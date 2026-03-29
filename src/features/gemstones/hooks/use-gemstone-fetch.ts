@@ -13,15 +13,16 @@
 
 "use client";
 
-import type {
-  CatalogGemstone,
-  FetchGemstonesParams,
-  PaginationMeta,
-} from "../services/gemstone-fetch.service";
 import { useCallback, useEffect, useState } from "react";
+import type {
+    CatalogGemstone,
+    FetchGemstonesParams,
+    PaginationMeta,
+} from "../services/gemstone-fetch.service";
 
-import type { AdvancedGemstoneFilters } from "../types/filter.types";
+import { useLocale } from "next-intl";
 import { GemstoneFetchService } from "../services/gemstone-fetch.service";
+import type { AdvancedGemstoneFilters } from "../types/filter.types";
 
 // ===== TYPES =====
 
@@ -48,6 +49,7 @@ export function useGemstoneFetch(
   options: UseGemstoneFetchOptions = {}
 ): UseGemstoneFetchReturn {
   const { enabled = true, onSuccess, onError } = options;
+  const locale = useLocale();
 
   const [gemstones, setGemstones] = useState<CatalogGemstone[]>([]);
   const [loading, setLoading] = useState(true);
@@ -67,6 +69,7 @@ export function useGemstoneFetch(
         filters,
         page,
         pageSize,
+        locale,
       };
 
       const result = await GemstoneFetchService.fetchGemstones(params);
@@ -88,7 +91,7 @@ export function useGemstoneFetch(
     } finally {
       setLoading(false);
     }
-  }, [filters, page, pageSize, enabled, onSuccess, onError]);
+  }, [filters, page, pageSize, locale, enabled, onSuccess, onError]);
 
   // Fetch on mount and when dependencies change
   useEffect(() => {

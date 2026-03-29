@@ -1,26 +1,26 @@
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
 } from "@/shared/components/ui/card";
 import {
-  Download,
-  Eye,
-  Gem,
-  Lightbulb,
-  Play,
-  RotateCcw,
-  Settings,
-  Sparkles,
+    Download,
+    Eye,
+    Gem,
+    Lightbulb,
+    Play,
+    RotateCcw,
+    Settings,
+    Sparkles,
 } from "lucide-react";
 
+import { Lazy3DVisualizer } from "@/features/visualization";
+import { VisualizationDemo } from "@/features/visualization/components/visualization-demo";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Gemstone } from "@/shared/types";
-import { Lazy3DVisualizer } from "@/features/visualization";
 import { Metadata } from "next";
-import { VisualizationDemo } from "@/features/visualization/components/visualization-demo";
 import { getTranslations } from "next-intl/server";
 
 export async function generateMetadata({
@@ -107,6 +107,8 @@ const sampleGemstones: Gemstone[] = [
     updated_at: new Date().toISOString(),
     // Flexible property fields (FLEX-C0.1)
     name_custom: null,
+    name_custom_en: null,
+    name_custom_ru: null,
     color_custom: null,
     cut_custom: null,
     cut_id: "86858697-c654-442d-a3ee-c3281b003dc8", // round cut
@@ -196,6 +198,8 @@ const sampleGemstones: Gemstone[] = [
     updated_at: new Date().toISOString(),
     // Flexible property fields (FLEX-C0.1)
     name_custom: null,
+    name_custom_en: null,
+    name_custom_ru: null,
     color_custom: null,
     cut_custom: null,
     cut_id: "626194d2-2963-4b1e-925f-b2344b28ee4d", // emerald cut
@@ -285,6 +289,8 @@ const sampleGemstones: Gemstone[] = [
     updated_at: new Date().toISOString(),
     // Flexible property fields (FLEX-C0.1)
     name_custom: null,
+    name_custom_en: null,
+    name_custom_ru: null,
     color_custom: null,
     cut_custom: null,
     cut_id: "65cadf10-c5a4-4882-8c22-441ae231394f", // oval cut
@@ -374,6 +380,8 @@ const sampleGemstones: Gemstone[] = [
     updated_at: new Date().toISOString(),
     // Flexible property fields (FLEX-C0.1)
     name_custom: null,
+    name_custom_en: null,
+    name_custom_ru: null,
     color_custom: null,
     cut_custom: null,
     cut_id: "4b95e0ba-d3ad-400a-9378-983e98023be2", // cushion cut
@@ -463,6 +471,8 @@ const sampleGemstones: Gemstone[] = [
     updated_at: new Date().toISOString(),
     // Flexible property fields (FLEX-C0.1)
     name_custom: null,
+    name_custom_en: null,
+    name_custom_ru: null,
     color_custom: null,
     cut_custom: null,
     cut_id: "7255fec4-6b15-4a40-88fd-44265d88fcdf", // princess cut
@@ -552,6 +562,8 @@ const sampleGemstones: Gemstone[] = [
     updated_at: new Date().toISOString(),
     // Flexible property fields (FLEX-C0.1)
     name_custom: null,
+    name_custom_en: null,
+    name_custom_ru: null,
     color_custom: null,
     cut_custom: null,
     cut_id: "ba5ff8a4-63c4-4758-bc86-3778f268b03b", // heart cut

@@ -2,10 +2,10 @@
 // Replaces hardcoded label constants with dynamic translations
 
 import type {
-  GemClarity,
-  GemColor,
-  // CUT-C3.1: GemCut enum removed
-  GemstoneType,
+    GemClarity,
+    GemColor,
+    // CUT-C3.1: GemCut enum removed
+    GemstoneType,
 } from "@/shared/types";
 
 import { Constants } from "@/shared/types/database";
@@ -71,6 +71,7 @@ export function useFilterLabels(): FilterLabels {
       cushion: tGemstones("cuts.cushion"),
       radiant: tGemstones("cuts.radiant"),
       fantasy: tGemstones("cuts.fantasy"),
+      code: tGemstones("cuts.code"),
       baguette: tGemstones("cuts.baguette"),
       asscher: tGemstones("cuts.asscher"),
       rhombus: tGemstones("cuts.rhombus"),

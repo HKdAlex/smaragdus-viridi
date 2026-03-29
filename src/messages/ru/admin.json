@@ -947,6 +947,9 @@
       "serialNumber": "Серийный номер *",
       "internalCode": "Внутренний код",
       "type": "Тип *",
+      "displayNameEn": "Название для витрины (англ.)",
+      "displayNameRu": "Название для витрины (рус.)",
+      "displayNameHint": "Необязательно. Заменяет заголовок типа на витрине для этого языка. Пусто — используется тип выше.",
       "color": "Цвет *",
       "cut": "Огранка *",
       "clarity": "Чистота *",
@@ -1012,10 +1015,12 @@
       "generalError": "Произошла ошибка"
     },
     "uploading": "Загрузка файлов...",
+    "convertingHeic": "Преобразование HEIC…",
+    "heicConversionFailed": "Не удалось преобразовать HEIC. Загрузите JPEG, PNG или WebP.",
     "dropFiles": "Перетащите файлы сюда",
     "uploadMedia": "Загрузить медиа камня",
     "dragDropDescription": "Перетащите изображения и видео, или нажмите для выбора",
-    "supportedFormats": "Поддерживается: JPEG, PNG, WebP (до 50MB), MP4, WebM (до 500MB)",
+    "supportedFormats": "Поддерживается: JPEG, PNG, WebP, HEIC/HEIF (до 50MB), MP4, WebM (до 500MB)",
     "uploadedMedia": "Загруженные медиа",
     "metadataStatusNotSet": "Не задан",
     "metadataStatusOptions": {

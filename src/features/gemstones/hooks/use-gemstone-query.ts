@@ -9,8 +9,9 @@
 
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/react-query/query-keys';
+import { useQuery } from '@tanstack/react-query';
+import { useLocale } from 'next-intl';
 import { GemstoneFetchService } from '../services/gemstone-fetch.service';
 import type { AdvancedGemstoneFilters } from '../types/filter.types';
 
@@ -35,10 +36,12 @@ export function useGemstoneQuery(
   options: UseGemstoneQueryOptions = {}
 ) {
   const { enabled = true } = options;
+  const locale = useLocale();
 
   return useQuery({
-    queryKey: queryKeys.gemstones.list(filters, page, pageSize),
-    queryFn: () => GemstoneFetchService.fetchGemstones({ filters, page, pageSize }),
+    queryKey: queryKeys.gemstones.list(filters, page, pageSize, locale),
+    queryFn: () =>
+      GemstoneFetchService.fetchGemstones({ filters, page, pageSize, locale }),
     enabled,
     staleTime: 5 * 60 * 1000, // 5 minutes - data considered fresh
     gcTime: 10 * 60 * 1000, // 10 minutes - cache garbage collection

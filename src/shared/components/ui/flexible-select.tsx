@@ -1,9 +1,10 @@
 "use client";
 
-import { Input } from "@/shared/components/ui/input";
-import { cn } from "@/lib/utils";
 import { Check, ChevronDown, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+
+import { cn } from "@/lib/utils";
+import { Input } from "@/shared/components/ui/input";
 
 interface FlexibleSelectOption {
   value: string;
@@ -128,12 +129,16 @@ export function FlexibleSelect({
     [isOpen, filteredOptions, handleOptionSelect]
   );
 
-  // Check if current value matches a known option
+  // Match by code or localized label (admin UIs often show label while value stays a code)
   const isKnownValue = options.some(
     (opt) =>
       opt.value.toLowerCase() === inputValue.toLowerCase() ||
       opt.label.toLowerCase() === inputValue.toLowerCase()
   );
+
+  const isOptionSelected = (opt: FlexibleSelectOption) =>
+    opt.value.toLowerCase() === inputValue.toLowerCase() ||
+    opt.label.toLowerCase() === inputValue.toLowerCase();
 
   return (
     <div ref={containerRef} className="relative">
@@ -192,12 +197,11 @@ export function FlexibleSelect({
                   onClick={() => handleOptionSelect(option)}
                   className={cn(
                     "flex items-center justify-between px-3 py-2 cursor-pointer hover:bg-accent",
-                    option.value.toLowerCase() === inputValue.toLowerCase() &&
-                      "bg-accent"
+                    isOptionSelected(option) && "bg-accent"
                   )}
                 >
                   <span className="text-sm">{option.label}</span>
-                  {option.value.toLowerCase() === inputValue.toLowerCase() && (
+                  {isOptionSelected(option) && (
                     <Check className="h-4 w-4 text-primary" />
                   )}
                 </li>

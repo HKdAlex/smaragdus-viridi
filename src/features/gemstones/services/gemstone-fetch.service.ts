@@ -76,6 +76,8 @@ export interface FetchGemstonesParams {
   filters: AdvancedGemstoneFilters;
   page: number;
   pageSize: number;
+  /** Passed to /api/catalog for bilingual display_name resolution */
+  locale?: string;
 }
 
 export interface FetchGemstonesResult {
@@ -113,12 +115,13 @@ export class GemstoneFetchService {
   static async fetchGemstones(
     params: FetchGemstonesParams
   ): Promise<FetchGemstonesResult> {
-    const { filters, page, pageSize } = params;
+    const { filters, page, pageSize, locale } = params;
 
     // Build query string using query builder (will be imported)
     const queryParams = new URLSearchParams();
     queryParams.set("page", page.toString());
     queryParams.set("pageSize", pageSize.toString());
+    if (locale) queryParams.set("locale", locale);
 
     // Add filters
     if (filters.search) queryParams.set("search", filters.search);

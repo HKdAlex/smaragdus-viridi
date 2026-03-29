@@ -1,0 +1,45 @@
+---
+description: Canonical remote Supabase project for this repo, how to verify access (MCP vs Cursor extension), and how to apply migrations safely.
+globs: supabase/migrations/**,supabase/**/*.sql
+alwaysApply: false
+---
+
+# Supabase remote project and migrations (bbtmedia-2025-1)
+
+## Canonical project
+
+Use this database for **production-shaped** schema work tied to this application:
+
+| Field | Value |
+| --- | --- |
+| **Project ref / `project_id`** | `dpqapyojcdtrjwuhybky` |
+| **Project name** (Supabase dashboard) | `bbtmedia-2025-1` |
+
+`package.json` scripts that call the Supabase CLI (for example type generation) should keep using this same ref.
+
+## How to confirm an agent or IDE session can reach it
+
+1. **Supabase MCP (preferred in Cursor)**  
+   - In Cursor, the configured server is typically **`user-supabase`** (check MCP settings if tools are missing).  
+   - Run **`list_projects`** with `{}`.  
+   - **Success:** the response includes a project with **`ref` / `id`** `dpqapyojcdtrjwuhybky` and **name** `bbtmedia-2025-1`.  
+   - **Failure:** empty list, auth error, or this ref absent — the signed-in Supabase account does not match, or MCP is not configured. Fall back to the extension or CLI below.
+
+2. **Supabase Cursor / VS Code extension**  
+   - If MCP is unavailable or does not show this project, use the official **Supabase** extension, sign in with the account that owns `bbtmedia-2025-1`, open that project, and apply migration SQL from `supabase/migrations/` using the extension’s workflow (SQL editor / migrations UI as provided by the extension version in use).
+
+3. **Supabase CLI**  
+   - `supabase link --project-ref dpqapyojcdtrjwuhybky` (or an already-linked repo) then `supabase db push` **only if** local migration filenames match the remote migration history.  
+   - If the CLI reports **migration history mismatch**, do not force `db push` blindly: reconcile with `supabase migration repair`, or apply the SQL via MCP / extension / dashboard and align repo history intentionally.
+
+## Applying DDL (migrations)
+
+- **When MCP works for this project:** use **`apply_migration`** with  
+  `project_id: "dpqapyojcdtrjwuhybky"`, a stable snake_case **`name`** (often the migration file stem), and the full **`query`** from the migration file. This records a version on the host.  
+- Use **`execute_sql`** for **read-only** checks and ad hoc `SELECT`s, not as a substitute for versioned DDL unless there is no alternative.  
+- **PostgreSQL:** you cannot change the **`RETURNS TABLE`** shape of an existing function with `CREATE OR REPLACE`. **`DROP FUNCTION`** with the **exact** argument list (and schema) must run before creating the new signature.
+
+## Repo hygiene
+
+- Keep the authoritative migration SQL in **`supabase/migrations/`** and apply the same text to the remote project.  
+- Do not commit scratch JSON payloads or generated split files under `.cursor/` for migrations; use the SQL files in the repo only.

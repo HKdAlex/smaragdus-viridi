@@ -4,17 +4,17 @@
  * Tests React Query integration for gemstone fetching
  */
 
-import type {
-  CatalogGemstone,
-  FetchGemstonesResult,
-} from "../../services/gemstone-fetch.service";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { describe, expect, it, vi } from "vitest";
 import { renderHook, waitFor } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+import type {
+    CatalogGemstone,
+    FetchGemstonesResult,
+} from "../../services/gemstone-fetch.service";
 
-import type { AdvancedGemstoneFilters } from "../../types/filter.types";
-import { GemstoneFetchService } from "../../services/gemstone-fetch.service";
 import React from "react";
+import { GemstoneFetchService } from "../../services/gemstone-fetch.service";
+import type { AdvancedGemstoneFilters } from "../../types/filter.types";
 import { useGemstoneQuery } from "../use-gemstone-query";
 
 // Mock the service
@@ -22,6 +22,10 @@ vi.mock("../../services/gemstone-fetch.service", () => ({
   GemstoneFetchService: {
     fetchGemstones: vi.fn(),
   },
+}));
+
+vi.mock("next-intl", () => ({
+  useLocale: () => "en",
 }));
 
 const baseGemstone: CatalogGemstone = {
@@ -195,6 +199,7 @@ describe("useGemstoneQuery", () => {
       filters,
       page: 1,
       pageSize: 24,
+      locale: "en",
     });
   });
 
@@ -305,6 +310,7 @@ describe("useGemstoneQuery", () => {
         filters: expect.objectContaining({ search: "sapphire" }),
         page: 1,
         pageSize: 24,
+        locale: "en",
       })
     );
   });

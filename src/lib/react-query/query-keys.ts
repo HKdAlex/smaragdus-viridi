@@ -5,18 +5,26 @@
  * Following best practices from TanStack Query documentation.
  */
 
-import type { AdvancedGemstoneFilters } from "@/features/gemstones/types/filter.types";
 import type { SearchFilters } from "@/features/admin/components/enhanced-search";
+import type { AdvancedGemstoneFilters } from "@/features/gemstones/types/filter.types";
 
 export const queryKeys = {
   // Gemstones
   gemstones: {
     all: ["gemstones"] as const,
     lists: () => [...queryKeys.gemstones.all, "list"] as const,
-    list: (filters: AdvancedGemstoneFilters, page: number, pageSize: number) =>
-      [...queryKeys.gemstones.lists(), { filters, page, pageSize }] as const,
-    infinite: (filters: AdvancedGemstoneFilters, pageSize: number) =>
-      [...queryKeys.gemstones.all, "infinite", { filters, pageSize }] as const,
+    list: (
+      filters: AdvancedGemstoneFilters,
+      page: number,
+      pageSize: number,
+      locale?: string
+    ) =>
+      [
+        ...queryKeys.gemstones.lists(),
+        { filters, page, pageSize, locale },
+      ] as const,
+    infinite: (filters: AdvancedGemstoneFilters, pageSize: number, locale?: string) =>
+      [...queryKeys.gemstones.all, "infinite", { filters, pageSize, locale }] as const,
     details: () => [...queryKeys.gemstones.all, "detail"] as const,
     detail: (id: string) => [...queryKeys.gemstones.details(), id] as const,
   },

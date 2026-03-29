@@ -1,11 +1,13 @@
 "use client";
 
+import { Link, useRouter } from "@/i18n/navigation";
 import {
     Card,
     CardContent,
     CardHeader,
     CardTitle,
 } from "@/shared/components/ui/card";
+import { ColorIndicator, CutIcon } from "@/shared/components/ui/gemstone-icons";
 import {
     CheckCircle,
     Edit,
@@ -20,26 +22,25 @@ import {
     Sparkles,
     Truck,
 } from "lucide-react";
-import { ColorIndicator, CutIcon } from "@/shared/components/ui/gemstone-icons";
-import { Link, useRouter } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
 
+import { useAuth } from "@/features/auth/context/auth-context";
+import { useCartContext } from "@/features/cart/context/cart-context";
+import { useCurrency } from "@/features/currency/hooks/use-currency";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { CertificationDisplay } from "./certification-display";
-import type { Database } from "@/shared/types/database";
+import { Separator } from "@/shared/components/ui/separator";
 import type { DetailGemstone } from "@/shared/types";
+import type { Database } from "@/shared/types/database";
+import { useState } from "react";
+import { useGemstoneTranslations } from "../utils/gemstone-translations";
+import { resolveGemstoneTypeLabelSource } from "../utils/gemstone-type-display";
+import { CertificationDisplay } from "./certification-display";
 import { GemstoneDetailV6Tabs } from "./gemstone-detail-v6-tabs";
 import { MediaGallery } from "./media-gallery";
 import { ProfessionalSpecifications } from "./professional-specifications";
 import { RelatedGemstones } from "./related-gemstones";
-import { Separator } from "@/shared/components/ui/separator";
 import { TreatmentDisclosure } from "./treatment-disclosure";
-import { useAuth } from "@/features/auth/context/auth-context";
-import { useCartContext } from "@/features/cart/context/cart-context";
-import { useCurrency } from "@/features/currency/hooks/use-currency";
-import { useGemstoneTranslations } from "../utils/gemstone-translations";
-import { useState } from "react";
 
 // DetailGemstone interface is now imported from shared types
 
@@ -84,7 +85,14 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
   // Only translate if value is an enum code (lowercase, no spaces)
   // Custom values with spaces/Unicode are already in display form
   const typeLabel = translateIfEnumCode(
-    (gemstone as any).display_name || gemstone.name,
+    resolveGemstoneTypeLabelSource(locale, {
+      name: gemstone.name,
+      type_code: gemstone.type_code ?? null,
+      display_name: gemstone.display_name ?? null,
+      name_custom: gemstone.name_custom ?? null,
+      name_custom_en: gemstone.name_custom_en ?? null,
+      name_custom_ru: gemstone.name_custom_ru ?? null,
+    }),
     translateGemstoneType
   );
 
@@ -113,12 +121,18 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
   };
 
   const weightCaratsNum = Number(gemstone.weight_carats);
-  const pricePerCaratMinorUnits =
-    weightCaratsNum > 0 &&
-    Number.isFinite(weightCaratsNum) &&
-    gemstone.price_amount > 0
-      ? Math.round(gemstone.price_amount / weightCaratsNum)
+  const ppcFromDb =
+    typeof gemstone.price_per_carat === "number" && gemstone.price_per_carat > 0
+      ? gemstone.price_per_carat
       : null;
+  const pricePerCaratMinorUnits =
+    ppcFromDb !== null
+      ? ppcFromDb
+      : weightCaratsNum > 0 &&
+          Number.isFinite(weightCaratsNum) &&
+          gemstone.price_amount > 0
+        ? Math.round(gemstone.price_amount / weightCaratsNum)
+        : null;
 
   const normalizeDimensionValue = (value: unknown): number | null => {
     if (value === null || value === undefined) {
@@ -324,8 +338,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
   // Handle share functionality
   const handleShare = async () => {
     const url = window.location.href;
-    const displayColor = gemstone.color;
-    const title = `${gemstone.weight_carats}ct ${displayColor} ${gemstone.name}`;
+    const title = `${formatWeight(gemstone.weight_carats)}ct ${typeLabel}`.trim();
 
     if (navigator.share) {
       try {
@@ -389,7 +402,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                 {/* 1. Identity: title + weight chip + lot codes */}
                 <header className="space-y-5">
                   <h1 className="text-3xl sm:text-4xl font-bold leading-[1.15] tracking-tight capitalize text-foreground">
-                    {colorLabel} {typeLabel}
+                    {typeLabel}
                   </h1>
 
                   {/* Weight chip — prominently sized */}

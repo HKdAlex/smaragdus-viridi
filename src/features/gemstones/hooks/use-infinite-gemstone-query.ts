@@ -8,15 +8,16 @@
 "use client";
 
 import type {
-  CatalogGemstone,
-  PaginationMeta,
+    CatalogGemstone,
+    PaginationMeta,
 } from "../services/gemstone-fetch.service";
 
-import type { AdvancedGemstoneFilters } from "../types/filter.types";
-import { GemstoneFetchService } from "../services/gemstone-fetch.service";
 import { queryKeys } from "@/lib/react-query/query-keys";
 import { useInfiniteQuery } from "@tanstack/react-query";
+import { useLocale } from "next-intl";
 import { useMemo } from "react";
+import { GemstoneFetchService } from "../services/gemstone-fetch.service";
+import type { AdvancedGemstoneFilters } from "../types/filter.types";
 
 export interface UseInfiniteGemstoneQueryOptions {
   enabled?: boolean;
@@ -46,14 +47,16 @@ export function useInfiniteGemstoneQuery(
   options: UseInfiniteGemstoneQueryOptions = {}
 ) {
   const { enabled = true } = options;
+  const locale = useLocale();
 
   const query = useInfiniteQuery({
-    queryKey: queryKeys.gemstones.infinite(filters, pageSize),
+    queryKey: queryKeys.gemstones.infinite(filters, pageSize, locale),
     queryFn: async ({ pageParam = 1 }) => {
       const response = await GemstoneFetchService.fetchGemstones({
         filters,
         page: pageParam,
         pageSize,
+        locale,
       });
       return response;
     },

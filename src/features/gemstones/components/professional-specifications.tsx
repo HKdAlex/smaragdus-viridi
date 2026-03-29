@@ -1,14 +1,14 @@
 "use client";
 
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
 } from "@/shared/components/ui/card";
 import type { DetailGemstone } from "@/shared/types";
 import { Award, Globe, MapPin, Sparkles } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 interface ProfessionalSpecificationsProps {
   gemstone: DetailGemstone;
@@ -32,9 +32,16 @@ export function ProfessionalSpecifications({
   gemstone,
 }: ProfessionalSpecificationsProps) {
   const t = useTranslations("catalog.gemstone.detail");
+  const locale = useLocale();
+
+  const localizedCustomName = (
+    locale.toLowerCase().startsWith("ru")
+      ? gemstone.name_custom_ru ?? gemstone.name_custom
+      : gemstone.name_custom_en ?? gemstone.name_custom
+  )?.trim();
 
   // Check if any professional specification fields have data
-  const hasNameCustom = gemstone.name_custom && gemstone.name_custom.trim();
+  const hasNameCustom = !!localizedCustomName;
   const hasColorCustom = gemstone.color_custom && gemstone.color_custom.trim();
   const hasCutCustom = gemstone.cut_custom && gemstone.cut_custom.trim();
   const hasClarityCustom = gemstone.clarity_custom && gemstone.clarity_custom.trim();
@@ -93,7 +100,7 @@ export function ProfessionalSpecifications({
                         {t("gemstoneType")}
                       </span>
                       <span className="font-medium text-foreground">
-                        {gemstone.name_custom}
+                        {localizedCustomName}
                       </span>
                     </div>
                   </div>

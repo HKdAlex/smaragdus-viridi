@@ -6,29 +6,26 @@ alwaysApply: false
 
 # Supabase Integration - Smaragdus Viridi
 
-## 🚀 CRITICAL: Use Supabase MCP Tool During Development
+## CRITICAL: Supabase MCP (or extension) during development
 
-**ALWAYS interact with Supabase during development using the Supabase MCP tool available in this environment.**
+**Prefer the Supabase MCP server in Cursor** (commonly configured as **`user-supabase`**; confirm in Cursor MCP settings). If MCP is missing or the target project is not listed for the signed-in account, use the **Supabase Cursor/VS Code extension** against the same project.
 
-### Available MCP Commands for Development:
+**Canonical project for this app:** ref **`dpqapyojcdtrjwuhybky`**, name **`bbtmedia-2025-1`**. See **`.cursor/rules/supabase-bbtmedia-migrations.mdc`** for access checks, migration workflow, and CLI caveats.
 
-- `mcp_supabase_list_projects` - List all Supabase projects
-- `mcp_supabase_get_project` - Get project details
-- `mcp_supabase_list_tables` - List database tables
-- `mcp_supabase_execute_sql` - Execute SQL queries
-- `mcp_supabase_apply_migration` - Apply database migrations
-- `mcp_supabase_list_edge_functions` - List Edge Functions
-- `mcp_supabase_deploy_edge_function` - Deploy Edge Functions
-- `mcp_supabase_get_logs` - Get service logs for debugging
-- `mcp_supabase_generate_typescript_types` - Generate TypeScript types
+### Typical MCP tools (names match the `user-supabase` server in Cursor)
 
-### Development Workflow with MCP:
+- `list_projects` — confirm access; expect `dpqapyojcdtrjwuhybky` / `bbtmedia-2025-1`
+- `list_tables`, `list_migrations`, `get_project` — inspect state
+- `execute_sql` — reads and ad hoc SQL (not the default for versioned DDL)
+- `apply_migration` — **preferred for DDL**; records migration history on the host
+- `generate_typescript_types` — refresh generated DB types when schema changes
+- Edge functions / logs — use the tools exposed by your MCP server version
 
-1. **Use MCP tools to inspect database structure** instead of CLI
-2. **Execute SQL queries through MCP** for testing and debugging
-3. **Apply migrations via MCP** for schema changes
-4. **Generate TypeScript types automatically** using MCP
-5. **Deploy and test Edge Functions** through MCP
+### Development workflow
+
+1. Inspect schema and migrations with MCP (or extension) before changing SQL.
+2. Apply **DDL** via **`apply_migration`** when MCP can see this project; otherwise use the extension (or linked CLI if history is aligned).
+3. Regenerate TypeScript types after schema changes (`generate_typescript_types` or `npm run types:generate` if configured).
 
 ## Database Schema Overview
 

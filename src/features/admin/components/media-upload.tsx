@@ -2,19 +2,24 @@
 
 import { Button } from "@/shared/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
 } from "@/shared/components/ui/card";
 import { Upload, Video, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import {
-  MediaUploadService,
-  type MediaUploadResult,
+    MediaUploadService,
+    type MediaUploadResult,
 } from "../services/media-upload-service";
+import {
+    isHeicOrHeifFile,
+    isImageUploadCandidate,
+    prepareImageFilesForUpload,
+} from "../utils/heic-convert-client";
 
 interface MediaUploadProps {
   gemstoneId?: string;
@@ -33,6 +38,7 @@ export function MediaUpload({
 }: MediaUploadProps) {
   const t = useTranslations("admin.gemstoneForm");
   const [isUploading, setIsUploading] = useState(false);
+  const [isConvertingHeic, setIsConvertingHeic] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadedMedia, setUploadedMedia] = useState<MediaUploadResult[]>([]);
 
@@ -49,10 +55,8 @@ export function MediaUpload({
       setUploadProgress(0);
 
       try {
-        // Separate images and videos
-        const imageFiles = acceptedFiles.filter((file) =>
-          file.type.startsWith("image/")
-        );
+        // Separate images and videos (include HEIC/HEIF by extension when MIME is missing)
+        const imageFiles = acceptedFiles.filter(isImageUploadCandidate);
         const videoFiles = acceptedFiles.filter((file) =>
           file.type.startsWith("video/")
         );
@@ -61,10 +65,23 @@ export function MediaUpload({
 
         // Upload images
         if (imageFiles.length > 0) {
+          setUploadProgress(10);
+          const needsHeic = imageFiles.some(isHeicOrHeifFile);
+          let filesToUpload = imageFiles;
+          if (needsHeic) {
+            setIsConvertingHeic(true);
+            try {
+              filesToUpload = await prepareImageFilesForUpload(imageFiles);
+            } catch {
+              throw new Error(t("heicConversionFailed"));
+            } finally {
+              setIsConvertingHeic(false);
+            }
+          }
           setUploadProgress(25);
           const imageResult = await MediaUploadService.uploadGemstoneImages(
             gemstoneId,
-            imageFiles,
+            filesToUpload,
             serialNumber
           );
 
@@ -102,13 +119,15 @@ export function MediaUpload({
         setUploadProgress(0);
       }
     },
-    [gemstoneId, serialNumber, onUploadComplete, onUploadError]
+    [gemstoneId, serialNumber, onUploadComplete, onUploadError, t]
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      "image/*": [".jpeg", ".jpg", ".png", ".webp"],
+      "image/*": [".jpeg", ".jpg", ".png", ".webp", ".heic", ".heif"],
+      "image/heic": [".heic"],
+      "image/heif": [".heif"],
       "video/*": [".mp4", ".webm"],
     },
     maxSize: 500 * 1024 * 1024, // 500MB
@@ -167,7 +186,9 @@ export function MediaUpload({
             {isUploading ? (
               <div className="space-y-4">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto" />
-                <p className="text-sm text-gray-600">{t("uploading")}</p>
+                <p className="text-sm text-gray-600">
+                  {isConvertingHeic ? t("convertingHeic") : t("uploading")}
+                </p>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div
                     className="bg-blue-600 h-2 rounded-full transition-all duration-300"

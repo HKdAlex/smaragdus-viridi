@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { resolveGemstoneTypeLabelSource } from "@/features/gemstones/utils/gemstone-type-display";
 import { supabaseAdmin } from "@/lib/supabase";
 
 // Simple in-memory cache for filter options (5 minute TTL)
@@ -129,6 +130,9 @@ export async function GET(request: NextRequest) {
       pageSize: Math.min(parseInt(searchParams.get("pageSize") || "24"), 100), // Max 100 per page
     };
 
+    const catalogLocale =
+      searchParams.get("locale")?.trim().toLowerCase() || "en";
+
     // Always use database function for consistency and proper enum casting
     // The function handles both search and filtering, with search_query being optional
     try {
@@ -185,13 +189,24 @@ export async function GET(request: NextRequest) {
             return {
               id: gemstone.id,
               name: gemstone.name,
+              type_code: gemstone.type_code,
               color: gemstone.color,
               cut: gemstone.cut,
               // DISPLAY FIELDS (Contract: DISPLAY-C6.0)
-              display_name: gemstone.display_name,
+              display_name: resolveGemstoneTypeLabelSource(catalogLocale, {
+                name: gemstone.name,
+                type_code: gemstone.type_code,
+                display_name: gemstone.display_name,
+                name_custom: gemstone.name_custom,
+                name_custom_en: gemstone.name_custom_en,
+                name_custom_ru: gemstone.name_custom_ru,
+              }),
               display_color: gemstone.display_color,
               display_cut: gemstone.display_cut,
               display_clarity: gemstone.display_clarity,
+              name_custom: gemstone.name_custom,
+              name_custom_en: gemstone.name_custom_en,
+              name_custom_ru: gemstone.name_custom_ru,
               weight_carats: gemstone.weight_carats,
               clarity: gemstone.clarity,
               price_amount: gemstone.price_amount,

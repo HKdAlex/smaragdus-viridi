@@ -27,6 +27,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { CatalogGemstone } from "../services/gemstone-fetch.service";
 import { useGemstoneTranslations } from "../utils/gemstone-translations";
+import { resolveGemstoneTypeLabelSource } from "../utils/gemstone-type-display";
 import { selectPrimaryImage } from "../utils/select-primary-image";
 
 // ===== TYPES =====
@@ -39,37 +40,6 @@ export interface GemstoneCardProps {
   href?: string; // Custom link override
   className?: string;
 }
-
-// ===== HELPER FUNCTIONS =====
-
-const hasMeaningfulAIAnalysis = (gemstone: CatalogGemstone): boolean => {
-  // Check if gemstone has AI-generated content with sufficient confidence
-  const v6Text = gemstone.v6_text;
-  if (!v6Text) return false;
-
-  return !!(
-    v6Text.emotional_description_en ||
-    v6Text.emotional_description_ru ||
-    v6Text.marketing_highlights_en ||
-    v6Text.marketing_highlights_ru
-  );
-};
-
-const getBestAIAnalysis = (gemstone: CatalogGemstone) => {
-  const v6Text = gemstone.v6_text;
-  if (!v6Text) return null;
-
-  return {
-    confidence_score: 0.9, // High confidence for v6 content
-    analysis_type: "comprehensive_analysis",
-    extracted_data: {
-      emotional_description_en: v6Text.emotional_description_en,
-      emotional_description_ru: v6Text.emotional_description_ru,
-      marketing_highlights_en: v6Text.marketing_highlights_en,
-      marketing_highlights_ru: v6Text.marketing_highlights_ru,
-    },
-  };
-};
 
 // ===== COMPONENT =====
 
@@ -96,7 +66,14 @@ export function GemstoneCard({
   // Only translate if value is an enum code (lowercase, no spaces)
   // Custom values with spaces/Unicode are already in display form
   const typeLabel = translateIfEnumCode(
-    (gemstone as any).display_name || gemstone.name,
+    resolveGemstoneTypeLabelSource(locale, {
+      name: gemstone.name,
+      type_code: (gemstone as CatalogGemstone).type_code ?? null,
+      display_name: (gemstone as CatalogGemstone).display_name ?? null,
+      name_custom: (gemstone as CatalogGemstone).name_custom ?? null,
+      name_custom_en: (gemstone as CatalogGemstone).name_custom_en ?? null,
+      name_custom_ru: (gemstone as CatalogGemstone).name_custom_ru ?? null,
+    }),
     translateGemstoneType
   );
 
@@ -140,6 +117,21 @@ export function GemstoneCard({
 
   // Use currency context for price formatting
   const { formatPrice } = useCurrency();
+
+  const weightCaratsNum = Number(gemstone.weight_carats);
+  const ppcFromDb =
+    typeof gemstone.price_per_carat === "number" &&
+    gemstone.price_per_carat > 0
+      ? gemstone.price_per_carat
+      : null;
+  const pricePerCaratMinorUnits =
+    ppcFromDb !== null
+      ? ppcFromDb
+      : weightCaratsNum > 0 &&
+          Number.isFinite(weightCaratsNum) &&
+          gemstone.price_amount > 0
+        ? Math.round(gemstone.price_amount / weightCaratsNum)
+        : null;
 
   const defaultHref = `/catalog/${gemstone.id}`;
   const linkHref = href || defaultHref;
@@ -203,7 +195,7 @@ export function GemstoneCard({
             isCompact ? "text-xs" : "text-base sm:text-lg"
           }`}
         >
-          {colorLabel} {typeLabel}
+          {typeLabel}
         </h3>
 
         {/* Metadata Table Layout */}
@@ -371,12 +363,31 @@ export function GemstoneCard({
 
         {/* Price and Delivery */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-2 border-t border-border gap-2">
-          <div
-            className={`font-bold text-primary ${
-              isCompact ? "text-sm" : "text-base sm:text-lg"
-            }`}
-          >
-            {formatPrice(gemstone.price_amount, gemstone.price_currency)}
+          <div className="flex flex-col gap-0.5 min-w-0">
+            <div
+              className={`font-bold text-primary ${
+                isCompact ? "text-sm" : "text-base sm:text-lg"
+              }`}
+            >
+              {formatPrice(gemstone.price_amount, gemstone.price_currency)}
+            </div>
+            {pricePerCaratMinorUnits !== null && (
+              <div
+                className={`text-muted-foreground font-medium tabular-nums flex items-baseline gap-1 flex-wrap ${
+                  isCompact ? "text-[10px]" : "text-xs sm:text-sm"
+                }`}
+              >
+                <span>
+                  {formatPrice(
+                    pricePerCaratMinorUnits,
+                    gemstone.price_currency
+                  )}
+                </span>
+                <span className="font-normal">
+                  / {t("gemstone.detail.caratSuffix")}
+                </span>
+              </div>
+            )}
           </div>
 
           {gemstone.delivery_days && (
@@ -387,23 +398,6 @@ export function GemstoneCard({
             </div>
           )}
         </div>
-
-        {/* Show emotional description snippet if available (prefer v6, locale-aware) */}
-        {(() => {
-          const v6Text = (gemstone as any).v6_text;
-          const description =
-            locale === "ru"
-              ? v6Text?.emotional_description_ru ||
-                v6Text?.emotional_description_en
-              : v6Text?.emotional_description_en ||
-                v6Text?.emotional_description_ru;
-
-          return description ? (
-            <p className="text-sm text-muted-foreground line-clamp-2 mt-3 px-2">
-              {description}
-            </p>
-          ) : null;
-        })()}
       </div>
     </>
   );

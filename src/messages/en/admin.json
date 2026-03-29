@@ -963,6 +963,9 @@
       "serialNumber": "Serial Number *",
       "internalCode": "Internal Code",
       "type": "Type *",
+      "displayNameEn": "Display name (English)",
+      "displayNameRu": "Display name (Russian)",
+      "displayNameHint": "Optional. Overrides the public type title in that language. Leave blank to use the type above.",
       "color": "Color *",
       "cut": "Cut *",
       "clarity": "Clarity *",
@@ -1028,10 +1031,12 @@
       "generalError": "An error occurred"
     },
     "uploading": "Uploading files...",
+    "convertingHeic": "Converting HEIC image…",
+    "heicConversionFailed": "Could not convert HEIC. Please upload JPEG, PNG, or WebP.",
     "dropFiles": "Drop files here",
     "uploadMedia": "Upload gemstone media",
     "dragDropDescription": "Drag & drop images and videos, or click to select",
-    "supportedFormats": "Supports: JPEG, PNG, WebP (up to 50MB), MP4, WebM (up to 500MB)",
+    "supportedFormats": "Supports: JPEG, PNG, WebP, HEIC/HEIF (up to 50MB), MP4, WebM (up to 500MB)",
     "uploadedMedia": "Uploaded Media",
     "metadataStatusNotSet": "Not set",
     "metadataStatusOptions": {

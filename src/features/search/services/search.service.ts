@@ -6,12 +6,13 @@
  */
 
 import type {
-  SearchRequest,
-  SearchResponse,
-  SearchSuggestion,
-  SearchSuggestionsResponse,
+    SearchRequest,
+    SearchResponse,
+    SearchSuggestion,
+    SearchSuggestionsResponse,
 } from "../types/search.types";
 
+import { resolveGemstoneTypeLabelSource } from "@/features/gemstones/utils/gemstone-type-display";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export class SearchService {
@@ -82,7 +83,13 @@ export class SearchService {
         console.log(
           `[SearchService] Fuzzy search found ${fuzzyData.length} results`
         );
-        return await this.buildSearchResponse(fuzzyData, page, pageSize, true);
+        return await this.buildSearchResponse(
+          fuzzyData,
+          page,
+          pageSize,
+          true,
+          locale
+        );
       }
     }
 
@@ -101,7 +108,13 @@ export class SearchService {
       };
     }
 
-    return await this.buildSearchResponse(resultData, page, pageSize, false);
+    return await this.buildSearchResponse(
+      resultData,
+      page,
+      pageSize,
+      false,
+      locale
+    );
   }
 
   /**
@@ -112,7 +125,8 @@ export class SearchService {
     data: any[],
     page: number,
     pageSize: number,
-    usedFuzzy: boolean
+    usedFuzzy: boolean,
+    locale: string
   ): Promise<SearchResponse> {
     // Extract total count from first row
     const totalCount = data[0]?.total_count || 0;
@@ -146,6 +160,14 @@ export class SearchService {
       const results = data.map((row: any) => ({
         ...row,
         images: [],
+        display_name: resolveGemstoneTypeLabelSource(locale, {
+          name: row.type_code || row.name,
+          type_code: row.type_code,
+          display_name: null,
+          name_custom: row.name_custom,
+          name_custom_en: row.name_custom_en,
+          name_custom_ru: row.name_custom_ru,
+        }),
       }));
 
       return {
@@ -176,7 +198,7 @@ export class SearchService {
     const { data: enrichedData, error: enrichedError } = await supabaseAdmin
       .from("gemstones_enriched")
       .select(
-        "id, selected_image_uuid, recommended_primary_image_index, detected_cut, ai_color"
+        "id, name, type_code, display_name, name_custom, name_custom_en, name_custom_ru, selected_image_uuid, recommended_primary_image_index, detected_cut, ai_color"
       )
       .in("id", gemstoneIds);
 
@@ -190,6 +212,12 @@ export class SearchService {
     const enrichedByGemstone = new Map<
       string,
       {
+        name: string | null;
+        type_code: string | null;
+        display_name: string | null;
+        name_custom: string | null;
+        name_custom_en: string | null;
+        name_custom_ru: string | null;
         selected_image_uuid: string | null;
         recommended_primary_image_index: number | null;
         detected_cut: string | null;
@@ -199,6 +227,12 @@ export class SearchService {
     (enrichedData || []).forEach((record) => {
       if (record.id) {
         enrichedByGemstone.set(record.id, {
+          name: record.name ?? null,
+          type_code: record.type_code ?? null,
+          display_name: record.display_name ?? null,
+          name_custom: record.name_custom ?? null,
+          name_custom_en: record.name_custom_en ?? null,
+          name_custom_ru: record.name_custom_ru ?? null,
           selected_image_uuid: record.selected_image_uuid ?? null,
           recommended_primary_image_index:
             record.recommended_primary_image_index ?? null,
@@ -232,6 +266,16 @@ export class SearchService {
         v6_text: enrichedInfo?.detected_cut
           ? { detected_cut: enrichedInfo.detected_cut }
           : null,
+        display_name: resolveGemstoneTypeLabelSource(locale, {
+          name: enrichedInfo?.name || row.type_code || row.name,
+          type_code: row.type_code ?? enrichedInfo?.type_code ?? null,
+          display_name: enrichedInfo?.display_name ?? null,
+          name_custom: row.name_custom ?? enrichedInfo?.name_custom ?? null,
+          name_custom_en:
+            row.name_custom_en ?? enrichedInfo?.name_custom_en ?? null,
+          name_custom_ru:
+            row.name_custom_ru ?? enrichedInfo?.name_custom_ru ?? null,
+        }),
       };
     });
 

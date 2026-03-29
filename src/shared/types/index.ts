@@ -159,6 +159,7 @@ export interface DetailGemstone {
   display_clarity: string; // Resolved clarity (custom > enum)
   price_amount: number;
   price_currency: CurrencyCode;
+  price_per_carat?: number | null;
   premium_price_amount: number | null;
   premium_price_currency: CurrencyCode | null;
   length_mm: number;
@@ -188,6 +189,9 @@ export interface DetailGemstone {
   individual_stones?: IndividualStone[];
   // Flexible property fields (FLEX-C1.x, FLEX-C3.x)
   name_custom?: string | null;
+  name_custom_en?: string | null;
+  name_custom_ru?: string | null;
+  type_code?: string | null;
   color_custom?: string | null;
   cut_custom?: string | null;
   clarity_custom?: string | null;

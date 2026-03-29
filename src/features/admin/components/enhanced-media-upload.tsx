@@ -3,46 +3,51 @@
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
 } from "@/shared/components/ui/card";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
 } from "@/shared/components/ui/dialog";
 import { Input } from "@/shared/components/ui/input";
 import type {
-  DatabaseGemstoneImage,
-  DatabaseGemstoneVideo,
+    DatabaseGemstoneImage,
+    DatabaseGemstoneVideo,
 } from "@/shared/types";
 import {
-  Edit2,
-  GripVertical,
-  Image as ImageIcon,
-  Play,
-  Star,
-  StarOff,
-  Trash2,
-  Upload,
-  Video,
-  X,
+    Edit2,
+    GripVertical,
+    Image as ImageIcon,
+    Play,
+    Star,
+    StarOff,
+    Trash2,
+    Upload,
+    Video,
+    X,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
-import {
-  MediaUploadService,
-  type MediaUploadResult,
-  type UploadProgressCallback,
-} from "../services/media-upload-service";
 import { useVideoOptimizationStatus } from "../hooks/use-video-optimization-status";
+import {
+    MediaUploadService,
+    type MediaUploadResult,
+    type UploadProgressCallback,
+} from "../services/media-upload-service";
+import {
+    isHeicOrHeifFile,
+    isImageUploadCandidate,
+    prepareImageFilesForUpload,
+} from "../utils/heic-convert-client";
 
 interface EnhancedMediaUploadProps {
   gemstoneId?: string;
@@ -92,6 +97,7 @@ export function EnhancedMediaUpload({
 }: EnhancedMediaUploadProps) {
   const t = useTranslations("admin.gemstoneForm");
   const [isUploading, setIsUploading] = useState(false);
+  const [isConvertingHeic, setIsConvertingHeic] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadInfo, setUploadInfo] = useState<UploadInfo | null>(null);
   const [uploadedMedia, setUploadedMedia] = useState<MediaUploadResult[]>([]);
@@ -212,21 +218,32 @@ export function EnhancedMediaUpload({
       setUploadProgress(0);
 
       try {
-        // Separate images and videos
-        const imageFiles = acceptedFiles.filter((file) =>
-          file.type.startsWith("image/")
-        );
+        // Separate images and videos (include HEIC/HEIF by extension when MIME is missing)
+        const imageFiles = acceptedFiles.filter(isImageUploadCandidate);
         const videoFiles = acceptedFiles.filter((file) =>
           file.type.startsWith("video/")
         );
 
-        // Combine all files for tracking
-        const allFiles = [...imageFiles, ...videoFiles];
+        let imageFilesForUpload = imageFiles;
+        if (imageFiles.length > 0 && imageFiles.some(isHeicOrHeifFile)) {
+          setIsConvertingHeic(true);
+          try {
+            imageFilesForUpload =
+              await prepareImageFilesForUpload(imageFiles);
+          } catch {
+            throw new Error(t("heicConversionFailed"));
+          } finally {
+            setIsConvertingHeic(false);
+          }
+        }
+
+        // Combine all files for tracking (use converted images for size estimates)
+        const allFiles = [...imageFilesForUpload, ...videoFiles];
         const totalSize = allFiles.reduce((sum, f) => sum + f.size, 0);
         const startTime = Date.now();
 
         console.log("[EnhancedMediaUpload] Starting upload:", {
-          imageCount: imageFiles.length,
+          imageCount: imageFilesForUpload.length,
           videoCount: videoFiles.length,
           totalSize: formatFileSize(totalSize),
           gemstoneId,
@@ -246,7 +263,10 @@ export function EnhancedMediaUpload({
         let allResults: MediaUploadResult[] = [];
 
         // Calculate progress distribution based on file sizes
-        const totalImageSize = imageFiles.reduce((sum, f) => sum + f.size, 0);
+        const totalImageSize = imageFilesForUpload.reduce(
+          (sum, f) => sum + f.size,
+          0
+        );
         const totalVideoSize = videoFiles.reduce((sum, f) => sum + f.size, 0);
 
         // Allocate progress percentage based on file size ratio
@@ -256,7 +276,7 @@ export function EnhancedMediaUpload({
           totalSize > 0 ? (totalVideoSize / totalSize) * 95 : 0;
 
         // Upload images with real progress
-        if (imageFiles.length > 0) {
+        if (imageFilesForUpload.length > 0) {
           console.log("[EnhancedMediaUpload] Uploading images...");
 
           let currentImageIndex = 0;
@@ -272,10 +292,10 @@ export function EnhancedMediaUpload({
                 ? {
                     ...prev,
                     currentFileName:
-                      imageFiles[currentImageIndex]?.name ||
+                      imageFilesForUpload[currentImageIndex]?.name ||
                       prev.currentFileName,
                     currentFileSize:
-                      imageFiles[currentImageIndex]?.size ||
+                      imageFilesForUpload[currentImageIndex]?.size ||
                       prev.currentFileSize,
                     currentFileIndex: currentImageIndex + 1,
                     uploadedBytes: estimatedBytes,
@@ -286,7 +306,7 @@ export function EnhancedMediaUpload({
 
           const imageResult = await MediaUploadService.uploadGemstoneImages(
             gemstoneId,
-            imageFiles,
+            imageFilesForUpload,
             serialNumber,
             handleImageProgress
           );
@@ -339,7 +359,8 @@ export function EnhancedMediaUpload({
                     currentFileSize:
                       videoFiles[currentVideoIndex]?.size ||
                       prev.currentFileSize,
-                    currentFileIndex: imageFiles.length + currentVideoIndex + 1,
+                    currentFileIndex:
+                      imageFilesForUpload.length + currentVideoIndex + 1,
                     uploadedBytes: estimatedBytes,
                   }
                 : null
@@ -423,13 +444,16 @@ export function EnhancedMediaUpload({
       onUploadComplete,
       onUploadError,
       loadExistingMedia,
+      t,
     ]
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      "image/*": [".jpeg", ".jpg", ".png", ".webp"],
+      "image/*": [".jpeg", ".jpg", ".png", ".webp", ".heic", ".heif"],
+      "image/heic": [".heic"],
+      "image/heif": [".heif"],
       "video/*": [".mp4", ".webm"],
     },
     maxSize: 500 * 1024 * 1024, // 500MB
@@ -894,6 +918,12 @@ export function EnhancedMediaUpload({
             {isUploading ? (
               <div className="space-y-4">
                 <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 dark:border-blue-400 mx-auto" />
+
+                {isConvertingHeic && (
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
+                    {t("convertingHeic")}
+                  </p>
+                )}
 
                 {/* File info */}
                 {uploadInfo && (

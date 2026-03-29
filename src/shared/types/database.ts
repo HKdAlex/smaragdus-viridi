@@ -938,6 +938,8 @@ export type Database = {
           mining_country: string | null
           name: Database["public"]["Enums"]["gemstone_type"]
           name_custom: string | null
+          name_custom_en: string | null
+          name_custom_ru: string | null
           origin_id: string | null
           premium_price_amount: number | null
           premium_price_currency:
@@ -1017,6 +1019,8 @@ export type Database = {
           mining_country?: string | null
           name: Database["public"]["Enums"]["gemstone_type"]
           name_custom?: string | null
+          name_custom_en?: string | null
+          name_custom_ru?: string | null
           origin_id?: string | null
           premium_price_amount?: number | null
           premium_price_currency?:
@@ -1096,6 +1100,8 @@ export type Database = {
           mining_country?: string | null
           name?: Database["public"]["Enums"]["gemstone_type"]
           name_custom?: string | null
+          name_custom_en?: string | null
+          name_custom_ru?: string | null
           origin_id?: string | null
           premium_price_amount?: number | null
           premium_price_currency?:
@@ -1987,6 +1993,8 @@ export type Database = {
           model_version: string | null
           name: string | null
           name_custom: string | null
+          name_custom_en: string | null
+          name_custom_ru: string | null
           narrative_story_en: string | null
           narrative_story_ru: string | null
           needs_review: boolean | null
@@ -2254,9 +2262,13 @@ export type Database = {
           emotional_description_ru: string
           id: string
           in_stock: boolean
+          internal_code: string
           marketing_highlights_en: string[]
           marketing_highlights_ru: string[]
           name: string
+          name_custom: string
+          name_custom_en: string
+          name_custom_ru: string
           origin_country: string
           origin_id: string
           origin_name: string
@@ -2268,6 +2280,7 @@ export type Database = {
           selected_image_uuid: string
           serial_number: string
           total_count: number
+          type_code: string
           updated_at: string
           weight_carats: number
         }[]
@@ -2393,6 +2406,9 @@ export type Database = {
           in_stock: boolean
           internal_code: string
           name: string
+          name_custom: string
+          name_custom_en: string
+          name_custom_ru: string
           origin_id: string
           origin_name: string
           price_amount: number

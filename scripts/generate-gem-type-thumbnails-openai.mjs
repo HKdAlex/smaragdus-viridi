@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Gem type filter thumbnails via OpenAI Images API (gpt-image-1 family).
+ * Gem type filter thumbnails via OpenAI Images API (gpt-image-1.5 by default).
  * Uses API-native transparency: background=transparent + output_format=png (RGBA).
  *
  * Prompts explicitly forbid checkerboard / placeholder “transparency” patterns
@@ -17,7 +17,7 @@
  *   node scripts/generate-gem-type-thumbnails-openai.mjs --dry-run
  *
  * Env:
- *   OPENAI_GEM_TYPE_MODEL   default: gpt-image-1
+ *   OPENAI_GEM_TYPE_MODEL   default: gpt-image-1.5
  *   OPENAI_GEM_TYPE_QUALITY default: high
  *   OPENAI_GEM_TYPE_SIZE    default: 1024x1024
  */
@@ -38,7 +38,7 @@ const TIFF_DIR = path.join(ROOT, "public/gem-types/source-tiff");
 const WEBP_DIR = path.join(ROOT, "public/gem-types");
 
 const MODEL =
-  process.env.OPENAI_GEM_TYPE_MODEL?.trim() || "gpt-image-1";
+  process.env.OPENAI_GEM_TYPE_MODEL?.trim() || "gpt-image-1.5";
 const QUALITY = process.env.OPENAI_GEM_TYPE_QUALITY?.trim() || "high";
 const SIZE = process.env.OPENAI_GEM_TYPE_SIZE?.trim() || "1024x1024";
 

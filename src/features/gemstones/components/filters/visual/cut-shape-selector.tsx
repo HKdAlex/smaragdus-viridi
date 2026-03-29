@@ -1,33 +1,44 @@
 "use client";
 
-import { useState } from "react";
 import { useTranslations } from "next-intl";
+import Image from "next/image";
+import { useState } from "react";
+
+/**
+ * `public/images/cut-shapes/<id>.webp`. After regenerating source PNGs, run
+ * `npm run normalize-cut-shape-icons` so stroke, fill, and framing match the set.
+ * Image slot matches gemstone-type tiles: `h-[5rem]` and `max-w-[5.5rem]`.
+ */
+function cutShapeIconSrc(value: string): string {
+  return `/images/cut-shapes/${value}.webp`;
+}
 
 interface CutShapeSelectorProps {
   selectedCuts: string[];
   onCutChange: (cuts: string[]) => void;
 }
 
-const ALL_CUT_SHAPES = [
-  { value: "round",     icon: "●" },
-  { value: "oval",      icon: "○" },
-  { value: "marquise",  icon: "◊" },
-  { value: "pear",      icon: "♦" },
-  { value: "heart",     icon: "♥" },
-  { value: "emerald",   icon: "▭" },
-  { value: "princess",  icon: "■" },
-  { value: "cushion",   icon: "▢" },
-  { value: "radiant",   icon: "▦" },
-  { value: "asscher",   icon: "◈" },
-  { value: "baguette",  icon: "▬" },
-  { value: "triangle",  icon: "▲" },
-  { value: "trapezoid", icon: "⏢" },
-  { value: "rhombus",   icon: "◆" },
-  { value: "pentagon",  icon: "⬠" },
-  { value: "hexagon",   icon: "⬡" },
-  { value: "cabochon",  icon: "⬬" },
-  { value: "fantasy",   icon: "✦" },
-];
+const ALL_CUT_SHAPE_VALUES = [
+  "round",
+  "oval",
+  "marquise",
+  "pear",
+  "heart",
+  "emerald",
+  "princess",
+  "cushion",
+  "radiant",
+  "asscher",
+  "baguette",
+  "triangle",
+  "trapezoid",
+  "rhombus",
+  "pentagon",
+  "hexagon",
+  "cabochon",
+  "fantasy",
+  "code",
+] as const;
 
 export function CutShapeSelector({
   selectedCuts,
@@ -46,11 +57,12 @@ export function CutShapeSelector({
 
   const normalizedSearch = search.trim().toLowerCase();
   const visibleShapes = normalizedSearch
-    ? ALL_CUT_SHAPES.filter(({ value }) =>
-        value.includes(normalizedSearch) ||
-        t(`advanced.cuts.${value}`).toLowerCase().includes(normalizedSearch)
+    ? ALL_CUT_SHAPE_VALUES.filter(
+        (value) =>
+          value.includes(normalizedSearch) ||
+          t(`advanced.cuts.${value}`).toLowerCase().includes(normalizedSearch)
       )
-    : ALL_CUT_SHAPES;
+    : [...ALL_CUT_SHAPE_VALUES];
 
   return (
     <div className="space-y-3">
@@ -83,44 +95,50 @@ export function CutShapeSelector({
           {t("visual.cutNoResults")}
         </p>
       ) : (
-        <div className="grid grid-cols-3 gap-2">
-          {visibleShapes.map(({ value, icon }) => (
-            <button
-              key={value}
-              onClick={() => toggleCut(value)}
-              className={`relative p-3 rounded-xl border-2 transition-all duration-200 hover:scale-105 ${
-                selectedCuts.includes(value)
-                  ? "border-primary bg-primary/10 shadow-md"
-                  : "border-border bg-card hover:border-primary/50"
-              }`}
-            >
-              <div className="flex flex-col items-center space-y-1">
-                <span
-                  className={`text-2xl ${
-                    selectedCuts.includes(value)
-                      ? "text-primary"
-                      : "text-muted-foreground"
-                  }`}
-                >
-                  {icon}
-                </span>
-                <span
-                  className={`text-xs font-medium ${
-                    selectedCuts.includes(value)
-                      ? "text-primary"
-                      : "text-muted-foreground"
-                  }`}
-                >
-                  {t(`advanced.cuts.${value}`)}
-                </span>
-              </div>
-              {selectedCuts.includes(value) && (
-                <div className="absolute -top-1 -right-1 w-5 h-5 bg-primary rounded-full flex items-center justify-center">
-                  <span className="text-primary-foreground text-xs">✓</span>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          {visibleShapes.map((value) => {
+            const isSelected = selectedCuts.includes(value);
+            return (
+              <button
+                key={value}
+                type="button"
+                onClick={() => toggleCut(value)}
+                className={`relative px-2 pt-3 pb-2 rounded-xl border-2 transition-all duration-200 hover:scale-[1.02] ${
+                  isSelected
+                    ? "border-primary bg-primary/10 shadow-md"
+                    : "border-border bg-card hover:border-primary/50"
+                }`}
+              >
+                <div className="flex flex-col items-center justify-center gap-1.5 text-center">
+                  <div
+                    className="relative mx-auto flex h-[5rem] w-full max-w-[5.5rem] items-center justify-center"
+                    aria-hidden
+                  >
+                    <Image
+                      src={cutShapeIconSrc(value)}
+                      alt=""
+                      width={160}
+                      height={160}
+                      className="h-full w-full object-contain object-center opacity-90 dark:opacity-[0.92]"
+                      sizes="(max-width: 640px) 32vw, 96px"
+                    />
+                  </div>
+                  <span
+                    className={`text-xs font-semibold leading-snug line-clamp-4 ${
+                      isSelected ? "text-primary" : "text-foreground"
+                    }`}
+                  >
+                    {t(`advanced.cuts.${value}`)}
+                  </span>
                 </div>
-              )}
-            </button>
-          ))}
+                {isSelected && (
+                  <div className="absolute -top-1 -right-1 w-5 h-5 bg-primary rounded-full flex items-center justify-center">
+                    <span className="text-primary-foreground text-xs">✓</span>
+                  </div>
+                )}
+              </button>
+            );
+          })}
         </div>
       )}
     </div>
