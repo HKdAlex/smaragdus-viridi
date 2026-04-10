@@ -849,6 +849,7 @@ export function EnhancedMediaUpload({
         <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
           {type === "image" && (
             <Button
+              type="button"
               size="sm"
               variant="secondary"
               onClick={() => handleEditMedia(media, type)}
@@ -860,6 +861,7 @@ export function EnhancedMediaUpload({
           )}
           {!isPrimary && (
             <Button
+              type="button"
               size="sm"
               variant="secondary"
               onClick={() =>
@@ -874,6 +876,7 @@ export function EnhancedMediaUpload({
             </Button>
           )}
           <Button
+            type="button"
             size="sm"
             variant="destructive"
             onClick={() => handleDeleteMedia(media.id, type)}
@@ -1090,6 +1093,7 @@ export function EnhancedMediaUpload({
                   </div>
                   <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <Button
+                      type="button"
                       size="sm"
                       variant="destructive"
                       onClick={() => handleDeleteMedia(media.id, media.type)}
@@ -1159,10 +1163,16 @@ export function EnhancedMediaUpload({
             </div>
 
             <DialogFooter>
-              <Button variant="outline" onClick={() => setEditingMedia(null)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setEditingMedia(null)}
+              >
                 Cancel
               </Button>
-              <Button onClick={handleSaveMediaEdit}>Save Changes</Button>
+              <Button type="button" onClick={handleSaveMediaEdit}>
+                Save Changes
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

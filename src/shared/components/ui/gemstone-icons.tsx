@@ -29,6 +29,54 @@ export function GemstoneCutIcon({
 }
 
 // Color-specific icons for different gemstone colors
+const COLOR_SWATCH_BY_KEY: Record<string, string> = {
+  // Diamond colors
+  D: "bg-white border-gray-300",
+  E: "bg-gray-50 border-gray-200",
+  F: "bg-gray-100 border-gray-300",
+  G: "bg-gray-200 border-gray-400",
+  H: "bg-gray-300 border-gray-500",
+  I: "bg-gray-400 border-gray-600",
+  J: "bg-gray-500 border-gray-700",
+  K: "bg-gray-600 border-gray-800",
+  L: "bg-gray-700 border-gray-900",
+  M: "bg-gray-800 border-black",
+
+  // Fancy colors
+  "fancy-yellow": "bg-yellow-400 border-yellow-600",
+  "fancy-blue": "bg-blue-400 border-blue-600",
+  "fancy-pink": "bg-pink-400 border-pink-600",
+  "fancy-green": "bg-green-400 border-green-600",
+  "fancy-purple": "bg-purple-500 border-purple-700",
+
+  // Basic colors
+  red: "bg-red-500 border-red-700",
+  blue: "bg-blue-500 border-blue-700",
+  green: "bg-green-500 border-green-700",
+  yellow: "bg-yellow-500 border-yellow-700",
+  pink: "bg-pink-500 border-pink-700",
+  purple: "bg-purple-600 border-purple-800",
+  violet: "bg-violet-600 border-violet-800",
+  orange: "bg-orange-500 border-orange-700",
+  brown: "bg-amber-800 border-amber-950",
+  white: "bg-white border-gray-300",
+  black: "bg-black border-gray-800",
+  colorless: "bg-gray-100 border-gray-300",
+
+  // Localized display strings (e.g. colors table / catalog display_color)
+  фиолетовый: "bg-purple-600 border-purple-800",
+};
+
+function normalizeColorSwatchKey(raw: string): string {
+  const trimmed = raw.trim();
+  if (!trimmed) return trimmed;
+  // GIA diamond grades: single letter D–M
+  if (trimmed.length === 1 && /^[D-M]$/i.test(trimmed)) {
+    return trimmed.toUpperCase();
+  }
+  return trimmed.toLowerCase();
+}
+
 export function ColorIndicator({
   color,
   className = "w-3 h-3",
@@ -36,38 +84,9 @@ export function ColorIndicator({
   color: string;
   className?: string;
 }) {
-  const getColorClass = (color: string) => {
-    const colorMap: Record<string, string> = {
-      // Diamond colors
-      D: "bg-white border-gray-300",
-      E: "bg-gray-50 border-gray-200",
-      F: "bg-gray-100 border-gray-300",
-      G: "bg-gray-200 border-gray-400",
-      H: "bg-gray-300 border-gray-500",
-      I: "bg-gray-400 border-gray-600",
-      J: "bg-gray-500 border-gray-700",
-      K: "bg-gray-600 border-gray-800",
-      L: "bg-gray-700 border-gray-900",
-      M: "bg-gray-800 border-black",
-
-      // Fancy colors
-      "fancy-yellow": "bg-yellow-400 border-yellow-600",
-      "fancy-blue": "bg-blue-400 border-blue-600",
-      "fancy-pink": "bg-pink-400 border-pink-600",
-      "fancy-green": "bg-green-400 border-green-600",
-
-      // Basic colors
-      red: "bg-red-500 border-red-700",
-      blue: "bg-blue-500 border-blue-700",
-      green: "bg-green-500 border-green-700",
-      yellow: "bg-yellow-500 border-yellow-700",
-      pink: "bg-pink-500 border-pink-700",
-      white: "bg-white border-gray-300",
-      black: "bg-black border-gray-800",
-      colorless: "bg-gray-100 border-gray-300",
-    };
-
-    return colorMap[color] || "bg-gray-400 border-gray-600";
+  const getColorClass = (colorValue: string) => {
+    const key = normalizeColorSwatchKey(colorValue);
+    return COLOR_SWATCH_BY_KEY[key] || "bg-gray-400 border-gray-600";
   };
 
   return (
