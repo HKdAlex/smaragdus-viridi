@@ -24,6 +24,9 @@
 .DS_Store
 *.pem
 
+# SpecStory (local AI chat history; must not be pushed — may contain secrets)
+.specstory/
+
 # debug
 npm-debug.log*
 yarn-debug.log*
