@@ -23,6 +23,7 @@ export interface SelectItemProps {
 
 export interface SelectValueProps {
   placeholder?: string;
+  children?: React.ReactNode;
 }
 
 const SelectContext = React.createContext<{
@@ -114,8 +115,12 @@ const SelectItem = ({ children, value }: SelectItemProps) => {
   );
 };
 
-const SelectValue = ({ placeholder }: SelectValueProps) => {
+const SelectValue = ({ placeholder, children }: SelectValueProps) => {
   const { value } = React.useContext(SelectContext);
+
+  if (children) {
+    return <span className="text-sm">{children}</span>;
+  }
 
   return (
     <span className="text-sm">

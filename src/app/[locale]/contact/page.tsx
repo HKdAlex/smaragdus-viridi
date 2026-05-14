@@ -1,10 +1,16 @@
-import { ContactFAQ, ContactForm, ContactInfo } from "@/features/contact";
+import { ContactFAQ, ContactForm, ContactMethods, ContactSupportOverview } from "@/features/contact";
 
 import { Logo } from "@/shared/components/ui/logo";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 
-export default async function ContactPage() {
-  const t = await getTranslations("contact");
+export default async function ContactPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations({ locale, namespace: "contact" });
 
   return (
     <div className="min-h-screen bg-background">
@@ -32,16 +38,16 @@ export default async function ContactPage() {
         <div className="max-w-7xl mx-auto space-y-12">
           {/* Contact Form and Info Section */}
           <div className="grid gap-8 lg:grid-cols-3">
-            {/* Contact Form - Takes 2/3 */}
             <div className="lg:col-span-2">
               <ContactForm />
             </div>
 
-            {/* Contact Info Sidebar - Takes 1/3 */}
             <div className="lg:col-span-1">
-              <ContactInfo />
+              <ContactMethods />
             </div>
           </div>
+
+          <ContactSupportOverview />
 
           {/* FAQ Section */}
           <ContactFAQ />

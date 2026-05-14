@@ -90,13 +90,17 @@
       "international": "International"
     },
     "messaging": {
-      "title": "Instant Messaging"
+      "title": "Instant Messaging",
+      "whatsapp": "WhatsApp"
     },
     "businessHours": {
       "title": "Business Hours",
       "weekdays": "Weekdays",
       "weekends": "Weekend",
-      "timezone": "Eastern Time (EST/EDT)"
+      "timezone": "Eastern Time (EST/EDT)",
+      "weekdayHours": "Monday - Friday: 9:00 AM - 6:00 PM EST",
+      "saturdayHours": "Saturday: 10:00 AM - 4:00 PM EST",
+      "sundayClosed": "Sunday: Closed"
     },
     "location": {
       "title": "Our Location",
@@ -105,7 +109,11 @@
     },
     "languages": {
       "title": "Languages We Speak",
-      "supported": "We provide support in multiple languages:"
+      "supported": "We provide support in multiple languages:",
+      "english": "English",
+      "russian": "Russian",
+      "chinese": "Chinese",
+      "french": "French"
     },
     "services": {
       "title": "Professional Services",
@@ -120,7 +128,8 @@
       "title": "Urgent Assistance",
       "description": "For time-sensitive inquiries or urgent business matters, contact us immediately using the methods below.",
       "call": "Call Now",
-      "whatsapp": "WhatsApp"
+      "whatsapp": "WhatsApp",
+      "whatsappMessage": "URGENT: "
     }
   },
   "faq": {

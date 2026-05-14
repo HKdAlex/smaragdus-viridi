@@ -1,38 +1,38 @@
 "use client";
 
-import { useState } from "react";
-import { useTranslations } from "next-intl";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { Button } from "@/shared/components/ui/button";
-import { Input } from "@/shared/components/ui/input";
-import { Textarea } from "@/shared/components/ui/textarea";
-import { 
-  Form, 
-  FormControl, 
-  FormField, 
-  FormItem, 
-  FormLabel, 
-  FormMessage 
-} from "@/shared/components/ui/form";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/shared/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Alert, AlertDescription } from "@/shared/components/ui/alert";
-import { ContactFormSchema, ContactFormData, ContactSubmissionResponse } from "../types/contact.types";
-import { CheckCircle, AlertCircle, Send, Loader2 } from "lucide-react";
+import { Button } from "@/shared/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage
+} from "@/shared/components/ui/form";
+import { Input } from "@/shared/components/ui/input";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue
+} from "@/shared/components/ui/select";
+import { Textarea } from "@/shared/components/ui/textarea";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { AlertCircle, CheckCircle, Loader2, Send } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { ContactFormData, ContactFormSchema, ContactSubmissionResponse } from "../types/contact.types";
 
 interface ContactFormProps {
   className?: string;
 }
 
 export function ContactForm({ className = "" }: ContactFormProps) {
-  const t = useTranslations();
+  const t = useTranslations("contact");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [submitMessage, setSubmitMessage] = useState('');
@@ -78,11 +78,11 @@ export function ContactForm({ className = "" }: ContactFormProps) {
         form.reset();
       } else {
         setSubmitStatus('error');
-        setSubmitMessage(result.error || t('contact.form.submission.error'));
+        setSubmitMessage(result.error || t('form.submission.error'));
       }
     } catch (error) {
       setSubmitStatus('error');
-      setSubmitMessage(t('contact.form.submission.networkError'));
+      setSubmitMessage(t('form.submission.networkError'));
     } finally {
       setIsSubmitting(false);
     }
@@ -92,7 +92,7 @@ export function ContactForm({ className = "" }: ContactFormProps) {
     <Card className={className}>
       <CardHeader>
         <CardTitle className="text-xl sm:text-2xl font-semibold text-foreground">
-          {t('contact.form.title')}
+          {t('form.title')}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -124,11 +124,11 @@ export function ContactForm({ className = "" }: ContactFormProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-sm font-medium">
-                      {t('contact.form.fields.name.label')} *
+                      {t('form.fields.name.label')} *
                     </FormLabel>
                     <FormControl>
                       <Input 
-                        placeholder={t('contact.form.fields.name.placeholder')}
+                        placeholder={t('form.fields.name.placeholder')}
                         disabled={isSubmitting}
                         {...field} 
                       />
@@ -144,12 +144,12 @@ export function ContactForm({ className = "" }: ContactFormProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-sm font-medium">
-                      {t('contact.form.fields.email.label')} *
+                      {t('form.fields.email.label')} *
                     </FormLabel>
                     <FormControl>
                       <Input 
                         type="email"
-                        placeholder={t('contact.form.fields.email.placeholder')}
+                        placeholder={t('form.fields.email.placeholder')}
                         disabled={isSubmitting}
                         {...field} 
                       />
@@ -167,12 +167,12 @@ export function ContactForm({ className = "" }: ContactFormProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-sm font-medium">
-                      {t('contact.form.fields.phone.label')}
+                      {t('form.fields.phone.label')}
                     </FormLabel>
                     <FormControl>
                       <Input 
                         type="tel"
-                        placeholder={t('contact.form.fields.phone.placeholder')}
+                        placeholder={t('form.fields.phone.placeholder')}
                         disabled={isSubmitting}
                         {...field} 
                       />
@@ -188,11 +188,11 @@ export function ContactForm({ className = "" }: ContactFormProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-sm font-medium">
-                      {t('contact.form.fields.company.label')}
+                      {t('form.fields.company.label')}
                     </FormLabel>
                     <FormControl>
                       <Input 
-                        placeholder={t('contact.form.fields.company.placeholder')}
+                        placeholder={t('form.fields.company.placeholder')}
                         disabled={isSubmitting}
                         {...field} 
                       />
@@ -211,21 +211,27 @@ export function ContactForm({ className = "" }: ContactFormProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-sm font-medium">
-                      {t('contact.form.fields.inquiryType.label')} *
+                      {t('form.fields.inquiryType.label')} *
                     </FormLabel>
                     <Select onValueChange={field.onChange} value={field.value} disabled={isSubmitting}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder={t('contact.form.fields.inquiryType.placeholder')} />
+                          <SelectValue placeholder={t("form.fields.inquiryType.placeholder")}>
+                            {field.value
+                              ? t(
+                                  `form.fields.inquiryType.options.${field.value}` as "form.fields.inquiryType.options.general"
+                                )
+                              : null}
+                          </SelectValue>
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="general">{t('contact.form.fields.inquiryType.options.general')}</SelectItem>
-                        <SelectItem value="purchase">{t('contact.form.fields.inquiryType.options.purchase')}</SelectItem>
-                        <SelectItem value="wholesale">{t('contact.form.fields.inquiryType.options.wholesale')}</SelectItem>
-                        <SelectItem value="certification">{t('contact.form.fields.inquiryType.options.certification')}</SelectItem>
-                        <SelectItem value="support">{t('contact.form.fields.inquiryType.options.support')}</SelectItem>
-                        <SelectItem value="partnership">{t('contact.form.fields.inquiryType.options.partnership')}</SelectItem>
+                        <SelectItem value="general">{t('form.fields.inquiryType.options.general')}</SelectItem>
+                        <SelectItem value="purchase">{t('form.fields.inquiryType.options.purchase')}</SelectItem>
+                        <SelectItem value="wholesale">{t('form.fields.inquiryType.options.wholesale')}</SelectItem>
+                        <SelectItem value="certification">{t('form.fields.inquiryType.options.certification')}</SelectItem>
+                        <SelectItem value="support">{t('form.fields.inquiryType.options.support')}</SelectItem>
+                        <SelectItem value="partnership">{t('form.fields.inquiryType.options.partnership')}</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -239,19 +245,29 @@ export function ContactForm({ className = "" }: ContactFormProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-sm font-medium">
-                      {t('contact.form.fields.preferredContactMethod.label')} *
+                      {t('form.fields.preferredContactMethod.label')} *
                     </FormLabel>
                     <Select onValueChange={field.onChange} value={field.value} disabled={isSubmitting}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder={t('contact.form.fields.preferredContactMethod.placeholder')} />
+                          <SelectValue
+                            placeholder={t(
+                              "form.fields.preferredContactMethod.placeholder"
+                            )}
+                          >
+                            {field.value
+                              ? t(
+                                  `form.fields.preferredContactMethod.options.${field.value}` as "form.fields.preferredContactMethod.options.email"
+                                )
+                              : null}
+                          </SelectValue>
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="email">{t('contact.form.fields.preferredContactMethod.options.email')}</SelectItem>
-                        <SelectItem value="phone">{t('contact.form.fields.preferredContactMethod.options.phone')}</SelectItem>
-                        <SelectItem value="whatsapp">{t('contact.form.fields.preferredContactMethod.options.whatsapp')}</SelectItem>
-                        <SelectItem value="telegram">{t('contact.form.fields.preferredContactMethod.options.telegram')}</SelectItem>
+                        <SelectItem value="email">{t('form.fields.preferredContactMethod.options.email')}</SelectItem>
+                        <SelectItem value="phone">{t('form.fields.preferredContactMethod.options.phone')}</SelectItem>
+                        <SelectItem value="whatsapp">{t('form.fields.preferredContactMethod.options.whatsapp')}</SelectItem>
+                        <SelectItem value="telegram">{t('form.fields.preferredContactMethod.options.telegram')}</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -267,19 +283,25 @@ export function ContactForm({ className = "" }: ContactFormProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-sm font-medium">
-                      {t('contact.form.fields.urgencyLevel.label')}
+                      {t('form.fields.urgencyLevel.label')}
                     </FormLabel>
                     <Select onValueChange={field.onChange} value={field.value} disabled={isSubmitting}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder={t('contact.form.fields.urgencyLevel.placeholder')} />
+                          <SelectValue placeholder={t("form.fields.urgencyLevel.placeholder")}>
+                            {field.value
+                              ? t(
+                                  `form.fields.urgencyLevel.options.${field.value}` as "form.fields.urgencyLevel.options.medium"
+                                )
+                              : null}
+                          </SelectValue>
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="low">{t('contact.form.fields.urgencyLevel.options.low')}</SelectItem>
-                        <SelectItem value="medium">{t('contact.form.fields.urgencyLevel.options.medium')}</SelectItem>
-                        <SelectItem value="high">{t('contact.form.fields.urgencyLevel.options.high')}</SelectItem>
-                        <SelectItem value="urgent">{t('contact.form.fields.urgencyLevel.options.urgent')}</SelectItem>
+                        <SelectItem value="low">{t('form.fields.urgencyLevel.options.low')}</SelectItem>
+                        <SelectItem value="medium">{t('form.fields.urgencyLevel.options.medium')}</SelectItem>
+                        <SelectItem value="high">{t('form.fields.urgencyLevel.options.high')}</SelectItem>
+                        <SelectItem value="urgent">{t('form.fields.urgencyLevel.options.urgent')}</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -294,11 +316,11 @@ export function ContactForm({ className = "" }: ContactFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-sm font-medium">
-                    {t('contact.form.fields.subject.label')} *
+                    {t('form.fields.subject.label')} *
                   </FormLabel>
                   <FormControl>
                     <Input 
-                      placeholder={t('contact.form.fields.subject.placeholder')}
+                      placeholder={t('form.fields.subject.placeholder')}
                       disabled={isSubmitting}
                       {...field} 
                     />
@@ -314,11 +336,11 @@ export function ContactForm({ className = "" }: ContactFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-sm font-medium">
-                    {t('contact.form.fields.message.label')} *
+                    {t('form.fields.message.label')} *
                   </FormLabel>
                   <FormControl>
                     <Textarea 
-                      placeholder={t('contact.form.fields.message.placeholder')}
+                      placeholder={t('form.fields.message.placeholder')}
                       rows={6}
                       disabled={isSubmitting}
                       {...field} 
@@ -337,19 +359,19 @@ export function ContactForm({ className = "" }: ContactFormProps) {
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {t('contact.form.buttons.sending')}
+                  {t('form.buttons.sending')}
                 </>
               ) : (
                 <>
                   <Send className="mr-2 h-4 w-4" />
-                  {t('contact.form.buttons.send')}
+                  {t('form.buttons.send')}
                 </>
               )}
             </Button>
 
             <p className="text-xs text-muted-foreground">
-              {t('contact.form.privacy.notice')} {' '}
-              <span className="text-red-500">*</span> {t('contact.form.requiredFields')}
+              {t('form.privacy.notice')} {' '}
+              <span className="text-red-500">*</span> {t('form.requiredFields')}
             </p>
           </form>
         </Form>

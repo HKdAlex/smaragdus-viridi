@@ -1,6 +1,6 @@
 // Contact feature exports
 export { ContactForm } from './components/contact-form';
-export { ContactInfo } from './components/contact-info';
+export { ContactInfo, ContactMethods, ContactSupportOverview } from './components/contact-info';
 export { ContactFAQ } from './components/contact-faq';
 
 // Types
