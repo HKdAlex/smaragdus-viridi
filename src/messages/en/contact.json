@@ -100,7 +100,8 @@
     },
     "location": {
       "title": "Our Location",
-      "office": "Main Office"
+      "office": "Main Office",
+      "address": "54/30 Panfilov Street, Almaty, Kazakhstan"
     },
     "languages": {
       "title": "Languages We Speak",

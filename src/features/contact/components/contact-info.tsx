@@ -1,19 +1,25 @@
 "use client";
 
+import {
+  COMPANY_CONTACT,
+  companyMailtoHref,
+  companyTelHref,
+  companyWhatsAppHref,
+} from "@/config/company-contact";
 import { useTranslations } from "next-intl";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Button } from "@/shared/components/ui/button";
-import { 
-  Mail, 
-  Phone, 
-  MessageCircle, 
-  Send, 
-  Clock, 
-  MapPin, 
+import {
+  Mail,
+  Phone,
+  MessageCircle,
+  Send,
+  Clock,
+  MapPin,
   Globe,
   Users,
   Shield,
-  Award
+  Award,
 } from "lucide-react";
 
 interface ContactInfoProps {
@@ -26,40 +32,41 @@ export function ContactInfo({ className = "" }: ContactInfoProps) {
   const contactMethods = [
     {
       icon: Mail,
-      title: t('contact.info.email.title'),
+      title: t("contact.info.email.title"),
       items: [
-        { label: t('contact.info.email.general'), value: "info@crystallique.com", href: "mailto:info@crystallique.com", external: false },
-        { label: t('contact.info.email.sales'), value: "sales@crystallique.com", href: "mailto:sales@crystallique.com", external: false },
-        { label: t('contact.info.email.support'), value: "support@crystallique.com", href: "mailto:support@crystallique.com", external: false },
+        {
+          label: t("contact.info.email.general"),
+          value: COMPANY_CONTACT.email,
+          href: companyMailtoHref(),
+          external: false,
+        },
       ],
       color: "text-blue-600",
       bgColor: "bg-blue-50",
     },
     {
       icon: Phone,
-      title: t('contact.info.phone.title'),
+      title: t("contact.info.phone.title"),
       items: [
-        { label: t('contact.info.phone.main'), value: "+1 (555) 123-4567", href: "tel:+15551234567", external: false },
-        { label: t('contact.info.phone.international'), value: "+1 (555) 123-4568", href: "tel:+15551234568", external: false },
+        {
+          label: t("contact.info.phone.main"),
+          value: COMPANY_CONTACT.phone.display,
+          href: companyTelHref(),
+          external: false,
+        },
       ],
       color: "text-green-600",
       bgColor: "bg-green-50",
     },
     {
       icon: MessageCircle,
-      title: t('contact.info.messaging.title'),
+      title: t("contact.info.messaging.title"),
       items: [
-        { 
-          label: "WhatsApp", 
-          value: "+1 (555) 123-4567", 
-          href: "https://wa.me/15551234567?text=Hello%20Crystallique%20team",
-          external: true
-        },
-        { 
-          label: "Telegram", 
-          value: "@crystallique_gems", 
-          href: "https://t.me/crystallique_gems",
-          external: true
+        {
+          label: "WhatsApp",
+          value: COMPANY_CONTACT.whatsapp.display,
+          href: companyWhatsAppHref(),
+          external: true,
         },
       ],
       color: "text-purple-600",
@@ -86,10 +93,10 @@ export function ContactInfo({ className = "" }: ContactInfoProps) {
       title: t('contact.info.location.title'),
       content: (
         <div className="space-y-1 text-sm">
-          <p className="font-medium">{t('contact.info.location.office')}</p>
-          <p className="text-muted-foreground">123 Diamond District</p>
-          <p className="text-muted-foreground">New York, NY 10036</p>
-          <p className="text-muted-foreground">United States</p>
+          <p className="font-medium">{t("contact.info.location.office")}</p>
+          <p className="text-muted-foreground">
+            {t("contact.info.location.address")}
+          </p>
         </div>
       ),
     },
@@ -234,15 +241,17 @@ export function ContactInfo({ className = "" }: ContactInfoProps) {
           <div className="space-x-4">
             <Button
               variant="default"
-              onClick={() => handleContactClick('tel:+15551234567')}
+              onClick={() => handleContactClick(companyTelHref())}
               className="inline-flex items-center"
             >
               <Phone className="w-4 h-4 mr-2" />
-              {t('contact.info.emergency.call')}
+              {t("contact.info.emergency.call")}
             </Button>
             <Button
               variant="outline"
-              onClick={() => handleContactClick('https://wa.me/15551234567?text=URGENT:%20', true)}
+              onClick={() =>
+                handleContactClick(companyWhatsAppHref("URGENT: "), true)
+              }
               className="inline-flex items-center"
             >
               <MessageCircle className="w-4 h-4 mr-2" />

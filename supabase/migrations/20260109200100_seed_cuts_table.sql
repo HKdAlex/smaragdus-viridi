@@ -4,7 +4,7 @@
 INSERT INTO cuts (code, name_en, name_ru, display_order) VALUES
   ('round', 'Round Brilliant', 'Круглая огранка', 1),
   ('oval', 'Oval', 'Овальная огранка', 2),
-  ('marquise', 'Marquise', 'Маркиза', 3),
+  ('marquise', 'Marquise', 'Маркиз', 3),
   ('pear', 'Pear', 'Капля', 4),
   ('emerald', 'Emerald Cut', 'Изумрудная огранка', 5),
   ('princess', 'Princess', 'Принцесса', 6),
