@@ -61,6 +61,7 @@ const COLOR_SWATCH_BY_KEY: Record<string, string> = {
   brown: "bg-amber-800 border-amber-950",
   white: "bg-white border-gray-300",
   black: "bg-black border-gray-800",
+  gray: "bg-gray-500 border-gray-700",
   colorless: "bg-gray-100 border-gray-300",
 
   // Localized display strings (e.g. colors table / catalog display_color)
