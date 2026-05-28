@@ -188,15 +188,19 @@ export const GEMSTONE_COLOR_MAP: Record<string, number> = {
   "fancy-pink": 0xff69b4,
   "fancy-green": 0x32cd32,
 
-  // Other gemstone colors
-  red: 0xdc143c,
-  blue: 0x4169e1,
-  green: 0x32cd32,
-  yellow: 0xffd700,
-  pink: 0xff69b4,
+  // Basic gemstone colors
+  colorless: 0xf8f8ff,
   white: 0xffffff,
   black: 0x2f2f2f,
-  colorless: 0xf0f0f0,
+  gray: 0x9ca3af,
+  brown: 0x92400e,
+  yellow: 0xffd700,
+  orange: 0xf97316,
+  red: 0xdc143c,
+  pink: 0xff69b4,
+  violet: 0x8b5cf6,
+  blue: 0x4169e1,
+  green: 0x32cd32,
 } as const;
 
 export const CLARITY_OPACITY_MAP: Record<string, number> = {

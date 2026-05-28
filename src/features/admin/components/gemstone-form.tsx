@@ -26,13 +26,17 @@ import {
     TabsTrigger,
 } from "@/shared/components/ui/tabs";
 import { Textarea } from "@/shared/components/ui/textarea";
+import {
+    BASIC_GEM_COLORS,
+    DIAMOND_COLOR_GRADES,
+    sanitizeColorForWrite,
+} from "@/shared/config/basic-gem-colors";
 import { CutsService } from "@/shared/services/cuts-service";
 import {
     CURRENCY_CODES,
     DEFAULT_GEMSTONE_VALUES,
     GEMSTONE_TYPES,
     GEM_CLARITIES,
-    GEM_COLORS,
     // CUT-C3.1: GEM_CUTS removed - using CutsService instead
     METADATA_STATUSES,
 } from "@/shared/services/database-enums";
@@ -54,11 +58,6 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-    BASIC_GEM_COLORS,
-    DIAMOND_COLOR_GRADES,
-    sanitizeColorForWrite,
-} from "@/shared/config/basic-gem-colors";
 import {
     GemstoneAdminService,
     type GemstoneFormData,

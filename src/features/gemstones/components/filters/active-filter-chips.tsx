@@ -7,10 +7,13 @@
 
 "use client";
 
+import { normalizeGemColor } from "@/shared/config/basic-gem-colors";
+import { useReducedMotion } from "@/shared/hooks/use-reduced-motion";
+import type { GemColor } from "@/shared/types";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useTranslations } from "next-intl";
+import { useFilterLabels } from "../../hooks/use-filter-labels";
 import type { AdvancedGemstoneFilters } from "../../types/filter.types";
-import { useReducedMotion } from "@/shared/hooks/use-reduced-motion";
 
 interface ActiveFilterChipsProps {
   filters: AdvancedGemstoneFilters;
@@ -43,6 +46,7 @@ export function ActiveFilterChips({
   className = "",
 }: ActiveFilterChipsProps) {
   const t = useTranslations("filters");
+  const filterLabels = useFilterLabels();
   const prefersReducedMotion = useReducedMotion();
 
   // Convert filters to chips
@@ -64,11 +68,12 @@ export function ActiveFilterChips({
   // Colors
   if (filters.colors?.length) {
     filters.colors.forEach((color) => {
+      const normalized = normalizeGemColor(color) as GemColor;
       chips.push({
         key: "colors",
         label: t("advanced.color"),
         value: color,
-        displayValue: color,
+        displayValue: filterLabels.colors[normalized] || color,
         category: "attribute",
       });
     });

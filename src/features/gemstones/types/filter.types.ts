@@ -134,7 +134,7 @@ export interface FilterOptions {
     value: GemColor;
     label: string;
     count: number;
-    category: "diamond" | "colored" | "fancy";
+    category: "diamond" | "colored";
   }>;
   readonly cuts: Array<{
     value: string; // CUT-C3.1: cuts are now strings
@@ -253,41 +253,7 @@ export const DEFAULT_ADVANCED_FILTERS: AdvancedGemstoneFilters = {
   sortDirection: "desc",
 };
 
-// ===== FILTER LABELS =====
-// NOTE: Gemstone type labels are now handled by useFilterLabels hook
-// This maintains database-first approach and proper localization
-
-export const COLOR_LABELS: Record<GemColor, string> = {
-  // Diamond colors
-  D: "D (Colorless)",
-  E: "E (Colorless)",
-  F: "F (Colorless)",
-  G: "G (Near Colorless)",
-  H: "H (Near Colorless)",
-  I: "I (Near Colorless)",
-  J: "J (Near Colorless)",
-  K: "K (Faint)",
-  L: "L (Faint)",
-  M: "M (Faint)",
-  // Basic colors
-  red: "Red",
-  blue: "Blue",
-  green: "Green",
-  yellow: "Yellow",
-  pink: "Pink",
-  white: "White",
-  black: "Black",
-  colorless: "Colorless",
-  orange: "Orange",
-  gray: "Gray",
-  violet: "Violet",
-  brown: "Brown",
-  // Fancy colors (legacy DB values; hidden from pickers)
-  "fancy-yellow": "Fancy Yellow",
-  "fancy-blue": "Fancy Blue",
-  "fancy-pink": "Fancy Pink",
-  "fancy-green": "Fancy Green",
-};
+// Color labels: use useFilterLabels() (gemstones.colors.*) — not hardcoded here.
 
 // CUT-C3.1: cuts are now strings
 export const CUT_LABELS: Record<string, string> = {
@@ -383,35 +349,6 @@ export const getActiveFilterCount = (
 
 export const clearAllFilters = (): AdvancedGemstoneFilters =>
   DEFAULT_ADVANCED_FILTERS;
-
-// ===== COLOR CATEGORIZATION =====
-
-export const categorizeColor = (
-  color: GemColor
-): "diamond" | "colored" | "fancy" => {
-  const diamondColors: GemColor[] = [
-    "D",
-    "E",
-    "F",
-    "G",
-    "H",
-    "I",
-    "J",
-    "K",
-    "L",
-    "M",
-  ];
-  const fancyColors: GemColor[] = [
-    "fancy-yellow",
-    "fancy-blue",
-    "fancy-pink",
-    "fancy-green",
-  ];
-
-  if (diamondColors.includes(color)) return "diamond";
-  if (fancyColors.includes(color)) return "fancy";
-  return "colored";
-};
 
 // ===== CLARITY ORDERING =====
 

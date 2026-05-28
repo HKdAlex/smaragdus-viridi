@@ -10,16 +10,19 @@
  * - Type Safety: Strict typing for all transformations
  */
 
+import type { GemColorCategory } from "@/shared/config/basic-gem-colors";
 import {
-  BASIC_GEM_COLORS,
-  DIAMOND_COLOR_GRADES,
-  normalizeGemColor,
+    BASIC_GEM_COLORS,
+    categorizeGemColor,
+    DIAMOND_COLOR_GRADES,
+    isDiamondColorGrade,
+    normalizeGemColor,
 } from "@/shared/config/basic-gem-colors";
 import type {
-  GemClarity,
-  GemColor,
-  // CUT-C3.1: GemCut enum removed
-  GemstoneType,
+    GemClarity,
+    GemColor,
+    // CUT-C3.1: GemCut enum removed
+    GemstoneType,
 } from "@/shared/types";
 
 import type { FilterCounts } from "./gemstone-fetch.service";
@@ -33,7 +36,7 @@ export interface FilterOption<T = string> {
 }
 
 export interface ColorFilterOption extends FilterOption<GemColor> {
-  category: "diamond" | "colored" | "fancy";
+  category: GemColorCategory;
 }
 
 export interface ClarityFilterOption extends FilterOption<GemClarity> {
@@ -108,11 +111,7 @@ export class FilterAggregationService {
     const rolled = new Map<string, number>();
 
     for (const [rawValue, count] of Object.entries(counts)) {
-      const category = this.categorizeColor(rawValue as GemColor);
-      const bucket =
-        category === "diamond"
-          ? normalizeGemColor(rawValue)
-          : normalizeGemColor(rawValue);
+      const bucket = normalizeGemColor(rawValue);
       rolled.set(bucket, (rolled.get(bucket) ?? 0) + count);
     }
 
@@ -126,12 +125,12 @@ export class FilterAggregationService {
         value: value as GemColor,
         label: this.formatColorLabel(value as GemColor),
         count: rolled.get(value) ?? 0,
-        category: this.categorizeColor(value as GemColor),
+        category: categorizeGemColor(value),
       }))
       .filter((opt) => opt.count > 0)
       .sort((a, b) => {
         if (a.category !== b.category) {
-          const categoryOrder = { diamond: 0, colored: 1, fancy: 2 };
+          const categoryOrder = { diamond: 0, colored: 1 };
           return categoryOrder[a.category] - categoryOrder[b.category];
         }
         return b.count - a.count;
@@ -183,27 +182,6 @@ export class FilterAggregationService {
       .sort((a, b) => b.count - a.count);
   }
 
-  // ===== CATEGORIZATION HELPERS =====
-
-  /**
-   * Categorize a color into diamond, fancy, or colored
-   */
-  static categorizeColor(color: GemColor): "diamond" | "colored" | "fancy" {
-    const normalized = normalizeGemColor(color);
-    if (
-      DIAMOND_COLOR_GRADES.includes(
-        normalized as (typeof DIAMOND_COLOR_GRADES)[number]
-      )
-    ) {
-      return "diamond";
-    }
-    if (color.startsWith("fancy-")) return "fancy";
-    if (BASIC_GEM_COLORS.includes(normalized as (typeof BASIC_GEM_COLORS)[number])) {
-      return "colored";
-    }
-    return "colored";
-  }
-
   /**
    * Get sorting order for clarity grades
    */
@@ -235,21 +213,11 @@ export class FilterAggregationService {
    * Format color for display
    */
   private static formatColorLabel(color: GemColor): string {
-    // Diamond grades stay as-is
-    if (["D", "E", "F", "G", "H", "I", "J", "K", "L", "M"].includes(color)) {
-      return color;
+    const normalized = normalizeGemColor(color);
+    if (isDiamondColorGrade(normalized)) {
+      return normalized;
     }
-
-    // Fancy colors
-    if (color.startsWith("fancy-")) {
-      return color
-        .split("-")
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" ");
-    }
-
-    // Regular colors
-    return color.charAt(0).toUpperCase() + color.slice(1);
+    return normalized.charAt(0).toUpperCase() + normalized.slice(1);
   }
 
   /**

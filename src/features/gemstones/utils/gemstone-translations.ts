@@ -1,3 +1,4 @@
+import { normalizeGemColor } from "@/shared/config/basic-gem-colors";
 import { useTranslations } from "next-intl";
 
 /**
@@ -38,20 +39,22 @@ export function useGemstoneTranslations() {
   const translateColor = (color: string) => {
     if (!color) return color;
 
-    // If the color is already capitalized (e.g., "Green" from search_gemstones_multilingual),
-    // it's already been translated by the database - use it directly
-    // Exception: single-letter diamond grades (D, E, F, etc.) should be kept as-is
+    const key = normalizeGemColor(color);
+    if (!key) return color;
+
+    // If display_color is already a localized phrase (not an enum code), keep it
     if (
+      key === color &&
       color.length > 1 &&
       color[0] === color[0].toUpperCase() &&
-      color[0] !== color[0].toLowerCase()
+      color[0] !== color[0].toLowerCase() &&
+      !color.includes("-")
     ) {
       return color;
     }
 
-    // Otherwise, translate the raw enum value (e.g., "green")
     try {
-      return t(`colors.${color}` as any) || color;
+      return t(`colors.${key}` as any) || color;
     } catch {
       return color;
     }

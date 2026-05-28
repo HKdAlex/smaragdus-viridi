@@ -1,33 +1,40 @@
 "use client";
 
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
 } from "@/shared/components/ui/card";
 import {
-  Filter,
-  History,
-  Save,
-  Search,
-  SortAsc,
-  SortDesc,
-  X,
-} from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from "@/shared/components/ui/select";
-import { useEffect, useState, useRef, useCallback } from "react";
+import {
+    Filter,
+    History,
+    Save,
+    Search,
+    SortAsc,
+    SortDesc,
+    X,
+} from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
+import { useGemstoneTranslations } from "@/features/gemstones/utils/gemstone-translations";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
+import {
+    BASIC_GEM_COLORS,
+    DIAMOND_COLOR_GRADES,
+} from "@/shared/config/basic-gem-colors";
 import { useTranslations } from "next-intl";
+
+const GEM_COLORS = [...DIAMOND_COLOR_GRADES, ...BASIC_GEM_COLORS] as const;
 
 export interface SearchFilters {
   query: string;
@@ -82,6 +89,7 @@ export function EnhancedSearch({
   onDeleteSearch,
 }: EnhancedSearchProps) {
   const t = useTranslations("admin.enhancedSearch");
+  const { translateColor } = useGemstoneTranslations();
   const [filters, setFilters] = useState<SearchFilters>({
     query: "",
     sortBy: "created_at",
@@ -353,31 +361,6 @@ export function EnhancedSearch({
     "zircon",
     "apatite",
     "quartz",
-  ];
-
-  const gemColors = [
-    "D",
-    "E",
-    "F",
-    "G",
-    "H",
-    "I",
-    "J",
-    "K",
-    "L",
-    "M",
-    "fancy-yellow",
-    "fancy-blue",
-    "fancy-pink",
-    "fancy-green",
-    "red",
-    "blue",
-    "green",
-    "yellow",
-    "pink",
-    "white",
-    "black",
-    "colorless",
   ];
 
   const gemCuts = [
@@ -959,7 +942,7 @@ export function EnhancedSearch({
                   {t("color")}
                 </h4>
                 <div className="space-y-2 max-h-48 overflow-y-auto">
-                  {gemColors.map((color) => (
+                  {GEM_COLORS.map((color) => (
                     <label
                       key={color}
                       className="flex items-center space-x-2 cursor-pointer p-2 rounded hover:bg-accent min-h-[44px]"
@@ -976,7 +959,7 @@ export function EnhancedSearch({
                         }
                         className="rounded border-border text-primary focus:ring-ring focus:ring-2 bg-background"
                       />
-                      <span className="text-sm capitalize">{color}</span>
+                      <span className="text-sm">{translateColor(color)}</span>
                     </label>
                   ))}
                 </div>

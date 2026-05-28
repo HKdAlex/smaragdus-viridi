@@ -5,11 +5,15 @@
  * Eliminates the need for `as any` when parsing query params or user input.
  */
 
+import {
+    isStoredGemColorToken,
+    parseColorFilterTokens,
+} from "@/shared/config/basic-gem-colors";
 import type {
-  GemClarity,
-  GemColor,
-  // CUT-C3.1: GemCut enum removed
-  GemstoneType,
+    GemClarity,
+    GemColor,
+    // CUT-C3.1: GemCut enum removed
+    GemstoneType,
 } from "@/shared/types";
 
 // Valid enum values (should match database enums)
@@ -34,34 +38,6 @@ const VALID_GEMSTONE_TYPES = new Set<string>([
   "jade",
   "onyx",
   "agate",
-]);
-
-const VALID_GEM_COLORS = new Set<string>([
-  // Diamond colors
-  "d",
-  "e",
-  "f",
-  "g",
-  "h",
-  "i",
-  "j",
-  "k",
-  "l",
-  "m",
-  "n",
-  // Colored gemstone colors
-  "red",
-  "blue",
-  "green",
-  "yellow",
-  "purple",
-  "pink",
-  "orange",
-  "brown",
-  "black",
-  "white",
-  "colorless",
-  "multi",
 ]);
 
 const VALID_GEM_CUTS = new Set<string>([
@@ -117,7 +93,7 @@ export function isGemstoneType(value: unknown): value is GemstoneType {
  * Type guard to check if a value is a valid GemColor
  */
 export function isGemColor(value: unknown): value is GemColor {
-  return typeof value === "string" && VALID_GEM_COLORS.has(value);
+  return typeof value === "string" && isStoredGemColorToken(value);
 }
 
 /**
@@ -150,12 +126,7 @@ export function parseGemstoneTypes(value: string): GemstoneType[] {
  * Parse comma-separated string into valid GemColor array
  */
 export function parseGemColors(value: string): GemColor[] {
-  if (!value) return [];
-
-  return value
-    .split(",")
-    .map((v) => v.trim().toLowerCase())
-    .filter(isGemColor);
+  return parseColorFilterTokens(value) as GemColor[];
 }
 
 /**

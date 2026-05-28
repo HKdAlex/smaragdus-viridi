@@ -3,14 +3,15 @@
 import * as THREE from "three";
 
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
 } from "@/shared/components/ui/card";
 import { Download, Pause, Play, RotateCcw, Settings } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { getGemstoneColor } from "@/features/visualization/utils/material-utils";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Gemstone } from "@/shared/types";
@@ -616,41 +617,6 @@ function createGemstoneMaterial(
   });
 
   return material;
-}
-
-// Get gemstone color as hex value
-function getGemstoneColor(color: string): number {
-  const colorMap: Record<string, number> = {
-    // Diamond colors
-    D: 0xffffff,
-    E: 0xfefefe,
-    F: 0xfdfdfd,
-    G: 0xfbfbfb,
-    H: 0xf9f9f9,
-    I: 0xf7f7f7,
-    J: 0xf5f5f5,
-    K: 0xf3f3f3,
-    L: 0xf1f1f1,
-    M: 0xefefef,
-
-    // Fancy colors
-    "fancy-yellow": 0xffd700,
-    "fancy-blue": 0x4169e1,
-    "fancy-pink": 0xff69b4,
-    "fancy-green": 0x32cd32,
-
-    // Other gemstone colors
-    red: 0xdc143c,
-    blue: 0x4169e1,
-    green: 0x32cd32,
-    yellow: 0xffd700,
-    pink: 0xff69b4,
-    white: 0xffffff,
-    black: 0x2f2f2f,
-    colorless: 0xf0f0f0,
-  };
-
-  return colorMap[color] || 0xffffff;
 }
 
 // Get opacity based on clarity

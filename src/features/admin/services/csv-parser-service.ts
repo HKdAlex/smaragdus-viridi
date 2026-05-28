@@ -1,5 +1,10 @@
 "use client";
 
+import {
+    isStoredGemColorToken,
+    sanitizeColorForWrite,
+} from "@/shared/config/basic-gem-colors";
+
 import type { BulkImportData } from './gemstone-admin-service';
 
 // Simple logger for now
@@ -234,11 +239,13 @@ export class CSVParserService {
         return position >= 0 && position < rowData.length ? rowData[position] : '';
       };
 
+      const gemstoneType = this.parseGemstoneType(getValue('name'));
+
       // Parse and validate data (CUT-C3.1: use cut_code instead of cut)
       const gemstoneData: BulkImportData = {
         serialNumber: getValue('serialNumber').trim(),
-        name: this.parseGemstoneType(getValue('name')),
-        color: this.parseColor(getValue('color')),
+        name: gemstoneType,
+        color: this.parseColor(getValue('color'), gemstoneType),
         cut_code: this.parseCut(getValue('cut')), // CUT-C3.1: store as cut_code
         clarity: this.parseClarity(getValue('clarity')),
         weight_carats: this.parseNumber(getValue('weight_carats'), 'weight'),
@@ -342,21 +349,29 @@ export class CSVParserService {
   /**
    * Parse color from string
    */
-  private static parseColor(value: string): BulkImportData['color'] {
-    const normalized = value.toLowerCase().trim();
-    const colorMap: Record<string, BulkImportData['color']> = {
-      'd': 'D', 'e': 'E', 'f': 'F', 'g': 'G', 'h': 'H', 'i': 'I', 'j': 'J', 'k': 'K', 'l': 'L', 'm': 'M',
-      'fancy-yellow': 'fancy-yellow', 'fancy-blue': 'fancy-blue', 'fancy-pink': 'fancy-pink', 'fancy-green': 'fancy-green',
-      'red': 'red', 'blue': 'blue', 'green': 'green', 'yellow': 'yellow', 'pink': 'pink',
-      'white': 'white', 'black': 'black', 'colorless': 'colorless'
-    };
-
-    const result = colorMap[normalized];
-    if (!result) {
+  private static parseColor(
+    value: string,
+    gemstoneType: BulkImportData['name']
+  ): BulkImportData['color'] {
+    const trimmed = value.trim();
+    if (!trimmed) {
       throw new Error(`Invalid color: ${value}`);
     }
 
-    return result;
+    const synonyms: Record<string, string> = {
+      grey: "gray",
+      purple: "violet",
+    };
+
+    let token = trimmed.toLowerCase();
+    if (synonyms[token]) token = synonyms[token];
+    if (/^[d-m]$/.test(token)) token = token.toUpperCase();
+
+    if (!isStoredGemColorToken(token)) {
+      throw new Error(`Invalid color: ${value}`);
+    }
+
+    return sanitizeColorForWrite(token, gemstoneType) as BulkImportData["color"];
   }
 
   /**

@@ -1,4 +1,11 @@
 import type { GemColor } from "@/shared/services/database-enums";
+import { Constants } from "@/shared/types/database";
+
+export type GemColorCategory = "diamond" | "colored";
+
+const GEM_COLOR_ENUM_LOWER = new Set(
+  Constants.public.Enums.gem_color.map((c) => c.toLowerCase())
+);
 
 /** Twelve basic hues for colored gemstones (admin picker + catalog filters). */
 export const BASIC_GEM_COLORS = [
@@ -124,6 +131,75 @@ export function isDiamondColorGrade(color: string): boolean {
 
 export function isBasicGemColor(color: string): color is BasicGemColor {
   return BASIC_SET.has(color);
+}
+
+/** Whether a token is a stored `gem_color` enum value (case-insensitive for D–M). */
+export function isStoredGemColorToken(token: string): boolean {
+  const trimmed = token.trim();
+  if (!trimmed) return false;
+  return (
+    GEM_COLOR_ENUM_LOWER.has(trimmed.toLowerCase()) ||
+    GEM_COLOR_ENUM_LOWER.has(trimmed.toUpperCase())
+  );
+}
+
+/** Diamond vs colored gemstone bucket for filter UI (no separate fancy group). */
+export function categorizeGemColor(color: string): GemColorCategory {
+  const normalized = normalizeGemColor(color);
+  if (isDiamondColorGrade(normalized)) return "diamond";
+  return "colored";
+}
+
+/**
+ * Parse comma-separated color filter params; canonicalize to 12 basics or D–M.
+ * Legacy `fancy-*` tokens normalize to basics (deduped with explicit basic).
+ */
+export function parseColorFilterTokens(csv: string): string[] {
+  if (!csv.trim()) return [];
+
+  const seen = new Set<string>();
+  const result: string[] = [];
+
+  for (const raw of csv.split(",")) {
+    const token = raw.trim();
+    if (!token || !isStoredGemColorToken(token)) continue;
+
+    const canonical = normalizeGemColor(token);
+    if (!canonical || seen.has(canonical)) continue;
+
+    seen.add(canonical);
+    result.push(canonical);
+  }
+
+  return result;
+}
+
+const LEGACY_FANCY_HEX: Record<string, number> = {
+  "fancy-yellow": 0xffd700,
+  "fancy-blue": 0x4169e1,
+  "fancy-pink": 0xff69b4,
+  "fancy-green": 0x32cd32,
+};
+
+/** Three.js material color from enum / legacy stored value. */
+export function hexFromGemColor(color: string): number {
+  const normalized = normalizeGemColor(color);
+  const lower = color.trim().toLowerCase();
+
+  if (LEGACY_FANCY_HEX[lower]) return LEGACY_FANCY_HEX[lower];
+
+  if (isDiamondColorGrade(normalized)) {
+    const hex =
+      DIAMOND_COLOR_PICKER_VISUAL[normalized as DiamondColorGrade]?.hex;
+    return hex ? Number.parseInt(hex.slice(1), 16) : 0xffffff;
+  }
+
+  if (isBasicGemColor(normalized)) {
+    const hex = BASIC_COLOR_PICKER_VISUAL[normalized].hex;
+    return Number.parseInt(hex.slice(1), 16);
+  }
+
+  return 0xffffff;
 }
 
 /** Colors allowed when saving from admin/import/AI (no new fancy-* writes). */

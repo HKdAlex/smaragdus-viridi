@@ -1,13 +1,12 @@
 import * as THREE from "three";
 
-import {
-  CLARITY_OPACITY_MAP,
-  GEMSTONE_COLOR_MAP,
-  GemstoneMaterial,
-  LightingMode,
-} from "../types/visualization.types";
-
+import { hexFromGemColor } from "@/shared/config/basic-gem-colors";
 import { Gemstone } from "@/shared/types";
+import {
+    CLARITY_OPACITY_MAP,
+    GemstoneMaterial,
+    LightingMode,
+} from "../types/visualization.types";
 
 /**
  * Creates realistic gemstone material based on gemstone properties
@@ -41,7 +40,7 @@ export function createGemstoneMaterial(
  * Gets gemstone color as hex value
  */
 export function getGemstoneColor(color: string): number {
-  return GEMSTONE_COLOR_MAP[color] || 0xffffff;
+  return hexFromGemColor(color);
 }
 
 /**

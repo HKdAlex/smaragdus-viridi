@@ -3,6 +3,7 @@
 
 "use client";
 
+import { categorizeGemColor } from "@/shared/config/basic-gem-colors";
 import type {
     GemClarity,
     GemColor,
@@ -19,7 +20,6 @@ import {
     CLARITY_ORDER,
     DEFAULT_PRICE_RANGE,
     DEFAULT_WEIGHT_RANGE,
-    categorizeColor,
     getActiveFilterCount,
     hasActiveFilters,
 } from "../../types/filter.types";
@@ -130,7 +130,7 @@ export function AdvancedFilters({
     return Object.entries(filterLabels.colors)
       .map(([value, label]) => {
         const option = available.find((opt) => opt.value === value);
-        const category = categorizeColor(value as GemColor);
+        const category = categorizeGemColor(value as GemColor);
         return {
           value: value as GemColor,
           label,
@@ -146,7 +146,7 @@ export function AdvancedFilters({
       .sort((a, b) => {
         // Sort by category, then by label
         if (a.category !== b.category) {
-          const categoryOrder = { diamond: 0, colored: 1, fancy: 2 };
+          const categoryOrder = { diamond: 0, colored: 1 };
           return categoryOrder[a.category] - categoryOrder[b.category];
         }
         return a.label.localeCompare(b.label);

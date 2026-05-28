@@ -1,26 +1,27 @@
 // URL Parameter Utilities for Advanced Gemstone Filtering
 // Following Type Governance: Import from feature types
 
+import { parseColorFilterTokens } from "@/shared/config/basic-gem-colors";
 import type {
-  AdvancedGemstoneFilters,
-  FilterUrlParams,
-  GemstoneSort,
-  MutableAdvancedGemstoneFilters,
-  PriceRange,
-  TreatmentStatus,
-  WeightRange,
+    GemClarity,
+    GemColor,
+    // CUT-C3.1: GemCut enum removed
+    GemstoneType,
+} from "@/shared/types";
+import type {
+    AdvancedGemstoneFilters,
+    FilterUrlParams,
+    GemstoneSort,
+    MutableAdvancedGemstoneFilters,
+    PriceRange,
+    TreatmentStatus,
+    WeightRange,
 } from "../types/filter.types";
 import {
-  DEFAULT_ADVANCED_FILTERS,
-  DEFAULT_PRICE_RANGE,
-  DEFAULT_WEIGHT_RANGE,
+    DEFAULT_ADVANCED_FILTERS,
+    DEFAULT_PRICE_RANGE,
+    DEFAULT_WEIGHT_RANGE,
 } from "../types/filter.types";
-import type {
-  GemClarity,
-  GemColor,
-  // CUT-C3.1: GemCut enum removed
-  GemstoneType,
-} from "@/shared/types";
 
 export const FILTER_PARAM_KEYS = [
   "search",
@@ -172,7 +173,7 @@ export const urlParamsToFilters = (
   }
 
   if (params.colors) {
-    filters.colors = params.colors.split(",").filter(Boolean) as GemColor[];
+    filters.colors = parseColorFilterTokens(params.colors) as GemColor[];
   }
 
   // CUT-C3.1: cuts are now strings

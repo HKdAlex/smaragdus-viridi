@@ -19,6 +19,7 @@
 
 "use client";
 
+import { categorizeGemColor } from "@/shared/config/basic-gem-colors";
 import type {
     GemClarity,
     GemColor,
@@ -27,11 +28,7 @@ import type {
 } from "@/shared/types";
 import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-    CLARITY_ORDER,
-    categorizeColor,
-    getActiveFilterCount,
-} from "../../types/filter.types";
+import { CLARITY_ORDER, getActiveFilterCount } from "../../types/filter.types";
 
 import { useTranslations } from "next-intl";
 import { useFilterLabels } from "../../hooks/use-filter-labels";
@@ -329,7 +326,7 @@ export function AdvancedFiltersControlled({
 
   const colorOptions = useMemo(() => {
     return options.colors.map((opt) => {
-      const category = categorizeColor(opt.value as GemColor);
+      const category = categorizeGemColor(opt.value as GemColor);
       return {
         value: opt.value,
         label: filterLabels.colors[opt.value as GemColor] || opt.label,
