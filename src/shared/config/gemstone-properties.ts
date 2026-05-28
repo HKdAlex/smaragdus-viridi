@@ -11,7 +11,7 @@ export const GEMSTONE_DEFAULT_COLORS: Record<GemstoneType, GemColor> = {
   emerald: "green",
   ruby: "red",
   sapphire: "blue",
-  amethyst: "colorless",
+  amethyst: "violet",
   topaz: "colorless",
   garnet: "red",
   peridot: "green",

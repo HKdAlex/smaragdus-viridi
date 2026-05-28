@@ -55,6 +55,11 @@ import {
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
+    BASIC_GEM_COLORS,
+    DIAMOND_COLOR_GRADES,
+    sanitizeColorForWrite,
+} from "@/shared/config/basic-gem-colors";
+import {
     GemstoneAdminService,
     type GemstoneFormData,
     type GemstoneWithRelations,
@@ -246,15 +251,6 @@ export function GemstoneForm({
     [translateGemstoneType]
   );
 
-  const colorOptions = useMemo(
-    () =>
-      GEM_COLORS.map((color) => ({
-        value: color,
-        label: translateColor(color),
-      })),
-    [translateColor]
-  );
-
   const clarityOptions = useMemo(
     () =>
       GEM_CLARITIES.map((clarity) => ({
@@ -366,6 +362,15 @@ export function GemstoneForm({
       individual_stones: gemstone?.individual_stones || undefined,
     };
   });
+
+  const colorOptions = useMemo(() => {
+    const palette =
+      formData.name === "diamond" ? DIAMOND_COLOR_GRADES : BASIC_GEM_COLORS;
+    return palette.map((color) => ({
+      value: color,
+      label: translateColor(color),
+    }));
+  }, [formData.name, translateColor]);
 
   /** Matches dropdown labels: DB name for catalog cuts; cut_custom only for true free-text. */
   const cutSelectDisplayValue = useMemo(() => {
@@ -645,24 +650,28 @@ export function GemstoneForm({
   const handleFlexibleColorChange = useCallback(
     (value: string, isKnownValue: boolean) => {
       setFormData((prev) => {
+        const palette =
+          prev.name === "diamond" ? DIAMOND_COLOR_GRADES : BASIC_GEM_COLORS;
         if (isKnownValue) {
-          const enumValue = GEM_COLORS.find(
+          const enumValue = palette.find(
             (color) =>
               color.toLowerCase() === value.toLowerCase() ||
               translateColor(color).toLowerCase() === value.toLowerCase()
           );
+          const resolved = enumValue
+            ? (sanitizeColorForWrite(enumValue, prev.name) as GemstoneFormData["color"])
+            : prev.color;
           return {
             ...prev,
-            color: enumValue || prev.color,
-            color_custom: value,
-          };
-        } else {
-          return {
-            ...prev,
-            color: prev.color || DEFAULT_GEMSTONE_VALUES.color,
-            color_custom: value,
+            color: resolved,
+            color_custom: undefined,
           };
         }
+        return {
+          ...prev,
+          color: prev.color || DEFAULT_GEMSTONE_VALUES.color,
+          color_custom: value,
+        };
       });
       if (errors.color) {
         setErrors((prev) => ({ ...prev, color: "" }));
@@ -828,6 +837,10 @@ export function GemstoneForm({
       // So we need to ensure both values are consistent before saving
       const submitData = {
         ...formData,
+        color: sanitizeColorForWrite(
+          formData.color,
+          formData.name
+        ) as GemstoneFormData["color"],
         marketing_highlights:
           marketingHighlights.length > 0 ? marketingHighlights : undefined,
         // Map AI v6 fields to correct database columns

@@ -181,6 +181,7 @@ export function GemstoneCatalogOptimized() {
       <div className="px-2 sm:px-4 mt-6">
         <CategoryTabs
           categories={categoryTabs}
+          totalCount={categoryData?.totalCount}
           activeCategory={activeCategory}
         />
       </div>

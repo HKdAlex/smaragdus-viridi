@@ -234,7 +234,11 @@ export async function generateTextForGemstone(gemstoneId, options = {}) {
     // Update gemstones table with AI-detected color if available
     if (imageAnalysis.colorDetection?.detected_color) {
       try {
-        await updateGemstoneAIColor(gemstoneId, imageAnalysis.colorDetection);
+        await updateGemstoneAIColor(
+          gemstoneId,
+          imageAnalysis.colorDetection,
+          gemData.name
+        );
         console.log(
           `✓ Updated gemstone with AI color: ${imageAnalysis.colorDetection.detected_color}`
         );
@@ -249,7 +253,7 @@ export async function generateTextForGemstone(gemstoneId, options = {}) {
     // Update gemstones table with AI-detected cut if available and different from metadata
     if (
       imageAnalysis.cutDetection?.detected_cut &&
-      imageAnalysis.cutDetection.detected_cut !== gemData.cut
+      imageAnalysis.cutDetection.detected_cut !== gemData.cut_code
     ) {
       try {
         await updateGemstoneAICut(gemstoneId, imageAnalysis.cutDetection);

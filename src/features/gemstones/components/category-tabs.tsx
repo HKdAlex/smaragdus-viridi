@@ -22,12 +22,15 @@ export interface CategoryTab {
 
 export interface CategoryTabsProps {
   categories: CategoryTab[];
+  /** Authoritative total from API (avoids sum-of-categories drift). */
+  totalCount?: number;
   activeCategory?: string;
   className?: string;
 }
 
 export function CategoryTabs({
   categories,
+  totalCount: totalCountOverride,
   activeCategory = "all",
   className,
 }: CategoryTabsProps) {
@@ -57,11 +60,12 @@ export function CategoryTabs({
     [router, searchParams]
   );
 
-  // Calculate total count
-  const totalCount = useMemo(
-    () => categories.reduce((sum, cat) => sum + cat.count, 0),
-    [categories]
-  );
+  const totalCount = useMemo(() => {
+    if (typeof totalCountOverride === "number" && totalCountOverride >= 0) {
+      return totalCountOverride;
+    }
+    return categories.reduce((sum, cat) => sum + cat.count, 0);
+  }, [categories, totalCountOverride]);
 
   // Add "All" tab
   const allTabs = useMemo(

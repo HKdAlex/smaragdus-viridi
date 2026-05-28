@@ -278,7 +278,11 @@ export const COLOR_LABELS: Record<GemColor, string> = {
   white: "White",
   black: "Black",
   colorless: "Colorless",
-  // Fancy colors
+  orange: "Orange",
+  gray: "Gray",
+  violet: "Violet",
+  brown: "Brown",
+  // Fancy colors (legacy DB values; hidden from pickers)
   "fancy-yellow": "Fancy Yellow",
   "fancy-blue": "Fancy Blue",
   "fancy-pink": "Fancy Pink",

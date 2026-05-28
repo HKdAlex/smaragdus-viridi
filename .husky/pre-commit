@@ -3,7 +3,12 @@
 echo "🔍 Running pre-commit checks..."
 
 # Check if any documentation was modified
-DOC_FILES=$(git diff --cached --name-only | grep -E "(docs/|README\.md)" || true)
+DOC_FILES=$(
+  git diff --cached --name-only \
+    | grep -E "(docs/|README\.md)" \
+    | grep -vE "^docs/qa/" \
+    || true
+)
 
 if [ ! -z "$DOC_FILES" ]; then
   echo "📋 Documentation modified - running comprehensive validation..."

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { resolveGemstoneTypeLabelSource } from "@/features/gemstones/utils/gemstone-type-display";
 import { supabaseAdmin } from "@/lib/supabase";
+import { expandColorFilterValues } from "@/shared/config/basic-gem-colors";
 
 // Simple in-memory cache for filter options (5 minute TTL)
 const filterOptionsCache = new Map<string, { data: any; timestamp: number }>();
@@ -399,7 +400,13 @@ export async function GET(request: NextRequest) {
         setCachedFilterOptions("colors", availableColors);
       }
 
-      const validColorFilters = filters.colors.filter((color) =>
+      const expandedFilters = [
+        ...new Set(
+          filters.colors.flatMap((color) => expandColorFilterValues(color))
+        ),
+      ];
+
+      const validColorFilters = expandedFilters.filter((color) =>
         availableColors.has(color)
       );
 

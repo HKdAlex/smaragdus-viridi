@@ -551,7 +551,6 @@ async function processGemstoneOptimized(
     const gemstoneData = {
       name: gemstoneType,
       color: detectedColor,
-      cut_code: "round", // Default cut code - cut_id should be looked up from cuts table
       clarity: "VS1",
       weight_carats: 0,
       length_mm: 0,
@@ -560,7 +559,8 @@ async function processGemstoneOptimized(
       origin_id: null,
       price_amount: 0,
       price_currency: "USD",
-      in_stock: true,
+      in_stock: false,
+      metadata_status: "needs_review",
       delivery_days: 7,
       internal_code: folderName,
       serial_number: serialNumber,

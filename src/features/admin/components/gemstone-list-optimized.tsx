@@ -22,6 +22,7 @@ import {
 } from "../services/gemstone-admin-service";
 
 import { useCurrency } from "@/features/currency/hooks/use-currency";
+import { normalizeGemColor } from "@/shared/config/basic-gem-colors";
 import { GemstoneImageThumbnail } from "@/features/gemstones/components/gemstone-image-thumbnail";
 import { useAdminGemstones } from "../hooks/use-admin-gemstones-query";
 import { BulkEditModal } from "./bulk-edit-modal";
@@ -383,14 +384,20 @@ export function GemstoneListOptimized({
 
   const getLocalizedColor = useCallback(
     (color: string) => {
-      return t(`gemstones.colors.${color}` as any) || color;
+      const key = normalizeGemColor(color) || color;
+      return t(`gemstones.colors.${key}` as any) || color;
     },
     [t]
   );
 
   const getLocalizedCut = useCallback(
     (cut: string) => {
-      return t(`gemstones.cuts.${cut}` as any) || cut;
+      if (!cut) return cut;
+      const translated = t(`gemstones.cuts.${cut}` as any);
+      if (translated && translated !== `gemstones.cuts.${cut}`) {
+        return translated;
+      }
+      return cut.replace(/_/g, " ");
     },
     [t]
   );
@@ -613,8 +620,12 @@ export function GemstoneListOptimized({
                           <div className="ml-4">
                             <div className="font-medium text-foreground">
                               {formatWeight(gemstone.weight_carats)}{" "}
-                              {getLocalizedColor(gemstone.color)}{" "}
-                              {getLocalizedGemstoneType(gemstone.name)}
+                              {getLocalizedColor(
+                                gemstone.display_color || gemstone.color
+                              )}{" "}
+                              {getLocalizedGemstoneType(
+                                gemstone.display_name || gemstone.name
+                              )}
                             </div>
                             <div className="text-sm text-muted-foreground">
                               {gemstone.serial_number}
@@ -643,7 +654,10 @@ export function GemstoneListOptimized({
                       <td className="px-6 py-4">
                         <div className="text-sm text-foreground">
                           <div>
-                            {t("labels.cut")}: {getLocalizedCut(gemstone.cut_code)}
+                            {t("labels.cut")}:{" "}
+                            {getLocalizedCut(
+                              gemstone.display_cut || gemstone.cut_code || ""
+                            )}
                           </div>
                           <div>
                             {t("labels.clarity")}:{" "}

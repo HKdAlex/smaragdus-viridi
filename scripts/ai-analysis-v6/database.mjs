@@ -4,6 +4,8 @@
 
 import { createClient } from "@supabase/supabase-js";
 
+import { sanitizeColorForWrite } from "../shared/normalize-gem-color.mjs";
+
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -280,13 +282,17 @@ function shouldFlagForReview(content, metadata) {
  * @param {Object} colorData - Color detection results
  * @returns {Promise<void>}
  */
-export async function updateGemstoneAIColor(gemstoneId, colorData) {
+export async function updateGemstoneAIColor(gemstoneId, colorData, gemstoneType) {
+  const raw = colorData.detected_color;
+  const normalized = sanitizeColorForWrite(raw, gemstoneType || "");
+
   const { error } = await supabase
     .from("gemstones")
     .update({
-      ai_color: colorData.detected_color,
-      ai_color_code: colorData.detected_color,
+      ai_color: normalized,
+      ai_color_code: normalized,
       ai_color_description: colorData.color_description,
+      color: normalized,
     })
     .eq("id", gemstoneId);
 

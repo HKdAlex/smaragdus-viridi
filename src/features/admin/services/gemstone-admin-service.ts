@@ -93,6 +93,10 @@ export interface GemstoneWithRelations extends DatabaseGemstone {
   // Media counts from gemstones_enriched view (optional for backward compatibility)
   image_count?: number;
   video_count?: number;
+  display_color?: string | null;
+  display_cut?: string | null;
+  display_name?: string | null;
+  display_clarity?: string | null;
   ai_v6?: {
     technical_description_en?: string | null;
     emotional_description_en?: string | null;

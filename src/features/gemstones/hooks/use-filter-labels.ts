@@ -8,6 +8,10 @@ import type {
     GemstoneType,
 } from "@/shared/types";
 
+import {
+  BASIC_GEM_COLORS,
+  DIAMOND_COLOR_GRADES,
+} from "@/shared/config/basic-gem-colors";
 import { Constants } from "@/shared/types/database";
 import { useTranslations } from "next-intl";
 
@@ -35,31 +39,22 @@ export function useFilterLabels(): FilterLabels {
   return {
     gemstoneTypes,
     colors: {
-      // Diamond colors
-      D: tGemstones("colors.D"),
-      E: tGemstones("colors.E"),
-      F: tGemstones("colors.F"),
-      G: tGemstones("colors.G"),
-      H: tGemstones("colors.H"),
-      I: tGemstones("colors.I"),
-      J: tGemstones("colors.J"),
-      K: tGemstones("colors.K"),
-      L: tGemstones("colors.L"),
-      M: tGemstones("colors.M"),
-      // Basic colors
-      red: tGemstones("colors.red"),
-      blue: tGemstones("colors.blue"),
-      green: tGemstones("colors.green"),
-      yellow: tGemstones("colors.yellow"),
-      pink: tGemstones("colors.pink"),
-      white: tGemstones("colors.white"),
-      black: tGemstones("colors.black"),
-      colorless: tGemstones("colors.colorless"),
-      // Fancy colors
-      "fancy-yellow": tGemstones("colors.fancy-yellow"),
-      "fancy-blue": tGemstones("colors.fancy-blue"),
-      "fancy-pink": tGemstones("colors.fancy-pink"),
-      "fancy-green": tGemstones("colors.fancy-green"),
+      ...DIAMOND_COLOR_GRADES.reduce(
+        (acc, grade) => {
+          acc[grade as GemColor] = tGemstones(`colors.${grade}` as "colors.D");
+          return acc;
+        },
+        {} as Record<GemColor, string>
+      ),
+      ...BASIC_GEM_COLORS.reduce(
+        (acc, color) => {
+          acc[color as GemColor] = tGemstones(
+            `colors.${color}` as "colors.red"
+          );
+          return acc;
+        },
+        {} as Record<GemColor, string>
+      ),
     },
     cuts: {
       round: tGemstones("cuts.round"),

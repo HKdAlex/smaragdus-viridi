@@ -31,6 +31,7 @@ import { useCurrency } from "@/features/currency/hooks/use-currency";
 import { CertificationDisplay } from "@/features/gemstones/components/certification-display";
 import { MediaGallery } from "@/features/gemstones/components/media-gallery";
 import { useGemstoneTranslations } from "@/features/gemstones/utils/gemstone-translations";
+import { normalizeGemColor } from "@/shared/config/basic-gem-colors";
 import { Link } from "@/i18n/navigation";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
@@ -173,8 +174,15 @@ export function GemstoneDetailPage({
               {gemstone.internal_code?.trim() || gemstone.serial_number}
             </h2>
             <p className="text-sm text-muted-foreground">
-              {formatWeight(gemstone.weight_carats)} {gemstone.color}{" "}
-              {gemstone.name}
+              {formatWeight(gemstone.weight_carats)}{" "}
+              {translateColor(
+                normalizeGemColor(
+                  gemstone.display_color || gemstone.color || ""
+                )
+              )}{" "}
+              {translateGemstoneType(
+                gemstone.display_name || gemstone.name
+              )}
             </p>
           </div>
         </div>

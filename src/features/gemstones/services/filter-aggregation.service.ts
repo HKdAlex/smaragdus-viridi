@@ -10,6 +10,11 @@
  * - Type Safety: Strict typing for all transformations
  */
 
+import {
+  BASIC_GEM_COLORS,
+  DIAMOND_COLOR_GRADES,
+  normalizeGemColor,
+} from "@/shared/config/basic-gem-colors";
 import type {
   GemClarity,
   GemColor,
@@ -100,17 +105,33 @@ export class FilterAggregationService {
    * Process color counts into categorized filter options
    */
   static aggregateColors(counts: Record<string, number>): ColorFilterOption[] {
-    return Object.entries(counts)
-      .map(([value, count]) => ({
+    const rolled = new Map<string, number>();
+
+    for (const [rawValue, count] of Object.entries(counts)) {
+      const category = this.categorizeColor(rawValue as GemColor);
+      const bucket =
+        category === "diamond"
+          ? normalizeGemColor(rawValue)
+          : normalizeGemColor(rawValue);
+      rolled.set(bucket, (rolled.get(bucket) ?? 0) + count);
+    }
+
+    const facetKeys = [
+      ...DIAMOND_COLOR_GRADES,
+      ...BASIC_GEM_COLORS,
+    ] as string[];
+
+    return facetKeys
+      .map((value) => ({
         value: value as GemColor,
         label: this.formatColorLabel(value as GemColor),
-        count,
+        count: rolled.get(value) ?? 0,
         category: this.categorizeColor(value as GemColor),
       }))
+      .filter((opt) => opt.count > 0)
       .sort((a, b) => {
-        // Sort by category first, then by count
         if (a.category !== b.category) {
-          const categoryOrder = { diamond: 0, fancy: 1, colored: 2 };
+          const categoryOrder = { diamond: 0, colored: 1, fancy: 2 };
           return categoryOrder[a.category] - categoryOrder[b.category];
         }
         return b.count - a.count;
@@ -168,27 +189,18 @@ export class FilterAggregationService {
    * Categorize a color into diamond, fancy, or colored
    */
   static categorizeColor(color: GemColor): "diamond" | "colored" | "fancy" {
-    const diamondColors: GemColor[] = [
-      "D",
-      "E",
-      "F",
-      "G",
-      "H",
-      "I",
-      "J",
-      "K",
-      "L",
-      "M",
-    ];
-    const fancyColors: GemColor[] = [
-      "fancy-yellow",
-      "fancy-blue",
-      "fancy-pink",
-      "fancy-green",
-    ];
-
-    if (diamondColors.includes(color)) return "diamond";
-    if (fancyColors.includes(color)) return "fancy";
+    const normalized = normalizeGemColor(color);
+    if (
+      DIAMOND_COLOR_GRADES.includes(
+        normalized as (typeof DIAMOND_COLOR_GRADES)[number]
+      )
+    ) {
+      return "diamond";
+    }
+    if (color.startsWith("fancy-")) return "fancy";
+    if (BASIC_GEM_COLORS.includes(normalized as (typeof BASIC_GEM_COLORS)[number])) {
+      return "colored";
+    }
     return "colored";
   }
 

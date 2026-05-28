@@ -2516,6 +2516,10 @@ export type Database = {
         | "fancy-blue"
         | "fancy-pink"
         | "fancy-green"
+        | "orange"
+        | "gray"
+        | "violet"
+        | "brown"
       gemstone_type:
         | "diamond"
         | "emerald"
@@ -2714,6 +2718,10 @@ export const Constants = {
         "fancy-blue",
         "fancy-pink",
         "fancy-green",
+        "orange",
+        "gray",
+        "violet",
+        "brown",
       ],
       gemstone_type: [
         "diamond",

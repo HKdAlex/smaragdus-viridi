@@ -22,6 +22,10 @@ import type { Cut } from "@/shared/types";
 import { CutsService } from "@/shared/services/cuts-service";
 import { Input } from "@/shared/components/ui/input";
 import { useGemstoneTranslations } from "@/features/gemstones/utils/gemstone-translations";
+import {
+  BASIC_GEM_COLORS,
+  DIAMOND_COLOR_GRADES,
+} from "@/shared/config/basic-gem-colors";
 import { useTranslations } from "next-intl";
 
 export interface AdvancedFiltersState {
@@ -58,30 +62,7 @@ const GEMSTONE_TYPES = [
   "tanzanite",
 ] as const;
 
-const GEM_COLORS = [
-  "D",
-  "E",
-  "F",
-  "G",
-  "H",
-  "I",
-  "J",
-  "K",
-  "L",
-  "M",
-  "fancy-yellow",
-  "fancy-blue",
-  "fancy-pink",
-  "fancy-green",
-  "red",
-  "blue",
-  "green",
-  "yellow",
-  "pink",
-  "white",
-  "black",
-  "colorless",
-] as const;
+const GEM_COLORS = [...DIAMOND_COLOR_GRADES, ...BASIC_GEM_COLORS] as const;
 
 // CUT-C1.3: Fallback cuts while loading from database
 const FALLBACK_CUTS = [

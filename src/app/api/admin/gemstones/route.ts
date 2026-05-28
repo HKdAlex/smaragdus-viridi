@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { supabaseAdmin } from "@/lib/supabase";
+import { expandColorFilterValues } from "@/shared/config/basic-gem-colors";
 import type { TablesInsert } from "@/shared/types/database";
 
 import { AdminAuthError, requireAdmin } from "../_utils/require-admin";
@@ -113,6 +114,10 @@ export async function GET(request: NextRequest) {
       "cut_code",
       "cut_id",
       "clarity",
+      "display_color",
+      "display_cut",
+      "display_name",
+      "display_clarity",
       "weight_carats",
       "price_amount",
       "price_currency",
@@ -199,35 +204,11 @@ export async function GET(request: NextRequest) {
       }
     }
     if (colors.length > 0) {
-      // Cast to proper enum type - these should be valid gem colors
-      const validColors = colors.filter((color) =>
-        [
-          "red",
-          "blue",
-          "green",
-          "yellow",
-          "pink",
-          "white",
-          "black",
-          "colorless",
-          "D",
-          "E",
-          "F",
-          "G",
-          "H",
-          "I",
-          "J",
-          "K",
-          "L",
-          "M",
-          "fancy-yellow",
-          "fancy-blue",
-          "fancy-pink",
-          "fancy-green",
-        ].includes(color)
-      ) as any[];
-      if (validColors.length > 0) {
-        query = query.in("color", validColors);
+      const expandedColors = [
+        ...new Set(colors.flatMap((color) => expandColorFilterValues(color))),
+      ] as string[];
+      if (expandedColors.length > 0) {
+        query = query.in("color", expandedColors);
       }
     }
     if (cuts.length > 0) {
