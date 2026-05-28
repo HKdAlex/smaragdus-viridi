@@ -105,35 +105,39 @@ export async function POST(request: Request) {
 
     const adminClient = ensureAdminClient();
 
-    // Verify the file exists in storage
-    const { data: fileData, error: fileError } = await adminClient.storage
-      .from(GEMSTONE_MEDIA_BUCKET)
-      .list(storagePath.split("/").slice(0, -1).join("/"), {
-        search: storagePath.split("/").pop(),
-      });
+    // Verify object exists (list+search is unreliable; retry for storage propagation)
+    const uploadedFileName = storagePath.split("/").pop() ?? "";
+    const folderPath = storagePath.split("/").slice(0, -1).join("/");
+    let fileExists = false;
 
-    if (fileError) {
-      console.error("[admin/gemstones/media/confirm] Failed to verify file:", {
-        error: fileError.message,
-        storagePath,
-      });
-      return NextResponse.json(
-        { error: `Failed to verify upload: ${fileError.message}` },
-        { status: 400 }
-      );
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const { data: fileData, error: fileError } = await adminClient.storage
+        .from(GEMSTONE_MEDIA_BUCKET)
+        .list(folderPath, { limit: 200 });
+
+      if (fileError) {
+        console.error("[admin/gemstones/media/confirm] Failed to verify file:", {
+          error: fileError.message,
+          storagePath,
+          attempt,
+        });
+        return NextResponse.json(
+          { error: `Failed to verify upload: ${fileError.message}` },
+          { status: 400 }
+        );
+      }
+
+      fileExists = fileData?.some((f) => f.name === uploadedFileName) ?? false;
+      if (fileExists) break;
+      if (attempt < 2) {
+        await new Promise((r) => setTimeout(r, 400 * (attempt + 1)));
+      }
     }
-
-    const uploadedFileName = storagePath.split("/").pop();
-    const fileExists = fileData?.some((f) => f.name === uploadedFileName);
 
     if (!fileExists) {
       console.error(
         "[admin/gemstones/media/confirm] File not found in storage:",
-        {
-          storagePath,
-          searchedFor: uploadedFileName,
-          found: fileData?.map((f) => f.name),
-        }
+        { storagePath, folderPath, uploadedFileName }
       );
       return NextResponse.json(
         {

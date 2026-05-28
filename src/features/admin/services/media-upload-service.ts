@@ -2,6 +2,9 @@ import type {
   DatabaseGemstoneImage,
   DatabaseGemstoneVideo,
 } from "@/shared/types";
+import { inferMimeType } from "@/shared/utils/infer-mime-type";
+
+const VERCEL_BODY_LIMIT_BYTES = 4 * 1024 * 1024;
 
 export interface MediaUploadResult {
   id: string;
@@ -368,17 +371,20 @@ export class MediaUploadService {
         mediaType: params.mediaType,
       });
 
+      const resolvedMime = inferMimeType(params.file.name, params.file.type);
+
       const signedUrlResponse = await fetch(
         "/api/admin/gemstones/media/signed-url",
         {
-        method: "POST",
+          method: "POST",
+          credentials: "same-origin",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             gemstoneId: params.gemstoneId,
             mediaType: params.mediaType,
             fileName: params.file.name,
             fileSize: params.file.size,
-            mimeType: params.file.type,
+            mimeType: resolvedMime,
             serialNumber: params.serialNumber,
           }),
         }
@@ -407,23 +413,43 @@ export class MediaUploadService {
         return { success: false, error: errorMessage };
       }
 
-      const { signedUrl, storagePath } = signedUrlResult.data;
+      const { signedUrl, storagePath, token } = signedUrlResult.data as {
+        signedUrl: string;
+        storagePath: string;
+        token?: string;
+      };
       params.onProgress?.(5);
       console.log(
         `[MediaUploadService] Got signed URL, uploading directly to storage...`
       );
 
       // Step 2: Upload directly to Supabase Storage with real progress (5-90%)
-      const uploadResult = await this.uploadWithProgress(
+      let uploadResult = await this.uploadWithProgress(
         signedUrl,
         params.file,
+        resolvedMime,
         timeoutMs,
+        token,
         (uploadProgress) => {
-          // Map 0-100% upload progress to 5-90% overall progress
           const mappedProgress = 5 + (uploadProgress * 85) / 100;
           params.onProgress?.(Math.round(mappedProgress));
         }
       );
+
+      if (
+        !uploadResult.success &&
+        params.mediaType === "image" &&
+        params.file.size <= VERCEL_BODY_LIMIT_BYTES
+      ) {
+        console.warn(
+          "[MediaUploadService] Direct upload failed, trying server proxy..."
+        );
+        uploadResult = await this.uploadViaServerProxy(
+          storagePath,
+          params.file,
+          resolvedMime
+        );
+      }
 
       if (!uploadResult.success) {
         return uploadResult;
@@ -439,6 +465,7 @@ export class MediaUploadService {
         "/api/admin/gemstones/media/confirm",
         {
           method: "POST",
+          credentials: "same-origin",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             gemstoneId: params.gemstoneId,
@@ -514,10 +541,41 @@ export class MediaUploadService {
   /**
    * Upload file using XMLHttpRequest for real progress tracking
    */
+  private static async uploadViaServerProxy(
+    storagePath: string,
+    file: File,
+    mimeType: string
+  ): Promise<{ success: true } | { success: false; error: string }> {
+    const formData = new FormData();
+    formData.append("file", file, file.name);
+    formData.append("path", storagePath);
+
+    const response = await fetch("/api/admin/storage/upload", {
+      method: "POST",
+      credentials: "same-origin",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      return {
+        success: false,
+        error:
+          (errorData as { error?: string }).error ||
+          `Server upload failed (${response.status})`,
+      };
+    }
+
+    void mimeType;
+    return { success: true };
+  }
+
   private static uploadWithProgress(
     url: string,
     file: File,
+    contentType: string,
     timeoutMs: number,
+    uploadToken: string | undefined,
     onProgress?: UploadProgressCallback
   ): Promise<{ success: true } | { success: false; error: string }> {
     return new Promise((resolve) => {
@@ -576,9 +634,13 @@ export class MediaUploadService {
         });
       };
 
-      // Start the upload
       xhr.open("PUT", url);
-      xhr.setRequestHeader("Content-Type", file.type);
+      const type =
+        contentType || file.type || "application/octet-stream";
+      xhr.setRequestHeader("Content-Type", type);
+      if (uploadToken) {
+        xhr.setRequestHeader("x-upsert", "true");
+      }
       xhr.send(file);
     });
   }

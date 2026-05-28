@@ -32,9 +32,9 @@ export async function POST(request: NextRequest) {
     const { data, error } = await supabaseAdmin.storage
       .from("gemstone-media")
       .upload(path, buffer, {
-        contentType: file.type,
+        contentType: file.type || "application/octet-stream",
         cacheControl: "3600",
-        upsert: false,
+        upsert: true,
       });
 
     if (error) {

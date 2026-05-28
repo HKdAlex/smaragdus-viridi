@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { supabaseAdmin } from "@/lib/supabase";
+import { inferMimeType } from "@/shared/utils/infer-mime-type";
 
 import { AdminAuthError, requireAdmin } from "../../../_utils/require-admin";
 
@@ -12,6 +13,8 @@ const ALLOWED_IMAGE_TYPES = [
   "image/jpg",
   "image/png",
   "image/webp",
+  "image/heic",
+  "image/heif",
 ] as const;
 const ALLOWED_VIDEO_TYPES = ["video/mp4", "video/webm"] as const;
 
@@ -96,20 +99,28 @@ export async function POST(request: Request) {
       );
     }
 
-    if (
-      typeof fileName !== "string" ||
-      typeof fileSize !== "number" ||
-      typeof mimeType !== "string"
-    ) {
+    if (typeof fileName !== "string" || typeof fileSize !== "number") {
       return NextResponse.json(
-        { error: "Missing file metadata (fileName, fileSize, mimeType)" },
+        { error: "Missing file metadata (fileName, fileSize)" },
+        { status: 400 }
+      );
+    }
+
+    const resolvedMime =
+      typeof mimeType === "string"
+        ? inferMimeType(fileName, mimeType)
+        : inferMimeType(fileName, "");
+
+    if (!resolvedMime) {
+      return NextResponse.json(
+        { error: "Could not determine file type from name or mimeType" },
         { status: 400 }
       );
     }
 
     // Validate file metadata
     try {
-      validateFileMetadata(mediaType, fileSize, mimeType);
+      validateFileMetadata(mediaType, fileSize, resolvedMime);
     } catch (error) {
       if (error instanceof AdminAuthError) {
         return NextResponse.json({ error: error.message }, { status: error.status });
@@ -152,7 +163,7 @@ export async function POST(request: Request) {
         mediaType,
         fileName,
         fileSize,
-        mimeType,
+        mimeType: resolvedMime,
         serialNumber: serialNumber || null,
       },
     });
