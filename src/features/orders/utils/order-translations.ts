@@ -8,6 +8,15 @@ export function useOrderTranslations() {
   const tStatuses = useTranslations("orders.statuses");
   const tAdminStatuses = useTranslations("admin.orders.statuses");
   const tUserStatuses = useTranslations("user.orders.statuses");
+  const tAdminStatusDescriptions = useTranslations(
+    "admin.orders.statusDescriptions"
+  );
+  const tUserStatusDescriptions = useTranslations(
+    "user.orders.statusDescriptions"
+  );
+  const tOrderStatusDescriptions = useTranslations(
+    "orders.statusDescriptions"
+  );
 
   const translateOrderStatus = (
     status: OrderStatus,
@@ -28,61 +37,19 @@ export function useOrderTranslations() {
     status: OrderStatus,
     context: "admin" | "user" | "orders" = "orders"
   ) => {
-    const descriptions = {
-      admin: useTranslations("admin.orders.statusDescriptions"),
-      user: useTranslations("user.orders.statusDescriptions"),
-      orders: useTranslations("orders.statusDescriptions"),
-    };
-
-    return descriptions[context](status as any) || "";
+    switch (context) {
+      case "admin":
+        return tAdminStatusDescriptions(status as any) || "";
+      case "user":
+        return tUserStatusDescriptions(status as any) || "";
+      case "orders":
+      default:
+        return tOrderStatusDescriptions(status as any) || "";
+    }
   };
 
   return {
     translateOrderStatus,
     translateOrderStatusDescription,
-  };
-}
-
-/**
- * Get localized order status configuration
- */
-export function getLocalizedOrderStatusConfig(
-  status: OrderStatus,
-  context: "admin" | "user" | "orders" = "orders"
-) {
-  const { translateOrderStatus, translateOrderStatusDescription } =
-    useOrderTranslations();
-
-  const baseConfig = {
-    pending: {
-      color: "outline" as const,
-      nextStatuses: ["confirmed", "cancelled"] as OrderStatus[],
-    },
-    confirmed: {
-      color: "outline" as const,
-      nextStatuses: ["processing", "cancelled"] as OrderStatus[],
-    },
-    processing: {
-      color: "outline" as const,
-      nextStatuses: ["shipped", "cancelled"] as OrderStatus[],
-    },
-    shipped: {
-      color: "outline" as const,
-      nextStatuses: ["delivered"] as OrderStatus[],
-    },
-    delivered: {
-      color: "default" as const,
-      nextStatuses: [] as OrderStatus[],
-    },
-    cancelled: {
-      color: "secondary" as const,
-      nextStatuses: [] as OrderStatus[],
-    },
-  };
-
-  return {
-    label: translateOrderStatus(status, context),
-    description: translateOrderStatusDescription(status, context),
-    ...baseConfig[status],
   };
 }

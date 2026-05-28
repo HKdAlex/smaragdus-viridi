@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+import { Link } from "@/i18n/navigation";
 import { supabase } from "@/lib/supabase";
 
 export default function DebugAuthPage() {
@@ -166,24 +167,24 @@ export default function DebugAuthPage() {
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-xl font-semibold mb-4">Navigation Test</h2>
             <div className="space-x-4">
-              <a
-                href="/ru/profile"
+              <Link
+                href="/profile"
                 className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 inline-block"
               >
                 Go to Profile
-              </a>
-              <a
-                href="/ru/orders"
+              </Link>
+              <Link
+                href="/orders"
                 className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 inline-block"
               >
                 Go to Orders
-              </a>
-              <a
-                href="/ru/admin"
+              </Link>
+              <Link
+                href="/admin"
                 className="bg-orange-600 text-white px-4 py-2 rounded hover:bg-orange-700 inline-block"
               >
                 Go to Admin
-              </a>
+              </Link>
             </div>
           </div>
         </div>
