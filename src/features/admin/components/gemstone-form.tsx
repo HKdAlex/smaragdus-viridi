@@ -1147,7 +1147,7 @@ export function GemstoneForm({
                   </p>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2 md:col-span-2 lg:col-span-2">
                   <label className="text-sm font-medium text-foreground">
                     {t("labels.color")}
                   </label>

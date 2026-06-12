@@ -6,7 +6,6 @@ import {
     BASIC_COLOR_PICKER_VISUAL,
     BASIC_GEM_COLORS,
     DIAMOND_COLOR_GRADES,
-    DIAMOND_COLOR_PICKER_VISUAL,
     normalizeGemColor,
 } from "@/shared/config/basic-gem-colors";
 
@@ -47,60 +46,57 @@ export function AdminColorSelect({
   return (
     <div className="space-y-3">
       {isDiamond ? (
-        <div className="grid grid-cols-6 gap-1 sm:grid-cols-11">
+        <div className="flex flex-wrap gap-1">
           {DIAMOND_COLOR_GRADES.map((grade) => (
             <button
               key={grade}
               type="button"
               onClick={() => selectColor(grade)}
               className={cn(
-                "rounded-lg border-2 p-1.5 transition-all hover:scale-105",
+                "flex h-8 min-w-[2rem] items-center justify-center rounded-md border px-2 text-xs font-semibold transition-colors",
                 isSelected(grade)
-                  ? "border-primary shadow-md"
-                  : "border-border hover:border-primary/50"
+                  ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                  : "border-border bg-muted/40 text-foreground hover:border-primary/50"
               )}
               title={translateColor(grade)}
+              aria-label={translateColor(grade)}
+              aria-pressed={isSelected(grade)}
             >
-              <div className="flex flex-col items-center gap-1">
-                <div
-                  className="h-6 w-6 rounded-full border border-border shadow-inner"
-                  style={{
-                    backgroundColor: DIAMOND_COLOR_PICKER_VISUAL[grade].hex,
-                  }}
-                />
-                <span className="text-xs font-bold">{grade}</span>
-              </div>
+              {grade}
             </button>
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
+        <div className="flex flex-wrap gap-2">
           {BASIC_GEM_COLORS.map((code) => {
             const { gradient } = BASIC_COLOR_PICKER_VISUAL[code];
+            const label = translateColor(code);
             return (
               <button
                 key={code}
                 type="button"
                 onClick={() => selectColor(code)}
                 className={cn(
-                  "rounded-lg border-2 p-2 transition-all hover:scale-105",
+                  "relative rounded-full p-0.5 transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                   isSelected(code)
-                    ? "border-primary shadow-md"
-                    : "border-border hover:border-primary/50"
+                    ? "ring-2 ring-primary ring-offset-2"
+                    : "ring-1 ring-border hover:ring-primary/40"
                 )}
-                title={translateColor(code)}
+                title={label}
+                aria-label={label}
+                aria-pressed={isSelected(code)}
               >
-                <div className="flex flex-col items-center gap-1">
-                  <div
-                    className={cn(
-                      "h-8 w-8 rounded-full border border-border bg-gradient-to-br shadow-inner",
-                      gradient
-                    )}
-                  />
-                  <span className="text-center text-[10px] font-medium leading-tight text-muted-foreground">
-                    {translateColor(code)}
+                <div
+                  className={cn(
+                    "h-9 w-9 rounded-full border border-black/10 bg-gradient-to-br shadow-inner dark:border-white/10",
+                    gradient
+                  )}
+                />
+                {isSelected(code) ? (
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] leading-none text-primary-foreground">
+                    ✓
                   </span>
-                </div>
+                ) : null}
               </button>
             );
           })}
