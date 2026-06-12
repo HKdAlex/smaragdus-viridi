@@ -61,7 +61,7 @@ export function AdminColorSelect({
               type="button"
               onClick={() => selectColor(grade)}
               className={cn(
-                "flex h-3.5 min-w-[0.875rem] items-center justify-center rounded border px-0.5 text-[9px] font-semibold leading-none transition-colors",
+                "flex h-[12.5px] min-w-[12.5px] items-center justify-center rounded border px-0.5 text-[8px] font-semibold leading-none transition-colors",
                 isSelected(grade)
                   ? "border-primary bg-primary text-primary-foreground shadow-sm"
                   : "border-border bg-muted/40 text-foreground hover:border-primary/50"
@@ -96,12 +96,12 @@ export function AdminColorSelect({
               >
                 <div
                   className={cn(
-                    "h-[15.5px] w-[15.5px] rounded-full border border-black/10 bg-gradient-to-br shadow-inner dark:border-white/10",
+                    "h-[14px] w-[14px] rounded-full border border-black/10 bg-gradient-to-br shadow-inner dark:border-white/10",
                     gradient
                   )}
                 />
                 {isSelected(code) ? (
-                  <span className="absolute -right-px -top-px flex h-2 w-2 items-center justify-center rounded-full bg-primary text-[7px] leading-none text-primary-foreground">
+                  <span className="absolute -right-px -top-px flex h-[7px] w-[7px] items-center justify-center rounded-full bg-primary text-[6px] leading-none text-primary-foreground">
                     ✓
                   </span>
                 ) : null}
