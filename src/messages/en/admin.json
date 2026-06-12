@@ -948,6 +948,7 @@
     "selectOriginPlaceholder": "Select origin (optional)",
     "selectTypePlaceholder": "Select gemstone type",
     "selectColorPlaceholder": "Select color",
+    "colorPickerHint": "Click a color swatch or pick from the list. You can type a custom shade if needed.",
     "selectCutPlaceholder": "Select cut",
     "selectClarityPlaceholder": "Select clarity",
     "noOriginSpecified": "No origin specified",

@@ -932,6 +932,7 @@
     "selectOriginPlaceholder": "Выберите происхождение (необязательно)",
     "selectTypePlaceholder": "Выберите тип камня",
     "selectColorPlaceholder": "Выберите цвет",
+    "colorPickerHint": "Нажмите на образец цвета или выберите из списка. Нестандартный оттенок можно ввести вручную.",
     "selectCutPlaceholder": "Выберите огранку",
     "selectClarityPlaceholder": "Выберите чистоту",
     "noOriginSpecified": "Происхождение не указано",

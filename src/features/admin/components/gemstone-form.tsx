@@ -67,6 +67,7 @@ import {
     MediaUploadService,
     type MediaUploadResult,
 } from "../services/media-upload-service";
+import { AdminColorSelect } from "./admin-color-select";
 import { CertificationManager } from "./certification-manager";
 import { EnhancedMediaUpload } from "./enhanced-media-upload";
 
@@ -610,18 +611,31 @@ export function GemstoneForm({
     (value: string, isKnownValue: boolean) => {
       setFormData((prev) => {
         if (isKnownValue) {
-          // Value matches a known gemstone type enum
           const enumValue = GEMSTONE_TYPES.find(
             (type) =>
               type.toLowerCase() === value.toLowerCase() ||
               translateGemstoneType(type).toLowerCase() === value.toLowerCase()
           );
+          const nextName = enumValue || prev.name;
+          const wasDiamond = prev.name === "diamond";
+          const isDiamond = nextName === "diamond";
+          const colorUpdate =
+            wasDiamond !== isDiamond
+              ? {
+                  color: isDiamond
+                    ? DEFAULT_GEMSTONE_VALUES.color
+                    : ("red" as GemstoneFormData["color"]),
+                  color_custom: undefined,
+                }
+              : {};
+
           return {
             ...prev,
-            name: enumValue || prev.name,
+            name: nextName,
             name_custom: undefined,
             name_custom_en: undefined,
             name_custom_ru: undefined,
+            ...colorUpdate,
           };
         } else {
           // Custom value - keep the enum at a default but store the custom text
@@ -1137,12 +1151,16 @@ export function GemstoneForm({
                   <label className="text-sm font-medium text-foreground">
                     {t("labels.color")}
                   </label>
-                  {/* FlexibleSelect for color (FLEX-C1.2) */}
-                  <FlexibleSelect
-                    value={formData.color_custom || translateColor(formData.color)}
+                  {/* Visual swatches + combobox for color (FLEX-C1.2) */}
+                  <AdminColorSelect
+                    gemstoneType={formData.name}
+                    color={formData.color}
+                    colorCustom={formData.color_custom}
                     onChange={handleFlexibleColorChange}
                     options={colorOptions}
+                    translateColor={translateColor}
                     placeholder={t("selectColorPlaceholder")}
+                    customHint={t("colorPickerHint")}
                     error={!!errors.color}
                   />
                   {errors.color && (

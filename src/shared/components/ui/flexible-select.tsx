@@ -80,6 +80,16 @@ export function FlexibleSelect({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const openDropdown = useCallback(
+    (showAllOptions = false) => {
+      if (showAllOptions) {
+        setFilteredOptions(options);
+      }
+      setIsOpen(true);
+    },
+    [options]
+  );
+
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const newValue = e.target.value;
@@ -97,6 +107,16 @@ export function FlexibleSelect({
     },
     [options, onChange]
   );
+
+  const showAllOptions = useCallback(() => {
+    setFilteredOptions(options);
+    setIsOpen(true);
+  }, [options]);
+
+  const handleFocus = useCallback(() => {
+    setFilteredOptions(options);
+    setIsOpen(true);
+  }, [options]);
 
   const handleOptionSelect = useCallback(
     (option: FlexibleSelectOption) => {
@@ -149,7 +169,7 @@ export function FlexibleSelect({
           type="text"
           value={inputValue}
           onChange={handleInputChange}
-          onFocus={() => setIsOpen(true)}
+          onFocus={handleFocus}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           disabled={disabled}
@@ -172,7 +192,7 @@ export function FlexibleSelect({
           )}
           <button
             type="button"
-            onClick={() => !disabled && setIsOpen(!isOpen)}
+            onClick={() => !disabled && showAllOptions()}
             className="p-1 hover:bg-muted rounded"
             tabIndex={-1}
           >
