@@ -11,7 +11,7 @@
 ### Required Software
 
 - **Node.js 20.x.x** (use fnm for version management)
-- **npm** or **yarn**
+- **pnpm** (via Corepack — see `packageManager` in `package.json`)
 - **Git** (latest version)
 - **VSCode/Cursor** (recommended IDE)
 
@@ -37,8 +37,9 @@ curl -fsSL https://fnm.vercel.app/install | bash
 fnm install 20
 fnm use 20
 
-# Install dependencies
-npm install
+# Install dependencies (Corepack provides the pinned pnpm version)
+corepack enable
+pnpm install
 ```
 
 ### 2. Environment Configuration

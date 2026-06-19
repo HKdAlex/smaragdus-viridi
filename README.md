@@ -36,8 +36,8 @@ Crystallique is a sophisticated gemstone trading platform designed for professio
 git clone https://github.com/your-repo/crystallique.git
 cd crystallique
 
-# Install dependencies
-npm install
+# Install dependencies (requires pnpm — enable via corepack: corepack enable)
+pnpm install
 
 # Setup environment variables
 cp .env.example .env.local
@@ -48,7 +48,7 @@ cp .env.example .env.local
 # OPENAI_API_KEY=your_openai_api_key
 
 # Run development server
-npm run dev
+pnpm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) to see the application.
@@ -130,17 +130,17 @@ src/
 
 ```bash
 # Development server
-npm run dev
+pnpm run dev
 
 # Build for production
-npm run build
+pnpm run build
 
 # Type checking
-npm run type-check
+pnpm run type-check
 
 # Code quality
-npm run lint
-npm run lint:fix
+pnpm run lint
+pnpm run lint:fix
 ```
 
 ### AI Analysis & Data
@@ -157,7 +157,7 @@ node scripts/test-multi-image.mjs
 
 ```bash
 # Generate TypeScript types from Supabase schema
-npm run types:generate
+pnpm run types:generate
 
 # Or run directly
 node scripts/generate-supabase-types.mjs
@@ -169,10 +169,10 @@ This command generates up-to-date TypeScript types from your Supabase database s
 
 ```bash
 # Run all quality checks
-npm run quality-check
+pnpm run quality-check
 
 # Test suite
-npm run test
+pnpm run test
 ```
 
 ## 📚 Documentation
@@ -215,7 +215,7 @@ npm run test
 
 4. **Run Quality Checks**:
    ```bash
-   npm run quality-check
+   pnpm run quality-check
    ```
 
 ### Code Standards
@@ -274,7 +274,7 @@ The application is designed for deployment on Vercel or Netlify:
 
 ```bash
 # Build for production
-npm run build
+pnpm run build
 
 # Deploy to Vercel
 vercel --prod
@@ -330,16 +330,16 @@ netlify deploy --prod --dir=out
 
 ```bash
 # Unit tests
-npm run test:unit
+pnpm run test:unit
 
 # Integration tests
-npm run test:integration
+pnpm run test:integration
 
 # E2E tests
-npm run test:e2e
+pnpm run test:e2e
 
 # Performance tests
-npm run test:performance
+pnpm run test:performance
 ```
 
 ### Test Coverage
