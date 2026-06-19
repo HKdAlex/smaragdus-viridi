@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "build:force": "next build",
-    "build:with-validation": "npm run validate-images && next build",
+    "build:with-validation": "pnpm run validate-images && next build",
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
@@ -21,22 +21,22 @@
     "test:e2e:codegen": "playwright codegen http://localhost:3000",
     "validate-docs": "node scripts/validate-docs.js",
     "check-doc-dependencies": "node scripts/check-doc-dependencies.js",
-    "docs:check": "npm run validate-docs && npm run check-doc-dependencies",
+    "docs:check": "pnpm run validate-docs && pnpm run check-doc-dependencies",
     "docs:impact": "node scripts/check-doc-dependencies.js --impact=",
-    "docs:full-check": "npm run docs:check && echo '✅ All documentation checks passed!'",
+    "docs:full-check": "pnpm run docs:check && echo '✅ All documentation checks passed!'",
     "prepare": "husky install",
     "type-governance": "node scripts/check-type-governance.js",
     "check-type-duplicates": "grep -r \"export type GemstoneType\\|export type GemColor\\|export type GemCut\" src/ docs/ .cursor/ --exclude-dir=node_modules || echo '✅ No type duplications found'",
-    "lint-types": "npm run lint && npm run type-governance",
-    "pre-commit": "npm run lint-types && npm run type-check",
-    "validate-types": "npm run check-type-duplicates && npm run type-check && echo '✅ Type system is clean!'",
+    "lint-types": "pnpm run lint && pnpm run type-governance",
+    "pre-commit": "pnpm run lint-types && pnpm run type-check",
+    "validate-types": "pnpm run check-type-duplicates && pnpm run type-check && echo '✅ Type system is clean!'",
     "generate-cut-shape-icons:openai": "node scripts/generate-cut-shape-icons-openai.mjs",
     "generate-cut-shape-icons:openai:all": "node scripts/generate-cut-shape-icons-openai.mjs --all --webp",
     "generate-gem-type-thumbnails:openai": "node scripts/generate-gem-type-thumbnails-openai.mjs",
     "analyze-gem-type-source-png": "node scripts/analyze-gem-type-source-png.mjs",
     "analyze-cut-shape-png": "node scripts/analyze-cut-shape-source-png.mjs",
     "normalize-cut-shape-icons": "node scripts/normalize-cut-shape-icons.mjs",
-    "cut-shape-icons:rebuild": "npm run generate-cut-shape-icons:openai:all && npm run normalize-cut-shape-icons && npm run analyze-cut-shape-png -- --dir=public/images/cut-shapes/normalized-png",
+    "cut-shape-icons:rebuild": "pnpm run generate-cut-shape-icons:openai:all && pnpm run normalize-cut-shape-icons && pnpm run analyze-cut-shape-png -- --dir=public/images/cut-shapes/normalized-png",
     "validate-images": "node scripts/validate-images.js",
     "validate-images:fix": "node scripts/validate-images.js --fix",
     "assign-smart-images": "node scripts/smart-image-assignment.js",
@@ -48,10 +48,10 @@
     "i18n:report": "node scripts/fix-translations.mjs report",
     "i18n:scan": "node scripts/scan-hardcoded-strings.mjs",
     "i18n:fix-hardcoded": "node scripts/fix-hardcoded-strings.mjs",
-    "i18n:audit": "npm run i18n:validate && npm run i18n:scan",
+    "i18n:audit": "pnpm run i18n:validate && pnpm run i18n:scan",
     "types:generate": "npx supabase gen types typescript --project-id dpqapyojcdtrjwuhybky --schema public > src/shared/types/database.ts",
-    "prebuild:validate": "npm run validate-images",
-    "quality-check": "npm run type-check && npm run lint && npm run validate-images && npm run check-type-governance"
+    "prebuild:validate": "pnpm run validate-images",
+    "quality-check": "pnpm run type-check && pnpm run lint && pnpm run validate-images && pnpm run check-type-governance"
   },
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
@@ -110,5 +110,14 @@
     "typescript": "^5",
     "typescript-eslint": "^8.34.1",
     "vitest": "^2.1.1"
-  }
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@ffmpeg-installer/darwin-arm64",
+      "esbuild",
+      "sharp",
+      "unrs-resolver"
+    ]
+  },
+  "packageManager": "pnpm@10.12.1+sha512.f0dda8580f0ee9481c5c79a1d927b9164f2c478e90992ad268bbb2465a736984391d6333d2c327913578b2804af33474ca554ba29c04a8b13060a717675ae3ac"
 }

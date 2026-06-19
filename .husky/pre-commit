@@ -54,12 +54,12 @@ fi
 
 # Run other pre-commit checks
 echo "🔍 Running TypeScript type check..."
-npm run type-check
+pnpm run type-check
 
 echo "🔍 Running ESLint..."
-npm run lint
+pnpm run lint
 
 echo "🔍 Running tests..."
-npm run test
+pnpm run test
 
 echo "✅ All pre-commit checks passed!" 
