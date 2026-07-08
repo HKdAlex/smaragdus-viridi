@@ -53,6 +53,8 @@ const baseGemstone: CatalogGemstone = {
   premium_price_amount: null,
   premium_price_currency: null,
   price_per_carat: null,
+  price_per_piece: null,
+  pricing_basis: "per_carat",
   quantity: 1,
   in_stock: true,
   delivery_days: null,

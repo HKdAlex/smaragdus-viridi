@@ -455,6 +455,12 @@
     "pricePerCaratWillSetTo": "Will set to {amount} per ct",
     "pricePerCaratHint": "If provided, price amount will be recalculated using each gemstone's weight.",
     "pricePerCaratSummary": "Per carat: {amount}",
+    "pricePerPiece": "Price Per Piece (USD)",
+    "pricingBasis": "Pricing Basis",
+    "pricingBasisPlaceholder": "Leave unchanged",
+    "pricingBasisPerCarat": "Per carat",
+    "pricingBasisPerPiece": "Per piece",
+    "pricingBasisLotFixed": "Fixed lot price",
     "currencyOnlyUpdate": "Currency only update: {currency}",
     "currency": "Currency",
     "premiumCurrency": "Premium Currency (Optional)",
@@ -983,6 +989,7 @@
       "deliveryDays": "Delivery Days",
       "totalPrice": "Total Price",
       "pricePerCarat": "Price per Carat",
+      "pricePerPiece": "Price per Piece",
       "description": "Description",
       "promotionalText": "Promotional Text",
       "marketingHighlights": "Marketing Highlights",
@@ -1047,8 +1054,21 @@
       "verified": "Verified",
       "rejected": "Rejected"
     },
+    "pricingBasis": {
+      "title": "Pricing method",
+      "per_carat": "Per carat",
+      "per_piece": "Per piece",
+      "lot_fixed": "Fixed lot"
+    },
     "hints": {
-      "pricePerCaratHelper": "Uses gemstone weight to calculate total price when price per carat is provided.",
+      "pricePerCaratHelper": "When price per carat is set, total price is recalculated from gemstone weight.",
+      "pricePerPieceHelper": "Total lot price = price per piece × {quantity} pcs.",
+      "totalPricePerPiece": "{unit} × {quantity} pcs",
+      "pricingBasis": {
+        "per_carat": "Set price per carat; total is calculated from weight.",
+        "per_piece": "Set price per piece; total is calculated from quantity in stock.",
+        "lot_fixed": "Enter the total lot price only; no per-unit breakdown on the storefront."
+      },
       "treatmentStatus": "Describe any treatments applied (heat, oiling, diffusion) or indicate if natural/untreated",
       "colorChangeDescription": "For alexandrites and similar stones, describe the color change effect",
       "qualityClassification": "Use the appropriate grading system for this stone type (e.g., Russian ТУ for alexandrites)",

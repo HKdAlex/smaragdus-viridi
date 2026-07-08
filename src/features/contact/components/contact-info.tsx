@@ -2,6 +2,7 @@
 
 import {
     COMPANY_CONTACT,
+    companyInstagramHref,
     companyMailtoHref,
     companyTelHref,
     companyWhatsAppHref,
@@ -66,6 +67,12 @@ export function ContactMethods({ className = "" }: ContactInfoSectionProps) {
           label: t("info.messaging.whatsapp"),
           value: COMPANY_CONTACT.whatsapp.display,
           href: companyWhatsAppHref(),
+          external: true,
+        },
+        {
+          label: t("info.messaging.instagram"),
+          value: `@${COMPANY_CONTACT.instagram.handle}`,
+          href: companyInstagramHref(),
           external: true,
         },
       ],

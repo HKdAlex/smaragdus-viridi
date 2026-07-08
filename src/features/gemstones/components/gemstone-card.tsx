@@ -23,6 +23,7 @@ import { CheckCircle, Package, Scale } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import type { ComponentProps } from "react";
 
+import { getSecondaryPriceDisplay } from "@/features/gemstones/utils/pricing.utils";
 import { useCurrency } from "@/features/currency/hooks/use-currency";
 import { Link } from "@/i18n/navigation";
 import Image from "next/image";
@@ -120,20 +121,7 @@ export function GemstoneCard({
   // Use currency context for price formatting
   const { formatPrice } = useCurrency();
 
-  const weightCaratsNum = Number(gemstone.weight_carats);
-  const ppcFromDb =
-    typeof gemstone.price_per_carat === "number" &&
-    gemstone.price_per_carat > 0
-      ? gemstone.price_per_carat
-      : null;
-  const pricePerCaratMinorUnits =
-    ppcFromDb !== null
-      ? ppcFromDb
-      : weightCaratsNum > 0 &&
-          Number.isFinite(weightCaratsNum) &&
-          gemstone.price_amount > 0
-        ? Math.round(gemstone.price_amount / weightCaratsNum)
-        : null;
+  const secondaryPrice = getSecondaryPriceDisplay(gemstone);
 
   const defaultHref = {
     pathname: "/catalog/[id]" as const,
@@ -376,7 +364,7 @@ export function GemstoneCard({
             >
               {formatPrice(gemstone.price_amount, gemstone.price_currency)}
             </div>
-            {pricePerCaratMinorUnits !== null && (
+            {secondaryPrice !== null && (
               <div
                 className={`text-muted-foreground font-medium tabular-nums flex items-baseline gap-1 flex-wrap ${
                   isCompact ? "text-[10px]" : "text-xs sm:text-sm"
@@ -384,13 +372,25 @@ export function GemstoneCard({
               >
                 <span>
                   {formatPrice(
-                    pricePerCaratMinorUnits,
+                    secondaryPrice.amount,
                     gemstone.price_currency
                   )}
                 </span>
                 <span className="font-normal">
-                  / {t("gemstone.detail.caratSuffix")}
+                  /{" "}
+                  {secondaryPrice.unit === "piece"
+                    ? t("gemstone.detail.pieceSuffix")
+                    : t("gemstone.detail.caratSuffix")}
                 </span>
+                {secondaryPrice.unit === "piece" &&
+                  secondaryPrice.quantity !== undefined && (
+                    <span className="font-normal text-muted-foreground">
+                      ·{" "}
+                      {t("gemstone.detail.pieceCount", {
+                        count: secondaryPrice.quantity,
+                      })}
+                    </span>
+                  )}
               </div>
             )}
           </div>

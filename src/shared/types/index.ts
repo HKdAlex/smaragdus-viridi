@@ -10,6 +10,7 @@ export type GemColor = Database["public"]["Enums"]["gem_color"];
 // CUT-C3.1: GemCut enum removed - use Cut type from cuts table instead
 export type GemClarity = Database["public"]["Enums"]["gem_clarity"];
 export type CurrencyCode = Database["public"]["Enums"]["currency_code"];
+export type PricingBasis = Database["public"]["Enums"]["pricing_basis"];
 export type UserRole = Database["public"]["Enums"]["user_role"];
 export type OrderStatus = Database["public"]["Enums"]["order_status"];
 export type PaymentType = Database["public"]["Enums"]["payment_type"];

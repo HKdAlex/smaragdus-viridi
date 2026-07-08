@@ -22,6 +22,7 @@ import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Input } from "@/shared/components/ui/input";
 import { Textarea } from "@/shared/components/ui/textarea";
 import type { DatabaseGemstone } from "@/shared/types";
+import type { PricingBasis } from "@/features/gemstones/utils/pricing.utils";
 import {
   GemstoneAdminService,
   type GemstoneFormData,
@@ -42,6 +43,9 @@ interface BulkEditData {
   priceAmountInput: string;
   pricePerCaratCents?: number;
   pricePerCaratInput: string;
+  pricePerPieceCents?: number;
+  pricePerPieceInput: string;
+  pricingBasis?: PricingBasis;
   priceCurrency?: string;
   premium_price_currency?: string;
 
@@ -90,6 +94,7 @@ export function BulkEditModal({
     updatePrice: false,
     priceAmountInput: "",
     pricePerCaratInput: "",
+    pricePerPieceInput: "",
     updateStock: false,
     updateMetadata: false,
     updateDescription: false,
@@ -136,6 +141,7 @@ export function BulkEditModal({
       updatePrice: false,
       priceAmountInput: "",
       pricePerCaratInput: "",
+      pricePerPieceInput: "",
       updateStock: false,
       updateMetadata: false,
       updateDescription: false,
@@ -176,6 +182,14 @@ export function BulkEditModal({
             }
             if (bulkEditData.pricePerCaratCents !== undefined) {
               formDataUpdates.price_per_carat = bulkEditData.pricePerCaratCents;
+              formDataUpdates.pricing_basis = "per_carat";
+            }
+            if (bulkEditData.pricePerPieceCents !== undefined) {
+              formDataUpdates.price_per_piece = bulkEditData.pricePerPieceCents;
+              formDataUpdates.pricing_basis = "per_piece";
+            }
+            if (bulkEditData.pricingBasis) {
+              formDataUpdates.pricing_basis = bulkEditData.pricingBasis;
             }
             if (bulkEditData.priceCurrency) {
               formDataUpdates.price_currency =
@@ -454,6 +468,61 @@ export function BulkEditModal({
                           <p className="text-xs text-muted-foreground mt-1">
                             {t("pricePerCaratHint")}
                           </p>
+                        </div>
+                        <div className="md:col-span-2">
+                          <label className="block text-sm font-medium mb-1">
+                            {t("pricePerPiece")}
+                          </label>
+                          <Input
+                            type="number"
+                            step="0.01"
+                            placeholder="500.00"
+                            value={bulkEditData.pricePerPieceInput}
+                            onChange={(e) =>
+                              setBulkEditData((prev) => ({
+                                ...prev,
+                                pricePerPieceInput: e.target.value,
+                                pricePerPieceCents:
+                                  e.target.value.trim() === ""
+                                    ? undefined
+                                    : Number.isNaN(parseFloat(e.target.value))
+                                    ? prev.pricePerPieceCents
+                                    : Math.round(
+                                        parseFloat(e.target.value) * 100
+                                      ),
+                                pricingBasis: "per_piece",
+                              }))
+                            }
+                          />
+                        </div>
+                        <div className="md:col-span-2">
+                          <label className="block text-sm font-medium mb-1">
+                            {t("pricingBasis")}
+                          </label>
+                          <Select
+                            value={bulkEditData.pricingBasis || ""}
+                            onValueChange={(value) =>
+                              setBulkEditData((prev) => ({
+                                ...prev,
+                                pricingBasis: value as PricingBasis,
+                              }))
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder={t("pricingBasisPlaceholder")} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="per_carat">
+                                {t("pricingBasisPerCarat")}
+                              </SelectItem>
+                              <SelectItem value="per_piece">
+                                {t("pricingBasisPerPiece")}
+                              </SelectItem>
+                              <SelectItem value="lot_fixed">
+                                {t("pricingBasisLotFixed")}
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
                         </div>
                         <div>
                           <label className="block text-sm font-medium mb-1">

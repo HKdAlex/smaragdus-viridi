@@ -440,6 +440,12 @@
     "pricePerCaratWillSetTo": "Будет установлено: {amount} за карат",
     "pricePerCaratHint": "Если указать значение, итоговая цена будет пересчитана исходя из веса каждого камня.",
     "pricePerCaratSummary": "За карат: {amount}",
+    "pricePerPiece": "Цена за 1 шт (USD)",
+    "pricingBasis": "Способ ценообразования",
+    "pricingBasisPlaceholder": "Не менять",
+    "pricingBasisPerCarat": "За карат",
+    "pricingBasisPerPiece": "За штуку",
+    "pricingBasisLotFixed": "Фикс. за лот",
     "currencyOnlyUpdate": "Будет изменена только валюта: {currency}",
     "currency": "Валюта",
     "premiumCurrency": "Премиум валюта (необязательно)",
@@ -967,6 +973,7 @@
       "deliveryDays": "Дни доставки",
       "totalPrice": "Общая цена",
       "pricePerCarat": "Цена за карат",
+      "pricePerPiece": "Цена за 1 шт",
       "description": "Описание",
       "promotionalText": "Рекламный текст",
       "marketingHighlights": "Маркетинговые особенности",
@@ -1031,8 +1038,21 @@
       "verified": "Проверено",
       "rejected": "Отклонено"
   },
+    "pricingBasis": {
+      "title": "Способ ценообразования",
+      "per_carat": "За карат",
+      "per_piece": "За штуку",
+      "lot_fixed": "Фикс. за лот"
+    },
     "hints": {
       "pricePerCaratHelper": "При указании цены за карат итоговая стоимость будет пересчитана с учётом веса камня.",
+      "pricePerPieceHelper": "Итоговая цена лота = цена за штуку × {quantity} шт.",
+      "totalPricePerPiece": "{unit} × {quantity} шт",
+      "pricingBasis": {
+        "per_carat": "Укажите цену за карат — итог рассчитывается по весу.",
+        "per_piece": "Укажите цену за штуку — итог рассчитывается по количеству на складе.",
+        "lot_fixed": "Укажите только общую цену лота без разбивки на витрине."
+      },
       "treatmentStatus": "Опишите применённые обработки (нагрев, промасливание, диффузия) или укажите, что камень природный/без обработки",
       "colorChangeDescription": "Для александритов и подобных камней опишите эффект смены цвета",
       "qualityClassification": "Используйте соответствующую систему оценки для данного типа камня (напр., Российские ТУ для александритов)",
