@@ -64,6 +64,12 @@ import {
     type GemstoneWithRelations,
 } from "../services/gemstone-admin-service";
 import {
+    calculateTotalPrice,
+    clearedPricingFieldsForBasis,
+    type PricingBasis,
+    suggestPricingBasis,
+} from "@/features/gemstones/utils/pricing.utils";
+import {
     MediaUploadService,
     type MediaUploadResult,
 } from "../services/media-upload-service";
@@ -149,6 +155,58 @@ export function GemstoneForm({
     if (errors.price_amount) {
       setErrors((prev) => ({ ...prev, price_amount: "" }));
     }
+  };
+
+  const handlePricePerPieceChange = (value: string) => {
+    const cents = parseCurrencyInput(value);
+    setFormData((prev) => {
+      const next = { ...prev };
+      if (value.trim() === "") {
+        next.price_per_piece = null;
+      } else if (cents !== undefined && cents >= 0) {
+        next.price_per_piece = cents;
+        const total = calculateTotalPrice("per_piece", {
+          pricePerPiece: cents,
+          quantity: prev.quantity,
+        });
+        if (total !== null) {
+          next.price_amount = total;
+        }
+      }
+      return next;
+    });
+
+    if (errors.price_per_piece) {
+      setErrors((prev) => ({ ...prev, price_per_piece: "" }));
+    }
+  };
+
+  const handlePricingBasisChange = (basis: PricingBasis) => {
+    setFormData((prev) => {
+      const cleared = clearedPricingFieldsForBasis(basis);
+      const next = {
+        ...prev,
+        pricing_basis: basis,
+        ...cleared,
+      };
+
+      if (basis === "per_piece" && (prev.quantity ?? 0) < 1) {
+        next.quantity = 1;
+      }
+
+      const total = calculateTotalPrice(basis, {
+        pricePerCarat: next.price_per_carat,
+        pricePerPiece: next.price_per_piece,
+        weightCarats: next.weight_carats,
+        quantity: next.quantity,
+      });
+      if (total !== null) {
+        next.price_amount = total;
+      }
+
+      return next;
+    });
+    setHasManualPricePerCarat(false);
   };
 
   const handlePricePerCaratChange = (value: string) => {
@@ -331,6 +389,8 @@ export function GemstoneForm({
       premium_price_amount: gemstone?.premium_price_amount || undefined,
       premium_price_currency: gemstone?.premium_price_currency || undefined,
       price_per_carat: gemstone?.price_per_carat ?? null,
+      price_per_piece: gemstone?.price_per_piece ?? null,
+      pricing_basis: gemstone?.pricing_basis ?? suggestPricingBasis(gemstone?.quantity),
       in_stock: gemstone?.in_stock ?? true,
       metadata_status: gemstone?.metadata_status ?? "needs_review",
       quantity: gemstone?.quantity ?? 1,
@@ -496,6 +556,8 @@ export function GemstoneForm({
         premium_price_currency: gemstone.premium_price_currency || undefined,
         // price_per_carat is also stored in CENTS in the database
         price_per_carat: gemstone.price_per_carat ?? null,
+        price_per_piece: gemstone.price_per_piece ?? null,
+        pricing_basis: gemstone.pricing_basis ?? suggestPricingBasis(gemstone.quantity),
         in_stock: gemstone.in_stock ?? true,
         metadata_status: gemstone.metadata_status ?? null,
         quantity: gemstone.quantity ?? 1,
@@ -1738,6 +1800,43 @@ export function GemstoneForm({
                   {t("sections.pricing")}
                 </h3>
 
+                <div className="space-y-2">
+                  <span className="text-sm font-medium">
+                    {t("pricingBasis.title")}
+                  </span>
+                  <div
+                    className="flex flex-wrap gap-2"
+                    role="radiogroup"
+                    aria-label={t("pricingBasis.title")}
+                  >
+                    {(
+                      [
+                        "per_carat",
+                        "per_piece",
+                        "lot_fixed",
+                      ] as PricingBasis[]
+                    ).map((basis) => (
+                      <Button
+                        key={basis}
+                        type="button"
+                        variant={
+                          formData.pricing_basis === basis
+                            ? "default"
+                            : "outline"
+                        }
+                        size="sm"
+                        data-testid={`pricing-basis-${basis}`}
+                        onClick={() => handlePricingBasisChange(basis)}
+                      >
+                        {t(`pricingBasis.${basis}`)}
+                      </Button>
+                    ))}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {t(`hints.pricingBasis.${formData.pricing_basis ?? "per_carat"}`)}
+                  </p>
+                </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label htmlFor="price">{t("labels.regularPrice")}</label>
@@ -1859,13 +1958,14 @@ export function GemstoneForm({
                         type="number"
                         min="0"
                         step="0.01"
+                        disabled={formData.pricing_basis !== "per_carat"}
                         value={
                           formData.price_per_carat !== undefined &&
                           formData.price_per_carat !== null &&
                           formData.price_per_carat > 0
                             ? formData.price_per_carat / 100
                             : ""
-                        } // Convert from cents to dollars for display
+                        }
                         onChange={(e) =>
                           handlePricePerCaratChange(e.target.value)
                         }
@@ -1879,6 +1979,7 @@ export function GemstoneForm({
                         variant="outline"
                         onClick={handleAutoCalculatePricePerCarat}
                         disabled={
+                          formData.pricing_basis !== "per_carat" ||
                           !(formData.price_amount > 0 && formData.weight_carats)
                         }
                       >
@@ -1895,6 +1996,45 @@ export function GemstoneForm({
                     )}
                   </div>
                 </div>
+
+                {formData.pricing_basis === "per_piece" && (
+                  <div className="space-y-2 md:col-span-2">
+                    <label htmlFor="price_per_piece">
+                      {t("labels.pricePerPiece")}
+                    </label>
+                    <Input
+                      id="price_per_piece"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      data-testid="price-per-piece-input"
+                      value={
+                        formData.price_per_piece !== undefined &&
+                        formData.price_per_piece !== null &&
+                        formData.price_per_piece > 0
+                          ? formData.price_per_piece / 100
+                          : ""
+                      }
+                      onChange={(e) =>
+                        handlePricePerPieceChange(e.target.value)
+                      }
+                      placeholder="0.00"
+                      className={
+                        errors.price_per_piece ? "border-red-500" : ""
+                      }
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      {t("hints.pricePerPieceHelper", {
+                        quantity: formData.quantity ?? 1,
+                      })}
+                    </p>
+                    {errors.price_per_piece && (
+                      <p className="text-sm text-red-600">
+                        {errors.price_per_piece}
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
             
               </div>
@@ -1989,12 +2129,33 @@ export function GemstoneForm({
                     }
                     onChange={(e) => {
                       const value = e.target.value;
-                      handleInputChange(
-                        "quantity",
+                      const parsed =
                         value === ""
                           ? undefined
-                          : Math.max(0, parseInt(value, 10) || 0)
-                      );
+                          : Math.max(0, parseInt(value, 10) || 0);
+                      setFormData((prev) => {
+                        const next = {
+                          ...prev,
+                          quantity: parsed,
+                        };
+                        if (
+                          prev.pricing_basis === "per_piece" &&
+                          typeof prev.price_per_piece === "number" &&
+                          prev.price_per_piece > 0
+                        ) {
+                          const total = calculateTotalPrice("per_piece", {
+                            pricePerPiece: prev.price_per_piece,
+                            quantity: parsed,
+                          });
+                          if (total !== null) {
+                            next.price_amount = total;
+                          }
+                        }
+                        return next;
+                      });
+                      if (errors.quantity) {
+                        setErrors((prev) => ({ ...prev, quantity: "" }));
+                      }
                     }}
                     className={errors.quantity ? "border-red-500" : ""}
                   />
@@ -2014,6 +2175,20 @@ export function GemstoneForm({
                         }).format(formData.price_amount / 100)
                       : "$0.00"}
                   </div>
+                  {formData.pricing_basis === "per_piece" &&
+                    formData.price_per_piece &&
+                    formData.price_per_piece > 0 && (
+                      <p className="text-xs text-muted-foreground">
+                        {t("hints.totalPricePerPiece", {
+                          unit: new Intl.NumberFormat("en-US", {
+                            style: "currency",
+                            currency: formData.price_currency,
+                            useGrouping: false,
+                          }).format(formData.price_per_piece / 100),
+                          quantity: formData.quantity ?? 1,
+                        })}
+                      </p>
+                    )}
                 </div>
               </div>
 

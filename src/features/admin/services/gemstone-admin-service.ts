@@ -63,6 +63,8 @@ export interface GemstoneFormData {
   promotional_text?: string;
   marketing_highlights?: string[];
   price_per_carat?: number | null;
+  price_per_piece?: number | null;
+  pricing_basis?: DatabaseGemstone["pricing_basis"];
   metadata_status?: DatabaseGemstone["metadata_status"];
   quantity?: number;
   // AI-generated fields (English)
@@ -240,6 +242,11 @@ export class GemstoneAdminService {
           typeof formData.price_per_carat === "number"
             ? formData.price_per_carat
             : null,
+        price_per_piece:
+          typeof formData.price_per_piece === "number"
+            ? formData.price_per_piece
+            : null,
+        pricing_basis: formData.pricing_basis ?? "per_carat",
         metadata_status:
           typeof formData.metadata_status === "string"
             ? formData.metadata_status
@@ -597,6 +604,21 @@ export class GemstoneAdminService {
       formData.price_per_carat < 0
     ) {
       errors.push("Price per carat must be zero or greater");
+    }
+
+    if (
+      typeof formData.price_per_piece !== "undefined" &&
+      formData.price_per_piece !== null &&
+      formData.price_per_piece < 0
+    ) {
+      errors.push("Price per piece must be zero or greater");
+    }
+
+    if (formData.pricing_basis === "per_piece") {
+      const qty = formData.quantity ?? 0;
+      if (qty < 1) {
+        errors.push("Quantity must be at least 1 for per-piece pricing");
+      }
     }
 
     // Check for duplicate serial number (would need to be async)

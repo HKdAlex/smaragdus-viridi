@@ -505,6 +505,19 @@ export async function POST(request: NextRequest) {
           : body.quantity
           ? Number(body.quantity)
           : null,
+      price_per_carat:
+        typeof body.price_per_carat === "number"
+          ? body.price_per_carat
+          : body.price_per_carat
+          ? Number(body.price_per_carat)
+          : null,
+      price_per_piece:
+        typeof body.price_per_piece === "number"
+          ? body.price_per_piece
+          : body.price_per_piece
+          ? Number(body.price_per_piece)
+          : null,
+      pricing_basis: body.pricing_basis ?? "per_carat",
     };
 
     const { data, error } = await adminClient

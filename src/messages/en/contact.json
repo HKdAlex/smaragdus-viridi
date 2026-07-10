@@ -91,7 +91,8 @@
     },
     "messaging": {
       "title": "Instant Messaging",
-      "whatsapp": "WhatsApp"
+      "whatsapp": "WhatsApp",
+      "instagram": "Instagram"
     },
     "businessHours": {
       "title": "Business Hours",

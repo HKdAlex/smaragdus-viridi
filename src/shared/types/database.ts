@@ -948,6 +948,8 @@ export type Database = {
           price_amount: number
           price_currency: Database["public"]["Enums"]["currency_code"]
           price_per_carat: number | null
+          price_per_piece: number | null
+          pricing_basis: Database["public"]["Enums"]["pricing_basis"]
           primary_image_url: string | null
           primary_video_url: string | null
           promotional_text: string | null
@@ -1029,6 +1031,8 @@ export type Database = {
           price_amount: number
           price_currency: Database["public"]["Enums"]["currency_code"]
           price_per_carat?: number | null
+          price_per_piece?: number | null
+          pricing_basis?: Database["public"]["Enums"]["pricing_basis"]
           primary_image_url?: string | null
           primary_video_url?: string | null
           promotional_text?: string | null
@@ -1110,6 +1114,8 @@ export type Database = {
           price_amount?: number
           price_currency?: Database["public"]["Enums"]["currency_code"]
           price_per_carat?: number | null
+          price_per_piece?: number | null
+          pricing_basis?: Database["public"]["Enums"]["pricing_basis"]
           primary_image_url?: string | null
           primary_video_url?: string | null
           promotional_text?: string | null
@@ -2555,6 +2561,7 @@ export type Database = {
         | "delivered"
         | "cancelled"
       payment_type: "bank_transfer" | "crypto" | "cash" | "stripe"
+      pricing_basis: "per_carat" | "per_piece" | "lot_fixed"
       user_role: "admin" | "regular_customer" | "premium_customer" | "guest"
     }
     CompositeTypes: {
@@ -2761,6 +2768,7 @@ export const Constants = {
         "cancelled",
       ],
       payment_type: ["bank_transfer", "crypto", "cash", "stripe"],
+      pricing_basis: ["per_carat", "per_piece", "lot_fixed"],
       user_role: ["admin", "regular_customer", "premium_customer", "guest"],
     },
   },

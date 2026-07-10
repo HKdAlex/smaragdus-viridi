@@ -223,8 +223,26 @@ export async function PUT(
     // the trigger will calculate the wrong price_amount. We need to update price_per_carat FIRST,
     // then update price_amount separately to ensure the correct value is saved.
     const adminClient = getAdminClient();
+    const pricingBasis =
+      updates.pricing_basis ??
+      (
+        await adminClient
+          .from("gemstones")
+          .select("pricing_basis")
+          .eq("id", id)
+          .single()
+      ).data?.pricing_basis ??
+      "per_carat";
+
     const hasPricePerCarat =
-      updates.price_per_carat !== undefined && updates.price_per_carat !== null;
+      pricingBasis === "per_carat" &&
+      updates.price_per_carat !== undefined &&
+      updates.price_per_carat !== null;
+
+    const hasPricePerPiece =
+      pricingBasis === "per_piece" &&
+      updates.price_per_piece !== undefined &&
+      updates.price_per_piece !== null;
 
     // Calculate the correct price_amount (declare outside if block so it's accessible later)
     let calculatedPriceAmount: number | null = null;
@@ -366,9 +384,72 @@ export async function PUT(
       }
     }
 
+    if (hasPricePerPiece) {
+      let quantity = updates.quantity;
+      if (quantity === undefined || quantity === null) {
+        const { data: currentData } = await adminClient
+          .from("gemstones")
+          .select("quantity")
+          .eq("id", id)
+          .single();
+        quantity = currentData?.quantity ?? 1;
+      }
+
+      const effectiveQuantity = Math.max(Number(quantity) || 1, 1);
+      calculatedPriceAmount = Math.round(
+        updates.price_per_piece * effectiveQuantity
+      );
+
+      if (updates.quantity !== undefined) {
+        const { error: quantityError } = await adminClient
+          .from("gemstones")
+          .update({ quantity: updates.quantity })
+          .eq("id", id);
+        if (quantityError) {
+          return NextResponse.json(
+            { error: quantityError.message },
+            { status: 400 }
+          );
+        }
+      }
+
+      const { error: piecePricingError } = await adminClient
+        .from("gemstones")
+        .update({
+          pricing_basis: "per_piece",
+          price_per_piece: updates.price_per_piece,
+          price_per_carat: null,
+        })
+        .eq("id", id);
+
+      if (piecePricingError) {
+        return NextResponse.json(
+          { error: piecePricingError.message },
+          { status: 400 }
+        );
+      }
+
+      if (calculatedPriceAmount !== null) {
+        const { error: step2Error } = await adminClient
+          .from("gemstones")
+          .update({ price_amount: calculatedPriceAmount })
+          .eq("id", id);
+        if (step2Error) {
+          return NextResponse.json(
+            { error: step2Error.message },
+            { status: 400 }
+          );
+        }
+      }
+
+      delete updates.price_per_piece;
+      delete updates.pricing_basis;
+    }
+
     // Update remaining fields (excluding price_amount and price_per_carat which we already handled)
     delete updates.price_amount;
     delete updates.price_per_carat;
+    delete updates.price_per_piece;
 
     // Update remaining fields if any (excluding price_amount and price_per_carat)
     if (Object.keys(updates).length > 0) {

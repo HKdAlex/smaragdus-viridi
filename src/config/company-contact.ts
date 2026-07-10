@@ -8,6 +8,10 @@ export const COMPANY_CONTACT = {
     display: "+7 775 108 9041",
     number: "77751089041",
   },
+  instagram: {
+    handle: "crystallique_",
+    url: "https://www.instagram.com/crystallique_/",
+  },
 } as const;
 
 export function companyMailtoHref(
@@ -26,4 +30,8 @@ export function companyWhatsAppHref(
   message = "Hello Crystallique team"
 ): string {
   return `https://wa.me/${COMPANY_CONTACT.whatsapp.number}?text=${encodeURIComponent(message)}`;
+}
+
+export function companyInstagramHref(): string {
+  return COMPANY_CONTACT.instagram.url;
 }
