@@ -91,11 +91,8 @@ export function calculateTotalPrice(
 }
 
 export function suggestPricingBasis(
-  quantity: number | null | undefined
+  _quantity: number | null | undefined
 ): PricingBasis {
-  if (quantity !== null && quantity !== undefined && quantity > 1) {
-    return "per_piece";
-  }
   return "per_carat";
 }
 
@@ -112,10 +109,6 @@ export function getSecondaryPriceDisplay(
   gemstone: PricingDisplayGemstone
 ): SecondaryPriceDisplay | null {
   const basis = normalizePricingBasis(gemstone.pricing_basis ?? "per_carat");
-
-  if (basis === "lot_fixed") {
-    return null;
-  }
 
   if (basis === "per_piece") {
     const fromDb =

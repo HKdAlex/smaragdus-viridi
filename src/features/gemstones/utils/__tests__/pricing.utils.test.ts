@@ -71,11 +71,8 @@ describe("pricing.utils", () => {
   });
 
   describe("suggestPricingBasis", () => {
-    it("suggests per_piece for multi-quantity lots", () => {
-      expect(suggestPricingBasis(10)).toBe("per_piece");
-    });
-
-    it("suggests per_carat for single items", () => {
+    it("defaults to per_carat regardless of quantity", () => {
+      expect(suggestPricingBasis(10)).toBe("per_carat");
       expect(suggestPricingBasis(1)).toBe("per_carat");
       expect(suggestPricingBasis(null)).toBe("per_carat");
     });
@@ -104,13 +101,37 @@ describe("pricing.utils", () => {
       ).toEqual({ amount: 50000, unit: "piece", quantity: 10 });
     });
 
-    it("returns null for lot_fixed", () => {
+    it("returns derived per-carat secondary for lot_fixed", () => {
+      expect(
+        getSecondaryPriceDisplay({
+          pricing_basis: "lot_fixed",
+          price_amount: 10860,
+          price_per_carat: 3000,
+          weight_carats: 3.62,
+        })
+      ).toEqual({ amount: 3000, unit: "carat" });
+    });
+
+    it("derives per-carat for lot_fixed when price_per_carat is absent", () => {
       expect(
         getSecondaryPriceDisplay({
           pricing_basis: "lot_fixed",
           price_amount: 500000,
+          weight_carats: 2,
         })
-      ).toBeNull();
+      ).toEqual({ amount: 250000, unit: "carat" });
+    });
+
+    it("shows per-carat for legacy multi-qty lots after basis correction", () => {
+      expect(
+        getSecondaryPriceDisplay({
+          pricing_basis: "per_carat",
+          price_amount: 21958,
+          price_per_carat: 11999,
+          weight_carats: 1.83,
+          quantity: 2,
+        })
+      ).toEqual({ amount: 11999, unit: "carat" });
     });
   });
 });
