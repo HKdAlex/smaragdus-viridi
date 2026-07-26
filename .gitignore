@@ -13,6 +13,9 @@
 # testing
 /coverage
 
+# agent-hygiene cadence state (per-workspace, not committed)
+.cursor/hooks/state/
+
 # next.js
 /.next/
 /out/
