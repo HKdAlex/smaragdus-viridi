@@ -25,13 +25,12 @@ import {
   Upload,
   X,
 } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 
 import { useCurrency } from "@/features/currency/hooks/use-currency";
 import { CertificationDisplay } from "@/features/gemstones/components/certification-display";
 import { MediaGallery } from "@/features/gemstones/components/media-gallery";
-import { useGemstoneTranslations } from "@/features/gemstones/utils/gemstone-translations";
-import { normalizeGemColor } from "@/shared/config/basic-gem-colors";
+import { useGemstoneDisplayLabels } from "@/features/gemstones/hooks/use-gemstone-display-labels";
 import { Link } from "@/i18n/navigation";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
@@ -54,14 +53,18 @@ export function GemstoneDetailPage({
 }: GemstoneDetailPageProps) {
   const t = useTranslations("admin.gemstoneDetail");
   const tForm = useTranslations("admin.gemstoneForm");
-  const locale = useLocale();
   const [mode, setMode] = useState<DetailMode>("view");
-  const {
-    translateGemstoneType,
-    translateColor,
-    translateCut,
-    translateClarity,
-  } = useGemstoneTranslations();
+  const { getTypeLabel, getColorLabel, getCutLabel, getClarityLabel } =
+    useGemstoneDisplayLabels();
+
+  const gemstoneTypeLabelInput = {
+    name: gemstone.name,
+    type_code: gemstone.type_code,
+    display_name: gemstone.display_name,
+    name_custom: gemstone.name_custom,
+    name_custom_en: gemstone.name_custom_en,
+    name_custom_ru: gemstone.name_custom_ru,
+  };
 
   const handleFormSuccess = (updatedGemstone: GemstoneWithRelations) => {
     setMode("view");
@@ -175,14 +178,10 @@ export function GemstoneDetailPage({
             </h2>
             <p className="text-sm text-muted-foreground">
               {formatWeight(gemstone.weight_carats)}{" "}
-              {translateColor(
-                normalizeGemColor(
-                  gemstone.display_color || gemstone.color || ""
-                )
+              {getColorLabel(
+                gemstone.display_color || gemstone.color || ""
               )}{" "}
-              {translateGemstoneType(
-                gemstone.display_name || gemstone.name
-              )}
+              {getTypeLabel(gemstoneTypeLabelInput)}
             </p>
           </div>
         </div>
@@ -348,27 +347,33 @@ export function GemstoneDetailPage({
                     {t("gemstoneType")}
                   </label>
                   <p className="text-sm">
-                    {translateGemstoneType(gemstone.name)}
+                    {getTypeLabel({ name: gemstone.name })}
                   </p>
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                     {t("color")}
                   </label>
-                  <p className="text-sm">{translateColor(gemstone.color)}</p>
+                  <p className="text-sm">
+                    {getColorLabel(gemstone.display_color || gemstone.color)}
+                  </p>
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                     {t("cut")}
                   </label>
-                  <p className="text-sm">{translateCut(gemstone.cut_code)}</p>
+                  <p className="text-sm">
+                    {getCutLabel(gemstone.display_cut || gemstone.cut_code)}
+                  </p>
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                     {t("clarity")}
                   </label>
                   <p className="text-sm">
-                    {translateClarity(gemstone.clarity)}
+                    {getClarityLabel(
+                      gemstone.display_clarity || gemstone.clarity
+                    )}
                   </p>
                 </div>
                 <div>

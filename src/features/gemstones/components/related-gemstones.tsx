@@ -21,6 +21,7 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
+import { useGemstoneDisplayLabels } from "../hooks/use-gemstone-display-labels";
 import { useGemstoneTranslations } from "../utils/gemstone-translations";
 import { selectPrimaryImage } from "../utils/select-primary-image";
 
@@ -52,13 +53,9 @@ export function RelatedGemstones({
   priceRange,
 }: RelatedGemstonesProps) {
   const t = useTranslations("gemstones.related");
-  const {
-    translateColor,
-    translateCut,
-    translateClarity,
-    translateGemstoneType,
-    translateCutLabel,
-  } = useGemstoneTranslations();
+  const { getTypeLabel, getColorLabel, getCutLabel, getClarityLabel } =
+    useGemstoneDisplayLabels();
+  const { translateCutLabel } = useGemstoneTranslations();
 
   const [relatedGemstones, setRelatedGemstones] = useState<RelatedGemstone[]>(
     []
@@ -393,15 +390,19 @@ export function RelatedGemstones({
                     <div className="space-y-1">
                       <h4 className="font-medium text-sm line-clamp-1 capitalize">
                         {(gemstone as DatabaseGemstone).weight_carats}ct{" "}
-                        {translateColor((gemstone as DatabaseGemstone).color)}{" "}
-                        {translateGemstoneType(
-                          (gemstone as DatabaseGemstone).name
-                        )}
+                        {getColorLabel((gemstone as DatabaseGemstone).color)}{" "}
+                        {getTypeLabel({
+                          name: (gemstone as DatabaseGemstone).name,
+                          type_code: (gemstone as DatabaseGemstone).type_code,
+                          name_custom: (gemstone as DatabaseGemstone).name_custom,
+                          name_custom_en: (gemstone as DatabaseGemstone).name_custom_en,
+                          name_custom_ru: (gemstone as DatabaseGemstone).name_custom_ru,
+                        })}
                       </h4>
                       <p className="text-xs text-muted-foreground line-clamp-1">
-                        {translateCut((gemstone as any).cut || (gemstone as DatabaseGemstone).cut_code)}{" "}
+                        {getCutLabel((gemstone as any).cut || (gemstone as DatabaseGemstone).cut_code)}{" "}
                         {translateCutLabel()} •{" "}
-                        {translateClarity(
+                        {getClarityLabel(
                           (gemstone as DatabaseGemstone).clarity
                         )}
                       </p>

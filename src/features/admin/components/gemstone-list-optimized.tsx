@@ -22,7 +22,7 @@ import {
 } from "../services/gemstone-admin-service";
 
 import { useCurrency } from "@/features/currency/hooks/use-currency";
-import { normalizeGemColor } from "@/shared/config/basic-gem-colors";
+import { useGemstoneDisplayLabels } from "@/features/gemstones/hooks/use-gemstone-display-labels";
 import { GemstoneImageThumbnail } from "@/features/gemstones/components/gemstone-image-thumbnail";
 import { useAdminGemstones } from "../hooks/use-admin-gemstones-query";
 import { BulkEditModal } from "./bulk-edit-modal";
@@ -43,6 +43,8 @@ export function GemstoneListOptimized({
   onDelete,
 }: GemstoneListOptimizedProps) {
   const t = useTranslations("admin.gemstoneList");
+  const { getTypeLabel, getColorLabel, getCutLabel, getClarityLabel } =
+    useGemstoneDisplayLabels();
   const { formatPrice } = useCurrency();
   const queryClient = useQueryClient();
 
@@ -374,39 +376,17 @@ export function GemstoneListOptimized({
     [t]
   );
 
-  // Localization helpers
-  const getLocalizedGemstoneType = useCallback(
-    (type: string) => {
-      return t(`gemstones.types.${type}` as any) || type;
-    },
-    [t]
-  );
-
-  const getLocalizedColor = useCallback(
-    (color: string) => {
-      const key = normalizeGemColor(color) || color;
-      return t(`gemstones.colors.${key}` as any) || color;
-    },
-    [t]
-  );
-
-  const getLocalizedCut = useCallback(
-    (cut: string) => {
-      if (!cut) return cut;
-      const translated = t(`gemstones.cuts.${cut}` as any);
-      if (translated && translated !== `gemstones.cuts.${cut}`) {
-        return translated;
-      }
-      return cut.replace(/_/g, " ");
-    },
-    [t]
-  );
-
-  const getLocalizedClarity = useCallback(
-    (clarity: string) => {
-      return t(`gemstones.clarities.${clarity}` as any) || clarity;
-    },
-    [t]
+  const getGemstoneTitle = useCallback(
+    (gemstone: GemstoneWithRelations) =>
+      getTypeLabel({
+        name: gemstone.name,
+        type_code: gemstone.type_code,
+        display_name: gemstone.display_name,
+        name_custom: gemstone.name_custom,
+        name_custom_en: gemstone.name_custom_en,
+        name_custom_ru: gemstone.name_custom_ru,
+      }),
+    [getTypeLabel]
   );
 
   // Show loading state only on initial load (when we have no data yet)
@@ -615,17 +595,15 @@ export function GemstoneListOptimized({
                           <GemstoneImageThumbnail
                             gemstone={gemstone}
                             size="sm"
-                            alt={getLocalizedGemstoneType(gemstone.name)}
+                            alt={getGemstoneTitle(gemstone)}
                           />
                           <div className="ml-4">
                             <div className="font-medium text-foreground">
                               {formatWeight(gemstone.weight_carats)}{" "}
-                              {getLocalizedColor(
+                              {getColorLabel(
                                 gemstone.display_color || gemstone.color
                               )}{" "}
-                              {getLocalizedGemstoneType(
-                                gemstone.display_name || gemstone.name
-                              )}
+                              {getGemstoneTitle(gemstone)}
                             </div>
                             <div className="text-sm text-muted-foreground">
                               {gemstone.serial_number}
@@ -655,13 +633,15 @@ export function GemstoneListOptimized({
                         <div className="text-sm text-foreground">
                           <div>
                             {t("labels.cut")}:{" "}
-                            {getLocalizedCut(
+                            {getCutLabel(
                               gemstone.display_cut || gemstone.cut_code || ""
                             )}
                           </div>
                           <div>
                             {t("labels.clarity")}:{" "}
-                            {getLocalizedClarity(gemstone.clarity)}
+                            {getClarityLabel(
+                              gemstone.display_clarity || gemstone.clarity
+                            )}
                           </div>
                           {gemstone.origin && (
                             <div className="text-muted-foreground">
