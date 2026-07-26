@@ -1425,7 +1425,11 @@ export function GemstoneForm({
 
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="space-y-2">
-                  <label htmlFor="weight">{t("labels.weight")}</label>
+                  <label htmlFor="weight">
+                    {formData.pricing_basis === "per_piece"
+                      ? t("labels.weightOptional")
+                      : t("labels.weight")}
+                  </label>
                   <Input
                     id="weight"
                     type="text"

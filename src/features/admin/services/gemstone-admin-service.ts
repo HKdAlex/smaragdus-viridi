@@ -569,7 +569,16 @@ export class GemstoneAdminService {
       errors.push("Invalid gem clarity");
     }
 
-    if (!formData.weight_carats || formData.weight_carats <= 0) {
+    const pricingBasis = formData.pricing_basis ?? "per_carat";
+    const weightCarats = formData.weight_carats;
+    if (typeof weightCarats === "number" && weightCarats < 0) {
+      errors.push("Weight cannot be negative");
+    } else if (
+      pricingBasis === "per_carat" &&
+      (weightCarats === undefined ||
+        weightCarats === null ||
+        weightCarats <= 0)
+    ) {
       errors.push("Weight must be greater than 0");
     }
 

@@ -23,7 +23,7 @@ import { CheckCircle, Package, Scale } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import type { ComponentProps } from "react";
 
-import { getSecondaryPriceDisplay } from "@/features/gemstones/utils/pricing.utils";
+import { getSecondaryPriceDisplay, hasDisplayableWeight } from "@/features/gemstones/utils/pricing.utils";
 import { useCurrency } from "@/features/currency/hooks/use-currency";
 import { Link } from "@/i18n/navigation";
 import Image from "next/image";
@@ -213,6 +213,7 @@ export function GemstoneCard({
               )}
 
               {/* Weight */}
+              {hasDisplayableWeight(gemstone.weight_carats) && (
               <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
                 <Scale className="w-5 h-5 text-muted-foreground" />
                 <div className="flex items-center justify-between">
@@ -224,6 +225,7 @@ export function GemstoneCard({
                   </span>
                 </div>
               </div>
+              )}
 
               {/* Type */}
               <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
@@ -342,9 +344,11 @@ export function GemstoneCard({
         {/* Compact Additional Info */}
         {isCompact && (
           <div className="space-y-1 text-muted-foreground mb-3 text-xs">
+            {hasDisplayableWeight(gemstone.weight_carats) && (
             <div className="font-medium text-foreground">
               {gemstone.weight_carats}ct
             </div>
+            )}
             <div>{clarityLabel ?? t("unknown")}</div>
             {gemstone.origin && (
               <div>

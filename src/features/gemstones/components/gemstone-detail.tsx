@@ -27,7 +27,10 @@ import { useLocale, useTranslations } from "next-intl";
 import { useAuth } from "@/features/auth/context/auth-context";
 import { useCartContext } from "@/features/cart/context/cart-context";
 import { useCurrency } from "@/features/currency/hooks/use-currency";
-import { getSecondaryPriceDisplay } from "@/features/gemstones/utils/pricing.utils";
+import {
+  getSecondaryPriceDisplay,
+  hasDisplayableWeight,
+} from "@/features/gemstones/utils/pricing.utils";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Separator } from "@/shared/components/ui/separator";
@@ -327,7 +330,9 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
   // Handle share functionality
   const handleShare = async () => {
     const url = window.location.href;
-    const title = `${formatWeight(gemstone.weight_carats)}ct ${typeLabel}`.trim();
+    const title = hasDisplayableWeight(gemstone.weight_carats)
+      ? `${formatWeight(gemstone.weight_carats)}ct ${typeLabel}`.trim()
+      : typeLabel;
 
     if (navigator.share) {
       try {
@@ -395,6 +400,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                   </h1>
 
                   {/* Weight chip — prominently sized */}
+                  {hasDisplayableWeight(gemstone.weight_carats) && (
                   <div className="inline-flex items-center gap-2.5 rounded-xl bg-primary/8 dark:bg-primary/12 border border-primary/20 px-4 py-2.5">
                     <Scale className="w-5 h-5 text-primary shrink-0" aria-hidden />
                     <span className="text-lg font-bold text-foreground tabular-nums tracking-tight">
@@ -402,6 +408,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                       <span className="font-semibold text-primary">{t("caratSuffix")}</span>
                     </span>
                   </div>
+                  )}
 
                   {/* Lot codes row */}
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
@@ -712,6 +719,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                   </h4>
                   <div className="space-y-3 sm:space-y-4 text-sm sm:text-base leading-relaxed">
                     {/* Carat Weight */}
+                    {hasDisplayableWeight(gemstone.weight_carats) && (
                     <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
                       <Scale className="w-5 h-5 text-muted-foreground" />
                       <div className="flex items-center justify-between">
@@ -723,6 +731,7 @@ export function GemstoneDetail({ gemstone }: GemstoneDetailProps) {
                         </span>
                       </div>
                     </div>
+                    )}
 
                     {/* Color */}
                     <div className="grid grid-cols-[auto_1fr] gap-3 items-center">

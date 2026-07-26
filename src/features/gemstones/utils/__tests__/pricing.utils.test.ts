@@ -6,6 +6,8 @@ import {
   derivePricePerPiece,
   effectiveQuantity,
   getSecondaryPriceDisplay,
+  hasDisplayableWeight,
+  requiresWeightForPricing,
   suggestPricingBasis,
 } from "../pricing.utils";
 
@@ -132,6 +134,29 @@ describe("pricing.utils", () => {
           quantity: 2,
         })
       ).toEqual({ amount: 11999, unit: "carat" });
+    });
+  });
+
+  describe("requiresWeightForPricing", () => {
+    it("requires weight only for per-carat basis", () => {
+      expect(requiresWeightForPricing("per_carat")).toBe(true);
+      expect(requiresWeightForPricing("per_piece")).toBe(false);
+      expect(requiresWeightForPricing("lot_fixed")).toBe(false);
+      expect(requiresWeightForPricing(null)).toBe(true);
+    });
+  });
+
+  describe("hasDisplayableWeight", () => {
+    it("returns true for positive weight", () => {
+      expect(hasDisplayableWeight(1.5)).toBe(true);
+      expect(hasDisplayableWeight("0.5")).toBe(true);
+    });
+
+    it("returns false for zero, negative, or invalid weight", () => {
+      expect(hasDisplayableWeight(0)).toBe(false);
+      expect(hasDisplayableWeight(-1)).toBe(false);
+      expect(hasDisplayableWeight(null)).toBe(false);
+      expect(hasDisplayableWeight(undefined)).toBe(false);
     });
   });
 });

@@ -105,6 +105,21 @@ export function normalizePricingBasis(
   return "per_carat";
 }
 
+/** Per-carat pricing needs a positive weight; per-piece and lot-fixed may omit it. */
+export function requiresWeightForPricing(
+  basis: PricingBasis | string | null | undefined
+): boolean {
+  return normalizePricingBasis(basis ?? "per_carat") === "per_carat";
+}
+
+/** Storefront/admin should not show "0ct" when weight is unknown or not applicable. */
+export function hasDisplayableWeight(
+  weightCarats: number | string | null | undefined
+): boolean {
+  const weight = Number(weightCarats);
+  return Number.isFinite(weight) && weight > 0;
+}
+
 export function getSecondaryPriceDisplay(
   gemstone: PricingDisplayGemstone
 ): SecondaryPriceDisplay | null {

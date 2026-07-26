@@ -977,6 +977,7 @@
       "cut": "Cut *",
       "clarity": "Clarity *",
       "weight": "Weight (carats) *",
+      "weightOptional": "Weight (carats)",
       "length": "Length (mm)",
       "width": "Width (mm)",
       "depth": "Depth (mm)",
